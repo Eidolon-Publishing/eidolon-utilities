@@ -1,0 +1,17 @@
+export const MODULE_ID = "eidolon-utilities";
+export const FLAG_TIME_TRIGGER_ACTIVE = "timeTriggerActive";
+export const FLAG_TIME_TRIGGER_HIDE_WINDOW = "timeTriggerHideWindow";
+export const FLAG_TIME_TRIGGER_SHOW_PLAYER_WINDOW = "timeTriggerShowPlayerWindow";
+export const FLAG_TIME_TRIGGER_ALLOW_REAL_TIME = "timeTriggerAllowRealTime";
+export const FLAG_TIME_TRIGGERS = "timeTriggers";
+export const FLAG_TIME_TRIGGER_HISTORY = "timeTriggerHistory";
+export const SETTING_DEBUG = "debug";
+export const SETTING_TIME_FORMAT = "timeFormat";
+export const SETTING_MANAGE_TIME = "manageTime";
+export const SETTING_SECONDS_PER_ROUND = "secondsPerRound";
+export const TIME_FORMAT_12_HOUR = "12h";
+export const TIME_FORMAT_24_HOUR = "24h";
+export const TIME_DELTAS_MINUTES = [-30, -15, -5, 5, 15, 30];
+export const SECONDS_PER_DAY = 24 * 60 * 60;
+export const ACTION_PLAY_SOUND = "playSound";
+export const DEFAULT_SECONDS_PER_ROUND = 6;

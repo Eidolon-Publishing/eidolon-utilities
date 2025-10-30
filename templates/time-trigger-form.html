@@ -1,0 +1,102 @@
+<form class="time-trigger-form standard-form">
+  <div class="form-body">
+    <div class="form-group">
+      <label>{{labels.time}}</label>
+      {{#if is12HourFormat}}
+      <div class="time-trigger-time-input" data-time-format="12h">
+        <input type="hidden" name="time" value="{{timeValue}}" data-time-hidden>
+        <div class="time-trigger-time-input__fields">
+          <input
+            type="number"
+            name="timeHour"
+            min="1"
+            max="12"
+            step="1"
+            value="{{timeHourValue}}"
+            placeholder="hh"
+            aria-label="{{labels.hour}}"
+            inputmode="numeric"
+            data-time-hour
+            required
+          >
+          <span class="time-trigger-time-input__separator">:</span>
+          <input
+            type="number"
+            name="timeMinute"
+            min="0"
+            max="59"
+            step="1"
+            value="{{timeMinuteValue}}"
+            placeholder="mm"
+            aria-label="{{labels.minute}}"
+            inputmode="numeric"
+            data-time-minute
+            required
+          >
+          <select name="timePeriod" aria-label="{{labels.period}}" data-time-period>
+            {{#each timePeriodOptions}}
+            <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+      </div>
+      {{else}}
+      <div class="time-trigger-time-input" data-time-format="24h">
+        <input type="hidden" name="time" value="{{timeValue}}" data-time-hidden>
+        <div class="time-trigger-time-input__fields">
+          <input
+            type="number"
+            name="timeHour"
+            min="0"
+            max="23"
+            step="1"
+            value="{{timeHourValue}}"
+            placeholder="HH"
+            aria-label="{{labels.hour}}"
+            inputmode="numeric"
+            data-time-hour
+            required
+          >
+          <span class="time-trigger-time-input__separator">:</span>
+          <input
+            type="number"
+            name="timeMinute"
+            min="0"
+            max="59"
+            step="1"
+            value="{{timeMinuteValue}}"
+            placeholder="MM"
+            aria-label="{{labels.minute}}"
+            inputmode="numeric"
+            data-time-minute
+            required
+          >
+        </div>
+      </div>
+      {{/if}}
+    </div>
+    <div class="form-group">
+      <label>{{labels.action}}</label>
+      <select name="action" data-action-select>
+        {{#each actions}}
+        <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    {{#each actionSections}}
+    <div class="form-group" data-action-config="{{this.id}}" {{#unless this.visible}}style="display: none;"{{/unless}}>
+      {{{this.content}}}
+    </div>
+    {{/each}}
+    <div class="form-group stacked">
+      <label class="checkbox">
+        <input type="checkbox" name="allowReplayOnRewind" value="1" {{#if allowReplayOnRewind}}checked{{/if}}>
+        {{labels.allowReplayOnRewind}}
+      </label>
+      <p class="hint">{{labels.allowReplayOnRewindHint}}</p>
+    </div>
+  </div>
+  <footer class="form-footer">
+    <button type="submit" class="dialog-button save">{{labels.save}}</button>
+  </footer>
+</form>

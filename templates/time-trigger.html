@@ -1,0 +1,45 @@
+<section class="time-trigger-window">
+  <div class="time-trigger-window__time" aria-live="polite">
+    <div class="time-trigger-window__time-display">
+      {{#if showControls}}
+        {{#if isEditingTime}}
+          <input
+            type="text"
+            class="time-trigger-window__time-input"
+            name="time-edit"
+            value="{{editValue}}"
+            placeholder="{{editPlaceholder}}"
+            data-time-format="{{timeFormat}}"
+            aria-label="{{editLabel}}">
+        {{else}}
+          <span class="time-trigger-window__time-value" data-editable="true" title="{{editHint}}">{{formattedTime}}</span>
+        {{/if}}
+      {{else}}
+        <span class="time-trigger-window__time-value">{{formattedTime}}</span>
+      {{/if}}
+    </div>
+    {{#if showControls}}
+      <button
+        type="button"
+        class="time-trigger-window__realtime-toggle{{#if sceneAllowsRealTime}} is-active{{/if}}"
+        data-action="toggle-real-time"
+        aria-pressed="{{#if sceneAllowsRealTime}}true{{else}}false{{/if}}"
+        title="{{realTimeButtonLabel}}"
+        aria-label="{{realTimeButtonLabel}}">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+      </button>
+    {{/if}}
+  </div>
+  {{#if showControls}}
+    <div class="time-trigger-window__buttons">
+      {{#each deltas as |delta|}}
+        <button
+          type="button"
+          class="time-button"
+          data-delta="{{delta.minutes}}"{{#unless @root.isGM}} disabled{{/unless}}>
+          {{delta.label}}
+        </button>
+      {{/each}}
+    </div>
+  {{/if}}
+</section>
