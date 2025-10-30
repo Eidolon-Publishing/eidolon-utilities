@@ -1,0 +1,154 @@
+.time-trigger-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+#eidolon-utilities-time-trigger:not(.minimized) {
+  height: auto !important;
+}
+
+.time-trigger-controls .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-trigger-window {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  text-align: center;
+  padding: 0.75rem;
+}
+
+.time-trigger-window__time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-trigger-window__time-display {
+  display: flex;
+  align-items: center;
+}
+
+.time-trigger-window__time-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-trigger-window__realtime-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid #888;
+  border-radius: 0.25rem;
+  background: rgba(0, 0, 0, 0.1);
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.time-trigger-window__realtime-toggle:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.time-trigger-window__realtime-toggle.is-active {
+  color: #2ecc71;
+  border-color: currentColor;
+  background: rgba(46, 204, 113, 0.15);
+}
+
+.time-trigger-window__buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.time-trigger-window__buttons .time-button {
+  display: inline-flex;
+  width: auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+
+.time-trigger-time-input__fields {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-trigger-time-input__separator {
+  font-weight: 600;
+}
+
+.time-trigger-time-input__fields input[type="number"] {
+  width: 3.5rem;
+}
+
+.time-trigger-time-input__fields select {
+  width: auto;
+}
+
+.time-trigger-form .form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.time-trigger-form .form-group {
+  gap: 0.5rem;
+}
+
+.time-trigger-form .form-group > label {
+  flex: 0 0 7.5rem;
+}
+
+.time-trigger-form .form-group > label + * {
+  flex: 1 1 auto;
+}
+
+.time-trigger-form .form-group .form-fields {
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-trigger-form .form-group select,
+.time-trigger-form .form-group input[type="text"] {
+  width: 100%;
+}
+
+.time-trigger-form .form-group.stacked {
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.time-trigger-form .form-group.stacked > label {
+  flex: 1 1 auto;
+}
+
+.time-trigger-form .file-picker.icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  aspect-ratio: 1;
+  padding: 0.25rem;
+  font-size: 1rem;
+}
+
+.time-trigger-form .file-picker.icon-only i {
+  margin: 0;
+}
