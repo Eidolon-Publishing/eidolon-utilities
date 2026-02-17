@@ -16,10 +16,11 @@ export function escapeHtml(value) {
 }
 
 export function duplicateData(data) {
+  if (data === undefined || data === null) return data;
   if (foundry?.utils?.duplicate) {
     return foundry.utils.duplicate(data);
   }
-  return data === undefined ? data : JSON.parse(JSON.stringify(data));
+  return JSON.parse(JSON.stringify(data));
 }
 
 export function generateTriggerId() {
