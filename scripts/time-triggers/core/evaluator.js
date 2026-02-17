@@ -18,6 +18,7 @@ import {
 } from "./storage.js";
 import { executeTriggerAction } from "./actions.js";
 import TimeTriggerWindow from "../ui/TimeTriggerWindow.js";
+import { createApplicationFactory } from "../../common/ui/application-factories.js";
 
 const invalidTriggerWarnings = new Set();
 
@@ -27,10 +28,20 @@ export class TimeTriggerManager {
   #windowFactory;
 
   constructor({ windowFactory } = {}) {
-    this.#windowFactory =
-      typeof windowFactory === "function"
-        ? windowFactory
-        : (scene, options = {}) => new TimeTriggerWindow({ scene, ...(options ?? {}) });
+    const baseFactory = createApplicationFactory(TimeTriggerWindow);
+    const fallbackFactory = (scene, options = {}) =>
+      baseFactory({ scene, ...(options ?? {}) });
+
+    if (typeof windowFactory === "function") {
+      if (windowFactory.__eidolonFactorySignature === "options") {
+        this.#windowFactory = (scene, options = {}) =>
+          windowFactory({ scene, ...(options ?? {}) });
+      } else {
+        this.#windowFactory = windowFactory;
+      }
+    } else {
+      this.#windowFactory = fallbackFactory;
+    }
   }
 
   onReady() {
