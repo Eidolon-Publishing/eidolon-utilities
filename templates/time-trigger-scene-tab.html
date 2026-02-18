@@ -1,0 +1,82 @@
+<div class="form-group stacked time-trigger-activate">
+  <label class="checkbox">
+    <input type="checkbox" name="{{flags.active}}" {{#if states.isActive}}checked{{/if}}>
+    {{labels.activate}}
+  </label>
+  <p class="hint">{{hints.activate}}</p>
+</div>
+
+<div class="form-group stacked time-trigger-hide-window">
+  <label class="checkbox">
+    <input type="checkbox" name="{{flags.hideWindow}}" {{#if states.hideWindow}}checked{{/if}}>
+    {{labels.hideWindow}}
+  </label>
+  <p class="hint">{{hints.hideWindow}}</p>
+</div>
+
+<div class="form-group stacked time-trigger-show-player-window">
+  <label class="checkbox">
+    <input type="checkbox" name="{{flags.showPlayerWindow}}" {{#if states.showPlayerWindow}}checked{{/if}}>
+    {{labels.showPlayerWindow}}
+  </label>
+  <p class="hint">{{hints.showPlayerWindow}}</p>
+</div>
+
+<hr>
+
+<div class="form-group time-trigger-management">
+  <label>{{labels.triggerList}}</label>
+  <div class="time-trigger-entries">
+    {{#if hasTriggers}}
+      <ul class="time-trigger-list">
+        {{#each triggers}}
+          <li class="time-trigger-item" data-index="{{index}}">
+            <div class="time-trigger-summary">
+              {{#each summaryParts}}
+                {{#if @index}} &bull; {{/if}}{{this}}
+              {{/each}}
+            </div>
+            <div class="time-trigger-controls">
+              <button
+                type="button"
+                class="icon"
+                data-action="fire-trigger"
+                data-index="{{index}}"
+                aria-label="{{tooltips.triggerNow}}"
+                title="{{tooltips.triggerNow}}"
+                data-tooltip="{{tooltips.triggerNow}}"
+              >
+                <i class="fa-solid fa-play"></i>
+              </button>
+              <button
+                type="button"
+                class="icon"
+                data-action="edit-trigger"
+                data-index="{{index}}"
+                aria-label="{{tooltips.edit}}"
+                title="{{tooltips.edit}}"
+                data-tooltip="{{tooltips.edit}}"
+              >
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button
+                type="button"
+                class="icon"
+                data-action="delete-trigger"
+                data-index="{{index}}"
+                aria-label="{{tooltips.delete}}"
+                title="{{tooltips.delete}}"
+                data-tooltip="{{tooltips.delete}}"
+              >
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class="notes">{{labels.empty}}</p>
+    {{/if}}
+    <button type="button" class="time-trigger-add" data-action="add-trigger">{{labels.add}}</button>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+<div class="object-variants-container">
+  <p class="notes object-variants-description">{{description}}</p>
+
+  <div class="form-group stacked object-variants-management">
+    <label>{{labels.categories}}</label>
+    <div class="object-variants-list">
+      {{#if hasCategories}}
+        <ul class="object-variants-category-list">
+          {{#each categories}}
+            <li class="object-variant" data-category-id="{{id}}">
+              <div class="object-variant__row">
+                <div class="object-variant__details">
+                  <div class="object-variant__name" data-unnamed="{{#if isUnnamed}}true{{else}}false{{/if}}">
+                    {{displayName}}
+                  </div>
+                  <div class="object-variant__values-preview">
+                    {{#if hasValues}}
+                      <div class="object-variant__value-list" role="list">
+                        {{#each valueChips}}
+                          <span class="object-variant__value-chip" role="listitem">{{this}}</span>
+                        {{/each}}
+                      </div>
+                    {{else}}
+                      <span class="object-variant__value-empty">{{../labels.emptyValue}}</span>
+                    {{/if}}
+                  </div>
+                </div>
+                <div class="object-variant__controls">
+                  <button
+                    type="button"
+                    class="icon object-variant__edit"
+                    data-variant-action="edit-category"
+                    data-category-id="{{id}}"
+                    aria-label="{{../labels.editCategory}}"
+                    title="{{../labels.editCategory}}"
+                    data-tooltip="{{../labels.editCategory}}"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon object-variant__remove"
+                    data-variant-action="remove-category"
+                    data-category-id="{{id}}"
+                    aria-label="{{../labels.removeCategory}}"
+                    title="{{../labels.removeCategory}}"
+                    data-tooltip="{{../labels.removeCategory}}"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="notes">{{labels.empty}}</p>
+      {{/if}}
+      <button type="button" class="object-variants-add-category" data-variant-action="add-category">
+        {{labels.addCategory}}
+      </button>
+    </div>
+  </div>
+</div>
