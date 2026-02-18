@@ -1,0 +1,18 @@
+{
+  "name": "eidolon-utilities",
+  "version": "1.1.2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ./node_modules/vite/bin/vite.js",
+    "build": "node ./node_modules/vite/bin/vite.js build && node scripts/postbuild-copy.mjs",
+    "test": "node ./node_modules/vitest/vitest.mjs",
+    "test:run": "node ./node_modules/vitest/vitest.mjs run",
+    "package": "npm run build && cd dist && zip -r ../eidolon-utilities.zip .",
+    "release": "node scripts/release.mjs"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "vitest": "^2.1.0"
+  }
+}
