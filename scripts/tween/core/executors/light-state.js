@@ -18,7 +18,7 @@ const dbSnapshot = new WeakMap();
  */
 function validate(params) {
 	const uuids = Array.isArray(params.uuid) ? params.uuid : [params.uuid];
-	if (uuids.length === 0 || uuids.some((id) => !id || typeof id !== "string")) {
+	if (uuids.some((id) => !id || typeof id !== "string")) {
 		throw new Error("light-state tween: 'uuid' is required (string or array of AmbientLight document UUIDs).");
 	}
 	if (typeof params.enabled !== "boolean") {
@@ -50,6 +50,10 @@ async function execute(params, opts = {}) {
 
 	const { uuid, enabled } = params;
 	const uuids = Array.isArray(uuid) ? uuid : [uuid];
+	if (uuids.length === 0) {
+		console.warn("light-state tween: empty uuid array, nothing to animate.");
+		return true;
+	}
 	const {
 		durationMS = 2000,
 		easing = "easeInOutCosine",
