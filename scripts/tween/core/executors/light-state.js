@@ -1,5 +1,6 @@
 import { registerTweenType } from "../registry.js";
 import { resolveEasing } from "../easing.js";
+import { debugLog } from "../../../time-triggers/core/debug.js";
 
 /**
  * Snapshot of a light's DB state captured before animation starts.
@@ -31,9 +32,8 @@ function validate(params) {
  *
  * The commit ONLY changes `hidden` — never `config.alpha`. The light's
  * configured alpha is a user setting that the tween animates toward but
- * must not overwrite. Foundry v13's DataModel silently ignores dot-notation
- * updates to nested schema fields (e.g. "config.alpha"), which previously
- * caused alpha to collapse to 0 in the DB after a fade-out commit.
+ * must not overwrite. After commit, `_source.config.alpha` is manually
+ * restored via updateSource since doc.update() only applies the hidden diff.
  *
  * @param {object} params
  * @param {string|string[]} params.uuid
@@ -76,9 +76,7 @@ async function execute(params, opts = {}) {
 		};
 		dbSnapshot.set(doc, snap);
 
-		console.log(`[light-state] START ${enabled ? "ON" : "OFF"} | snap:`, JSON.stringify(snap),
-			`| _source.hidden=${doc._source.hidden}, _source.config.alpha=${doc._source.config?.alpha}`,
-			`| doc.hidden=${doc.hidden}, doc.config?.alpha=${doc.config?.alpha}`);
+		debugLog(`light-state START ${enabled ? "ON" : "OFF"} | snap: ${JSON.stringify(snap)} | _source.hidden=${doc._source.hidden}, _source.config.alpha=${doc._source.config?.alpha}`);
 
 		// Already in target state? Nothing to animate.
 		if (enabled && !snap.hidden) {
@@ -91,7 +89,6 @@ async function execute(params, opts = {}) {
 		}
 
 		const targetAlpha = snap.alpha;
-		console.log(`[light-state] targetAlpha=${targetAlpha}`);
 
 		const timeOffset =
 			typeof startEpochMS === "number"
@@ -117,7 +114,6 @@ async function execute(params, opts = {}) {
 				applyAlpha(targetAlpha * state.t);
 			}
 
-			let tickCount = 0;
 			const completed = await CanvasAnimation.animate(
 				[{ parent: state, attribute: "t", to: 1 }],
 				{
@@ -125,21 +121,18 @@ async function execute(params, opts = {}) {
 					duration: durationMS,
 					easing: easingFn,
 					time: timeOffset,
-					ontick: () => { tickCount++; applyAlpha(targetAlpha * state.t); },
+					ontick: () => applyAlpha(targetAlpha * state.t),
 				}
 			);
 
-			console.log(`[light-state] FADE-IN anim done. completed=${completed}, ticks=${tickCount}, state.t=${state.t}`);
-
 			if (completed !== false && commit && doc.canUserModify(game.user, "update")) {
-				console.log(`[light-state] FADE-IN pre-commit: _source.hidden=${doc._source.hidden}, _source.config.alpha=${doc._source.config?.alpha}`);
+				// Set source hidden=true so Foundry detects a diff for the commit.
 				doc.updateSource({ hidden: true, config: { alpha: targetAlpha } });
-				console.log(`[light-state] FADE-IN post-updateSource: _source.hidden=${doc._source.hidden}, _source.config.alpha=${doc._source.config?.alpha}`);
 				await doc.update({ hidden: false });
-				console.log(`[light-state] FADE-IN post-commit: _source.hidden=${doc._source.hidden}, _source.config.alpha=${doc._source.config?.alpha}`);
+				debugLog(`light-state FADE-IN committed. _source.hidden=${doc._source.hidden}, _source.config.alpha=${doc._source.config?.alpha}`);
 				dbSnapshot.delete(doc);
 			} else if (completed === false) {
-				console.log(`[light-state] FADE-IN terminated`);
+				// Terminated by a new tween — leave snapshot for it to restore from
 			} else {
 				dbSnapshot.delete(doc);
 			}
@@ -157,7 +150,6 @@ async function execute(params, opts = {}) {
 				applyAlpha(targetAlpha * (1 - state.t));
 			}
 
-			let tickCount = 0;
 			const completed = await CanvasAnimation.animate(
 				[{ parent: state, attribute: "t", to: 1 }],
 				{
@@ -165,20 +157,17 @@ async function execute(params, opts = {}) {
 					duration: durationMS,
 					easing: easingFn,
 					time: timeOffset,
-					ontick: () => { tickCount++; applyAlpha(targetAlpha * (1 - state.t)); },
+					ontick: () => applyAlpha(targetAlpha * (1 - state.t)),
 				}
 			);
 
-			console.log(`[light-state] FADE-OUT anim done. completed=${completed}, ticks=${tickCount}`);
-
 			if (completed !== false && commit && doc.canUserModify(game.user, "update")) {
-				console.log(`[light-state] FADE-OUT pre-commit: _source.hidden=${doc._source.hidden}, _source.config.alpha=${doc._source.config?.alpha}`);
 				await doc.update({ hidden: true });
 				// doc.update only applied the hidden diff — alpha is still dirty from
 				// the animation. Restore it so the next tween's snapshot reads correctly.
 				doc.updateSource({ config: { alpha: targetAlpha } });
 				light.initializeLightSource();
-				console.log(`[light-state] FADE-OUT post-commit+restore: _source.hidden=${doc._source.hidden}, _source.config.alpha=${doc._source.config?.alpha}`);
+				debugLog(`light-state FADE-OUT committed+restored. _source.hidden=${doc._source.hidden}, _source.config.alpha=${doc._source.config?.alpha}`);
 				dbSnapshot.delete(doc);
 			} else if (completed === false) {
 				// Terminated by a new tween — leave snapshot for it to restore from
