@@ -10,6 +10,7 @@ import {
 } from "../core/storage.js";
 import { MODULE_ID, FLAG_LIGHT_PRESETS } from "../core/constants.js";
 import { debugGroup, debugGroupEnd, debugLog } from "../../time-triggers/core/debug.js";
+import { asHTMLElement, readFormData } from "../../common/ui/foundry-compat.js";
 
 const creationState = new WeakMap();
 const PRESET_SELECT_VALUE_DEFAULT = "__eidolon_default__";
@@ -26,12 +27,7 @@ function handleAmbientLightConfigRender(app, html) {
     isRendered: app?.rendered ?? false
   });
   try {
-    const root =
-      html instanceof HTMLElement
-        ? html
-        : html?.[0] instanceof HTMLElement
-        ? html[0]
-        : null;
+    const root = asHTMLElement(html);
     if (!root) return;
 
     enhanceAmbientLightConfig(app, root);
@@ -758,24 +754,14 @@ function captureAmbientLightFormConfig(app, persistedDocument) {
     throw new Error("Unable to duplicate ambient light data.");
   }
 
-  let submitData = {};
-  if (typeof app._getSubmitData === "function") {
-    submitData = app._getSubmitData() ?? {};
-  } else if (typeof app._getFormData === "function") {
-    submitData = app._getFormData() ?? {};
-  }
-
-  const expanded =
-    submitData && typeof submitData === "object"
-      ? foundry.utils.expandObject(submitData)
-      : {};
+  const form = app?.form instanceof HTMLFormElement ? app.form : null;
+  const expanded = form ? readFormData(form) : {};
 
   const merged = foundry.utils.mergeObject(base, expanded, {
     inplace: false,
     performDeletions: true
   });
 
-  const form = app?.form instanceof HTMLFormElement ? app.form : null;
   if (form) {
     form.querySelectorAll("color-picker[name]").forEach((picker) => {
       const path = picker.getAttribute("name");
@@ -853,6 +839,9 @@ function applyConfigToForm(app, form, config) {
       }
     }
   }
+
+  // Ensure AppV2 canvas preview updates after all fields are set
+  requestAnimationFrame(() => app._previewChanges?.());
 }
 
 function applyValueToInput(input, value, app) {
@@ -861,7 +850,7 @@ function applyValueToInput(input, value, app) {
     const nextChecked = Boolean(value);
     if (input.checked !== nextChecked) {
       input.checked = nextChecked;
-      triggerInputChange(input, app);
+      triggerInputChange(input);
     }
     return;
   }
@@ -872,7 +861,7 @@ function applyValueToInput(input, value, app) {
     if (input.checked !== nextChecked) {
       input.checked = nextChecked;
       if (nextChecked) {
-        triggerInputChange(input, app);
+        triggerInputChange(input);
       }
     }
     return;
@@ -886,7 +875,7 @@ function applyValueToInput(input, value, app) {
   }
 
   if (didChange) {
-    triggerInputChange(input, app);
+    triggerInputChange(input);
   }
 }
 
@@ -906,13 +895,13 @@ function applyValueToColorPicker(pickerEl, value, app) {
   const colorInput = pickerEl.ui?.input ?? pickerEl.querySelector?.('input[type="color"]');
   if (colorInput instanceof HTMLInputElement && colorInput.value !== stringValue) {
     colorInput.value = stringValue;
-    triggerInputChange(colorInput, app);
+    triggerInputChange(colorInput);
   }
 
   const textInput = pickerEl.ui?.text ?? pickerEl.querySelector?.('input[type="text"]');
   if (textInput instanceof HTMLInputElement && textInput.value !== stringValue) {
     textInput.value = stringValue;
-    triggerInputChange(textInput, app);
+    triggerInputChange(textInput);
   }
 
   if (pickerEl.ui?.commit) {
@@ -920,13 +909,6 @@ function applyValueToColorPicker(pickerEl, value, app) {
   } else {
     pickerEl.dispatchEvent(new Event("input", { bubbles: true, cancelable: true }));
     pickerEl.dispatchEvent(new Event("change", { bubbles: true, cancelable: true }));
-    if (typeof app?._onChangeInput === "function") {
-      try {
-        app._onChangeInput(new Event("change", { bubbles: true, cancelable: true }));
-      } catch (error) {
-        console.error("eidolon-utilities | _onChangeInput handler failed", error);
-      }
-    }
   }
 
   debugLog("LightPresets | Color picker applied", {
@@ -937,7 +919,7 @@ function applyValueToColorPicker(pickerEl, value, app) {
   });
 
   if (didChange) {
-    triggerInputChange(pickerEl, app);
+    triggerInputChange(pickerEl);
   }
 }
 
@@ -960,13 +942,13 @@ function applyValueToRangePicker(rangePickerEl, value, app) {
   const rangeInput = rangePickerEl.querySelector?.('input[type="range"]');
   if (rangeInput instanceof HTMLInputElement && rangeInput.value !== stringValue) {
     rangeInput.value = stringValue;
-    triggerInputChange(rangeInput, app);
+    triggerInputChange(rangeInput);
   }
 
   const numberInput = rangePickerEl.querySelector?.('input[type="number"]');
   if (numberInput instanceof HTMLInputElement && numberInput.value !== stringValue) {
     numberInput.value = stringValue;
-    triggerInputChange(numberInput, app);
+    triggerInputChange(numberInput);
   }
 
   if (typeof rangePickerEl.commit === "function") {
@@ -985,7 +967,7 @@ function applyValueToRangePicker(rangePickerEl, value, app) {
   });
 
   if (didChange) {
-    triggerInputChange(rangePickerEl, app);
+    triggerInputChange(rangePickerEl);
   }
 }
 
@@ -993,7 +975,7 @@ function applyValueToSelect(select, value, app) {
   const stringValue = value === undefined || value === null ? "" : String(value);
   if (select.value !== stringValue) {
     select.value = stringValue;
-    triggerInputChange(select, app);
+    triggerInputChange(select);
   }
 }
 
@@ -1001,24 +983,13 @@ function applyValueToTextarea(textarea, value, app) {
   const stringValue = value === undefined || value === null ? "" : String(value);
   if (textarea.value !== stringValue) {
     textarea.value = stringValue;
-    triggerInputChange(textarea, app);
+    triggerInputChange(textarea);
   }
 }
 
-function triggerInputChange(element, app) {
-  const dispatch = (type) => {
-    const event = new Event(type, { bubbles: true, cancelable: true });
-    element.dispatchEvent(event);
-    if (typeof app?._onChangeInput === "function") {
-      try {
-        app._onChangeInput(event);
-      } catch (error) {
-        console.error("eidolon-utilities | _onChangeInput handler failed", error);
-      }
-    }
-  };
-  dispatch("input");
-  dispatch("change");
+function triggerInputChange(element) {
+  element.dispatchEvent(new Event("input", { bubbles: true, cancelable: true }));
+  element.dispatchEvent(new Event("change", { bubbles: true, cancelable: true }));
 }
 
 function syncPresetSwitcherState({ presetSelect, applyPresetButton, updatePresetButton, state }) {

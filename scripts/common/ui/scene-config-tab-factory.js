@@ -1,4 +1,6 @@
-const TAB_GROUP_PATCH_SYMBOL = Symbol("EIDOLON_SCENE_CONFIG_TAB_GROUP_PATCH");
+import { asHTMLElement, isAppV2, setActiveTab } from "./foundry-compat.js";
+
+const V13_PATCHED_SYMBOL = Symbol.for("eidolon.sceneConfig.v13PatchedTabs");
 
 /**
  * Create a SceneConfig tab factory that manages DOM injection and visibility hooks.
@@ -13,6 +15,7 @@ const TAB_GROUP_PATCH_SYMBOL = Symbol("EIDOLON_SCENE_CONFIG_TAB_GROUP_PATCH");
  * @param {Function} [options.onTabCreate] Invoked when the tab container is created.
  * @param {Function} [options.onAfterRender] Invoked after render completes.
  * @param {string} [options.debugNamespace="SceneConfigTab"] Label used in log output.
+ * @param {string} [options.moduleId="eidolon-utilities"] Module ID for template paths.
  */
 export function createSceneConfigTabFactory(options = {}) {
   const {
@@ -25,7 +28,9 @@ export function createSceneConfigTabFactory(options = {}) {
     onButtonCreate,
     onTabCreate,
     onAfterRender,
-    logger = {}
+    logger = {},
+    moduleId = "eidolon-utilities",
+    tabIcon = "fa-solid fa-puzzle-piece"
   } = options ?? {};
 
   if (!tabId) {
@@ -58,6 +63,43 @@ export function createSceneConfigTabFactory(options = {}) {
       ? tabLabel
       : () => (typeof tabLabel === "string" ? tabLabel : tabId);
 
+  // ── v13 init-time patching ──────────────────────────────────────────
+
+  function patchV13SceneConfig() {
+    const SceneConfigClass =
+      foundry?.applications?.sheets?.SceneConfig ?? CONFIG?.Scene?.sheetClass;
+    if (!SceneConfigClass) return;
+    if (!isAppV2({ changeTab: SceneConfigClass.prototype?.changeTab })) return;
+
+    const patchedSet = SceneConfigClass[V13_PATCHED_SYMBOL] ?? new Set();
+    if (patchedSet.has(tabId)) return;
+    patchedSet.add(tabId);
+    SceneConfigClass[V13_PATCHED_SYMBOL] = patchedSet;
+
+    // Push tab into the "sheet" tab group
+    const sheetGroup = SceneConfigClass.TABS?.sheet;
+    if (sheetGroup && Array.isArray(sheetGroup.tabs)) {
+      if (!sheetGroup.tabs.some((t) => t.id === tabId)) {
+        sheetGroup.tabs.push({
+          id: tabId,
+          icon: tabIcon
+        });
+      }
+    }
+
+    // Patch static PARTS
+    if (SceneConfigClass.PARTS && !SceneConfigClass.PARTS[tabId]) {
+      SceneConfigClass.PARTS[tabId] = {
+        template: `modules/${moduleId}/templates/scene-config-tab-mount.hbs`,
+        scrollable: [`.tab[data-tab="${tabId}"]`]
+      };
+    }
+
+    log("Patched v13 SceneConfig TABS/PARTS", { tabId });
+  }
+
+  // ── Render dispatch ─────────────────────────────────────────────────
+
   function handleRender(app, html) {
     const scene = resolveScene(app);
     if (!canApply(app, scene)) {
@@ -76,215 +118,180 @@ export function createSceneConfigTabFactory(options = {}) {
     });
 
     try {
-      const rootElement =
-        html instanceof HTMLElement
-          ? html
-          : html?.[0] instanceof HTMLElement
-          ? html[0]
-          : app.element?.[0] instanceof HTMLElement
-          ? app.element[0]
-          : null;
-
-      if (!rootElement) {
+      const root = asHTMLElement(html) ?? asHTMLElement(app.element);
+      if (!root) {
         log("Missing root element", { tabId });
         return;
       }
 
-      const navSelectors = [
-        "nav.sheet-tabs[data-group]",
-        "nav.tabs[data-group]",
-        "nav.sheet-tabs",
-        "nav.tabs"
-      ];
-      const nav = navSelectors
-        .map((selector) => rootElement.querySelector(selector))
-        .find((element) => element instanceof HTMLElement);
-
-      const bodyCandidates = [
-        rootElement.querySelector(".tab[data-tab]")?.parentElement,
-        rootElement.querySelector(".sheet-body"),
-        nav?.parentElement?.querySelector?.(":scope > .sheet-body"),
-        nav?.parentElement
-      ];
-      const body = bodyCandidates.find((candidate) => candidate instanceof HTMLElement);
-
-      const groupName =
-        nav?.dataset?.group ??
-        nav?.querySelector?.("a[data-group]")?.dataset?.group ??
-        nav?.querySelector?.("[data-group]")?.dataset?.group ??
-        body?.querySelector?.(".tab[data-group]")?.dataset?.group ??
-        app._tabs?.find?.((binding) => binding?.group)?.group ??
-        getFirstTabGroupName(app) ??
-        "main";
-
-      if (!nav || !body) {
-        log("Missing navigation elements", {
-          tabId,
-          hasNav: Boolean(nav),
-          hasBody: Boolean(body)
-        });
-        return;
-      }
-
-      let tabButton = nav.querySelector(`[data-tab="${tabId}"]`);
-      if (!tabButton) {
-        tabButton = document.createElement("a");
-        tabButton.dataset.action = "tab";
-        tabButton.dataset.group = groupName;
-        tabButton.dataset.tab = tabId;
-        const referenceTab = nav.querySelector("a[data-tab]");
-        if (referenceTab?.classList?.contains("item")) {
-          tabButton.classList.add("item");
-        }
-        nav.appendChild(tabButton);
-        if (typeof onButtonCreate === "function") {
-          onButtonCreate({ app, button: tabButton, nav, scene });
-        }
-        log("Created tab button", { tabId, group: groupName });
-      }
-
-      tabButton.innerHTML = renderLabel({ app, scene }) ?? tabId;
-
-      let tab = body.querySelector(`.tab[data-tab="${tabId}"]`);
-      if (!tab) {
-        tab = document.createElement("div");
-        tab.classList.add("tab");
-        tab.dataset.tab = tabId;
-        tab.dataset.group = groupName;
-        const footer = findFooterElement(body);
-        body.insertBefore(tab, footer ?? null);
-        if (typeof onTabCreate === "function") {
-          onTabCreate({ app, tab, body, scene });
-        }
-        log("Created tab container", { tabId, group: groupName });
-      }
-
-      const isActiveInitial =
-        tabButton.classList?.contains("active") ||
-        tab.classList.contains("active") ||
-        getTabGroupActiveId(app, groupName) === tabId;
-
-      if (isActiveInitial) {
-        tabButton.classList.add("active");
-        tab.classList.add("active");
-        tab.removeAttribute("hidden");
+      if (isAppV2(app)) {
+        handleRenderV2(app, root, scene);
       } else {
-        tabButton.classList.remove("active");
-        tab.classList.remove("active");
-        tab.setAttribute("hidden", "true");
+        handleRenderV1(app, root, scene);
       }
+    } finally {
+      groupEnd();
+    }
+  }
 
-      const ensureTabVisible = () => {
-        const activeTabId = getTabGroupActiveId(app, groupName);
-        const isActive =
-          activeTabId === tabId ||
-          tabButton.classList?.contains("active") ||
-          tab.classList.contains("active");
-        if (!isActive) return;
+  // ── Button content helper ────────────────────────────────────────────
 
-        tabButton.classList?.add("active");
-        tab.classList.add("active");
-        tab.removeAttribute("hidden");
-        tab.removeAttribute("aria-hidden");
-        if (tab.style.display === "none") {
-          tab.style.display = "";
-        }
-      };
+  /** Set tab button content, matching native structure for v12 and v13. */
+  function setButtonContent(button, label, v2) {
+    if (!tabIcon) {
+      button.textContent = label;
+      return;
+    }
+    const existingIcon = button.querySelector("i")?.cloneNode(true);
+    button.textContent = "";
+    const icon = existingIcon ?? document.createElement("i");
+    if (!existingIcon) {
+      icon.className = tabIcon;
+      if (v2) icon.inert = true;
+    }
+    button.append(icon, " ");
+    if (v2) {
+      const span = document.createElement("span");
+      span.textContent = label;
+      button.append(span);
+    } else {
+      button.append(document.createTextNode(label));
+    }
+  }
 
-      const scheduleEnsureTabVisible = () => {
-        try {
-          ensureTabVisible();
-        } catch (error) {
-          log("Ensure visible failed", {
-            reason: "ensure-visible",
-            message: error?.message ?? String(error)
-          });
-        }
+  // ── v12 AppV1 path ──────────────────────────────────────────────────
 
-        const rerun = () => {
-          try {
-            ensureTabVisible();
-          } catch (error) {
-            log("Ensure visible rerun failed", {
-              reason: "ensure-visible-rerun",
-              message: error?.message ?? String(error)
-            });
-          }
-        };
+  function handleRenderV1(app, root, scene) {
+    const navSelectors = [
+      "nav.sheet-tabs[data-group]",
+      "nav.tabs[data-group]",
+      "nav.sheet-tabs",
+      "nav.tabs"
+    ];
+    const nav = navSelectors
+      .map((selector) => root.querySelector(selector))
+      .find((element) => element instanceof HTMLElement);
 
-        const scheduleMicrotask =
-          typeof queueMicrotask === "function"
-            ? queueMicrotask
-            : (callback) => Promise.resolve().then(callback);
+    const bodyCandidates = [
+      root.querySelector(".tab[data-tab]")?.parentElement,
+      root.querySelector(".sheet-body"),
+      nav?.parentElement?.querySelector?.(":scope > .sheet-body"),
+      nav?.parentElement
+    ];
+    const body = bodyCandidates.find((candidate) => candidate instanceof HTMLElement);
 
-        scheduleMicrotask(rerun);
-        setTimeout(rerun, 0);
-      };
+    const groupName =
+      nav?.dataset?.group ??
+      nav?.querySelector?.("a[data-group]")?.dataset?.group ??
+      nav?.querySelector?.("[data-group]")?.dataset?.group ??
+      body?.querySelector?.(".tab[data-group]")?.dataset?.group ??
+      "main";
 
-      if (!tabButton.dataset.eidolonEnsureSceneTabVisibility) {
-        tabButton.addEventListener("click", scheduleEnsureTabVisible);
-        tabButton.dataset.eidolonEnsureSceneTabVisibility = "true";
+    if (!nav || !body) {
+      log("Missing navigation elements", {
+        tabId,
+        hasNav: Boolean(nav),
+        hasBody: Boolean(body)
+      });
+      return;
+    }
+
+    // Create or find tab button
+    let tabButton = nav.querySelector(`[data-tab="${tabId}"]`);
+    if (!tabButton) {
+      tabButton = document.createElement("a");
+      tabButton.dataset.action = "tab";
+      tabButton.dataset.group = groupName;
+      tabButton.dataset.tab = tabId;
+      const referenceTab = nav.querySelector("a[data-tab]");
+      if (referenceTab?.classList?.contains("item")) {
+        tabButton.classList.add("item");
       }
-
-      const tabGroupState = resolveTabGroupState(app, groupName);
-      const bindTargetElement =
-        html instanceof HTMLElement
-          ? html
-          : html?.[0] instanceof HTMLElement
-          ? html[0]
-          : rootElement;
-      const bindTargetJQuery =
-        typeof html?.find === "function"
-          ? html
-          : typeof app?.element?.find === "function"
-          ? app.element
-          : typeof globalThis?.jQuery === "function" && bindTargetElement
-          ? globalThis.jQuery(bindTargetElement)
-          : null;
-
-      if (tabGroupState?.controller?.bind) {
-        patchTabGroupActivate(tabGroupState.controller, ensureTabVisible, log);
-        const targetElement = bindTargetElement ?? bindTargetJQuery?.[0] ?? rootElement;
-        if (targetElement instanceof HTMLElement) {
-          tabGroupState.controller.bind(targetElement);
-        }
-        scheduleEnsureTabVisible();
-      } else {
-        const legacyBinding =
-          app._tabs?.find?.((binding) => binding?.group === groupName) ?? app._tabs?.[0];
-        patchLegacyTabsActivate(legacyBinding, ensureTabVisible, log);
-        if (legacyBinding?.bind) {
-          const legacyTargetElement = bindTargetElement ?? bindTargetJQuery?.[0] ?? rootElement;
-          const legacyTargetJQuery =
-            legacyTargetElement && typeof globalThis?.jQuery === "function"
-              ? globalThis.jQuery(legacyTargetElement)
-              : bindTargetJQuery;
-
-          const tryBind = (target) => {
-            if (!target) return false;
-            try {
-              legacyBinding.bind(target);
-              return true;
-            } catch (error) {
-              log("Legacy tab bind failed", {
-                reason: "bind-target",
-                targetType: target instanceof HTMLElement ? "element" : "other",
-                message: error?.message ?? String(error)
-              });
-              return false;
-            }
-          };
-
-          if (!tryBind(legacyTargetElement)) {
-            tryBind(legacyTargetJQuery ?? legacyTargetElement);
-          }
-        }
-        scheduleEnsureTabVisible();
+      nav.appendChild(tabButton);
+      if (typeof onButtonCreate === "function") {
+        onButtonCreate({ app, button: tabButton, nav, scene });
       }
+      log("Created tab button", { tabId, group: groupName });
+    }
 
-      invokeCleanup(app, cleanupSymbol, log);
+    setButtonContent(tabButton, renderLabel({ app, scene }) ?? tabId, isAppV2(app));
 
-      const cleanup = renderContent({
+    // Create or find tab panel
+    let tab = body.querySelector(`.tab[data-tab="${tabId}"]`);
+    if (!tab) {
+      tab = document.createElement("div");
+      tab.classList.add("tab");
+      tab.dataset.tab = tabId;
+      tab.dataset.group = groupName;
+      const footer = findFooterElement(body);
+      body.insertBefore(tab, footer ?? null);
+      if (typeof onTabCreate === "function") {
+        onTabCreate({ app, tab, body, scene });
+      }
+      log("Created tab container", { tabId, group: groupName });
+    }
+
+    // Determine active state from DOM classes
+    const isActiveInitial =
+      tabButton.classList?.contains("active") || tab.classList.contains("active");
+
+    if (isActiveInitial) {
+      tabButton.classList.add("active");
+      tab.classList.add("active");
+      tab.removeAttribute("hidden");
+    } else {
+      tabButton.classList.remove("active");
+      tab.classList.remove("active");
+      tab.setAttribute("hidden", "true");
+    }
+
+    // Visibility helpers
+    const ensureTabVisible = () => {
+      const isActive =
+        tabButton.classList?.contains("active") || tab.classList.contains("active");
+      if (!isActive) return;
+
+      tabButton.classList?.add("active");
+      tab.classList.add("active");
+      tab.removeAttribute("hidden");
+      tab.removeAttribute("aria-hidden");
+      if (tab.style.display === "none") {
+        tab.style.display = "";
+      }
+    };
+
+    const scheduleEnsureTabVisible = () => {
+      ensureTabVisible();
+      requestAnimationFrame(ensureTabVisible);
+    };
+
+    // Click handler — use public API
+    if (!tabButton.dataset.eidolonEnsureSceneTabVisibility) {
+      tabButton.addEventListener("click", () => {
+        setActiveTab(app, tabId, groupName);
+        requestAnimationFrame(ensureTabVisible);
+      });
+      tabButton.dataset.eidolonEnsureSceneTabVisibility = "true";
+    }
+
+    // Render content
+    invokeCleanup(app, cleanupSymbol, log);
+
+    const cleanup = renderContent({
+      app,
+      scene,
+      tab,
+      tabButton,
+      ensureTabVisible,
+      scheduleEnsureTabVisible
+    });
+
+    if (typeof cleanup === "function") {
+      registerCleanup(app, cleanupSymbol, cleanup);
+    }
+
+    if (typeof onAfterRender === "function") {
+      onAfterRender({
         app,
         scene,
         tab,
@@ -292,33 +299,80 @@ export function createSceneConfigTabFactory(options = {}) {
         ensureTabVisible,
         scheduleEnsureTabVisible
       });
+    }
 
-      if (typeof cleanup === "function") {
-        registerCleanup(app, cleanupSymbol, cleanup);
+    app.setPosition?.({ height: "auto" });
+  }
+
+  // ── v13 AppV2 path ──────────────────────────────────────────────────
+
+  function handleRenderV2(app, root, scene) {
+    const tab = root.querySelector(`.tab[data-tab="${tabId}"]`);
+    const tabButton = root.querySelector(`nav [data-tab="${tabId}"]`);
+
+    if (!tab || !tabButton) {
+      log("v2 mount not found, falling back to v1 injection", { tabId });
+      handleRenderV1(app, root, scene);
+      return;
+    }
+
+    setButtonContent(tabButton, renderLabel({ app, scene }) ?? tabId, true);
+
+    // ensureTabVisible / scheduleEnsureTabVisible are lightweight for AppV2
+    // since Foundry's own tab machinery handles visibility
+    const ensureTabVisible = () => {
+      if (!tabButton.classList?.contains("active") && !tab.classList.contains("active")) return;
+      tab.classList.add("active");
+      tab.removeAttribute("hidden");
+      tab.removeAttribute("aria-hidden");
+      if (tab.style.display === "none") {
+        tab.style.display = "";
       }
+    };
 
-      if (typeof onAfterRender === "function") {
-        onAfterRender({
-          app,
-          scene,
-          tab,
-          tabButton,
-          ensureTabVisible,
-          scheduleEnsureTabVisible
-        });
-      }
+    const scheduleEnsureTabVisible = () => {
+      ensureTabVisible();
+      requestAnimationFrame(ensureTabVisible);
+    };
 
-      app.setPosition?.({ height: "auto" });
-    } finally {
-      groupEnd();
+    // Render content
+    invokeCleanup(app, cleanupSymbol, log);
+
+    const cleanup = renderContent({
+      app,
+      scene,
+      tab,
+      tabButton,
+      ensureTabVisible,
+      scheduleEnsureTabVisible
+    });
+
+    if (typeof cleanup === "function") {
+      registerCleanup(app, cleanupSymbol, cleanup);
+    }
+
+    if (typeof onAfterRender === "function") {
+      onAfterRender({
+        app,
+        scene,
+        tab,
+        tabButton,
+        ensureTabVisible,
+        scheduleEnsureTabVisible
+      });
     }
   }
+
+  // ── Lifecycle ───────────────────────────────────────────────────────
 
   function handleClose(app) {
     invokeCleanup(app, cleanupSymbol, log);
   }
 
   function register() {
+    Hooks.once("init", () => {
+      patchV13SceneConfig();
+    });
     Hooks.on("renderSceneConfig", handleRender);
     Hooks.on("closeSceneConfig", handleClose);
     return () => unregister();
@@ -331,6 +385,8 @@ export function createSceneConfigTabFactory(options = {}) {
 
   return { register, unregister };
 }
+
+// ── Internals (kept) ────────────────────────────────────────────────
 
 function registerCleanup(app, symbol, cleanup) {
   if (!app || typeof cleanup !== "function") return;
@@ -357,142 +413,6 @@ function invokeCleanup(app, symbol, log) {
   }
 }
 
-export function patchTabGroupActivate(tabGroup, ensureTabVisible, log = () => {}) {
-  if (!tabGroup || typeof ensureTabVisible !== "function") return;
-
-  if (typeof tabGroup.on === "function") {
-    const patchState = tabGroup[TAB_GROUP_PATCH_SYMBOL] ?? {};
-    patchState.ensure = ensureTabVisible;
-    if (!patchState.listener) {
-      patchState.listener = () => {
-        try {
-          patchState.ensure?.();
-        } catch (error) {
-          log("Tab group activation failed", {
-            reason: "tab-group-event",
-            message: error?.message ?? String(error)
-          });
-        }
-      };
-      tabGroup.on("activate", patchState.listener);
-    }
-    tabGroup[TAB_GROUP_PATCH_SYMBOL] = patchState;
-  }
-
-  const callbacks = tabGroup.callbacks ?? (tabGroup.callbacks = {});
-  const existingActivate = callbacks.activate;
-
-  if (typeof existingActivate === "function" && existingActivate.__eidolonSceneTabPatch) {
-    existingActivate.__eidolonEnsureVisible = ensureTabVisible;
-    return;
-  }
-
-  const patchedActivate = function (...args) {
-    try {
-      patchedActivate.__eidolonEnsureVisible?.();
-    } catch (error) {
-      log("Tab group ensure visible failed", {
-        reason: "tab-group-activate",
-        message: error?.message ?? String(error)
-      });
-    }
-
-    if (typeof patchedActivate.__eidolonOriginal === "function") {
-      return patchedActivate.__eidolonOriginal.apply(this, args);
-    }
-    return undefined;
-  };
-
-  patchedActivate.__eidolonSceneTabPatch = true;
-  patchedActivate.__eidolonOriginal =
-    typeof existingActivate === "function" ? existingActivate : null;
-  patchedActivate.__eidolonEnsureVisible = ensureTabVisible;
-
-  callbacks.activate = patchedActivate;
-}
-
-export function patchLegacyTabsActivate(binding, ensureTabVisible, log = () => {}) {
-  if (!binding || typeof ensureTabVisible !== "function") return;
-
-  const existingCallback = binding.callback;
-
-  if (typeof existingCallback === "function" && existingCallback.__eidolonSceneTabPatch) {
-    existingCallback.__eidolonEnsureVisible = ensureTabVisible;
-    return;
-  }
-
-  const patchedCallback = function (...args) {
-    try {
-      patchedCallback.__eidolonEnsureVisible?.();
-    } catch (error) {
-      log("Legacy tabs ensure visible failed", {
-        reason: "legacy-tabs-activate",
-        message: error?.message ?? String(error)
-      });
-    }
-
-    if (typeof patchedCallback.__eidolonOriginal === "function") {
-      return patchedCallback.__eidolonOriginal.apply(this, args);
-    }
-    return undefined;
-  };
-
-  patchedCallback.__eidolonSceneTabPatch = true;
-  patchedCallback.__eidolonOriginal =
-    typeof existingCallback === "function" ? existingCallback : null;
-  patchedCallback.__eidolonEnsureVisible = ensureTabVisible;
-
-  binding.callback = patchedCallback;
-}
-
-export function resolveTabGroupState(app, groupName) {
-  const result = { controller: null, active: null };
-  if (!app) return result;
-
-  const groups = app.tabGroups;
-  if (!groups) return result;
-
-  const normalize = (entry) => {
-    if (!entry) return result;
-    if (typeof entry === "string") {
-      return { controller: null, active: entry };
-    }
-    if (typeof entry === "object") {
-      return { controller: entry, active: entry?.active ?? null };
-    }
-    return result;
-  };
-
-  if (typeof groups.get === "function") {
-    const entry = groups.get(groupName);
-    if (entry !== undefined) {
-      return normalize(entry);
-    }
-  }
-
-  return normalize(groups[groupName]);
-}
-
-export function getTabGroupActiveId(app, groupName) {
-  return resolveTabGroupState(app, groupName).active;
-}
-
-export function getFirstTabGroupName(app) {
-  if (!app?.tabGroups) return undefined;
-
-  const groups = app.tabGroups;
-  if (typeof groups.keys === "function") {
-    const iterator = groups.keys();
-    if (iterator && typeof iterator.next === "function") {
-      const { value, done } = iterator.next();
-      if (!done) return value;
-    }
-  }
-
-  const keys = Object.keys(groups ?? {});
-  return keys.length > 0 ? keys[0] : undefined;
-}
-
 export function findFooterElement(container) {
   if (!(container instanceof HTMLElement)) return null;
 
@@ -511,4 +431,3 @@ export function findFooterElement(container) {
 
   return null;
 }
-
