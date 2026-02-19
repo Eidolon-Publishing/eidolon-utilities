@@ -1,0 +1,99 @@
+<form class="scene-criterion-editor">
+  <div class="form-group">
+    <label for="criterion-label">{{labels.label}}</label>
+    <input
+      id="criterion-label"
+      class="form-control"
+      type="text"
+      name="criterionLabel"
+      value="{{label}}"
+      placeholder="{{labels.label}}"
+      autofocus
+    >
+  </div>
+
+  <div class="form-group">
+    <label for="criterion-key">{{labels.key}}</label>
+    <div class="form-fields scene-criterion-editor__key-wrap">
+      <input
+        id="criterion-key"
+        class="form-control scene-criterion-editor__key-input"
+        type="text"
+        name="criterionKey"
+        value="{{key}}"
+        placeholder="{{labels.key}}"
+      >
+      <button
+        type="button"
+        class="scene-criterion-editor__reset-key icon"
+        data-action="reset-auto-key"
+        aria-label="{{labels.resetAutoKey}}"
+        data-tooltip="{{labels.resetAutoKey}}"
+        {{#unless keyIsCustom}}disabled{{/unless}}
+      >
+        <i class="fa-solid fa-rotate-left"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="criterion-default">{{labels.default}}</label>
+    <select
+      id="criterion-default"
+      class="form-control"
+      name="criterionDefault"
+      data-empty-label="{{labels.empty}}"
+    >
+      {{#if hasValues}}
+        {{#each values}}
+          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>
+        {{/each}}
+      {{else}}
+        <option value="">{{labels.empty}}</option>
+      {{/if}}
+    </select>
+  </div>
+
+  <div class="form-group stacked scene-criterion-editor__values-group">
+    <label>{{labels.values}}</label>
+    <div class="scene-criterion-editor__values">
+      {{#if hasValues}}
+        {{#each values}}
+          <div class="scene-criterion-editor__value">
+            <input
+              type="text"
+              class="form-control"
+              name="criterionValues"
+              value="{{value}}"
+              placeholder="{{../../labels.valuePlaceholder}}"
+            >
+            <button
+              type="button"
+              class="icon"
+              data-action="remove-value"
+              aria-label="{{../../labels.removeValue}}"
+              title="{{../../labels.removeValue}}"
+            >
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        {{/each}}
+      {{else}}
+        <p class="notes scene-criterion-editor__empty">{{labels.empty}}</p>
+      {{/if}}
+    </div>
+    <button type="button" class="scene-criterion-editor__add" data-action="add-value">
+      <i class="fa-solid fa-plus"></i>
+      <span>{{labels.addValue}}</span>
+    </button>
+  </div>
+
+  <footer class="sheet-footer scene-criterion-editor__footer">
+    <button type="button" class="scene-criterion-editor__cancel" data-action="cancel">
+      {{labels.cancel}}
+    </button>
+    <button type="submit" class="scene-criterion-editor__save">
+      {{labels.save}}
+    </button>
+  </footer>
+</form>

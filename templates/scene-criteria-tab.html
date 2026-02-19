@@ -1,0 +1,101 @@
+<div class="scene-criteria-container">
+  <p class="notes scene-criteria-description">{{description}}</p>
+
+  <div class="scene-criteria-summary" role="status">
+    <span class="scene-criteria-summary__item">{{summary.criteriaCount}} criteria</span>
+    <span class="scene-criteria-summary__item">{{summary.valueCount}} values</span>
+  </div>
+
+  <div class="form-group stacked scene-criteria-management">
+    <label class="scene-criteria-heading">
+      <span>{{labels.list}}</span>
+      <button
+        type="button"
+        class="scene-criteria-add icon"
+        data-criteria-action="add"
+        aria-label="{{labels.add}}"
+        data-tooltip="{{labels.add}}"
+      >
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </label>
+    <div class="scene-criteria-list">
+      {{#if hasCriteria}}
+        <ul class="scene-criteria-category-list">
+          {{#each criteria}}
+            <li class="scene-criterion" data-criterion-id="{{id}}">
+              <div class="scene-criterion__row">
+                <div class="scene-criterion__details">
+                  <div class="scene-criterion__name">{{displayName}}</div>
+                  <div class="scene-criterion__values-preview">
+                    {{#if hasValues}}
+                      <div class="scene-criterion__value-list" role="list">
+                        {{#each values}}
+                          <span
+                            class="scene-criterion__value-chip{{#if isCurrent}} scene-criterion__value-chip--current{{/if}}"
+                            role="listitem"
+                          >
+                            {{value}}
+                          </span>
+                        {{/each}}
+                      </div>
+                    {{else}}
+                      <span class="scene-criterion__value-empty">No values configured</span>
+                    {{/if}}
+                    <span class="scene-criterion__count">{{valueCountLabel}}</span>
+                  </div>
+                </div>
+                <div class="scene-criterion__controls">
+                  <button
+                    type="button"
+                    class="icon"
+                    data-criteria-action="move-up"
+                    data-criterion-id="{{id}}"
+                    aria-label="{{../labels.moveUp}}"
+                    title="{{../labels.moveUp}}"
+                    {{#unless canMoveUp}}disabled{{/unless}}
+                  >
+                    <i class="fa-solid fa-arrow-up"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon"
+                    data-criteria-action="move-down"
+                    data-criterion-id="{{id}}"
+                    aria-label="{{../labels.moveDown}}"
+                    title="{{../labels.moveDown}}"
+                    {{#unless canMoveDown}}disabled{{/unless}}
+                  >
+                    <i class="fa-solid fa-arrow-down"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon"
+                    data-criteria-action="edit"
+                    data-criterion-id="{{id}}"
+                    aria-label="{{../labels.edit}}"
+                    title="{{../labels.edit}}"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon"
+                    data-criteria-action="remove"
+                    data-criterion-id="{{id}}"
+                    aria-label="{{../labels.remove}}"
+                    title="{{../labels.remove}}"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="notes">{{labels.empty}}</p>
+      {{/if}}
+    </div>
+  </div>
+</div>
