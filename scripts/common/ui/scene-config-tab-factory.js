@@ -80,9 +80,11 @@ export function createSceneConfigTabFactory(options = {}) {
     const sheetGroup = SceneConfigClass.TABS?.sheet;
     if (sheetGroup && Array.isArray(sheetGroup.tabs)) {
       if (!sheetGroup.tabs.some((t) => t.id === tabId)) {
+        const initialLabel = renderLabel({ app: null, scene: null }) ?? tabId;
         sheetGroup.tabs.push({
           id: tabId,
-          icon: tabIcon
+          icon: tabIcon,
+          label: initialLabel
         });
       }
     }
