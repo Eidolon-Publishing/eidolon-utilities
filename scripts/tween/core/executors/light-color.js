@@ -55,6 +55,7 @@ function validate(params) {
  * @param {string} [opts.easing="easeInOutCosine"]
  * @param {boolean} [opts.commit=true]
  * @param {number|null} [opts.startEpochMS=null]
+ * @param {AbortSignal|null} [opts.signal=null]
  * @returns {Promise<boolean>} true if all animations completed (none terminated early)
  */
 async function execute(params, opts = {}) {
@@ -72,6 +73,7 @@ async function execute(params, opts = {}) {
 		easing = "easeInOutCosine",
 		commit = true,
 		startEpochMS = null,
+		signal = null,
 	} = opts;
 
 	const easingFn = resolveEasing(easing);
@@ -83,6 +85,7 @@ async function execute(params, opts = {}) {
 	if (animateColor && !toC.valid) throw new Error(`light-color tween: invalid target color "${toColor}".`);
 
 	async function animateOne(id) {
+		if (signal?.aborted) return false;
 		const doc = await fromUuid(id);
 		if (!doc) return false;
 
@@ -104,6 +107,12 @@ async function execute(params, opts = {}) {
 		const state = { t: 0 };
 		const name = `ambient-hue-tween:${id}`;
 		CanvasAnimation.terminateAnimation(name);
+
+		if (signal) {
+			signal.addEventListener("abort", () => {
+				CanvasAnimation.terminateAnimation(name);
+			}, { once: true });
+		}
 
 		// Fast-forward if we joined late (synchronized start)
 		const timeOffset =
@@ -139,6 +148,7 @@ async function execute(params, opts = {}) {
 		// Ensure exact target values after animation.
 		// CanvasAnimation may not fire ontick at exactly t=1.
 		if (completed !== false) {
+			if (signal?.aborted) return false;
 			const finalPatch = {};
 			if (animateColor) finalPatch.color = toC.toHTML();
 			if (animateAlpha) finalPatch.alpha = toAlpha;
@@ -148,6 +158,7 @@ async function execute(params, opts = {}) {
 
 		// Persist once at the end (GM only, opt-in)
 		if (commit && completed !== false && doc.canUserModify(game.user, "update")) {
+			if (signal?.aborted) return false;
 			// Reset source to original so Foundry detects a real diff for the DB write.
 			const resetPatch = {};
 			const commitPatch = {};

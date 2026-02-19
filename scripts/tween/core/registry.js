@@ -24,6 +24,22 @@ export function getTweenType(type) {
 }
 
 /**
+ * Validate params for a registered tween entry.
+ * Throws if the type is unknown or params are invalid.
+ * @param {string} type
+ * @param {object} [params]
+ * @returns {{ type: string, execute: Function, validate: Function }}
+ */
+export function validateTweenEntry(type, params = {}) {
+	const tweenDef = getTweenType(type);
+	if (!tweenDef) {
+		throw new Error(`Unknown tween type: "${type}".`);
+	}
+	tweenDef.validate(params ?? {});
+	return tweenDef;
+}
+
+/**
  * List all registered tween type names.
  * @returns {string[]}
  */

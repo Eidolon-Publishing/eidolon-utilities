@@ -1,5 +1,6 @@
 import { ErrorPolicy } from "./constants.js";
 import { TweenTimeline } from "./TweenTimeline.js";
+import { validateTweenEntry } from "../registry.js";
 
 /**
  * Validate a sequence JSON structure. Throws on structural errors.
@@ -61,13 +62,40 @@ export function validateSequenceJSON(data) {
 }
 
 /**
+ * Validate sequence semantics against registered tween types and validators.
+ * Throws on unknown types or invalid params.
+ *
+ * @param {object} data
+ */
+export function validateSequenceSemantics(data) {
+	validateSequenceJSON(data);
+
+	for (let i = 0; i < data.timeline.length; i++) {
+		const segment = data.timeline[i];
+		if (!Array.isArray(segment)) continue;
+
+		for (let j = 0; j < segment.length; j++) {
+			const entry = segment[j];
+			try {
+				validateTweenEntry(entry.type, entry.params ?? {});
+			} catch (err) {
+				throw new Error(`Sequence JSON: timeline[${i}][${j}] failed semantic validation: ${err.message}`);
+			}
+		}
+	}
+}
+
+/**
  * Compile a validated sequence JSON into a TweenTimeline instance.
  *
  * @param {object} data  Validated sequence JSON
  * @returns {TweenTimeline}
  */
-export function compileSequence(data) {
+export function compileSequence(data, opts = {}) {
 	validateSequenceJSON(data);
+	if (opts.validateSemantics) {
+		validateSequenceSemantics(data);
+	}
 
 	const tl = new TweenTimeline();
 

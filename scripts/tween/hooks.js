@@ -33,7 +33,7 @@ function handleSequenceSocketMessage(msg) {
 	}
 
 	try {
-		const tl = compileSequence(data);
+		const tl = compileSequence(data, { validateSemantics: true });
 		tl.run({ commit: false, startEpochMS, broadcast: false });
 	} catch (err) {
 		console.error(`[${MODULE_ID}] Failed to run received tween sequence:`, err);
