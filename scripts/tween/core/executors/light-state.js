@@ -43,6 +43,7 @@ function validate(params) {
  * @param {string} [opts.easing="easeInOutCosine"]
  * @param {boolean} [opts.commit=true]
  * @param {number|null} [opts.startEpochMS=null]
+ * @param {AbortSignal|null} [opts.signal=null]
  * @returns {Promise<boolean>} true if all animations completed (none terminated early)
  */
 async function execute(params, opts = {}) {
@@ -59,11 +60,13 @@ async function execute(params, opts = {}) {
 		easing = "easeInOutCosine",
 		commit = true,
 		startEpochMS = null,
+		signal = null,
 	} = opts;
 
 	const easingFn = resolveEasing(easing);
 
 	async function animateOne(id) {
+		if (signal?.aborted) return false;
 		const doc = await fromUuid(id);
 		if (!doc) return false;
 
@@ -72,6 +75,12 @@ async function execute(params, opts = {}) {
 
 		const name = `ambient-state-tween:${id}`;
 		CanvasAnimation.terminateAnimation(name);
+
+		if (signal) {
+			signal.addEventListener("abort", () => {
+				CanvasAnimation.terminateAnimation(name);
+			}, { once: true });
+		}
 
 		// DB truth: snapshot from a prior (terminated) tween, or current source.
 		const snap = dbSnapshot.get(doc) ?? {
@@ -129,7 +138,7 @@ async function execute(params, opts = {}) {
 				}
 			);
 
-			if (completed !== false && commit && doc.canUserModify(game.user, "update")) {
+			if (completed !== false && !signal?.aborted && commit && doc.canUserModify(game.user, "update")) {
 				// Set source hidden=true so Foundry detects a diff for the commit.
 				doc.updateSource({ hidden: true, config: { alpha: targetAlpha } });
 				await doc.update({ hidden: false });
@@ -165,7 +174,7 @@ async function execute(params, opts = {}) {
 				}
 			);
 
-			if (completed !== false && commit && doc.canUserModify(game.user, "update")) {
+			if (completed !== false && !signal?.aborted && commit && doc.canUserModify(game.user, "update")) {
 				await doc.update({ hidden: true });
 				// doc.update only applied the hidden diff — alpha is still dirty from
 				// the animation. Restore it so the next tween's snapshot reads correctly.

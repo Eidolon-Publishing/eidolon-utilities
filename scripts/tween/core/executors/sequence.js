@@ -1,5 +1,5 @@
 import { registerTweenType } from "../registry.js";
-import { validateSequenceJSON, compileSequence } from "../timeline/schema.js";
+import { validateSequenceJSON, validateSequenceSemantics, compileSequence } from "../timeline/schema.js";
 
 /**
  * Validate sequence tween parameters (JSON structure check only).
@@ -7,6 +7,7 @@ import { validateSequenceJSON, compileSequence } from "../timeline/schema.js";
  */
 function validate(params) {
 	validateSequenceJSON(params);
+	validateSequenceSemantics(params);
 }
 
 /**
@@ -17,14 +18,16 @@ function validate(params) {
  * @param {object} opts
  * @param {boolean} [opts.commit]
  * @param {number}  [opts.startEpochMS]
+ * @param {AbortSignal} [opts.signal]
  * @returns {Promise<boolean>}
  */
 async function execute(params, opts = {}) {
-	const tl = compileSequence(params);
+	const tl = compileSequence(params, { validateSemantics: true });
 	const handle = tl.run({
 		broadcast: false,
 		commit: opts.commit,
 		startEpochMS: opts.startEpochMS,
+		signal: opts.signal,
 	});
 	return handle.finished;
 }
