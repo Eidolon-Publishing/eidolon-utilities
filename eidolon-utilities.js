@@ -1,36 +1,36 @@
-var Di = Object.defineProperty;
-var Yr = Object.getPrototypeOf;
-var Qr = Reflect.get;
-var Fi = (e) => {
+var sr = Object.defineProperty;
+var Ao = Object.getPrototypeOf;
+var Mo = Reflect.get;
+var ar = (e) => {
   throw TypeError(e);
 };
-var Xr = (e, t, n) => t in e ? Di(e, t, { enumerable: !0, configurable: !0, writable: !0, value: n }) : e[t] = n;
-var s = (e, t) => Di(e, "name", { value: t, configurable: !0 });
-var qe = (e, t, n) => Xr(e, typeof t != "symbol" ? t + "" : t, n), Nn = (e, t, n) => t.has(e) || Fi("Cannot " + n);
-var v = (e, t, n) => (Nn(e, t, "read from private field"), n ? n.call(e) : t.get(e)), M = (e, t, n) => t.has(e) ? Fi("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, n), D = (e, t, n, i) => (Nn(e, t, "write to private field"), i ? i.call(e, n) : t.set(e, n), n), S = (e, t, n) => (Nn(e, t, "access private method"), n);
-var it = (e, t, n) => Qr(Yr(e), n, t);
-const O = "eidolon-utilities", jt = "timeTriggerActive", Hn = "timeTriggerHideWindow", $n = "timeTriggerShowPlayerWindow", Vn = "timeTriggerAllowRealTime", er = "timeTriggers", _t = "timeTriggerHistory", kn = "debug", xn = "timeFormat", Un = "manageTime", jn = "secondsPerRound";
-const Zr = [-30, -15, -5, 5, 15, 30], st = 1440 * 60, Rt = "playSound", Ct = 6;
+var Do = (e, t, n) => t in e ? sr(e, t, { enumerable: !0, configurable: !0, writable: !0, value: n }) : e[t] = n;
+var s = (e, t) => sr(e, "name", { value: t, configurable: !0 });
+var Qe = (e, t, n) => Do(e, typeof t != "symbol" ? t + "" : t, n), Jn = (e, t, n) => t.has(e) || ar("Cannot " + n);
+var g = (e, t, n) => (Jn(e, t, "read from private field"), n ? n.call(e) : t.get(e)), C = (e, t, n) => t.has(e) ? ar("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, n), N = (e, t, n, i) => (Jn(e, t, "write to private field"), i ? i.call(e, n) : t.set(e, n), n), S = (e, t, n) => (Jn(e, t, "access private method"), n);
+var ft = (e, t, n) => Mo(Ao(e), n, t);
+const E = "eidolon-utilities", an = "timeTriggerActive", ti = "timeTriggerHideWindow", ni = "timeTriggerShowPlayerWindow", ii = "timeTriggerAllowRealTime", Ar = "timeTriggers", Xt = "timeTriggerHistory", ri = "debug", oi = "timeFormat", si = "manageTime", ai = "secondsPerRound";
+const Po = [-30, -15, -5, 5, 15, 30], yt = 1440 * 60, Zt = "playSound", Gt = 6;
 function f(e, t) {
   var n, i;
   return (i = (n = game.i18n) == null ? void 0 : n.has) != null && i.call(n, e) ? game.i18n.localize(e) : t;
 }
 s(f, "localize");
-function qt(e) {
+function ln(e) {
   return typeof e != "string" ? "" : e.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
-s(qt, "escapeHtml");
-function Ze(e) {
+s(ln, "escapeHtml");
+function lt(e) {
   var t;
   return e == null ? e : (t = foundry == null ? void 0 : foundry.utils) != null && t.duplicate ? foundry.utils.duplicate(e) : JSON.parse(JSON.stringify(e));
 }
-s(Ze, "duplicateData");
-function eo() {
+s(lt, "duplicateData");
+function Fo() {
   var e;
   return (e = foundry == null ? void 0 : foundry.utils) != null && e.randomID ? foundry.utils.randomID() : typeof (crypto == null ? void 0 : crypto.randomUUID) == "function" ? crypto.randomUUID() : Math.random().toString(36).slice(2, 10);
 }
-s(eo, "generateTriggerId");
-function tr(e) {
+s(Fo, "generateTriggerId");
+function Mr(e) {
   if (typeof e != "string") return null;
   const t = e.trim();
   if (!t) return null;
@@ -39,84 +39,84 @@ function tr(e) {
   const i = Number(n[1]), r = Number(n[2]), o = n[3] !== void 0 ? Number(n[3]) : 0;
   return !Number.isInteger(i) || !Number.isInteger(r) || !Number.isInteger(o) || i < 0 || i > 23 || r < 0 || r > 59 || o < 0 || o > 59 ? null : i * 3600 + r * 60 + o;
 }
-s(tr, "parseTriggerTimeToSeconds");
-function vt() {
+s(Mr, "parseTriggerTimeToSeconds");
+function Mt() {
   var e, t;
   return ((e = game.scenes) == null ? void 0 : e.current) ?? ((t = game.scenes) == null ? void 0 : t.active) ?? null;
 }
-s(vt, "getActiveScene");
-function Ie(e) {
+s(Mt, "getActiveScene");
+function Le(e) {
   return (e == null ? void 0 : e.object) ?? (e == null ? void 0 : e.document) ?? null;
 }
-s(Ie, "getSceneFromApplication");
+s(Le, "getSceneFromApplication");
 function ae(e) {
   return e && typeof e.getFlag == "function" && typeof e.setFlag == "function";
 }
 s(ae, "hasSceneDocument");
-const qn = /* @__PURE__ */ new Set(), Bn = /* @__PURE__ */ new Set(), Gn = /* @__PURE__ */ new Set(), zn = /* @__PURE__ */ new Set();
-let et = !1, Lt = !1, Bt = Ct, Gt = "12h", Pi = !1;
-function Mn(e) {
-  et = !!e;
-  for (const t of qn)
+const li = /* @__PURE__ */ new Set(), ci = /* @__PURE__ */ new Set(), di = /* @__PURE__ */ new Set(), fi = /* @__PURE__ */ new Set();
+let ct = !1, Ft = !1, cn = Gt, un = "12h", lr = !1;
+function Kn(e) {
+  ct = !!e;
+  for (const t of li)
     try {
-      t(et);
+      t(ct);
     } catch (n) {
-      console.error(`${O} | Debug change handler failed`, n);
+      console.error(`${E} | Debug change handler failed`, n);
     }
 }
-s(Mn, "notifyDebugChange");
-function Dn(e) {
-  Lt = !!e;
-  for (const t of Bn)
+s(Kn, "notifyDebugChange");
+function Yn(e) {
+  Ft = !!e;
+  for (const t of ci)
     try {
-      t(Lt);
+      t(Ft);
     } catch (n) {
-      console.error(`${O} | Manage time change handler failed`, n);
+      console.error(`${E} | Manage time change handler failed`, n);
     }
 }
-s(Dn, "notifyManageTimeChange");
-function nr(e) {
+s(Yn, "notifyManageTimeChange");
+function Dr(e) {
   return e === "24h" ? "24h" : "12h";
 }
-s(nr, "normalizeTimeFormatValue");
-function vi(e) {
+s(Dr, "normalizeTimeFormatValue");
+function Ui(e) {
   const t = Number(e);
-  return !Number.isFinite(t) || t <= 0 ? Ct : t;
+  return !Number.isFinite(t) || t <= 0 ? Gt : t;
 }
-s(vi, "normalizeSecondsPerRoundValue");
-function Fn(e) {
-  const t = vi(e);
-  Bt = t;
-  for (const n of Gn)
+s(Ui, "normalizeSecondsPerRoundValue");
+function Qn(e) {
+  const t = Ui(e);
+  cn = t;
+  for (const n of di)
     try {
       n(t);
     } catch (i) {
-      console.error(`${O} | Seconds-per-round change handler failed`, i);
+      console.error(`${E} | Seconds-per-round change handler failed`, i);
     }
 }
-s(Fn, "notifySecondsPerRoundChange");
-function Pn(e) {
-  const t = nr(e);
-  Gt = t;
-  for (const n of zn)
+s(Qn, "notifySecondsPerRoundChange");
+function Xn(e) {
+  const t = Dr(e);
+  un = t;
+  for (const n of fi)
     try {
       n(t);
     } catch (i) {
-      console.error(`${O} | Time format change handler failed`, i);
+      console.error(`${E} | Time format change handler failed`, i);
     }
 }
-s(Pn, "notifyTimeFormatChange");
-function to() {
+s(Xn, "notifyTimeFormatChange");
+function _o() {
   var t;
-  if (Pi) return;
-  if (Pi = !0, !((t = game == null ? void 0 : game.settings) != null && t.register)) {
+  if (lr) return;
+  if (lr = !0, !((t = game == null ? void 0 : game.settings) != null && t.register)) {
     console.warn(
-      `${O} | game.settings.register is unavailable. Module settings could not be registered.`
+      `${E} | game.settings.register is unavailable. Module settings could not be registered.`
     );
     return;
   }
   const e = typeof game.settings.registerChange == "function";
-  game.settings.register(O, kn, {
+  game.settings.register(E, ri, {
     name: f("EIDOLON.TimeTrigger.DebugSettingName", "Enable debug logging"),
     hint: f(
       "EIDOLON.TimeTrigger.DebugSettingHint",
@@ -126,8 +126,8 @@ function to() {
     config: !0,
     type: Boolean,
     default: !1,
-    onChange: e ? void 0 : Mn
-  }), e && game.settings.registerChange(O, kn, Mn), et = Oi(), Mn(et), game.settings.register(O, Un, {
+    onChange: e ? void 0 : Kn
+  }), e && game.settings.registerChange(E, ri, Kn), ct = qi(), Kn(ct), game.settings.register(E, si, {
     name: f("EIDOLON.TimeTrigger.ManageTimeSettingName", "Manage Game Time"),
     hint: f(
       "EIDOLON.TimeTrigger.ManageTimeSettingHint",
@@ -137,8 +137,8 @@ function to() {
     config: !0,
     type: Boolean,
     default: !1,
-    onChange: e ? void 0 : Dn
-  }), e && game.settings.registerChange(O, Un, Dn), Lt = io(), Dn(Lt), game.settings.register(O, jn, {
+    onChange: e ? void 0 : Yn
+  }), e && game.settings.registerChange(E, si, Yn), Ft = Ho(), Yn(Ft), game.settings.register(E, ai, {
     name: f(
       "EIDOLON.TimeTrigger.SecondsPerRoundSettingName",
       "Seconds Per Combat Round"
@@ -150,14 +150,14 @@ function to() {
     scope: "world",
     config: !0,
     type: Number,
-    default: Ct,
+    default: Gt,
     range: { min: 1, max: 3600, step: 1 },
-    onChange: e ? void 0 : Fn
+    onChange: e ? void 0 : Qn
   }), e && game.settings.registerChange(
-    O,
-    jn,
-    Fn
-  ), Bt = vi(ro()), Fn(Bt), game.settings.register(O, xn, {
+    E,
+    ai,
+    Qn
+  ), cn = Ui($o()), Qn(cn), game.settings.register(E, oi, {
     name: f("EIDOLON.TimeTrigger.TimeFormatSettingName", "Trigger Time Format"),
     hint: f(
       "EIDOLON.TimeTrigger.TimeFormatSettingHint",
@@ -177,222 +177,222 @@ function to() {
       )
     },
     default: "12h",
-    onChange: e ? void 0 : Pn
-  }), e && game.settings.registerChange(O, xn, Pn), Gt = nr(ir()), Pn(Gt);
+    onChange: e ? void 0 : Xn
+  }), e && game.settings.registerChange(E, oi, Xn), un = Dr(Pr()), Xn(un);
 }
-s(to, "registerTimeTriggerSettings");
-function Oi() {
+s(_o, "registerTimeTriggerSettings");
+function qi() {
   var e;
   try {
     if ((e = game == null ? void 0 : game.settings) != null && e.get)
-      return !!game.settings.get(O, kn);
+      return !!game.settings.get(E, ri);
   } catch (t) {
-    console.error(`${O} | Failed to read debug setting`, t);
+    console.error(`${E} | Failed to read debug setting`, t);
   }
   return !1;
 }
-s(Oi, "getDebugSetting");
-function no() {
-  return et = Oi(), et;
+s(qi, "getDebugSetting");
+function Ro() {
+  return ct = qi(), ct;
 }
-s(no, "refreshDebugSettingCache");
-function io() {
+s(Ro, "refreshDebugSettingCache");
+function Ho() {
   var e;
   try {
     if ((e = game == null ? void 0 : game.settings) != null && e.get)
-      return !!game.settings.get(O, Un);
+      return !!game.settings.get(E, si);
   } catch (t) {
-    console.error(`${O} | Failed to read manage time setting`, t);
+    console.error(`${E} | Failed to read manage time setting`, t);
   }
   return !1;
 }
-s(io, "getManageTimeSetting");
-function ir() {
+s(Ho, "getManageTimeSetting");
+function Pr() {
   var e;
   try {
     if ((e = game == null ? void 0 : game.settings) != null && e.get)
-      return game.settings.get(O, xn) === "24h" ? "24h" : "12h";
+      return game.settings.get(E, oi) === "24h" ? "24h" : "12h";
   } catch (t) {
-    console.error(`${O} | Failed to read time format setting`, t);
+    console.error(`${E} | Failed to read time format setting`, t);
   }
   return "12h";
 }
-s(ir, "getTimeFormatSetting");
-function ro() {
+s(Pr, "getTimeFormatSetting");
+function $o() {
   var e;
   try {
     if ((e = game == null ? void 0 : game.settings) != null && e.get) {
-      const t = game.settings.get(O, jn);
-      return vi(t);
+      const t = game.settings.get(E, ai);
+      return Ui(t);
     }
   } catch (t) {
-    console.error(`${O} | Failed to read seconds-per-round setting`, t);
+    console.error(`${E} | Failed to read seconds-per-round setting`, t);
   }
-  return Ct;
+  return Gt;
 }
-s(ro, "getSecondsPerRoundSetting");
-function oo(e) {
+s($o, "getSecondsPerRoundSetting");
+function Vo(e) {
   if (typeof e != "function")
     return () => {
     };
-  qn.add(e);
+  li.add(e);
   try {
-    e(et);
+    e(ct);
   } catch (t) {
-    console.error(`${O} | Debug change handler failed`, t);
+    console.error(`${E} | Debug change handler failed`, t);
   }
   return () => {
-    qn.delete(e);
+    li.delete(e);
   };
 }
-s(oo, "onDebugSettingChange");
-function rr(e) {
+s(Vo, "onDebugSettingChange");
+function Fr(e) {
   if (typeof e != "function")
     return () => {
     };
-  Bn.add(e);
+  ci.add(e);
   try {
-    e(Lt);
+    e(Ft);
   } catch (t) {
-    console.error(`${O} | Manage time change handler failed`, t);
+    console.error(`${E} | Manage time change handler failed`, t);
   }
   return () => {
-    Bn.delete(e);
+    ci.delete(e);
   };
 }
-s(rr, "onManageTimeSettingChange");
-function Li(e) {
+s(Fr, "onManageTimeSettingChange");
+function Bi(e) {
   if (typeof e != "function")
     return () => {
     };
-  zn.add(e);
+  fi.add(e);
   try {
-    e(Gt);
+    e(un);
   } catch (t) {
-    console.error(`${O} | Time format change handler failed`, t);
+    console.error(`${E} | Time format change handler failed`, t);
   }
   return () => {
-    zn.delete(e);
+    fi.delete(e);
   };
 }
-s(Li, "onTimeFormatSettingChange");
-function so(e) {
+s(Bi, "onTimeFormatSettingChange");
+function ko(e) {
   if (typeof e != "function")
     return () => {
     };
-  Gn.add(e);
+  di.add(e);
   try {
-    e(Bt);
+    e(cn);
   } catch (t) {
-    console.error(`${O} | Seconds-per-round change handler failed`, t);
+    console.error(`${E} | Seconds-per-round change handler failed`, t);
   }
   return () => {
-    Gn.delete(e);
+    di.delete(e);
   };
 }
-s(so, "onSecondsPerRoundSettingChange");
-let In = !1, Wn = !1;
-function Kn(e) {
-  In = !!e;
+s(ko, "onSecondsPerRoundSettingChange");
+let Un = !1, gi = !1;
+function mi(e) {
+  Un = !!e;
 }
-s(Kn, "updateDebugState");
-function or() {
-  Wn || (Wn = !0, Kn(Oi()), oo((e) => {
-    Kn(e), console.info(`${O} | Debug ${In ? "enabled" : "disabled"}`);
+s(mi, "updateDebugState");
+function _r() {
+  gi || (gi = !0, mi(qi()), Vo((e) => {
+    mi(e), console.info(`${E} | Debug ${Un ? "enabled" : "disabled"}`);
   }));
 }
-s(or, "ensureInitialized");
-function Ii() {
-  return Wn || or(), In;
+s(_r, "ensureInitialized");
+function Gi() {
+  return gi || _r(), Un;
 }
-s(Ii, "shouldLog");
-function sr(e) {
+s(Gi, "shouldLog");
+function Rr(e) {
   if (!e.length)
-    return [`${O} |`];
+    return [`${E} |`];
   const [t, ...n] = e;
-  return typeof t == "string" ? [`${O} | ${t}`, ...n] : [`${O} |`, t, ...n];
+  return typeof t == "string" ? [`${E} | ${t}`, ...n] : [`${E} |`, t, ...n];
 }
-s(sr, "formatArgs");
-function ao() {
-  or();
+s(Rr, "formatArgs");
+function xo() {
+  _r();
 }
-s(ao, "initializeDebug");
-function lo() {
-  return Kn(no()), In;
+s(xo, "initializeDebug");
+function jo() {
+  return mi(Ro()), Un;
 }
-s(lo, "syncDebugState");
-function T(...e) {
-  Ii() && console.debug(...sr(e));
+s(jo, "syncDebugState");
+function b(...e) {
+  Gi() && console.debug(...Rr(e));
 }
-s(T, "debugLog");
-function ft(...e) {
-  Ii() && console.group(...sr(e));
+s(b, "debugLog");
+function Et(...e) {
+  Gi() && console.group(...Rr(e));
 }
-s(ft, "debugGroup");
-function ke() {
-  Ii() && console.groupEnd();
+s(Et, "debugGroup");
+function We() {
+  Gi() && console.groupEnd();
 }
-s(ke, "debugGroupEnd");
-function at(e) {
+s(We, "debugGroupEnd");
+function pt(e) {
   var r;
-  const t = (r = e == null ? void 0 : e.getFlag) == null ? void 0 : r.call(e, O, er);
+  const t = (r = e == null ? void 0 : e.getFlag) == null ? void 0 : r.call(e, E, Ar);
   if (!t) return [];
-  const n = Ze(t), i = Array.isArray(n) ? n : [];
-  return T("Loaded time triggers", {
+  const n = lt(t), i = Array.isArray(n) ? n : [];
+  return b("Loaded time triggers", {
     sceneId: (e == null ? void 0 : e.id) ?? null,
     count: i.length
   }), i;
 }
-s(at, "getTimeTriggers");
-async function ar(e, t) {
-  e != null && e.setFlag && (T("Persisting time triggers", {
+s(pt, "getTimeTriggers");
+async function Hr(e, t) {
+  e != null && e.setFlag && (b("Persisting time triggers", {
     sceneId: e.id,
     count: Array.isArray(t) ? t.length : 0
-  }), await e.setFlag(O, er, t));
+  }), await e.setFlag(E, Ar, t));
 }
-s(ar, "setTimeTriggers");
-function co(e) {
+s(Hr, "setTimeTriggers");
+function Uo(e) {
   var r;
-  const t = (r = e == null ? void 0 : e.getFlag) == null ? void 0 : r.call(e, O, _t);
+  const t = (r = e == null ? void 0 : e.getFlag) == null ? void 0 : r.call(e, E, Xt);
   if (!t) return {};
-  const n = Ze(t);
+  const n = lt(t);
   if (!n || typeof n != "object") return {};
   const i = {};
   for (const [o, a] of Object.entries(n))
     typeof a == "number" && Number.isFinite(a) && (i[o] = a);
-  return T("Loaded time trigger history", {
+  return b("Loaded time trigger history", {
     sceneId: (e == null ? void 0 : e.id) ?? null,
     keys: Object.keys(i)
   }), i;
 }
-s(co, "getTimeTriggerHistory");
-async function _n(e, t) {
-  var c, u, d, h;
+s(Uo, "getTimeTriggerHistory");
+async function Zn(e, t) {
+  var c, u, d, y;
   if (!e) return;
   const n = {};
   if (t && typeof t == "object")
-    for (const [m, p] of Object.entries(t))
-      typeof p == "number" && Number.isFinite(p) && (n[m] = p);
-  const i = ((c = e.getFlag) == null ? void 0 : c.call(e, O, _t)) ?? {}, r = {};
+    for (const [h, T] of Object.entries(t))
+      typeof T == "number" && Number.isFinite(T) && (n[h] = T);
+  const i = ((c = e.getFlag) == null ? void 0 : c.call(e, E, Xt)) ?? {}, r = {};
   if (i && typeof i == "object")
-    for (const [m, p] of Object.entries(i))
-      typeof p == "number" && Number.isFinite(p) && (r[m] = p);
+    for (const [h, T] of Object.entries(i))
+      typeof T == "number" && Number.isFinite(T) && (r[h] = T);
   const o = Object.keys(n), a = Object.keys(r);
   if (typeof ((u = foundry == null ? void 0 : foundry.utils) == null ? void 0 : u.deepEqual) == "function" ? foundry.utils.deepEqual(r, n) : JSON.stringify(r) === JSON.stringify(n)) {
-    T("Skip history update because state is unchanged", {
+    b("Skip history update because state is unchanged", {
       sceneId: (e == null ? void 0 : e.id) ?? null
     });
     return;
   }
-  T("Updating time trigger history", {
+  b("Updating time trigger history", {
     sceneId: (e == null ? void 0 : e.id) ?? null,
     keys: o,
-    removedKeys: a.filter((m) => !o.includes(m))
+    removedKeys: a.filter((h) => !o.includes(h))
   });
   try {
-    a.length && typeof e.unsetFlag == "function" && await e.unsetFlag(O, _t), o.length && await e.setFlag(O, _t, n);
-  } catch (m) {
-    console.error(`${O} | Failed to persist time trigger history`, m), (h = (d = ui.notifications) == null ? void 0 : d.error) == null || h.call(
+    a.length && typeof e.unsetFlag == "function" && await e.unsetFlag(E, Xt), o.length && await e.setFlag(E, Xt, n);
+  } catch (h) {
+    console.error(`${E} | Failed to persist time trigger history`, h), (y = (d = ui.notifications) == null ? void 0 : d.error) == null || y.call(
       d,
       f(
         "EIDOLON.TimeTrigger.HistoryPersistError",
@@ -401,84 +401,84 @@ async function _n(e, t) {
     );
   }
 }
-s(_n, "updateTimeTriggerHistory");
-const zt = /* @__PURE__ */ new Map(), _i = /* @__PURE__ */ new Set();
-function uo(e) {
+s(Zn, "updateTimeTriggerHistory");
+const dn = /* @__PURE__ */ new Map(), cr = /* @__PURE__ */ new Set();
+function qo(e) {
   if (!(e != null && e.id))
-    throw new Error(`${O} | Action definitions require an id.`);
-  if (zt.has(e.id))
-    throw new Error(`${O} | Duplicate time trigger action id: ${e.id}`);
-  zt.set(e.id, {
+    throw new Error(`${E} | Action definitions require an id.`);
+  if (dn.has(e.id))
+    throw new Error(`${E} | Duplicate time trigger action id: ${e.id}`);
+  dn.set(e.id, {
     ...e
-  }), T("Registered time trigger action", { actionId: e.id });
+  }), b("Registered time trigger action", { actionId: e.id });
 }
-s(uo, "registerAction");
-function At(e) {
-  return zt.get(e) ?? null;
+s(qo, "registerAction");
+function zt(e) {
+  return dn.get(e) ?? null;
 }
-s(At, "getAction");
-function fo(e) {
-  const t = At(e);
+s(zt, "getAction");
+function Bo(e) {
+  const t = zt(e);
   return t ? typeof t.label == "function" ? t.label() : t.label : e;
 }
-s(fo, "getActionLabel");
-function Ri() {
-  return Array.from(zt.values());
+s(Bo, "getActionLabel");
+function ur() {
+  return Array.from(dn.values());
 }
-s(Ri, "listActions");
-async function lr(e, t) {
+s(ur, "listActions");
+async function $r(e, t) {
   var i, r;
-  const n = At(t == null ? void 0 : t.action);
+  const n = zt(t == null ? void 0 : t.action);
   if (!n || typeof n.execute != "function") {
     const o = f(
       "EIDOLON.TimeTrigger.UnknownAction",
       "Encountered an unknown time trigger action and skipped it."
     );
-    (r = (i = ui.notifications) == null ? void 0 : i.warn) == null || r.call(i, o), console.warn(`${O} | Unknown time trigger action`, t), T("Encountered unknown time trigger action", {
+    (r = (i = ui.notifications) == null ? void 0 : i.warn) == null || r.call(i, o), console.warn(`${E} | Unknown time trigger action`, t), b("Encountered unknown time trigger action", {
       triggerId: (t == null ? void 0 : t.id) ?? null,
       actionId: (t == null ? void 0 : t.action) ?? null
     });
     return;
   }
-  T("Executing action handler", {
+  b("Executing action handler", {
     actionId: n.id,
     triggerId: (t == null ? void 0 : t.id) ?? null,
     sceneId: (e == null ? void 0 : e.id) ?? null
   }), await n.execute({ scene: e, trigger: t });
 }
-s(lr, "executeTriggerAction");
-function go(e) {
-  const t = At(e == null ? void 0 : e.action);
-  return !t || typeof t.buildSummaryParts != "function" ? [] : t.buildSummaryParts({ trigger: e, escapeHtml: qt, localize: f }) ?? [];
+s($r, "executeTriggerAction");
+function Go(e) {
+  const t = zt(e == null ? void 0 : e.action);
+  return !t || typeof t.buildSummaryParts != "function" ? [] : t.buildSummaryParts({ trigger: e, escapeHtml: ln, localize: f }) ?? [];
 }
-s(go, "buildActionSummaryParts");
-function mo(e) {
-  const t = At(e == null ? void 0 : e.action);
-  return !t || typeof t.buildFormContent != "function" ? "" : t.buildFormContent({ trigger: e, escapeHtml: qt, localize: f }) ?? "";
+s(Go, "buildActionSummaryParts");
+function zo(e) {
+  const t = zt(e == null ? void 0 : e.action);
+  return !t || typeof t.buildFormContent != "function" ? "" : t.buildFormContent({ trigger: e, escapeHtml: ln, localize: f }) ?? "";
 }
-s(mo, "buildActionFormSection");
-function ho(e, t) {
-  const n = At(e == null ? void 0 : e.action);
+s(zo, "buildActionFormSection");
+function Wo(e, t) {
+  const n = zt(e == null ? void 0 : e.action);
   !n || typeof n.prepareFormData != "function" || n.prepareFormData({ trigger: e, formData: t });
 }
-s(ho, "applyActionFormData");
-function yo(e, t, n) {
+s(Wo, "applyActionFormData");
+function Jo(e, t, n) {
   var o, a;
   const i = `${(e == null ? void 0 : e.id) ?? "unknown"}:${(t == null ? void 0 : t.id) ?? (t == null ? void 0 : t.action) ?? "unknown"}:${n}`;
-  if (_i.has(i)) return;
-  _i.add(i);
+  if (cr.has(i)) return;
+  cr.add(i);
   const r = f(
     "EIDOLON.TimeTrigger.MissingDataWarning",
     "A scene time trigger is missing required data and was skipped."
   );
-  (a = (o = ui.notifications) == null ? void 0 : o.warn) == null || a.call(o, r), console.warn(`${O} | Missing trigger data (${n})`, { scene: e == null ? void 0 : e.id, trigger: t });
+  (a = (o = ui.notifications) == null ? void 0 : o.warn) == null || a.call(o, r), console.warn(`${E} | Missing trigger data (${n})`, { scene: e == null ? void 0 : e.id, trigger: t });
 }
-s(yo, "warnMissingTriggerData");
-async function po({ scene: e, trigger: t }) {
+s(Jo, "warnMissingTriggerData");
+async function Ko({ scene: e, trigger: t }) {
   var o, a, l, c, u;
   const n = (l = (a = (o = t == null ? void 0 : t.data) == null ? void 0 : o.path) == null ? void 0 : a.trim) == null ? void 0 : l.call(a);
   if (!n) {
-    yo(e, t, "missing-audio-path");
+    Jo(e, t, "missing-audio-path");
     return;
   }
   const i = {
@@ -486,11 +486,11 @@ async function po({ scene: e, trigger: t }) {
     autoplay: !0,
     loop: !1
   }, r = (() => {
-    var d, h, m, p, g;
-    return typeof ((h = (d = foundry == null ? void 0 : foundry.audio) == null ? void 0 : d.AudioHelper) == null ? void 0 : h.play) == "function" ? foundry.audio.AudioHelper.play(i, !0) : typeof ((p = (m = game == null ? void 0 : game.audio) == null ? void 0 : m.constructor) == null ? void 0 : p.play) == "function" ? game.audio.constructor.play(i, !0) : typeof ((g = game == null ? void 0 : game.audio) == null ? void 0 : g.play) == "function" ? game.audio.play(i, !0) : null;
+    var d, y, h, T, m;
+    return typeof ((y = (d = foundry == null ? void 0 : foundry.audio) == null ? void 0 : d.AudioHelper) == null ? void 0 : y.play) == "function" ? foundry.audio.AudioHelper.play(i, !0) : typeof ((T = (h = game == null ? void 0 : game.audio) == null ? void 0 : h.constructor) == null ? void 0 : T.play) == "function" ? game.audio.constructor.play(i, !0) : typeof ((m = game == null ? void 0 : game.audio) == null ? void 0 : m.play) == "function" ? game.audio.play(i, !0) : null;
   })();
   if (!r) {
-    console.error(`${O} | Foundry audio helper is unavailable`), (u = (c = ui.notifications) == null ? void 0 : c.error) == null || u.call(
+    console.error(`${E} | Foundry audio helper is unavailable`), (u = (c = ui.notifications) == null ? void 0 : c.error) == null || u.call(
       c,
       f(
         "EIDOLON.TimeTrigger.AudioHelperUnavailable",
@@ -501,11 +501,11 @@ async function po({ scene: e, trigger: t }) {
   }
   await r;
 }
-s(po, "executePlaySoundAction");
-uo({
-  id: Rt,
+s(Ko, "executePlaySoundAction");
+qo({
+  id: Zt,
   label: /* @__PURE__ */ s(() => f("EIDOLON.TimeTrigger.ActionPlaySound", "Play Sound"), "label"),
-  execute: po,
+  execute: Ko,
   buildSummaryParts: /* @__PURE__ */ s(({ trigger: e, escapeHtml: t, localize: n }) => {
     var r;
     return (r = e == null ? void 0 : e.data) != null && r.path ? [`${t(n("EIDOLON.TimeTrigger.TriggerSound", "Sound File"))}: ${t(e.data.path)}`] : [];
@@ -544,18 +544,18 @@ uo({
     e.data.path = ((i = (n = t.playSoundPath) == null ? void 0 : n.trim) == null ? void 0 : i.call(n)) ?? "";
   }, "prepareFormData")
 });
-var Qi;
-const { ApplicationV2: En, HandlebarsApplicationMixin: Sn } = ((Qi = foundry.applications) == null ? void 0 : Qi.api) ?? {};
-if (!En || !Sn)
+var Lr;
+const { ApplicationV2: qn, HandlebarsApplicationMixin: Bn } = ((Lr = foundry.applications) == null ? void 0 : Lr.api) ?? {};
+if (!qn || !Bn)
   throw new Error(
-    `${O} | ApplicationV2 API unavailable. Update Foundry VTT to v13 or newer.`
+    `${E} | ApplicationV2 API unavailable. Update Foundry VTT to v13 or newer.`
   );
-const Ue = "AM", tt = "PM";
-function xe() {
-  return ir();
+const Ke = "AM", ut = "PM";
+function Je() {
+  return Pr();
 }
-s(xe, "getConfiguredTimeFormat");
-function wn(e) {
+s(Je, "getConfiguredTimeFormat");
+function Gn(e) {
   if (typeof e != "string") return null;
   const t = e.trim();
   if (!t) return null;
@@ -568,8 +568,8 @@ function wn(e) {
     seconds: o
   };
 }
-s(wn, "parseCanonicalTimeString");
-function Le({ hours: e, minutes: t, seconds: n }) {
+s(Gn, "parseCanonicalTimeString");
+function Ie({ hours: e, minutes: t, seconds: n }) {
   if (!Number.isInteger(e) || !Number.isInteger(t) || e < 0 || e > 23 || t < 0 || t > 59) return null;
   const i = String(e).padStart(2, "0"), r = String(t).padStart(2, "0");
   if (Number.isInteger(n)) {
@@ -579,13 +579,13 @@ function Le({ hours: e, minutes: t, seconds: n }) {
   }
   return `${i}:${r}`;
 }
-s(Le, "formatCanonicalTime");
-function To(e, { format: t } = {}) {
+s(Ie, "formatCanonicalTime");
+function Yo(e, { format: t } = {}) {
   if (!e || typeof e != "object") return null;
   const n = Number(e.hour), i = Number(e.minute), r = e.second !== void 0 && e.second !== null, o = r ? Number(e.second) : null, a = r && Number.isFinite(o) ? Math.floor(Math.max(0, Math.min(59, o))) : null;
   if (!Number.isFinite(n) || !Number.isFinite(i)) return null;
-  const l = t ?? xe();
-  return Wt(
+  const l = t ?? Je();
+  return fn(
     {
       hours: n,
       minutes: i,
@@ -594,37 +594,37 @@ function To(e, { format: t } = {}) {
     l
   );
 }
-s(To, "formatTimeComponentsForDisplay");
-function bo(e, { format: t } = {}) {
-  const n = wn(e);
+s(Yo, "formatTimeComponentsForDisplay");
+function Qo(e, { format: t } = {}) {
+  const n = Gn(e);
   if (!n) return "";
-  const i = t ?? xe();
-  return Wt(n, i);
+  const i = t ?? Je();
+  return fn(n, i);
 }
-s(bo, "formatTriggerTimeForDisplay");
-function Wt(e, t = "12h") {
+s(Qo, "formatTriggerTimeForDisplay");
+function fn(e, t = "12h") {
   if (!e) return "";
   const { hours: n, minutes: i, seconds: r = null } = e;
   if (!Number.isInteger(n) || !Number.isInteger(i)) return "";
   const o = Number.isInteger(r);
   if (t === "24h") {
-    const m = `${String(n).padStart(2, "0")}:${String(i).padStart(2, "0")}`;
-    return o ? `${m}:${String(r).padStart(2, "0")}` : m;
+    const h = `${String(n).padStart(2, "0")}:${String(i).padStart(2, "0")}`;
+    return o ? `${h}:${String(r).padStart(2, "0")}` : h;
   }
-  const a = n >= 12 ? tt : Ue, l = n % 12 === 0 ? 12 : n % 12, c = String(l), u = String(i).padStart(2, "0"), d = `${c}:${u}`, h = a === Ue ? f("EIDOLON.TimeTrigger.TimePeriodAM", Ue) : f("EIDOLON.TimeTrigger.TimePeriodPM", tt);
+  const a = n >= 12 ? ut : Ke, l = n % 12 === 0 ? 12 : n % 12, c = String(l), u = String(i).padStart(2, "0"), d = `${c}:${u}`, y = a === Ke ? f("EIDOLON.TimeTrigger.TimePeriodAM", Ke) : f("EIDOLON.TimeTrigger.TimePeriodPM", ut);
   if (o) {
-    const m = String(r).padStart(2, "0");
-    return `${d}:${m} ${h}`;
+    const h = String(r).padStart(2, "0");
+    return `${d}:${h} ${y}`;
   }
-  return `${d} ${h}`;
+  return `${d} ${y}`;
 }
-s(Wt, "formatTimeParts");
-function Hi(e, t = xe()) {
-  const n = wn(e);
+s(fn, "formatTimeParts");
+function dr(e, t = Je()) {
+  const n = Gn(e);
   if (t === "24h")
     return {
       format: t,
-      canonical: n ? Le(n) ?? "" : "",
+      canonical: n ? Ie(n) ?? "" : "",
       hour: n ? String(n.hours).padStart(2, "0") : "",
       minute: n ? String(n.minutes).padStart(2, "0") : ""
     };
@@ -634,24 +634,24 @@ function Hi(e, t = xe()) {
       canonical: "",
       hour: "",
       minute: "",
-      period: Ue
+      period: Ke
     };
-  const i = n.hours >= 12 ? tt : Ue, r = n.hours % 12 === 0 ? 12 : n.hours % 12;
+  const i = n.hours >= 12 ? ut : Ke, r = n.hours % 12 === 0 ? 12 : n.hours % 12;
   return {
     format: t,
-    canonical: Le(n) ?? "",
+    canonical: Ie(n) ?? "",
     hour: String(r),
     minute: String(n.minutes).padStart(2, "0"),
     period: i
   };
 }
-s(Hi, "getTimeFormValues");
-function vo({ hour: e, minute: t, period: n, time: i }, r = xe()) {
+s(dr, "getTimeFormValues");
+function Xo({ hour: e, minute: t, period: n, time: i }, r = Je()) {
   if (r === "24h") {
-    const p = typeof e == "string" ? e.trim() : "", g = typeof t == "string" ? t.trim() : "", L = typeof i == "string" ? i.trim() : "";
-    if (!p && !g && L) {
-      const A = wn(L);
-      return A ? { canonical: Le(A) ?? "", error: null } : {
+    const T = typeof e == "string" ? e.trim() : "", m = typeof t == "string" ? t.trim() : "", v = typeof i == "string" ? i.trim() : "";
+    if (!T && !m && v) {
+      const A = Gn(v);
+      return A ? { canonical: Ie(A) ?? "", error: null } : {
         canonical: "",
         error: f(
           "EIDOLON.TimeTrigger.TimeFormatInvalid24",
@@ -659,33 +659,33 @@ function vo({ hour: e, minute: t, period: n, time: i }, r = xe()) {
         )
       };
     }
-    if (!p || !g)
+    if (!T || !m)
       return {
         canonical: "",
         error: f("EIDOLON.TimeTrigger.TimeFormatMissing", "Enter a complete time.")
       };
-    const I = Number(p), b = Number(g);
-    return !Number.isInteger(I) || I < 0 || I > 23 ? {
+    const w = Number(T), O = Number(m);
+    return !Number.isInteger(w) || w < 0 || w > 23 ? {
       canonical: "",
       error: f(
         "EIDOLON.TimeTrigger.TimeFormatInvalid24",
         "Enter a valid time in HH:MM format."
       )
-    } : !Number.isInteger(b) || b < 0 || b > 59 ? {
+    } : !Number.isInteger(O) || O < 0 || O > 59 ? {
       canonical: "",
       error: f(
         "EIDOLON.TimeTrigger.TimeFormatInvalid24",
         "Enter a valid time in HH:MM format."
       )
-    } : { canonical: Le({
-      hours: I,
-      minutes: b
+    } : { canonical: Ie({
+      hours: w,
+      minutes: O
     }) ?? "", error: null };
   }
   const o = typeof e == "string" ? e.trim() : "", a = typeof t == "string" ? t.trim() : "", l = typeof n == "string" ? n.trim().toUpperCase() : "";
   if (!o || !a || !l)
     return { canonical: "", error: f("EIDOLON.TimeTrigger.TimeFormatMissing", "Enter a complete time.") };
-  if (l !== Ue && l !== tt)
+  if (l !== Ke && l !== ut)
     return { canonical: "", error: f("EIDOLON.TimeTrigger.TimeFormatInvalidPeriod", "Select AM or PM.") };
   const c = Number(o), u = Number(a);
   if (!Number.isInteger(c) || c < 1 || c > 12)
@@ -698,68 +698,68 @@ function vo({ hour: e, minute: t, period: n, time: i }, r = xe()) {
       canonical: "",
       error: f("EIDOLON.TimeTrigger.TimeFormatInvalidMinute", "Minutes must be between 00 and 59.")
     };
-  const d = c % 12, m = {
-    hours: l === tt ? d + 12 : d,
+  const d = c % 12, h = {
+    hours: l === ut ? d + 12 : d,
     minutes: u
   };
   return {
-    canonical: Le(m) ?? "",
+    canonical: Ie(h) ?? "",
     error: null
   };
 }
-s(vo, "normalizeFormTimeInput");
-function Oo() {
+s(Xo, "normalizeFormTimeInput");
+function Zo() {
   return [
     {
-      value: Ue,
-      label: f("EIDOLON.TimeTrigger.TimePeriodAM", Ue)
+      value: Ke,
+      label: f("EIDOLON.TimeTrigger.TimePeriodAM", Ke)
     },
     {
-      value: tt,
-      label: f("EIDOLON.TimeTrigger.TimePeriodPM", tt)
+      value: ut,
+      label: f("EIDOLON.TimeTrigger.TimePeriodPM", ut)
     }
   ];
 }
-s(Oo, "getPeriodOptions");
-var Ge, ze, j, cr, Zt, en, ur, Yn, Qn, tn, nn, dr, fr, gr, Xn, Zn, ei, rn, on, ti, sn, mr, hr;
-const Be = class Be extends Sn(En) {
+s(Zo, "getPeriodOptions");
+var Ze, et, U, Vr, bn, On, kr, yi, pi, vn, En, xr, jr, Ur, Ti, bi, Oi, wn, Sn, vi, In, qr, Br;
+const Xe = class Xe extends Bn(qn) {
   constructor(n = {}) {
     var a;
     const { scene: i, showControls: r, ...o } = n ?? {};
     super(o);
-    M(this, j);
-    M(this, Ge, null);
-    M(this, ze, null);
-    M(this, Zt, /* @__PURE__ */ s((n) => {
+    C(this, U);
+    C(this, Ze, null);
+    C(this, et, null);
+    C(this, bn, /* @__PURE__ */ s((n) => {
       var r, o;
       n.preventDefault();
       const i = Number((o = (r = n.currentTarget) == null ? void 0 : r.dataset) == null ? void 0 : o.delta);
-      Number.isFinite(i) && (T("Time delta button clicked", { delta: i }), this._advanceTime(i));
+      Number.isFinite(i) && (b("Time delta button clicked", { delta: i }), this._advanceTime(i));
     }, "#onDeltaClick"));
-    M(this, en, /* @__PURE__ */ s((n) => {
+    C(this, On, /* @__PURE__ */ s((n) => {
       var i, r;
-      n.preventDefault(), !(!this.showControls || !((i = game.user) != null && i.isGM)) && (T("Time value double clicked", { sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null }), S(this, j, ur).call(this));
+      n.preventDefault(), !(!this.showControls || !((i = game.user) != null && i.isGM)) && (b("Time value double clicked", { sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null }), S(this, U, kr).call(this));
     }, "#onTimeDoubleClick"));
-    M(this, tn, /* @__PURE__ */ s((n) => {
+    C(this, vn, /* @__PURE__ */ s((n) => {
       if (this.isEditingTime && !this._commitTimeInProgress)
         if (n.key === "Enter") {
           n.preventDefault();
           const i = n.currentTarget, r = typeof (i == null ? void 0 : i.value) == "string" ? i.value : "";
-          S(this, j, Qn).call(this, r);
-        } else n.key === "Escape" && (n.preventDefault(), S(this, j, Yn).call(this));
+          S(this, U, pi).call(this, r);
+        } else n.key === "Escape" && (n.preventDefault(), S(this, U, yi).call(this));
     }, "#onTimeInputKeydown"));
-    M(this, nn, /* @__PURE__ */ s((n) => {
+    C(this, En, /* @__PURE__ */ s((n) => {
       if (!this.isEditingTime || this._commitTimeInProgress || this._suppressBlurCommit) return;
       const i = n.currentTarget, r = typeof (i == null ? void 0 : i.value) == "string" ? i.value : "";
-      S(this, j, Qn).call(this, r);
+      S(this, U, pi).call(this, r);
     }, "#onTimeInputBlur"));
-    M(this, rn, /* @__PURE__ */ s((n) => {
+    C(this, wn, /* @__PURE__ */ s((n) => {
       const i = !!n;
       if (this.manageTimeEnabled === i) return;
       this.manageTimeEnabled = i, (this.rendered ?? this.isRendered ?? !1) && this.render({ force: !0 });
     }, "#handleManageTimeChange"));
-    M(this, on, /* @__PURE__ */ s(async (n) => {
-      var o, a, l, c, u, d, h, m, p;
+    C(this, Sn, /* @__PURE__ */ s(async (n) => {
+      var o, a, l, c, u, d, y, h, T;
       if (n.preventDefault(), !this.showControls || !((o = game.user) != null && o.isGM)) return;
       if (!this.manageTimeEnabled) {
         (l = (a = ui.notifications) == null ? void 0 : a.error) == null || l.call(
@@ -784,18 +784,18 @@ const Be = class Be extends Sn(En) {
       }
       const r = !this.sceneAllowsRealTime;
       try {
-        await i.setFlag(O, Vn, r), this.sceneAllowsRealTime = r;
-        const g = r ? f(
+        await i.setFlag(E, ii, r), this.sceneAllowsRealTime = r;
+        const m = r ? f(
           "EIDOLON.TimeTrigger.SceneRealTimeEnabled",
           "Automatic real-time flow enabled for this scene."
         ) : f(
           "EIDOLON.TimeTrigger.SceneRealTimeDisabled",
           "Automatic real-time flow disabled for this scene."
         );
-        (h = (d = ui.notifications) == null ? void 0 : d.info) == null || h.call(d, g);
-      } catch (g) {
-        console.error(`${O} | Failed to toggle scene real-time flow`, g), (p = (m = ui.notifications) == null ? void 0 : m.error) == null || p.call(
-          m,
+        (y = (d = ui.notifications) == null ? void 0 : d.info) == null || y.call(d, m);
+      } catch (m) {
+        console.error(`${E} | Failed to toggle scene real-time flow`, m), (T = (h = ui.notifications) == null ? void 0 : h.error) == null || T.call(
+          h,
           f(
             "EIDOLON.TimeTrigger.SceneRealTimeToggleError",
             "Failed to update the scene's real-time flow setting."
@@ -805,41 +805,41 @@ const Be = class Be extends Sn(En) {
         this.render({ force: !0 });
       }
     }, "#onRealTimeToggleClick"));
-    M(this, sn, /* @__PURE__ */ s(() => {
-      (this.rendered ?? this.isRendered ?? !1) && (this.isEditingTime && (this.editValue = S(this, j, Xn).call(this)), this.render({ force: !0 }));
+    C(this, In, /* @__PURE__ */ s(() => {
+      (this.rendered ?? this.isRendered ?? !1) && (this.isEditingTime && (this.editValue = S(this, U, Ti).call(this)), this.render({ force: !0 }));
     }, "#handleTimeFormatChange"));
-    this.scene = i ?? null, this.showControls = typeof r == "boolean" ? r : !!((a = game.user) != null && a.isGM), this.isEditingTime = !1, this.editValue = "", this._commitTimeInProgress = !1, this._suppressBlurCommit = !1, this.manageTimeEnabled = !1, this.sceneAllowsRealTime = S(this, j, ti).call(this), D(this, Ge, Li(v(this, sn))), D(this, ze, rr(v(this, rn)));
+    this.scene = i ?? null, this.showControls = typeof r == "boolean" ? r : !!((a = game.user) != null && a.isGM), this.isEditingTime = !1, this.editValue = "", this._commitTimeInProgress = !1, this._suppressBlurCommit = !1, this.manageTimeEnabled = !1, this.sceneAllowsRealTime = S(this, U, vi).call(this), N(this, Ze, Bi(g(this, In))), N(this, et, Fr(g(this, wn)));
   }
   async _prepareContext() {
-    var b, w;
-    const n = ((b = game.time) == null ? void 0 : b.components) ?? {}, r = ((n == null ? void 0 : n.second) !== void 0 && (n == null ? void 0 : n.second) !== null ? To(n) : null) ?? S(this, j, cr).call(this), o = xe(), a = o === "24h", l = a ? f("EIDOLON.TimeTrigger.EditTimePlaceholder24", "HH:MM") : f("EIDOLON.TimeTrigger.EditTimePlaceholder12", "HH:MM AM/PM"), c = this.showControls ? f(
+    var O, L;
+    const n = ((O = game.time) == null ? void 0 : O.components) ?? {}, r = ((n == null ? void 0 : n.second) !== void 0 && (n == null ? void 0 : n.second) !== null ? Yo(n) : null) ?? S(this, U, Vr).call(this), o = Je(), a = o === "24h", l = a ? f("EIDOLON.TimeTrigger.EditTimePlaceholder24", "HH:MM") : f("EIDOLON.TimeTrigger.EditTimePlaceholder12", "HH:MM AM/PM"), c = this.showControls ? f(
       "EIDOLON.TimeTrigger.EditTimeHint",
       "Double-click to set a specific time."
     ) : "", u = this.showControls ? f(
       "EIDOLON.TimeTrigger.EditTimeLabel",
       "New time (HH:MM or HH:MM AM/PM)"
-    ) : "", d = Zr.map((A) => ({
+    ) : "", d = Po.map((A) => ({
       minutes: A,
       label: A > 0 ? `+${A}` : `${A}`
-    })), h = !!this.manageTimeEnabled, m = S(this, j, ti).call(this);
-    this.sceneAllowsRealTime = m;
-    const p = f(
+    })), y = !!this.manageTimeEnabled, h = S(this, U, vi).call(this);
+    this.sceneAllowsRealTime = h;
+    const T = f(
       "EIDOLON.TimeTrigger.SceneRealTimeEnable",
       "Enable automatic real-time flow for this scene."
-    ), g = f(
+    ), m = f(
       "EIDOLON.TimeTrigger.SceneRealTimeDisable",
       "Disable automatic real-time flow for this scene."
-    ), L = f(
+    ), v = f(
       "EIDOLON.TimeTrigger.SceneRealTimeManageDisabled",
       "Enable Manage Time in module settings to allow automatic real-time flow."
     );
     return {
       formattedTime: r,
       deltas: d,
-      manageTimeEnabled: h,
-      sceneAllowsRealTime: m,
-      realTimeButtonLabel: h ? m ? g : p : L,
-      isGM: ((w = game.user) == null ? void 0 : w.isGM) ?? !1,
+      manageTimeEnabled: y,
+      sceneAllowsRealTime: h,
+      realTimeButtonLabel: y ? h ? m : T : v,
+      isGM: ((L = game.user) == null ? void 0 : L.isGM) ?? !1,
       showControls: !!this.showControls,
       editHint: c,
       editLabel: u,
@@ -853,30 +853,30 @@ const Be = class Be extends Sn(En) {
   async close(n = {}) {
     var r, o;
     if (!n.force)
-      return (this.rendered ?? this.isRendered ?? !1) || (T("TimeTriggerWindow close request rerendering", {
+      return (this.rendered ?? this.isRendered ?? !1) || (b("TimeTriggerWindow close request rerendering", {
         sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null
       }), this.render({ force: !0 })), this;
-    T("Closing time trigger window", { sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null, force: !0 });
+    b("Closing time trigger window", { sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null, force: !0 });
     const i = await super.close(n);
-    return S(this, j, mr).call(this), S(this, j, hr).call(this), i;
+    return S(this, U, qr).call(this), S(this, U, Br).call(this), i;
   }
   async _advanceTime(n) {
     var r, o, a, l, c, u, d;
     const i = n * 60;
-    if (T("Advancing world time", { sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null, minutes: n, seconds: i }), !((o = game.user) != null && o.isGM)) {
+    if (b("Advancing world time", { sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null, minutes: n, seconds: i }), !((o = game.user) != null && o.isGM)) {
       (l = (a = ui.notifications) == null ? void 0 : a.warn) == null || l.call(a, f("EIDOLON.TimeTrigger.GMOnly", "Only the GM can adjust time."));
       return;
     }
     try {
       await game.time.advance(i);
-    } catch (h) {
-      console.error(`${O} | Failed to advance time`, h), (u = (c = ui.notifications) == null ? void 0 : c.error) == null || u.call(
+    } catch (y) {
+      console.error(`${E} | Failed to advance time`, y), (u = (c = ui.notifications) == null ? void 0 : c.error) == null || u.call(
         c,
         f("EIDOLON.TimeTrigger.Error", "Failed to update the world time.")
-      ), T("Failed to advance time from window", {
+      ), b("Failed to advance time from window", {
         sceneId: ((d = this.scene) == null ? void 0 : d.id) ?? null,
         minutes: n,
-        message: (h == null ? void 0 : h.message) ?? String(h)
+        message: (y == null ? void 0 : y.message) ?? String(y)
       });
     }
   }
@@ -886,115 +886,115 @@ const Be = class Be extends Sn(En) {
     const r = this.element;
     if (r) {
       if (this.showControls) {
-        T("Binding time trigger interactions", {
+        b("Binding time trigger interactions", {
           sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null,
           buttonCount: r.querySelectorAll("[data-delta]").length
         }), r.querySelectorAll("[data-delta]").forEach((u) => {
-          u.addEventListener("click", v(this, Zt));
+          u.addEventListener("click", g(this, bn));
         });
         const a = r.querySelector('.time-trigger-window__time-value[data-editable="true"]');
-        a && a.addEventListener("dblclick", v(this, en), { once: !1 });
+        a && a.addEventListener("dblclick", g(this, On), { once: !1 });
         const l = r.querySelector(".time-trigger-window__time-input");
-        l && (l.addEventListener("keydown", v(this, tn)), l.addEventListener("blur", v(this, nn)), typeof l.focus == "function" && (l.focus(), typeof l.select == "function" && l.select()));
+        l && (l.addEventListener("keydown", g(this, vn)), l.addEventListener("blur", g(this, En)), typeof l.focus == "function" && (l.focus(), typeof l.select == "function" && l.select()));
         const c = r.querySelector('[data-action="toggle-real-time"]');
-        c && c.addEventListener("click", v(this, on));
+        c && c.addEventListener("click", g(this, Sn));
       }
       this._suppressBlurCommit = !1;
     }
   }
 };
-Ge = new WeakMap(), ze = new WeakMap(), j = new WeakSet(), cr = /* @__PURE__ */ s(function() {
+Ze = new WeakMap(), et = new WeakMap(), U = new WeakSet(), Vr = /* @__PURE__ */ s(function() {
   var c;
   const n = (c = game.time) == null ? void 0 : c.worldTime;
   if (typeof n != "number" || !Number.isFinite(n)) return "";
   const i = 1440 * 60, r = (Math.floor(n) % i + i) % i, o = Math.floor(r / 3600), a = Math.floor(r % 3600 / 60), l = r % 60;
-  return Wt({ hours: o, minutes: a, seconds: l }, xe());
-}, "#formatFallbackTime"), Zt = new WeakMap(), en = new WeakMap(), ur = /* @__PURE__ */ s(function() {
+  return fn({ hours: o, minutes: a, seconds: l }, Je());
+}, "#formatFallbackTime"), bn = new WeakMap(), On = new WeakMap(), kr = /* @__PURE__ */ s(function() {
   var n;
-  (n = game.user) != null && n.isGM && (this.isEditingTime = !0, this._suppressBlurCommit = !1, this.editValue = S(this, j, Xn).call(this), this.render({ force: !0 }));
-}, "#enterTimeEditMode"), Yn = /* @__PURE__ */ s(function() {
+  (n = game.user) != null && n.isGM && (this.isEditingTime = !0, this._suppressBlurCommit = !1, this.editValue = S(this, U, Ti).call(this), this.render({ force: !0 }));
+}, "#enterTimeEditMode"), yi = /* @__PURE__ */ s(function() {
   this.isEditingTime = !1, this.editValue = "", this._suppressBlurCommit = !1, this.render({ force: !0 });
-}, "#cancelTimeEdit"), Qn = /* @__PURE__ */ s(async function(n) {
+}, "#cancelTimeEdit"), pi = /* @__PURE__ */ s(async function(n) {
   var o, a, l;
   if (!((o = game.user) != null && o.isGM) || !this.isEditingTime || this._commitTimeInProgress) return;
   this._commitTimeInProgress = !0;
   const i = typeof n == "string" ? n.trim() : "";
   if (!i) {
-    S(this, j, Yn).call(this), this._commitTimeInProgress = !1;
+    S(this, U, yi).call(this), this._commitTimeInProgress = !1;
     return;
   }
-  const r = S(this, j, gr).call(this, i);
+  const r = S(this, U, Ur).call(this, i);
   if (r.error) {
     (l = (a = ui.notifications) == null ? void 0 : a.error) == null || l.call(a, r.error), this._suppressBlurCommit = !0, this.editValue = i, this.render({ force: !0 }), this._commitTimeInProgress = !1;
     return;
   }
   try {
-    await S(this, j, fr).call(this, r.seconds, r.includeSeconds) ? (this.isEditingTime = !1, this.editValue = "", this.render({ force: !0 })) : (this.editValue = i, this.render({ force: !0 }));
+    await S(this, U, jr).call(this, r.seconds, r.includeSeconds) ? (this.isEditingTime = !1, this.editValue = "", this.render({ force: !0 })) : (this.editValue = i, this.render({ force: !0 }));
   } finally {
     this._commitTimeInProgress = !1;
   }
-}, "#commitTimeInput"), tn = new WeakMap(), nn = new WeakMap(), dr = /* @__PURE__ */ s(function() {
+}, "#commitTimeInput"), vn = new WeakMap(), En = new WeakMap(), xr = /* @__PURE__ */ s(function() {
   var u, d;
   const n = (u = game.time) == null ? void 0 : u.worldTime;
   if (typeof n != "number" || !Number.isFinite(n))
     return "";
   const i = ((d = game.time) == null ? void 0 : d.components) ?? {}, r = Number(i.hour), o = Number(i.minute), a = i.second !== void 0 ? Number(i.second) : null, l = Number.isInteger(a);
-  return (Number.isFinite(r) && Number.isFinite(o) ? Le({
+  return (Number.isFinite(r) && Number.isFinite(o) ? Ie({
     hours: Math.max(0, Math.min(23, Number(r))),
     minutes: Math.max(0, Math.min(59, Number(o))),
     seconds: l && Number.isFinite(a) ? Math.max(0, Math.min(59, Number(a))) : void 0
   }) ?? "" : "") ?? "";
-}, "#getCurrentCanonicalTime"), fr = /* @__PURE__ */ s(async function(n, i) {
-  var m, p, g, L, I, b, w, A, R, _;
-  const r = (m = game.time) == null ? void 0 : m.worldTime;
+}, "#getCurrentCanonicalTime"), jr = /* @__PURE__ */ s(async function(n, i) {
+  var h, T, m, v, w, O, L, A, P, R;
+  const r = (h = game.time) == null ? void 0 : h.worldTime;
   if (typeof r != "number" || !Number.isFinite(r))
-    return (g = (p = ui.notifications) == null ? void 0 : p.error) == null || g.call(
-      p,
+    return (m = (T = ui.notifications) == null ? void 0 : T.error) == null || m.call(
+      T,
       f(
         "EIDOLON.TimeTrigger.EditTimeUnavailable",
         "The world time is unavailable, so it can't be updated."
       )
     ), !1;
-  if (!Number.isInteger(n) || n < 0 || n >= st)
-    return (I = (L = ui.notifications) == null ? void 0 : L.error) == null || I.call(
-      L,
+  if (!Number.isInteger(n) || n < 0 || n >= yt)
+    return (w = (v = ui.notifications) == null ? void 0 : v.error) == null || w.call(
+      v,
       f(
         "EIDOLON.TimeTrigger.EditTimeInvalidRange",
         "Enter a time within the current day."
       )
     ), !1;
-  const l = Math.floor(r / st) * st + n - r;
+  const l = Math.floor(r / yt) * yt + n - r;
   if (!Number.isFinite(l) || l === 0)
     return !0;
-  const c = Math.floor(n / 3600), u = Math.floor(n % 3600 / 60), d = n % 60, h = Le({
+  const c = Math.floor(n / 3600), u = Math.floor(n % 3600 / 60), d = n % 60, y = Ie({
     hours: c,
     minutes: u,
     seconds: i ? d : void 0
   });
   try {
-    T("Updating world time directly", {
-      sceneId: ((b = this.scene) == null ? void 0 : b.id) ?? null,
-      targetCanonical: h ?? null,
+    b("Updating world time directly", {
+      sceneId: ((O = this.scene) == null ? void 0 : O.id) ?? null,
+      targetCanonical: y ?? null,
       diff: l
     }), await game.time.advance(l);
-    const x = Wt(
+    const x = fn(
       {
         hours: c,
         minutes: u,
         seconds: i ? d : null
       },
-      xe()
+      Je()
     );
-    (A = (w = ui.notifications) == null ? void 0 : w.info) == null || A.call(
-      w,
+    (A = (L = ui.notifications) == null ? void 0 : L.info) == null || A.call(
+      L,
       f(
         "EIDOLON.TimeTrigger.EditTimeSuccess",
         "World time updated."
       ) + (x ? ` ${x}` : "")
     );
   } catch (x) {
-    return console.error(`${O} | Failed to set world time`, x), (_ = (R = ui.notifications) == null ? void 0 : R.error) == null || _.call(
-      R,
+    return console.error(`${E} | Failed to set world time`, x), (R = (P = ui.notifications) == null ? void 0 : P.error) == null || R.call(
+      P,
       f(
         "EIDOLON.TimeTrigger.EditTimeError",
         "Failed to update the world time."
@@ -1002,8 +1002,8 @@ Ge = new WeakMap(), ze = new WeakMap(), j = new WeakSet(), cr = /* @__PURE__ */ 
     ), !1;
   }
   return !0;
-}, "#applyTargetSeconds"), gr = /* @__PURE__ */ s(function(n) {
-  var h;
+}, "#applyTargetSeconds"), Ur = /* @__PURE__ */ s(function(n) {
+  var y;
   const i = f(
     "EIDOLON.TimeTrigger.EditTimeInvalid",
     "Enter a valid time like 14:30 or 2:30 PM."
@@ -1015,68 +1015,68 @@ Ge = new WeakMap(), ze = new WeakMap(), j = new WeakSet(), cr = /* @__PURE__ */ 
     return { error: i };
   const o = r.match(/^([0-9]{1,2}):([0-9]{2})(?::([0-9]{2}))?$/);
   if (o) {
-    const m = Number(o[1]), p = Number(o[2]), g = o[3] !== void 0 ? Number(o[3]) : void 0;
-    if (Number.isInteger(m) && m >= 0 && m <= 23 && Number.isInteger(p) && p >= 0 && p <= 59 && (g === void 0 || Number.isInteger(g) && g >= 0 && g <= 59)) {
-      const L = m * 3600 + p * 60 + (g ?? 0);
+    const h = Number(o[1]), T = Number(o[2]), m = o[3] !== void 0 ? Number(o[3]) : void 0;
+    if (Number.isInteger(h) && h >= 0 && h <= 23 && Number.isInteger(T) && T >= 0 && T <= 59 && (m === void 0 || Number.isInteger(m) && m >= 0 && m <= 59)) {
+      const v = h * 3600 + T * 60 + (m ?? 0);
       return {
-        canonical: Le({ hours: m, minutes: p, seconds: g }),
-        seconds: L,
-        includeSeconds: g !== void 0,
+        canonical: Ie({ hours: h, minutes: T, seconds: m }),
+        seconds: v,
+        includeSeconds: m !== void 0,
         error: null
       };
     }
     return { error: i };
   }
-  const { amLower: a, pmLower: l, periodPattern: c } = S(this, j, Zn).call(this), u = r.match(
+  const { amLower: a, pmLower: l, periodPattern: c } = S(this, U, bi).call(this), u = r.match(
     new RegExp(
       `^([0-9]{1,2}):([0-9]{2})(?::([0-9]{2}))?\\s*(${c})$`,
       "i"
     )
   );
   if (u) {
-    let m = Number(u[1]);
-    const p = Number(u[2]), g = u[3] !== void 0 ? Number(u[3]) : void 0, L = u[4] ?? "", I = typeof L == "string" ? ((h = L.toLocaleLowerCase) == null ? void 0 : h.call(L)) ?? L.toLowerCase() : "";
-    if (Number.isInteger(m) && m >= 1 && m <= 12 && Number.isInteger(p) && p >= 0 && p <= 59 && (g === void 0 || Number.isInteger(g) && g >= 0 && g <= 59) && (I === a || I === l || I === "am" || I === "pm")) {
-      m = m % 12, (I === l || I === "pm") && (m += 12);
-      const w = m * 3600 + p * 60 + (g ?? 0);
+    let h = Number(u[1]);
+    const T = Number(u[2]), m = u[3] !== void 0 ? Number(u[3]) : void 0, v = u[4] ?? "", w = typeof v == "string" ? ((y = v.toLocaleLowerCase) == null ? void 0 : y.call(v)) ?? v.toLowerCase() : "";
+    if (Number.isInteger(h) && h >= 1 && h <= 12 && Number.isInteger(T) && T >= 0 && T <= 59 && (m === void 0 || Number.isInteger(m) && m >= 0 && m <= 59) && (w === a || w === l || w === "am" || w === "pm")) {
+      h = h % 12, (w === l || w === "pm") && (h += 12);
+      const L = h * 3600 + T * 60 + (m ?? 0);
       return {
-        canonical: Le({ hours: m, minutes: p, seconds: g }),
-        seconds: w,
-        includeSeconds: g !== void 0,
+        canonical: Ie({ hours: h, minutes: T, seconds: m }),
+        seconds: L,
+        includeSeconds: m !== void 0,
         error: null
       };
     }
     return { error: i };
   }
-  const d = tr(r);
+  const d = Mr(r);
   if (d !== null) {
-    const m = Math.floor(d / 3600), p = Math.floor(d % 3600 / 60), g = d % 60, L = g !== 0;
+    const h = Math.floor(d / 3600), T = Math.floor(d % 3600 / 60), m = d % 60, v = m !== 0;
     return {
-      canonical: Le({
-        hours: m,
-        minutes: p,
-        seconds: L ? g : void 0
+      canonical: Ie({
+        hours: h,
+        minutes: T,
+        seconds: v ? m : void 0
       }),
       seconds: d,
-      includeSeconds: L,
+      includeSeconds: v,
       error: null
     };
   }
   return { error: i };
-}, "#parseInputTime"), Xn = /* @__PURE__ */ s(function() {
-  const n = S(this, j, dr).call(this);
+}, "#parseInputTime"), Ti = /* @__PURE__ */ s(function() {
+  const n = S(this, U, xr).call(this);
   if (!n) return "";
-  if (xe() === "24h")
+  if (Je() === "24h")
     return n;
-  const r = wn(n);
+  const r = Gn(n);
   if (!r) return n;
   const o = Number(r.hours), a = Number(r.minutes), l = r.seconds !== null && r.seconds !== void 0 ? Number(r.seconds) : void 0;
   if (!Number.isFinite(o) || !Number.isFinite(a)) return n;
-  const c = Number.isFinite(l), u = o % 12 === 0 ? 12 : o % 12, d = String(a).padStart(2, "0"), h = c ? `:${String(l).padStart(2, "0")}` : "", { amLabel: m, pmLabel: p } = S(this, j, Zn).call(this), g = o >= 12 ? p : m;
-  return `${u}:${d}${h} ${g}`.trim();
-}, "#getInitialEditValue"), Zn = /* @__PURE__ */ s(function() {
+  const c = Number.isFinite(l), u = o % 12 === 0 ? 12 : o % 12, d = String(a).padStart(2, "0"), y = c ? `:${String(l).padStart(2, "0")}` : "", { amLabel: h, pmLabel: T } = S(this, U, bi).call(this), m = o >= 12 ? T : h;
+  return `${u}:${d}${y} ${m}`.trim();
+}, "#getInitialEditValue"), bi = /* @__PURE__ */ s(function() {
   var u, d;
-  const n = f("EIDOLON.TimeTrigger.TimePeriodAM", "AM"), i = f("EIDOLON.TimeTrigger.TimePeriodPM", "PM"), r = ((u = n.toLocaleLowerCase) == null ? void 0 : u.call(n)) ?? n.toLowerCase(), o = ((d = i.toLocaleLowerCase) == null ? void 0 : d.call(i)) ?? i.toLowerCase(), a = S(this, j, ei).call(this, n), l = S(this, j, ei).call(this, i), c = `${a}|${l}|AM|PM`;
+  const n = f("EIDOLON.TimeTrigger.TimePeriodAM", "AM"), i = f("EIDOLON.TimeTrigger.TimePeriodPM", "PM"), r = ((u = n.toLocaleLowerCase) == null ? void 0 : u.call(n)) ?? n.toLowerCase(), o = ((d = i.toLocaleLowerCase) == null ? void 0 : d.call(i)) ?? i.toLowerCase(), a = S(this, U, Oi).call(this, n), l = S(this, U, Oi).call(this, i), c = `${a}|${l}|AM|PM`;
   return {
     amLabel: n,
     pmLabel: i,
@@ -1084,40 +1084,40 @@ Ge = new WeakMap(), ze = new WeakMap(), j = new WeakSet(), cr = /* @__PURE__ */ 
     pmLower: o,
     periodPattern: c
   };
-}, "#getPeriodMatchData"), ei = /* @__PURE__ */ s(function(n) {
+}, "#getPeriodMatchData"), Oi = /* @__PURE__ */ s(function(n) {
   return typeof n != "string" ? "" : n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}, "#escapeForRegex"), rn = new WeakMap(), on = new WeakMap(), ti = /* @__PURE__ */ s(function() {
+}, "#escapeForRegex"), wn = new WeakMap(), Sn = new WeakMap(), vi = /* @__PURE__ */ s(function() {
   const n = this.scene;
   if (!n || typeof n.getFlag != "function") return !1;
   try {
-    return !!n.getFlag(O, Vn);
+    return !!n.getFlag(E, ii);
   } catch (i) {
-    T("TimeTriggerWindow | Failed to read scene real-time flag", {
+    b("TimeTriggerWindow | Failed to read scene real-time flag", {
       sceneId: (n == null ? void 0 : n.id) ?? null,
       message: (i == null ? void 0 : i.message) ?? String(i)
     });
   }
   return !1;
-}, "#readSceneRealTimeFlag"), sn = new WeakMap(), mr = /* @__PURE__ */ s(function() {
-  if (typeof v(this, Ge) == "function")
+}, "#readSceneRealTimeFlag"), In = new WeakMap(), qr = /* @__PURE__ */ s(function() {
+  if (typeof g(this, Ze) == "function")
     try {
-      v(this, Ge).call(this);
+      g(this, Ze).call(this);
     } catch (n) {
-      console.error(`${O} | Failed to dispose time format subscription`, n);
+      console.error(`${E} | Failed to dispose time format subscription`, n);
     }
-  D(this, Ge, null);
-}, "#disposeTimeFormatSubscription"), hr = /* @__PURE__ */ s(function() {
-  if (typeof v(this, ze) == "function")
+  N(this, Ze, null);
+}, "#disposeTimeFormatSubscription"), Br = /* @__PURE__ */ s(function() {
+  if (typeof g(this, et) == "function")
     try {
-      v(this, ze).call(this);
+      g(this, et).call(this);
     } catch (n) {
-      console.error(`${O} | Failed to dispose manage time subscription`, n);
+      console.error(`${E} | Failed to dispose manage time subscription`, n);
     }
-  D(this, ze, null);
-}, "#disposeManageTimeSubscription"), s(Be, "TimeTriggerWindow"), qe(Be, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
-  it(Be, Be, "DEFAULT_OPTIONS"),
+  N(this, et, null);
+}, "#disposeManageTimeSubscription"), s(Xe, "TimeTriggerWindow"), Qe(Xe, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
+  ft(Xe, Xe, "DEFAULT_OPTIONS"),
   {
-    id: `${O}-time-trigger`,
+    id: `${E}-time-trigger`,
     window: {
       title: f("EIDOLON.TimeTrigger.Title", "Time Trigger"),
       resizable: !1
@@ -1128,13 +1128,13 @@ Ge = new WeakMap(), ze = new WeakMap(), j = new WeakSet(), cr = /* @__PURE__ */ 
     }
   },
   { inplace: !1 }
-)), qe(Be, "PARTS", {
+)), Qe(Xe, "PARTS", {
   content: {
-    template: `modules/${O}/templates/time-trigger.html`
+    template: `modules/${E}/templates/time-trigger.html`
   }
 });
-let Jn = Be;
-function Ei(e, t = {}) {
+let hi = Xe;
+function zi(e, t = {}) {
   if (typeof e != "function")
     throw new TypeError("createApplicationFactory requires a constructor function.");
   const n = /* @__PURE__ */ s(function(r = {}) {
@@ -1147,523 +1147,523 @@ function Ei(e, t = {}) {
   }, "applicationFactory");
   return n.__eidolonFactorySignature = "options", n.__eidolonFactoryTarget = e, n;
 }
-s(Ei, "createApplicationFactory");
-const $i = /* @__PURE__ */ new Set();
-var ee, de, We, mt, yr, pr;
-const Ai = class Ai {
+s(zi, "createApplicationFactory");
+const fr = /* @__PURE__ */ new Set();
+var ee, de, tt, St, Gr, zr;
+const er = class er {
   constructor({ windowFactory: t } = {}) {
-    M(this, mt);
-    M(this, ee, null);
-    M(this, de, null);
-    M(this, We);
-    const n = Ei(Jn);
-    typeof t == "function" ? t.__eidolonFactorySignature === "options" ? D(this, We, (r, o = {}) => t({ scene: r, ...o ?? {} })) : D(this, We, t) : D(this, We, /* @__PURE__ */ s((r, o = {}) => n({ scene: r, ...o ?? {} }), "fallbackFactory"));
+    C(this, St);
+    C(this, ee, null);
+    C(this, de, null);
+    C(this, tt);
+    const n = zi(hi);
+    typeof t == "function" ? t.__eidolonFactorySignature === "options" ? N(this, tt, (r, o = {}) => t({ scene: r, ...o ?? {} })) : N(this, tt, t) : N(this, tt, /* @__PURE__ */ s((r, o = {}) => n({ scene: r, ...o ?? {} }), "fallbackFactory"));
   }
   onReady() {
     var n;
     const t = typeof ((n = game.time) == null ? void 0 : n.worldTime) == "number" && Number.isFinite(game.time.worldTime) ? game.time.worldTime : null;
-    T("TimeTriggerManager#onReady", { worldTime: t }), t !== null && D(this, de, t);
+    b("TimeTriggerManager#onReady", { worldTime: t }), t !== null && N(this, de, t);
   }
   onCanvasReady(t) {
-    const n = (t == null ? void 0 : t.scene) ?? vt();
-    T("TimeTriggerManager#onCanvasReady", { sceneId: (n == null ? void 0 : n.id) ?? null }), this.refreshTimeTriggerWindow(n), this.handleTimeTriggerEvaluation(n);
+    const n = (t == null ? void 0 : t.scene) ?? Mt();
+    b("TimeTriggerManager#onCanvasReady", { sceneId: (n == null ? void 0 : n.id) ?? null }), this.refreshTimeTriggerWindow(n), this.handleTimeTriggerEvaluation(n);
   }
   onUpdateScene(t) {
-    const n = vt();
-    T("TimeTriggerManager#onUpdateScene", {
+    const n = Mt();
+    b("TimeTriggerManager#onUpdateScene", {
       sceneId: (t == null ? void 0 : t.id) ?? null,
       activeSceneId: (n == null ? void 0 : n.id) ?? null
     }), !(!n || t.id !== n.id) && (this.refreshTimeTriggerWindow(t), this.handleTimeTriggerEvaluation(t));
   }
   onUpdateWorldTime(t, n) {
-    T("TimeTriggerManager#onUpdateWorldTime", {
+    b("TimeTriggerManager#onUpdateWorldTime", {
       worldTime: t,
       diff: n,
-      hasWindow: !!v(this, ee)
-    }), v(this, ee) && v(this, ee).render();
-    const i = vt(), r = S(this, mt, yr).call(this, t, n);
+      hasWindow: !!g(this, ee)
+    }), g(this, ee) && g(this, ee).render();
+    const i = Mt(), r = S(this, St, Gr).call(this, t, n);
     this.handleTimeTriggerEvaluation(i, t, r);
   }
   refreshTimeTriggerWindow(t) {
     var c, u, d;
     if (!t) return;
-    const n = !!((c = game.user) != null && c.isGM), i = !!t.getFlag(O, jt), r = !!t.getFlag(O, Hn), o = !!t.getFlag(O, $n);
-    if (T("TimeTriggerManager#refreshTimeTriggerWindow", {
+    const n = !!((c = game.user) != null && c.isGM), i = !!t.getFlag(E, an), r = !!t.getFlag(E, ti), o = !!t.getFlag(E, ni);
+    if (b("TimeTriggerManager#refreshTimeTriggerWindow", {
       sceneId: t.id,
       isGM: n,
       isActive: i,
       hideWindow: r,
       showPlayerWindow: o
     }), !(i && !r && (n || o))) {
-      v(this, ee) && (T("Closing time trigger window", { reason: "not-visible" }), v(this, ee).close({ force: !0 }), D(this, ee, null));
+      g(this, ee) && (b("Closing time trigger window", { reason: "not-visible" }), g(this, ee).close({ force: !0 }), N(this, ee, null));
       return;
     }
     const l = !!n;
-    if (v(this, ee) && ((u = v(this, ee).scene) == null ? void 0 : u.id) === t.id) {
-      T("Refreshing existing time trigger window", { sceneId: t.id }), v(this, ee).showControls = l, v(this, ee).render();
+    if (g(this, ee) && ((u = g(this, ee).scene) == null ? void 0 : u.id) === t.id) {
+      b("Refreshing existing time trigger window", { sceneId: t.id }), g(this, ee).showControls = l, g(this, ee).render();
       return;
     }
-    v(this, ee) && (T("Closing existing window before creating new instance", {
-      previousSceneId: ((d = v(this, ee).scene) == null ? void 0 : d.id) ?? null
-    }), v(this, ee).close({ force: !0 })), D(this, ee, v(this, We).call(this, t, { showControls: l })), T("Rendering new time trigger window", { sceneId: t.id }), v(this, ee).render({ force: !0 });
+    g(this, ee) && (b("Closing existing window before creating new instance", {
+      previousSceneId: ((d = g(this, ee).scene) == null ? void 0 : d.id) ?? null
+    }), g(this, ee).close({ force: !0 })), N(this, ee, g(this, tt).call(this, t, { showControls: l })), b("Rendering new time trigger window", { sceneId: t.id }), g(this, ee).render({ force: !0 });
   }
   async handleTimeTriggerEvaluation(t, n, i) {
     var c;
-    const r = t ?? vt();
+    const r = t ?? Mt();
     if (!r) {
-      T("handleTimeTriggerEvaluation skipped", {
+      b("handleTimeTriggerEvaluation skipped", {
         reason: "no-active-scene",
         providedSceneId: (t == null ? void 0 : t.id) ?? null,
         currentWorldTime: n
-      }), typeof n == "number" && Number.isFinite(n) && D(this, de, n);
+      }), typeof n == "number" && Number.isFinite(n) && N(this, de, n);
       return;
     }
     const o = typeof n == "number" && Number.isFinite(n) ? n : typeof ((c = game.time) == null ? void 0 : c.worldTime) == "number" ? game.time.worldTime : null;
     if (o === null) return;
-    const a = typeof i == "number" && Number.isFinite(i) ? i : null, l = a !== null ? a : typeof v(this, de) == "number" && Number.isFinite(v(this, de)) ? v(this, de) : o;
-    ft("handleTimeTriggerEvaluation", {
+    const a = typeof i == "number" && Number.isFinite(i) ? i : null, l = a !== null ? a : typeof g(this, de) == "number" && Number.isFinite(g(this, de)) ? g(this, de) : o;
+    Et("handleTimeTriggerEvaluation", {
       sceneId: r.id,
       previousWorldTime: l,
       currentWorldTime: o,
       overrideProvided: a !== null
     });
     try {
-      await S(this, mt, pr).call(this, r, l, o);
+      await S(this, St, zr).call(this, r, l, o);
     } catch (u) {
-      console.error(`${O} | Unexpected error while evaluating time triggers`, u), T("handleTimeTriggerEvaluation error", { message: (u == null ? void 0 : u.message) ?? String(u) });
+      console.error(`${E} | Unexpected error while evaluating time triggers`, u), b("handleTimeTriggerEvaluation error", { message: (u == null ? void 0 : u.message) ?? String(u) });
     } finally {
-      D(this, de, o), ke();
+      N(this, de, o), We();
     }
   }
 };
-ee = new WeakMap(), de = new WeakMap(), We = new WeakMap(), mt = new WeakSet(), yr = /* @__PURE__ */ s(function(t, n) {
-  return typeof v(this, de) == "number" && Number.isFinite(v(this, de)) ? (T("Resolved previous world time from cache", {
-    previousWorldTime: v(this, de)
-  }), v(this, de)) : typeof t == "number" && Number.isFinite(t) && typeof n == "number" && Number.isFinite(n) ? (T("Resolved previous world time using diff", {
+ee = new WeakMap(), de = new WeakMap(), tt = new WeakMap(), St = new WeakSet(), Gr = /* @__PURE__ */ s(function(t, n) {
+  return typeof g(this, de) == "number" && Number.isFinite(g(this, de)) ? (b("Resolved previous world time from cache", {
+    previousWorldTime: g(this, de)
+  }), g(this, de)) : typeof t == "number" && Number.isFinite(t) && typeof n == "number" && Number.isFinite(n) ? (b("Resolved previous world time using diff", {
     worldTime: t,
     diff: n,
     resolved: t - n
   }), t - n) : typeof t == "number" && Number.isFinite(t) ? t : null;
-}, "#resolvePreviousWorldTime"), pr = /* @__PURE__ */ s(async function(t, n, i) {
-  var g, L, I;
-  if (!((g = game.user) != null && g.isGM)) {
-    T("Skipping trigger evaluation because user is not a GM");
+}, "#resolvePreviousWorldTime"), zr = /* @__PURE__ */ s(async function(t, n, i) {
+  var m, v, w;
+  if (!((m = game.user) != null && m.isGM)) {
+    b("Skipping trigger evaluation because user is not a GM");
     return;
   }
   if (!(t != null && t.id)) {
-    T("Skipping trigger evaluation because the scene is missing an id");
+    b("Skipping trigger evaluation because the scene is missing an id");
     return;
   }
-  if (!!!t.getFlag(O, jt)) {
-    T("Skipping trigger evaluation because scene is inactive", { sceneId: t.id });
+  if (!!!t.getFlag(E, an)) {
+    b("Skipping trigger evaluation because scene is inactive", { sceneId: t.id });
     return;
   }
   if (typeof i != "number" || !Number.isFinite(i)) return;
   (typeof n != "number" || !Number.isFinite(n)) && (n = i);
-  const o = at(t);
+  const o = pt(t);
   if (!o.length) {
-    T("No time triggers configured for scene", { sceneId: t.id });
+    b("No time triggers configured for scene", { sceneId: t.id });
     return;
   }
-  const a = co(t), l = /* @__PURE__ */ new Set();
-  for (const b of o)
-    b != null && b.id && l.add(b.id);
+  const a = Uo(t), l = /* @__PURE__ */ new Set();
+  for (const O of o)
+    O != null && O.id && l.add(O.id);
   let c = !1;
-  for (const b of Object.keys(a))
-    l.has(b) || (delete a[b], c = !0);
-  if (ft("Evaluating scene time triggers", {
+  for (const O of Object.keys(a))
+    l.has(O) || (delete a[O], c = !0);
+  if (Et("Evaluating scene time triggers", {
     sceneId: t.id,
     previousWorldTime: n,
     currentWorldTime: i,
     triggerCount: o.length
   }), i <= n) {
-    T("Detected world time rewind", {
+    b("Detected world time rewind", {
       previousWorldTime: n,
       currentWorldTime: i
     });
-    for (const b of o) {
-      if (!(b != null && b.id) || !b.allowReplayOnRewind) continue;
-      const w = a[b.id];
-      typeof w == "number" ? i < w ? (T("Clearing trigger history due to rewind", {
-        triggerId: b.id,
-        lastFired: w,
+    for (const O of o) {
+      if (!(O != null && O.id) || !O.allowReplayOnRewind) continue;
+      const L = a[O.id];
+      typeof L == "number" ? i < L ? (b("Clearing trigger history due to rewind", {
+        triggerId: O.id,
+        lastFired: L,
         currentWorldTime: i
-      }), delete a[b.id], c = !0) : T("Preserving trigger history after rewind", {
-        triggerId: b.id,
-        lastFired: w,
+      }), delete a[O.id], c = !0) : b("Preserving trigger history after rewind", {
+        triggerId: O.id,
+        lastFired: L,
         currentWorldTime: i
-      }) : T("No history stored for rewind-enabled trigger", {
-        triggerId: b.id
+      }) : b("No history stored for rewind-enabled trigger", {
+        triggerId: O.id
       });
     }
-    c && (T("Persisting history cleanup after rewind", {
+    c && (b("Persisting history cleanup after rewind", {
       sceneId: t.id
-    }), await _n(t, a)), ke();
+    }), await Zn(t, a)), We();
     return;
   }
-  const u = n, d = i, h = [], m = Math.floor(u / st), p = Math.floor(d / st);
-  for (const b of o) {
-    if (!(b != null && b.id)) continue;
-    const w = tr(b.time);
-    if (w === null) {
-      Lo(t, b), T("Skipping trigger with invalid time", {
-        triggerId: b.id,
-        time: b.time
+  const u = n, d = i, y = [], h = Math.floor(u / yt), T = Math.floor(d / yt);
+  for (const O of o) {
+    if (!(O != null && O.id)) continue;
+    const L = Mr(O.time);
+    if (L === null) {
+      es(t, O), b("Skipping trigger with invalid time", {
+        triggerId: O.id,
+        time: O.time
       });
       continue;
     }
-    for (let A = m; A <= p; A++) {
-      const R = A * st + w;
-      if (R < u || R > d) continue;
-      const x = a[b.id];
-      if (typeof x == "number" && x >= R) {
-        T("Skipping trigger because it already fired within window", {
-          triggerId: b.id,
+    for (let A = h; A <= T; A++) {
+      const P = A * yt + L;
+      if (P < u || P > d) continue;
+      const x = a[O.id];
+      if (typeof x == "number" && x >= P) {
+        b("Skipping trigger because it already fired within window", {
+          triggerId: O.id,
           lastFired: x,
-          absoluteTime: R
+          absoluteTime: P
         });
         continue;
       }
-      h.push({ trigger: b, absoluteTime: R });
+      y.push({ trigger: O, absoluteTime: P });
     }
   }
-  if (!h.length) {
-    c && await _n(t, a), T("No triggers scheduled to fire within evaluation window", {
+  if (!y.length) {
+    c && await Zn(t, a), b("No triggers scheduled to fire within evaluation window", {
       sceneId: t.id
-    }), ke();
+    }), We();
     return;
   }
-  h.sort((b, w) => b.absoluteTime - w.absoluteTime), T("Queued triggers for execution", {
-    entries: h.map((b) => ({
-      triggerId: b.trigger.id,
-      absoluteTime: b.absoluteTime
+  y.sort((O, L) => O.absoluteTime - L.absoluteTime), b("Queued triggers for execution", {
+    entries: y.map((O) => ({
+      triggerId: O.trigger.id,
+      absoluteTime: O.absoluteTime
     }))
   });
-  for (const b of h)
+  for (const O of y)
     try {
-      T("Executing time trigger action", {
-        triggerId: b.trigger.id,
-        absoluteTime: b.absoluteTime
-      }), await lr(t, b.trigger);
-    } catch (w) {
-      console.error(`${O} | Failed to execute time trigger action`, w), (I = (L = ui.notifications) == null ? void 0 : L.error) == null || I.call(
-        L,
+      b("Executing time trigger action", {
+        triggerId: O.trigger.id,
+        absoluteTime: O.absoluteTime
+      }), await $r(t, O.trigger);
+    } catch (L) {
+      console.error(`${E} | Failed to execute time trigger action`, L), (w = (v = ui.notifications) == null ? void 0 : v.error) == null || w.call(
+        v,
         f(
           "EIDOLON.TimeTrigger.TriggerActionError",
           "Failed to execute a scene time trigger action. Check the console for details."
         )
-      ), T("Trigger execution failed", {
-        triggerId: b.trigger.id,
-        message: (w == null ? void 0 : w.message) ?? String(w)
+      ), b("Trigger execution failed", {
+        triggerId: O.trigger.id,
+        message: (L == null ? void 0 : L.message) ?? String(L)
       });
     } finally {
-      a[b.trigger.id] = b.absoluteTime, c = !0, T("Recorded trigger execution", {
-        triggerId: b.trigger.id,
-        absoluteTime: b.absoluteTime
+      a[O.trigger.id] = O.absoluteTime, c = !0, b("Recorded trigger execution", {
+        triggerId: O.trigger.id,
+        absoluteTime: O.absoluteTime
       });
     }
-  c && (T("Persisting trigger history updates", { sceneId: t.id }), await _n(t, a)), ke();
-}, "#evaluateSceneTimeTriggers"), s(Ai, "TimeTriggerManager");
-let ni = Ai;
-function Lo(e, t) {
+  c && (b("Persisting trigger history updates", { sceneId: t.id }), await Zn(t, a)), We();
+}, "#evaluateSceneTimeTriggers"), s(er, "TimeTriggerManager");
+let Ei = er;
+function es(e, t) {
   var r, o;
   const n = `${(e == null ? void 0 : e.id) ?? "unknown"}:${(t == null ? void 0 : t.id) ?? (t == null ? void 0 : t.time) ?? "unknown"}`;
-  if ($i.has(n)) return;
-  $i.add(n);
+  if (fr.has(n)) return;
+  fr.add(n);
   const i = f(
     "EIDOLON.TimeTrigger.InvalidTimeWarning",
     "A scene time trigger has an invalid time value and was skipped."
   );
-  (o = (r = ui.notifications) == null ? void 0 : r.warn) == null || o.call(r, i), console.warn(`${O} | Invalid time for trigger`, { scene: e == null ? void 0 : e.id, trigger: t });
+  (o = (r = ui.notifications) == null ? void 0 : r.warn) == null || o.call(r, i), console.warn(`${E} | Invalid time for trigger`, { scene: e == null ? void 0 : e.id, trigger: t });
 }
-s(Lo, "warnInvalidTriggerTime");
-var he, It, ye, $e, Ke, ve, dt, an, ln, Et, St, Je, Oe, N, ri, ot, Ht, oi, $t, si, be, Tr, ai, br, li, vr, cn, un, dn, fn, gn, mn, ci, Or, Vt, hn, yn;
-const Ni = class Ni {
+s(es, "warnInvalidTriggerTime");
+var ye, _t, pe, Ue, nt, Ee, vt, Ln, Cn, Rt, Ht, it, we, D, Si, mt, en, Ii, tn, Li, Oe, Wr, Ci, Jr, Ni, Kr, Nn, An, Mn, Dn, Pn, Fn, Ai, Yr, nn, _n, Rn;
+const tr = class tr {
   constructor() {
-    M(this, N);
-    M(this, he, !1);
-    M(this, It, Ct);
-    M(this, ye, /* @__PURE__ */ new Map());
-    M(this, $e, null);
-    M(this, Ke, null);
-    M(this, ve, 0);
-    M(this, dt, null);
-    M(this, an, null);
-    M(this, ln, null);
-    M(this, Et, !1);
-    M(this, St, !1);
-    M(this, Je, !1);
-    M(this, Oe, !1);
-    M(this, cn, /* @__PURE__ */ s((t, n = {}) => {
-      T("GameTimeAutomation | Pause state changed", {
+    C(this, D);
+    C(this, ye, !1);
+    C(this, _t, Gt);
+    C(this, pe, /* @__PURE__ */ new Map());
+    C(this, Ue, null);
+    C(this, nt, null);
+    C(this, Ee, 0);
+    C(this, vt, null);
+    C(this, Ln, null);
+    C(this, Cn, null);
+    C(this, Rt, !1);
+    C(this, Ht, !1);
+    C(this, it, !1);
+    C(this, we, !1);
+    C(this, Nn, /* @__PURE__ */ s((t, n = {}) => {
+      b("GameTimeAutomation | Pause state changed", {
         paused: t,
         userId: (n == null ? void 0 : n.userId) ?? null,
         broadcast: (n == null ? void 0 : n.broadcast) ?? null
-      }), S(this, N, be).call(this, { pausedOverride: t });
+      }), S(this, D, Oe).call(this, { pausedOverride: t });
     }, "#handlePause"));
-    M(this, un, /* @__PURE__ */ s((t) => {
-      t != null && t.id && (v(this, ye).set(t.id, Math.max(t.round ?? 0, 1)), T("GameTimeAutomation | Combat started", { combatId: t.id, round: t.round ?? 0 }), S(this, N, be).call(this));
+    C(this, An, /* @__PURE__ */ s((t) => {
+      t != null && t.id && (g(this, pe).set(t.id, Math.max(t.round ?? 0, 1)), b("GameTimeAutomation | Combat started", { combatId: t.id, round: t.round ?? 0 }), S(this, D, Oe).call(this));
     }, "#handleCombatStart"));
-    M(this, dn, /* @__PURE__ */ s((t, n) => {
+    C(this, Mn, /* @__PURE__ */ s((t, n) => {
       if (!(t != null && t.id)) return;
-      const i = typeof n == "number" && Number.isFinite(n) ? n : typeof t.round == "number" && Number.isFinite(t.round) ? t.round : 0, r = i > 0 ? i : 1, o = v(this, ye).get(t.id), a = o ? Math.max(o, 1) : 1, l = r > 1 ? Math.max(r - a, 0) : 0;
-      if (T("GameTimeAutomation | Combat round change detected", {
+      const i = typeof n == "number" && Number.isFinite(n) ? n : typeof t.round == "number" && Number.isFinite(t.round) ? t.round : 0, r = i > 0 ? i : 1, o = g(this, pe).get(t.id), a = o ? Math.max(o, 1) : 1, l = r > 1 ? Math.max(r - a, 0) : 0;
+      if (b("GameTimeAutomation | Combat round change detected", {
         combatId: t.id,
         effectiveRound: r,
         completedRounds: l,
-        enabled: v(this, he),
+        enabled: g(this, ye),
         paused: (game == null ? void 0 : game.paused) ?? null
-      }), l > 0 && v(this, he) && v(this, Oe) && !(game != null && game.paused) && S(this, N, ot).call(this) && S(this, N, Ht).call(this, t)) {
-        const c = l * v(this, It);
-        c > 0 && (T("GameTimeAutomation | Advancing time for completed combat rounds", {
+      }), l > 0 && g(this, ye) && g(this, we) && !(game != null && game.paused) && S(this, D, mt).call(this) && S(this, D, en).call(this, t)) {
+        const c = l * g(this, _t);
+        c > 0 && (b("GameTimeAutomation | Advancing time for completed combat rounds", {
           combatId: t.id,
           completedRounds: l,
           delta: c
-        }), S(this, N, li).call(this, c));
+        }), S(this, D, Ni).call(this, c));
       }
-      v(this, ye).set(t.id, Math.max(r, 1));
+      g(this, pe).set(t.id, Math.max(r, 1));
     }, "#handleCombatRound"));
-    M(this, fn, /* @__PURE__ */ s((t) => {
-      t != null && t.id && (v(this, ye).delete(t.id), T("GameTimeAutomation | Combat ended", { combatId: t.id }), S(this, N, be).call(this));
+    C(this, Dn, /* @__PURE__ */ s((t) => {
+      t != null && t.id && (g(this, pe).delete(t.id), b("GameTimeAutomation | Combat ended", { combatId: t.id }), S(this, D, Oe).call(this));
     }, "#handleCombatEnd"));
-    M(this, gn, /* @__PURE__ */ s((t) => {
-      t != null && t.id && (v(this, ye).delete(t.id), T("GameTimeAutomation | Combat deleted", { combatId: t.id }), S(this, N, be).call(this));
+    C(this, Pn, /* @__PURE__ */ s((t) => {
+      t != null && t.id && (g(this, pe).delete(t.id), b("GameTimeAutomation | Combat deleted", { combatId: t.id }), S(this, D, Oe).call(this));
     }, "#handleCombatDelete"));
-    M(this, mn, /* @__PURE__ */ s((t, n) => {
+    C(this, Fn, /* @__PURE__ */ s((t, n) => {
       if (t != null && t.id) {
         if (typeof (n == null ? void 0 : n.round) == "number" && Number.isFinite(n.round)) {
           const i = Math.max(n.round, 1);
-          v(this, ye).set(t.id, i), T("GameTimeAutomation | Combat round manually updated", {
+          g(this, pe).set(t.id, i), b("GameTimeAutomation | Combat round manually updated", {
             combatId: t.id,
             round: i
           });
         }
-        (Object.prototype.hasOwnProperty.call(n ?? {}, "active") || (n == null ? void 0 : n.round) !== void 0) && S(this, N, be).call(this);
+        (Object.prototype.hasOwnProperty.call(n ?? {}, "active") || (n == null ? void 0 : n.round) !== void 0) && S(this, D, Oe).call(this);
       }
     }, "#handleCombatUpdate"));
-    M(this, hn, /* @__PURE__ */ s((t) => {
-      S(this, N, Vt).call(this, t == null ? void 0 : t.scene), S(this, N, be).call(this);
+    C(this, _n, /* @__PURE__ */ s((t) => {
+      S(this, D, nn).call(this, t == null ? void 0 : t.scene), S(this, D, Oe).call(this);
     }, "#handleCanvasReady"));
-    M(this, yn, /* @__PURE__ */ s((t) => {
+    C(this, Rn, /* @__PURE__ */ s((t) => {
       if (!ae(t)) return;
-      const n = S(this, N, ci).call(this);
+      const n = S(this, D, Ai).call(this);
       if (!n || n.id !== t.id) return;
-      S(this, N, Vt).call(this, t) && S(this, N, be).call(this);
+      S(this, D, nn).call(this, t) && S(this, D, Oe).call(this);
     }, "#handleSceneUpdate"));
   }
   registerHooks() {
-    v(this, Et) || (D(this, Et, !0), Hooks.on("pauseGame", v(this, cn)), Hooks.on("combatStart", v(this, un)), Hooks.on("combatRound", v(this, dn)), Hooks.on("combatEnd", v(this, fn)), Hooks.on("deleteCombat", v(this, gn)), Hooks.on("updateCombat", v(this, mn)), Hooks.on("canvasReady", v(this, hn)), Hooks.on("updateScene", v(this, yn)));
+    g(this, Rt) || (N(this, Rt, !0), Hooks.on("pauseGame", g(this, Nn)), Hooks.on("combatStart", g(this, An)), Hooks.on("combatRound", g(this, Mn)), Hooks.on("combatEnd", g(this, Dn)), Hooks.on("deleteCombat", g(this, Pn)), Hooks.on("updateCombat", g(this, Fn)), Hooks.on("canvasReady", g(this, _n)), Hooks.on("updateScene", g(this, Rn)));
   }
   initialize() {
-    v(this, St) || (D(this, St, !0), D(this, an, rr((t) => {
-      const n = !!t, i = n !== v(this, he);
-      D(this, he, n), T("GameTimeAutomation | Manage time toggled", { enabled: n }), i && n && S(this, N, si).call(this), S(this, N, be).call(this);
-    })), D(this, ln, so((t) => {
-      D(this, It, t), T("GameTimeAutomation | Seconds per round updated", { value: t });
-    })), S(this, N, si).call(this), S(this, N, Vt).call(this), S(this, N, be).call(this));
+    g(this, Ht) || (N(this, Ht, !0), N(this, Ln, Fr((t) => {
+      const n = !!t, i = n !== g(this, ye);
+      N(this, ye, n), b("GameTimeAutomation | Manage time toggled", { enabled: n }), i && n && S(this, D, Li).call(this), S(this, D, Oe).call(this);
+    })), N(this, Cn, ko((t) => {
+      N(this, _t, t), b("GameTimeAutomation | Seconds per round updated", { value: t });
+    })), S(this, D, Li).call(this), S(this, D, nn).call(this), S(this, D, Oe).call(this));
   }
 };
-he = new WeakMap(), It = new WeakMap(), ye = new WeakMap(), $e = new WeakMap(), Ke = new WeakMap(), ve = new WeakMap(), dt = new WeakMap(), an = new WeakMap(), ln = new WeakMap(), Et = new WeakMap(), St = new WeakMap(), Je = new WeakMap(), Oe = new WeakMap(), N = new WeakSet(), ri = /* @__PURE__ */ s(function() {
+ye = new WeakMap(), _t = new WeakMap(), pe = new WeakMap(), Ue = new WeakMap(), nt = new WeakMap(), Ee = new WeakMap(), vt = new WeakMap(), Ln = new WeakMap(), Cn = new WeakMap(), Rt = new WeakMap(), Ht = new WeakMap(), it = new WeakMap(), we = new WeakMap(), D = new WeakSet(), Si = /* @__PURE__ */ s(function() {
   var t;
   try {
     if (typeof ((t = globalThis.performance) == null ? void 0 : t.now) == "function")
       return globalThis.performance.now();
   } catch (n) {
-    T("GameTimeAutomation | Failed to read high-resolution timestamp", {
+    b("GameTimeAutomation | Failed to read high-resolution timestamp", {
       message: (n == null ? void 0 : n.message) ?? String(n)
     });
   }
   return Date.now();
-}, "#currentTimestamp"), ot = /* @__PURE__ */ s(function() {
+}, "#currentTimestamp"), mt = /* @__PURE__ */ s(function() {
   var t;
   return !!((t = game == null ? void 0 : game.user) != null && t.isGM && game.user.active !== !1);
-}, "#canControlTime"), Ht = /* @__PURE__ */ s(function(t) {
+}, "#canControlTime"), en = /* @__PURE__ */ s(function(t) {
   var i, r;
   if (!t) return !1;
   if (t.active === !0) return !0;
   if (t.active === !1) return !1;
   const n = (i = game == null ? void 0 : game.combats) == null ? void 0 : i.active;
   return (n == null ? void 0 : n.id) === t.id ? !0 : ((r = game == null ? void 0 : game.combat) == null ? void 0 : r.id) === t.id ? game.combat.active ?? !0 : !1;
-}, "#isCombatDocumentActive"), oi = /* @__PURE__ */ s(function(t) {
+}, "#isCombatDocumentActive"), Ii = /* @__PURE__ */ s(function(t) {
   return t ? typeof t.started == "boolean" ? t.started : (t.round ?? 0) > 0 : !1;
-}, "#hasCombatStarted"), $t = /* @__PURE__ */ s(function() {
+}, "#hasCombatStarted"), tn = /* @__PURE__ */ s(function() {
   var i;
   const t = Array.isArray((i = game == null ? void 0 : game.combats) == null ? void 0 : i.contents) ? game.combats.contents : [];
   for (const r of t)
-    if (S(this, N, Ht).call(this, r) && S(this, N, oi).call(this, r))
+    if (S(this, D, en).call(this, r) && S(this, D, Ii).call(this, r))
       return !0;
   const n = game == null ? void 0 : game.combat;
-  return !!(n && S(this, N, Ht).call(this, n) && S(this, N, oi).call(this, n));
-}, "#isCombatRunning"), si = /* @__PURE__ */ s(function() {
+  return !!(n && S(this, D, en).call(this, n) && S(this, D, Ii).call(this, n));
+}, "#isCombatRunning"), Li = /* @__PURE__ */ s(function() {
   var n;
-  v(this, ye).clear();
+  g(this, pe).clear();
   const t = Array.isArray((n = game == null ? void 0 : game.combats) == null ? void 0 : n.contents) ? game.combats.contents : [];
   for (const i of t)
-    i != null && i.id && v(this, ye).set(i.id, Math.max(i.round ?? 0, 1));
-}, "#hydrateRoundTracking"), be = /* @__PURE__ */ s(function({ pausedOverride: t } = {}) {
-  const n = typeof t == "boolean" ? t : !!(game != null && game.paused), i = v(this, he), r = v(this, Oe), o = i && r, a = {
+    i != null && i.id && g(this, pe).set(i.id, Math.max(i.round ?? 0, 1));
+}, "#hydrateRoundTracking"), Oe = /* @__PURE__ */ s(function({ pausedOverride: t } = {}) {
+  const n = typeof t == "boolean" ? t : !!(game != null && game.paused), i = g(this, ye), r = g(this, we), o = i && r, a = {
     manageTimeEnabled: i,
     sceneAllowsRealTime: r,
     effectiveEnabled: o,
     paused: n,
-    canControl: S(this, N, ot).call(this),
-    combatRunning: S(this, N, $t).call(this),
+    canControl: S(this, D, mt).call(this),
+    combatRunning: S(this, D, tn).call(this),
     overrideApplied: typeof t == "boolean"
   };
-  if (T("GameTimeAutomation | Sync running state", a), !o || !S(this, N, ot).call(this)) {
-    S(this, N, ai).call(this);
+  if (b("GameTimeAutomation | Sync running state", a), !o || !S(this, D, mt).call(this)) {
+    S(this, D, Ci).call(this);
     return;
   }
-  S(this, N, Tr).call(this);
-}, "#syncRunningState"), Tr = /* @__PURE__ */ s(function() {
-  v(this, $e) === null && (D(this, Ke, S(this, N, ri).call(this)), D(this, $e, globalThis.setInterval(() => S(this, N, br).call(this), 1e3)), T("GameTimeAutomation | Started real-time ticker"));
-}, "#startRealTimeTicker"), ai = /* @__PURE__ */ s(function() {
-  v(this, $e) !== null && (globalThis.clearInterval(v(this, $e)), D(this, $e, null), T("GameTimeAutomation | Stopped real-time ticker")), D(this, Ke, null), D(this, ve, 0), D(this, Je, !1);
-}, "#stopRealTimeTicker"), br = /* @__PURE__ */ s(function() {
-  if (!v(this, he) || !v(this, Oe) || !S(this, N, ot).call(this)) {
-    S(this, N, ai).call(this);
+  S(this, D, Wr).call(this);
+}, "#syncRunningState"), Wr = /* @__PURE__ */ s(function() {
+  g(this, Ue) === null && (N(this, nt, S(this, D, Si).call(this)), N(this, Ue, globalThis.setInterval(() => S(this, D, Jr).call(this), 1e3)), b("GameTimeAutomation | Started real-time ticker"));
+}, "#startRealTimeTicker"), Ci = /* @__PURE__ */ s(function() {
+  g(this, Ue) !== null && (globalThis.clearInterval(g(this, Ue)), N(this, Ue, null), b("GameTimeAutomation | Stopped real-time ticker")), N(this, nt, null), N(this, Ee, 0), N(this, it, !1);
+}, "#stopRealTimeTicker"), Jr = /* @__PURE__ */ s(function() {
+  if (!g(this, ye) || !g(this, we) || !S(this, D, mt).call(this)) {
+    S(this, D, Ci).call(this);
     return;
   }
-  const t = S(this, N, ri).call(this);
+  const t = S(this, D, Si).call(this);
   if (typeof t != "number" || !Number.isFinite(t)) return;
-  const n = v(this, Ke) ?? t, i = (t - n) / 1e3;
-  if (D(this, Ke, t), !Number.isFinite(i) || i <= 0) return;
-  const r = !!(game != null && game.paused), o = S(this, N, $t).call(this);
+  const n = g(this, nt) ?? t, i = (t - n) / 1e3;
+  if (N(this, nt, t), !Number.isFinite(i) || i <= 0) return;
+  const r = !!(game != null && game.paused), o = S(this, D, tn).call(this);
   if (r || o) {
-    v(this, Je) || T("GameTimeAutomation | Tick skipped", { paused: r, combatRunning: o }), D(this, Je, !0), D(this, ve, 0);
+    g(this, it) || b("GameTimeAutomation | Tick skipped", { paused: r, combatRunning: o }), N(this, it, !0), N(this, Ee, 0);
     return;
   }
-  D(this, Je, !1), T("GameTimeAutomation | Real-time tick", { deltaSeconds: i }), S(this, N, li).call(this, i);
-}, "#tickRealTime"), li = /* @__PURE__ */ s(function(t) {
-  if (!v(this, he) || !v(this, Oe)) return;
+  N(this, it, !1), b("GameTimeAutomation | Real-time tick", { deltaSeconds: i }), S(this, D, Ni).call(this, i);
+}, "#tickRealTime"), Ni = /* @__PURE__ */ s(function(t) {
+  if (!g(this, ye) || !g(this, we)) return;
   const n = Number(t);
-  !Number.isFinite(n) || n <= 0 || (D(this, ve, v(this, ve) + n), !v(this, dt) && D(this, dt, S(this, N, vr).call(this)));
-}, "#queueAdvance"), vr = /* @__PURE__ */ s(async function() {
+  !Number.isFinite(n) || n <= 0 || (N(this, Ee, g(this, Ee) + n), !g(this, vt) && N(this, vt, S(this, D, Kr).call(this)));
+}, "#queueAdvance"), Kr = /* @__PURE__ */ s(async function() {
   var t, n;
-  for (; v(this, ve) > 0; ) {
-    if (!v(this, he) || !v(this, Oe) || game != null && game.paused || !S(this, N, ot).call(this) || S(this, N, $t).call(this)) {
-      D(this, ve, 0);
+  for (; g(this, Ee) > 0; ) {
+    if (!g(this, ye) || !g(this, we) || game != null && game.paused || !S(this, D, mt).call(this) || S(this, D, tn).call(this)) {
+      N(this, Ee, 0);
       break;
     }
-    const i = v(this, ve);
-    D(this, ve, 0);
+    const i = g(this, Ee);
+    N(this, Ee, 0);
     try {
       if (typeof ((t = game == null ? void 0 : game.time) == null ? void 0 : t.advance) == "function")
-        T("GameTimeAutomation | Advancing world time", { delta: i }), await game.time.advance(i), T("GameTimeAutomation | World time advanced", {
+        b("GameTimeAutomation | Advancing world time", { delta: i }), await game.time.advance(i), b("GameTimeAutomation | World time advanced", {
           worldTime: ((n = game.time) == null ? void 0 : n.worldTime) ?? null
         });
       else {
-        console.warn(`${O} | game.time.advance is unavailable; cannot manage world time.`);
+        console.warn(`${E} | game.time.advance is unavailable; cannot manage world time.`);
         break;
       }
     } catch (r) {
-      console.error(`${O} | Failed to advance world time`, r);
+      console.error(`${E} | Failed to advance world time`, r);
       break;
     }
   }
-  D(this, dt, null);
-}, "#flushAdvanceQueue"), cn = new WeakMap(), un = new WeakMap(), dn = new WeakMap(), fn = new WeakMap(), gn = new WeakMap(), mn = new WeakMap(), ci = /* @__PURE__ */ s(function() {
-  const t = vt();
+  N(this, vt, null);
+}, "#flushAdvanceQueue"), Nn = new WeakMap(), An = new WeakMap(), Mn = new WeakMap(), Dn = new WeakMap(), Pn = new WeakMap(), Fn = new WeakMap(), Ai = /* @__PURE__ */ s(function() {
+  const t = Mt();
   return ae(t) ? t : null;
-}, "#getActiveSceneDocument"), Or = /* @__PURE__ */ s(function(t) {
+}, "#getActiveSceneDocument"), Yr = /* @__PURE__ */ s(function(t) {
   if (!ae(t)) return !1;
   try {
-    return !!t.getFlag(O, Vn);
+    return !!t.getFlag(E, ii);
   } catch (n) {
-    return T("GameTimeAutomation | Failed to read scene real-time flag", {
+    return b("GameTimeAutomation | Failed to read scene real-time flag", {
       sceneId: (t == null ? void 0 : t.id) ?? null,
       message: (n == null ? void 0 : n.message) ?? String(n)
     }), !1;
   }
-}, "#isSceneRealTimeAllowed"), Vt = /* @__PURE__ */ s(function(t) {
-  const n = ae(t) ? t : S(this, N, ci).call(this), i = S(this, N, Or).call(this, n), r = v(this, Oe);
-  return D(this, Oe, i), r !== i ? (T("GameTimeAutomation | Scene real-time allowance changed", {
+}, "#isSceneRealTimeAllowed"), nn = /* @__PURE__ */ s(function(t) {
+  const n = ae(t) ? t : S(this, D, Ai).call(this), i = S(this, D, Yr).call(this, n), r = g(this, we);
+  return N(this, we, i), r !== i ? (b("GameTimeAutomation | Scene real-time allowance changed", {
     sceneId: (n == null ? void 0 : n.id) ?? null,
     allows: i
   }), !0) : !1;
-}, "#refreshSceneAutomationState"), hn = new WeakMap(), yn = new WeakMap(), s(Ni, "GameTimeAutomation");
-let ii = Ni;
-var Xi, Ve, se, Ye, Ae, pn, Z, Lr, Ir, Er, Sr, Tn, fi, bn, wr, vn, Cr, Ar;
-const we = class we extends Sn(En) {
+}, "#refreshSceneAutomationState"), _n = new WeakMap(), Rn = new WeakMap(), s(tr, "GameTimeAutomation");
+let wi = tr;
+var Cr, qe, se, rt, De, Hn, Z, Qr, Xr, Zr, eo, $n, Di, Vn, to, kn, no, io;
+const Ae = class Ae extends Bn(qn) {
   constructor(n = {}) {
     const { scene: i, trigger: r, triggerIndex: o, onSave: a, ...l } = n ?? {};
     super(l);
-    M(this, Z);
-    M(this, Ve, null);
-    M(this, se, null);
-    M(this, Ye, null);
-    M(this, Ae, null);
-    M(this, pn, /* @__PURE__ */ s(() => {
-      (this.rendered ?? this.isRendered ?? !1) && (D(this, Ae, S(this, Z, Lr).call(this)), this.render({ force: !0 }));
+    C(this, Z);
+    C(this, qe, null);
+    C(this, se, null);
+    C(this, rt, null);
+    C(this, De, null);
+    C(this, Hn, /* @__PURE__ */ s(() => {
+      (this.rendered ?? this.isRendered ?? !1) && (N(this, De, S(this, Z, Qr).call(this)), this.render({ force: !0 }));
     }, "#handleTimeFormatChange"));
-    M(this, Tn, /* @__PURE__ */ s((n) => {
+    C(this, $n, /* @__PURE__ */ s((n) => {
       var o, a;
       const i = n.currentTarget, r = i == null ? void 0 : i.closest("form");
-      r && (T("Trigger action selection changed", {
+      r && (b("Trigger action selection changed", {
         sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null,
         triggerId: ((a = this.trigger) == null ? void 0 : a.id) ?? null,
         actionId: (i == null ? void 0 : i.value) ?? null
-      }), S(this, Z, fi).call(this, i.value, r));
+      }), S(this, Z, Di).call(this, i.value, r));
     }, "#onActionSelectChange"));
-    M(this, bn, /* @__PURE__ */ s((n) => {
-      var u, d, h, m;
+    C(this, Vn, /* @__PURE__ */ s((n) => {
+      var u, d, y, h;
       n.preventDefault();
       const i = n.currentTarget, r = i == null ? void 0 : i.closest("form");
       if (!r) return;
       const o = (u = i.dataset) == null ? void 0 : u.target;
       if (!o) return;
-      const a = typeof (CSS == null ? void 0 : CSS.escape) == "function" ? CSS.escape : (p) => p, l = r.querySelector(`[name="${a(o)}"]`);
+      const a = typeof (CSS == null ? void 0 : CSS.escape) == "function" ? CSS.escape : (T) => T, l = r.querySelector(`[name="${a(o)}"]`);
       if (!l) return;
-      T("Opening file picker for trigger", {
+      b("Opening file picker for trigger", {
         sceneId: ((d = this.scene) == null ? void 0 : d.id) ?? null,
-        triggerId: ((h = this.trigger) == null ? void 0 : h.id) ?? null,
+        triggerId: ((y = this.trigger) == null ? void 0 : y.id) ?? null,
         target: o
       }), new FilePicker({
-        type: ((m = i.dataset) == null ? void 0 : m.type) || "audio",
+        type: ((h = i.dataset) == null ? void 0 : h.type) || "audio",
         current: l.value,
-        callback: /* @__PURE__ */ s((p) => {
-          var g, L;
-          l.value = p, l.dispatchEvent(new Event("change")), T("Trigger form file selected", {
-            sceneId: ((g = this.scene) == null ? void 0 : g.id) ?? null,
-            triggerId: ((L = this.trigger) == null ? void 0 : L.id) ?? null,
+        callback: /* @__PURE__ */ s((T) => {
+          var m, v;
+          l.value = T, l.dispatchEvent(new Event("change")), b("Trigger form file selected", {
+            sceneId: ((m = this.scene) == null ? void 0 : m.id) ?? null,
+            triggerId: ((v = this.trigger) == null ? void 0 : v.id) ?? null,
             target: o,
-            path: p
+            path: T
           });
         }, "callback")
       }).render({ force: !0 });
     }, "#onFilePicker"));
-    M(this, vn, /* @__PURE__ */ s(async (n) => {
+    C(this, kn, /* @__PURE__ */ s(async (n) => {
       var r, o;
       n.preventDefault();
       const i = n.currentTarget;
-      i instanceof HTMLFormElement && (T("Trigger form submitted", {
+      i instanceof HTMLFormElement && (b("Trigger form submitted", {
         sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null,
         triggerId: ((o = this.trigger) == null ? void 0 : o.id) ?? null
-      }), await S(this, Z, Cr).call(this, i));
+      }), await S(this, Z, no).call(this, i));
     }, "#onSubmit"));
-    this.scene = i ?? null, this.trigger = r ?? null, this.triggerIndex = Number.isInteger(o) ? Number(o) : null, this.onSave = typeof a == "function" ? a : null, D(this, Ye, Li(v(this, pn)));
+    this.scene = i ?? null, this.trigger = r ?? null, this.triggerIndex = Number.isInteger(o) ? Number(o) : null, this.onSave = typeof a == "function" ? a : null, N(this, rt, Bi(g(this, Hn)));
   }
   async _prepareContext() {
     var n, i;
-    ft("TriggerFormApplication#_prepareContext", {
+    Et("TriggerFormApplication#_prepareContext", {
       sceneId: ((n = this.scene) == null ? void 0 : n.id) ?? null,
       triggerId: ((i = this.trigger) == null ? void 0 : i.id) ?? null,
       triggerIndex: this.triggerIndex
     });
     try {
-      const r = this.trigger ?? { action: Rt, data: {} }, o = r.action ?? Rt, a = Hi(r.time), l = a.format ?? "12h", c = l === "12h" ? Oo() : [], u = a.period ?? (c.length > 0 ? c[0].value : null), d = l === "12h" ? c.map((p) => ({
-        ...p,
-        selected: p.value === u
-      })) : [], h = Ri().map((p) => ({
-        id: p.id,
-        label: typeof p.label == "function" ? p.label() : p.label,
-        selected: p.id === o
-      })), m = Ri().map((p) => {
-        const g = p.id === r.action ? r : { ...r, action: p.id }, L = mo(g);
-        return L ? {
-          id: p.id,
-          visible: p.id === o,
-          content: L
+      const r = this.trigger ?? { action: Zt, data: {} }, o = r.action ?? Zt, a = dr(r.time), l = a.format ?? "12h", c = l === "12h" ? Zo() : [], u = a.period ?? (c.length > 0 ? c[0].value : null), d = l === "12h" ? c.map((T) => ({
+        ...T,
+        selected: T.value === u
+      })) : [], y = ur().map((T) => ({
+        id: T.id,
+        label: typeof T.label == "function" ? T.label() : T.label,
+        selected: T.id === o
+      })), h = ur().map((T) => {
+        const m = T.id === r.action ? r : { ...r, action: T.id }, v = zo(m);
+        return v ? {
+          id: T.id,
+          visible: T.id === o,
+          content: v
         } : null;
       }).filter(Boolean);
       return {
@@ -1675,8 +1675,8 @@ const we = class we extends Sn(En) {
         is12HourFormat: l === "12h",
         is24HourFormat: l === "24h",
         timePeriodOptions: d,
-        actions: h,
-        actionSections: m,
+        actions: y,
+        actionSections: h,
         allowReplayOnRewind: !!r.allowReplayOnRewind,
         labels: {
           time: f("EIDOLON.TimeTrigger.TriggerTime", "Trigger Time"),
@@ -1696,7 +1696,7 @@ const we = class we extends Sn(En) {
         }
       };
     } finally {
-      ke();
+      We();
     }
   }
   _onRender(n, i) {
@@ -1704,100 +1704,100 @@ const we = class we extends Sn(En) {
     super._onRender(n, i);
     const r = this.element;
     if (!r) return;
-    T("Trigger form rendered", {
+    b("Trigger form rendered", {
       sceneId: ((c = this.scene) == null ? void 0 : c.id) ?? null,
       triggerId: ((u = this.trigger) == null ? void 0 : u.id) ?? null
     });
     const o = Array.from(((d = document == null ? void 0 : document.body) == null ? void 0 : d.classList) ?? []).find(
-      (h) => h.startsWith("theme-")
+      (y) => y.startsWith("theme-")
     );
     o && r.classList.add(o);
     const a = r.querySelector("form");
     if (!a) return;
-    S(this, Z, wr).call(this, a), S(this, Z, Ir).call(this, a), a.addEventListener("submit", v(this, vn));
+    S(this, Z, to).call(this, a), S(this, Z, Xr).call(this, a), a.addEventListener("submit", g(this, kn));
     const l = a.querySelector("[data-action-select]");
-    l && (l.addEventListener("change", v(this, Tn)), S(this, Z, fi).call(this, l.value, a)), a.querySelectorAll("[data-action-file-picker]").forEach((h) => {
-      h.addEventListener("click", v(this, bn));
+    l && (l.addEventListener("change", g(this, $n)), S(this, Z, Di).call(this, l.value, a)), a.querySelectorAll("[data-action-file-picker]").forEach((y) => {
+      y.addEventListener("click", g(this, Vn));
     });
   }
   async close(n = {}) {
     var i;
-    if ((i = v(this, Ve)) == null || i.call(this), D(this, Ve, null), D(this, se, null), D(this, Ae, null), typeof v(this, Ye) == "function")
+    if ((i = g(this, qe)) == null || i.call(this), N(this, qe, null), N(this, se, null), N(this, De, null), typeof g(this, rt) == "function")
       try {
-        v(this, Ye).call(this);
+        g(this, rt).call(this);
       } catch (r) {
-        console.error(`${O} | Failed to dispose trigger form time format subscription`, r);
+        console.error(`${E} | Failed to dispose trigger form time format subscription`, r);
       }
-    return D(this, Ye, null), super.close(n);
+    return N(this, rt, null), super.close(n);
   }
 };
-Ve = new WeakMap(), se = new WeakMap(), Ye = new WeakMap(), Ae = new WeakMap(), pn = new WeakMap(), Z = new WeakSet(), Lr = /* @__PURE__ */ s(function() {
-  var l, c, u, d, h, m, p;
+qe = new WeakMap(), se = new WeakMap(), rt = new WeakMap(), De = new WeakMap(), Hn = new WeakMap(), Z = new WeakSet(), Qr = /* @__PURE__ */ s(function() {
+  var l, c, u, d, y, h, T;
   const n = (c = (l = this.element) == null ? void 0 : l.querySelector) == null ? void 0 : c.call(l, "form");
   if (!(n instanceof HTMLFormElement)) return null;
   const i = Array.from(n.elements ?? []), r = [];
-  for (const g of i)
-    if ((g instanceof HTMLInputElement || g instanceof HTMLSelectElement || g instanceof HTMLTextAreaElement) && g.name && !(((u = g.dataset) == null ? void 0 : u.timeHidden) !== void 0 || ((d = g.dataset) == null ? void 0 : d.timeHour) !== void 0 || ((h = g.dataset) == null ? void 0 : h.timeMinute) !== void 0 || ((m = g.dataset) == null ? void 0 : m.timePeriod) !== void 0)) {
-      if (g instanceof HTMLInputElement) {
-        if (g.type === "checkbox" || g.type === "radio") {
+  for (const m of i)
+    if ((m instanceof HTMLInputElement || m instanceof HTMLSelectElement || m instanceof HTMLTextAreaElement) && m.name && !(((u = m.dataset) == null ? void 0 : u.timeHidden) !== void 0 || ((d = m.dataset) == null ? void 0 : d.timeHour) !== void 0 || ((y = m.dataset) == null ? void 0 : y.timeMinute) !== void 0 || ((h = m.dataset) == null ? void 0 : h.timePeriod) !== void 0)) {
+      if (m instanceof HTMLInputElement) {
+        if (m.type === "checkbox" || m.type === "radio") {
           r.push({
-            kind: g.type,
-            name: g.name,
-            value: g.value,
-            checked: g.checked
+            kind: m.type,
+            name: m.name,
+            value: m.value,
+            checked: m.checked
           });
           continue;
         }
         r.push({
           kind: "value",
-          name: g.name,
-          value: g.value
+          name: m.name,
+          value: m.value
         });
         continue;
       }
-      if (g instanceof HTMLSelectElement) {
-        g.multiple ? r.push({
+      if (m instanceof HTMLSelectElement) {
+        m.multiple ? r.push({
           kind: "select-multiple",
-          name: g.name,
-          values: Array.from(g.selectedOptions ?? []).map((L) => L.value)
+          name: m.name,
+          values: Array.from(m.selectedOptions ?? []).map((v) => v.value)
         }) : r.push({
           kind: "value",
-          name: g.name,
-          value: g.value
+          name: m.name,
+          value: m.value
         });
         continue;
       }
       r.push({
         kind: "value",
-        name: g.name,
-        value: g.value
+        name: m.name,
+        value: m.value
       });
     }
   const o = n.querySelector("[data-time-format]");
   let a = null;
   if (o instanceof HTMLElement) {
-    const g = o.querySelector("[data-time-hidden]"), L = o.querySelector("[data-time-hour]"), I = o.querySelector("[data-time-minute]"), b = o.querySelector("[data-time-period]");
+    const m = o.querySelector("[data-time-hidden]"), v = o.querySelector("[data-time-hour]"), w = o.querySelector("[data-time-minute]"), O = o.querySelector("[data-time-period]");
     a = {
-      format: ((p = o.dataset) == null ? void 0 : p.timeFormat) ?? null,
-      canonical: g instanceof HTMLInputElement ? g.value : "",
-      hour: L instanceof HTMLInputElement ? L.value : "",
-      minute: I instanceof HTMLInputElement ? I.value : "",
-      period: b instanceof HTMLSelectElement ? b.value : ""
+      format: ((T = o.dataset) == null ? void 0 : T.timeFormat) ?? null,
+      canonical: m instanceof HTMLInputElement ? m.value : "",
+      hour: v instanceof HTMLInputElement ? v.value : "",
+      minute: w instanceof HTMLInputElement ? w.value : "",
+      period: O instanceof HTMLSelectElement ? O.value : ""
     };
   }
   return {
     fields: r,
     time: a
   };
-}, "#captureFormState"), Ir = /* @__PURE__ */ s(function(n) {
-  if (!v(this, Ae)) return;
+}, "#captureFormState"), Xr = /* @__PURE__ */ s(function(n) {
+  if (!g(this, De)) return;
   if (!(n instanceof HTMLFormElement)) {
-    D(this, Ae, null);
+    N(this, De, null);
     return;
   }
-  const { fields: i = [], time: r = null } = v(this, Ae) ?? {};
-  D(this, Ae, null), S(this, Z, Er).call(this, n, i), S(this, Z, Sr).call(this, n, r);
-}, "#restorePendingFormState"), Er = /* @__PURE__ */ s(function(n, i) {
+  const { fields: i = [], time: r = null } = g(this, De) ?? {};
+  N(this, De, null), S(this, Z, Zr).call(this, n, i), S(this, Z, eo).call(this, n, r);
+}, "#restorePendingFormState"), Zr = /* @__PURE__ */ s(function(n, i) {
   if (!Array.isArray(i) || i.length === 0) return;
   const r = typeof (CSS == null ? void 0 : CSS.escape) == "function" ? CSS.escape : (o) => o;
   for (const o of i) {
@@ -1822,50 +1822,50 @@ Ve = new WeakMap(), se = new WeakMap(), Ye = new WeakMap(), Ae = new WeakMap(), 
     const l = n.querySelector(`[name="${a}"]`);
     (l instanceof HTMLInputElement || l instanceof HTMLSelectElement || l instanceof HTMLTextAreaElement) && (l.value = o.value ?? "");
   }
-}, "#restoreFieldValues"), Sr = /* @__PURE__ */ s(function(n, i) {
-  var w, A, R;
+}, "#restoreFieldValues"), eo = /* @__PURE__ */ s(function(n, i) {
+  var L, A, P;
   const r = n.querySelector("[data-time-format]");
   if (!(r instanceof HTMLElement)) {
-    typeof v(this, se) == "function" && v(this, se).call(this);
+    typeof g(this, se) == "function" && g(this, se).call(this);
     return;
   }
-  const o = ((w = r.dataset) == null ? void 0 : w.timeFormat) === "24h" ? "24h" : "12h", a = r.querySelector("[data-time-hour]"), l = r.querySelector("[data-time-minute]"), c = r.querySelector("[data-time-period]"), u = r.querySelector("[data-time-hidden]");
+  const o = ((L = r.dataset) == null ? void 0 : L.timeFormat) === "24h" ? "24h" : "12h", a = r.querySelector("[data-time-hour]"), l = r.querySelector("[data-time-minute]"), c = r.querySelector("[data-time-period]"), u = r.querySelector("[data-time-hidden]");
   if (!i) {
     if (a instanceof HTMLInputElement && (a.value = ""), l instanceof HTMLInputElement && (l.value = ""), c instanceof HTMLSelectElement) {
-      const _ = ((R = (A = c.options) == null ? void 0 : A[0]) == null ? void 0 : R.value) ?? "";
-      c.value = _;
+      const R = ((P = (A = c.options) == null ? void 0 : A[0]) == null ? void 0 : P.value) ?? "";
+      c.value = R;
     }
-    u instanceof HTMLInputElement && (u.value = ""), typeof v(this, se) == "function" && v(this, se).call(this);
+    u instanceof HTMLInputElement && (u.value = ""), typeof g(this, se) == "function" && g(this, se).call(this);
     return;
   }
-  const d = typeof i.canonical == "string" ? i.canonical : "", h = typeof i.period == "string" ? i.period : "", m = typeof i.hour == "string" ? i.hour : "", p = typeof i.minute == "string" ? i.minute : "";
-  let g = "", L = "", I = h, b = d;
+  const d = typeof i.canonical == "string" ? i.canonical : "", y = typeof i.period == "string" ? i.period : "", h = typeof i.hour == "string" ? i.hour : "", T = typeof i.minute == "string" ? i.minute : "";
+  let m = "", v = "", w = y, O = d;
   if (d) {
-    const _ = Hi(d, o);
-    g = _.hour ?? "", L = _.minute ?? "", b = _.canonical ?? d, o === "12h" ? I = _.period ?? h : I = "";
+    const R = dr(d, o);
+    m = R.hour ?? "", v = R.minute ?? "", O = R.canonical ?? d, o === "12h" ? w = R.period ?? y : w = "";
   } else
-    g = m, L = p, o !== "12h" && (I = "");
-  if (a instanceof HTMLInputElement && (a.value = g ?? ""), l instanceof HTMLInputElement && (l.value = L ?? ""), c instanceof HTMLSelectElement)
+    m = h, v = T, o !== "12h" && (w = "");
+  if (a instanceof HTMLInputElement && (a.value = m ?? ""), l instanceof HTMLInputElement && (l.value = v ?? ""), c instanceof HTMLSelectElement)
     if (o === "12h") {
-      const _ = Array.from(c.options ?? []);
-      _.find((F) => F.value === I) ? c.value = I : _.length > 0 ? c.value = _[0].value : c.value = "";
+      const R = Array.from(c.options ?? []);
+      R.find((F) => F.value === w) ? c.value = w : R.length > 0 ? c.value = R[0].value : c.value = "";
     } else
       c.value = "";
-  u instanceof HTMLInputElement && (u.value = b ?? ""), typeof v(this, se) == "function" && v(this, se).call(this);
-}, "#restoreTimeInputs"), Tn = new WeakMap(), fi = /* @__PURE__ */ s(function(n, i) {
+  u instanceof HTMLInputElement && (u.value = O ?? ""), typeof g(this, se) == "function" && g(this, se).call(this);
+}, "#restoreTimeInputs"), $n = new WeakMap(), Di = /* @__PURE__ */ s(function(n, i) {
   i && i.querySelectorAll("[data-action-config]").forEach((r) => {
     const o = r.dataset.actionConfig === n;
     r.style.display = o ? "" : "none";
   });
-}, "#updateActionSections"), bn = new WeakMap(), wr = /* @__PURE__ */ s(function(n) {
-  var h, m, p, g;
-  if ((h = v(this, Ve)) == null || h.call(this), D(this, Ve, null), D(this, se, null), !(n instanceof HTMLFormElement)) return;
-  const i = n.querySelector("[data-time-format]"), r = ((m = i == null ? void 0 : i.dataset) == null ? void 0 : m.timeFormat) ?? null;
+}, "#updateActionSections"), Vn = new WeakMap(), to = /* @__PURE__ */ s(function(n) {
+  var y, h, T, m;
+  if ((y = g(this, qe)) == null || y.call(this), N(this, qe, null), N(this, se, null), !(n instanceof HTMLFormElement)) return;
+  const i = n.querySelector("[data-time-format]"), r = ((h = i == null ? void 0 : i.dataset) == null ? void 0 : h.timeFormat) ?? null;
   if (r !== "12h" && r !== "24h")
     return;
   const o = i.querySelector("[data-time-hidden]"), a = i.querySelector("[data-time-hour]"), l = i.querySelector("[data-time-minute]"), c = r === "12h" ? i.querySelector("[data-time-period]") : null;
   if (!o || !a || !l || r === "12h" && !c) {
-    T("Trigger form time inputs missing elements", {
+    b("Trigger form time inputs missing elements", {
       format: r,
       hasHidden: !!o,
       hasHour: !!a,
@@ -1875,7 +1875,7 @@ Ve = new WeakMap(), se = new WeakMap(), Ye = new WeakMap(), Ae = new WeakMap(), 
     return;
   }
   const u = [a, l, ...c ? [c] : []], d = /* @__PURE__ */ s(() => {
-    const { canonical: L, error: I } = vo(
+    const { canonical: v, error: w } = Xo(
       {
         hour: a.value,
         minute: l.value,
@@ -1884,83 +1884,83 @@ Ve = new WeakMap(), se = new WeakMap(), Ye = new WeakMap(), Ae = new WeakMap(), 
       },
       r
     );
-    o.value = L ?? "";
-    const b = I ?? "";
-    o.setCustomValidity(b), u.forEach((w) => {
-      w.setCustomValidity(b);
+    o.value = v ?? "";
+    const O = w ?? "";
+    o.setCustomValidity(O), u.forEach((L) => {
+      L.setCustomValidity(O);
     });
   }, "update");
-  u.forEach((L) => {
-    L.addEventListener("input", d), L.addEventListener("change", d);
-  }), d(), D(this, Ve, () => {
-    u.forEach((L) => {
-      L.removeEventListener("input", d), L.removeEventListener("change", d);
+  u.forEach((v) => {
+    v.addEventListener("input", d), v.addEventListener("change", d);
+  }), d(), N(this, qe, () => {
+    u.forEach((v) => {
+      v.removeEventListener("input", d), v.removeEventListener("change", d);
     });
-  }), D(this, se, d), T("Trigger form configured for time input", {
+  }), N(this, se, d), b("Trigger form configured for time input", {
     format: r,
-    sceneId: ((p = this.scene) == null ? void 0 : p.id) ?? null,
-    triggerId: ((g = this.trigger) == null ? void 0 : g.id) ?? null
+    sceneId: ((T = this.scene) == null ? void 0 : T.id) ?? null,
+    triggerId: ((m = this.trigger) == null ? void 0 : m.id) ?? null
   });
-}, "#setupTimeInput"), vn = new WeakMap(), Cr = /* @__PURE__ */ s(async function(n) {
+}, "#setupTimeInput"), kn = new WeakMap(), no = /* @__PURE__ */ s(async function(n) {
   var o, a, l, c, u;
-  if (typeof v(this, se) == "function" && v(this, se).call(this), typeof n.checkValidity == "function" && !n.checkValidity()) {
-    typeof n.reportValidity == "function" && n.reportValidity(), T("Trigger form submission blocked by validity check", {
+  if (typeof g(this, se) == "function" && g(this, se).call(this), typeof n.checkValidity == "function" && !n.checkValidity()) {
+    typeof n.reportValidity == "function" && n.reportValidity(), b("Trigger form submission blocked by validity check", {
       sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null,
       triggerId: ((a = this.trigger) == null ? void 0 : a.id) ?? null
     });
     return;
   }
   const i = new FormData(n), r = Object.fromEntries(i.entries());
-  delete r.timeHour, delete r.timeMinute, delete r.timePeriod, r.allowReplayOnRewind = ((l = n.querySelector('input[name="allowReplayOnRewind"]')) == null ? void 0 : l.checked) ?? !1, T("Processing trigger form submission", {
+  delete r.timeHour, delete r.timeMinute, delete r.timePeriod, r.allowReplayOnRewind = ((l = n.querySelector('input[name="allowReplayOnRewind"]')) == null ? void 0 : l.checked) ?? !1, b("Processing trigger form submission", {
     sceneId: ((c = this.scene) == null ? void 0 : c.id) ?? null,
     triggerId: ((u = this.trigger) == null ? void 0 : u.id) ?? null,
     allowReplayOnRewind: r.allowReplayOnRewind
-  }), await S(this, Z, Ar).call(this, r), await this.close();
-}, "#handleSubmit"), Ar = /* @__PURE__ */ s(async function(n) {
+  }), await S(this, Z, io).call(this, r), await this.close();
+}, "#handleSubmit"), io = /* @__PURE__ */ s(async function(n) {
   var o, a, l, c, u, d;
   const i = {
-    id: ((o = this.trigger) == null ? void 0 : o.id) ?? eo(),
+    id: ((o = this.trigger) == null ? void 0 : o.id) ?? Fo(),
     time: n.time ?? "",
-    action: n.action ?? Rt,
+    action: n.action ?? Zt,
     allowReplayOnRewind: !!n.allowReplayOnRewind,
     data: {}
   };
-  T("Persisting trigger from form", {
+  b("Persisting trigger from form", {
     sceneId: ((a = this.scene) == null ? void 0 : a.id) ?? null,
     triggerId: i.id,
     existingIndex: this.triggerIndex
-  }), ho(i, n);
-  const r = at(this.scene);
+  }), Wo(i, n);
+  const r = pt(this.scene);
   this.triggerIndex !== null && r[this.triggerIndex] ? r[this.triggerIndex] = i : r.push(i);
   try {
-    await ar(this.scene, r), T("Trigger list saved", {
+    await Hr(this.scene, r), b("Trigger list saved", {
       sceneId: ((l = this.scene) == null ? void 0 : l.id) ?? null,
       triggerCount: r.length
     });
-  } catch (h) {
-    throw console.error(`${O} | Failed to save time trigger`, h), (u = (c = ui.notifications) == null ? void 0 : c.error) == null || u.call(
+  } catch (y) {
+    throw console.error(`${E} | Failed to save time trigger`, y), (u = (c = ui.notifications) == null ? void 0 : c.error) == null || u.call(
       c,
       f(
         "EIDOLON.TimeTrigger.TriggerSaveError",
         "Failed to save the scene's time triggers."
       )
-    ), h;
+    ), y;
   }
   if (this.onSave)
     try {
       this.onSave(r);
-    } catch (h) {
-      console.error(`${O} | Trigger onSave callback failed`, h), T("Trigger onSave callback failed", {
+    } catch (y) {
+      console.error(`${E} | Trigger onSave callback failed`, y), b("Trigger onSave callback failed", {
         sceneId: ((d = this.scene) == null ? void 0 : d.id) ?? null,
-        message: (h == null ? void 0 : h.message) ?? String(h)
+        message: (y == null ? void 0 : y.message) ?? String(y)
       });
     }
-}, "#persistTrigger"), s(we, "TriggerFormApplication"), qe(we, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
-  it(we, we, "DEFAULT_OPTIONS"),
+}, "#persistTrigger"), s(Ae, "TriggerFormApplication"), Qe(Ae, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
+  ft(Ae, Ae, "DEFAULT_OPTIONS"),
   {
-    id: `${O}-trigger-form`,
+    id: `${E}-trigger-form`,
     classes: Array.from(
-      /* @__PURE__ */ new Set([...((Xi = it(we, we, "DEFAULT_OPTIONS")) == null ? void 0 : Xi.classes) ?? [], "standard-form", "themed"])
+      /* @__PURE__ */ new Set([...((Cr = ft(Ae, Ae, "DEFAULT_OPTIONS")) == null ? void 0 : Cr.classes) ?? [], "standard-form", "themed"])
     ),
     window: {
       title: f("EIDOLON.TimeTrigger.TriggerFormTitle", "Configure Time Trigger"),
@@ -1972,22 +1972,22 @@ Ve = new WeakMap(), se = new WeakMap(), Ye = new WeakMap(), Ae = new WeakMap(), 
     }
   },
   { inplace: !1 }
-)), qe(we, "PARTS", {
+)), Qe(Ae, "PARTS", {
   content: {
-    template: `modules/${O}/templates/time-trigger-form.html`
+    template: `modules/${E}/templates/time-trigger-form.html`
   }
 });
-let di = we;
-function gi(e) {
+let Mi = Ae;
+function Pi(e) {
   return e instanceof HTMLElement ? e : (e == null ? void 0 : e[0]) instanceof HTMLElement ? e[0] : null;
 }
-s(gi, "asHTMLElement");
-function kt(e) {
+s(Pi, "asHTMLElement");
+function rn(e) {
   return typeof (e == null ? void 0 : e.changeTab) == "function";
 }
-s(kt, "isAppV2");
-function Io(e, t, n, i = {}) {
-  if (kt(e)) {
+s(rn, "isAppV2");
+function ts(e, t, n, i = {}) {
+  if (rn(e)) {
     e.changeTab(t, n, i);
     return;
   }
@@ -1996,8 +1996,8 @@ function Io(e, t, n, i = {}) {
     n != null && (r.group = n), r.triggerCallback == null && (r.triggerCallback = !0), e.activateTab(t, r);
   }
 }
-s(Io, "setActiveTab");
-function Eo(e) {
+s(ts, "setActiveTab");
+function ns(e) {
   var n, i;
   if (!(e instanceof HTMLFormElement)) return {};
   const t = ((i = (n = foundry == null ? void 0 : foundry.applications) == null ? void 0 : n.ux) == null ? void 0 : i.FormDataExtended) ?? globalThis.FormDataExtended ?? null;
@@ -2009,9 +2009,9 @@ function Eo(e) {
     return {};
   }
 }
-s(Eo, "readFormData");
-const Vi = Symbol.for("eidolon.sceneConfig.v13PatchedTabs");
-function Nr(e = {}) {
+s(ns, "readFormData");
+const gr = Symbol.for("eidolon.sceneConfig.v13PatchedTabs");
+function ro(e = {}) {
   const {
     tabId: t,
     tabLabel: n,
@@ -2023,201 +2023,201 @@ function Nr(e = {}) {
     onTabCreate: c,
     onAfterRender: u,
     logger: d = {},
-    moduleId: h = "eidolon-utilities",
-    tabIcon: m = "fa-solid fa-puzzle-piece"
+    moduleId: y = "eidolon-utilities",
+    tabIcon: h = "fa-solid fa-puzzle-piece"
   } = e ?? {};
   if (!t)
     throw new Error("createSceneConfigTabFactory requires a tabId.");
   if (typeof o != "function")
     throw new TypeError("createSceneConfigTabFactory requires a renderContent callback.");
-  const p = typeof d.log == "function" ? d.log.bind(d) : (...E) => {
-    var U;
-    return (U = console.debug) == null ? void 0 : U.call(console, `${a}`, ...E);
-  }, g = typeof d.group == "function" ? d.group.bind(d) : (...E) => {
-    var U;
-    return (U = console.groupCollapsed) == null ? void 0 : U.call(console, `${a}`, ...E);
-  }, L = typeof d.groupEnd == "function" ? d.groupEnd.bind(d) : () => {
-    var E;
-    return (E = console.groupEnd) == null ? void 0 : E.call(console);
-  }, I = Symbol(`EIDOLON_SCENE_CONFIG_TAB_CLEANUP_${t}`), b = typeof i == "function" ? i : () => null, w = typeof r == "function" ? r : () => !0, A = typeof n == "function" ? n : () => typeof n == "string" ? n : t;
-  function R() {
-    var V, y, W, P, ne;
-    const E = ((y = (V = foundry == null ? void 0 : foundry.applications) == null ? void 0 : V.sheets) == null ? void 0 : y.SceneConfig) ?? ((W = CONFIG == null ? void 0 : CONFIG.Scene) == null ? void 0 : W.sheetClass);
-    if (!E || !kt({ changeTab: (P = E.prototype) == null ? void 0 : P.changeTab })) return;
-    const U = E[Vi] ?? /* @__PURE__ */ new Set();
-    if (U.has(t)) return;
-    U.add(t), E[Vi] = U;
-    const $ = (ne = E.TABS) == null ? void 0 : ne.sheet;
+  const T = typeof d.log == "function" ? d.log.bind(d) : (...I) => {
+    var j;
+    return (j = console.debug) == null ? void 0 : j.call(console, `${a}`, ...I);
+  }, m = typeof d.group == "function" ? d.group.bind(d) : (...I) => {
+    var j;
+    return (j = console.groupCollapsed) == null ? void 0 : j.call(console, `${a}`, ...I);
+  }, v = typeof d.groupEnd == "function" ? d.groupEnd.bind(d) : () => {
+    var I;
+    return (I = console.groupEnd) == null ? void 0 : I.call(console);
+  }, w = Symbol(`EIDOLON_SCENE_CONFIG_TAB_CLEANUP_${t}`), O = typeof i == "function" ? i : () => null, L = typeof r == "function" ? r : () => !0, A = typeof n == "function" ? n : () => typeof n == "string" ? n : t;
+  function P() {
+    var V, p, W, _, ne;
+    const I = ((p = (V = foundry == null ? void 0 : foundry.applications) == null ? void 0 : V.sheets) == null ? void 0 : p.SceneConfig) ?? ((W = CONFIG == null ? void 0 : CONFIG.Scene) == null ? void 0 : W.sheetClass);
+    if (!I || !rn({ changeTab: (_ = I.prototype) == null ? void 0 : _.changeTab })) return;
+    const j = I[gr] ?? /* @__PURE__ */ new Set();
+    if (j.has(t)) return;
+    j.add(t), I[gr] = j;
+    const $ = (ne = I.TABS) == null ? void 0 : ne.sheet;
     $ && Array.isArray($.tabs) && ($.tabs.some((z) => z.id === t) || $.tabs.push({
       id: t,
-      icon: m
-    })), E.PARTS && !E.PARTS[t] && (E.PARTS[t] = {
-      template: `modules/${h}/templates/scene-config-tab-mount.hbs`,
+      icon: h
+    })), I.PARTS && !I.PARTS[t] && (I.PARTS[t] = {
+      template: `modules/${y}/templates/scene-config-tab-mount.hbs`,
       scrollable: [`.tab[data-tab="${t}"]`]
-    }), p("Patched v13 SceneConfig TABS/PARTS", { tabId: t });
+    }), T("Patched v13 SceneConfig TABS/PARTS", { tabId: t });
   }
-  s(R, "patchV13SceneConfig");
-  function _(E, U) {
-    var V, y;
-    const $ = b(E);
-    if (!w(E, $)) {
-      p("Skipped render", {
+  s(P, "patchV13SceneConfig");
+  function R(I, j) {
+    var V, p;
+    const $ = O(I);
+    if (!L(I, $)) {
+      T("Skipped render", {
         tabId: t,
         reason: "inapplicable",
-        constructor: ((V = E == null ? void 0 : E.constructor) == null ? void 0 : V.name) ?? null
+        constructor: ((V = I == null ? void 0 : I.constructor) == null ? void 0 : V.name) ?? null
       });
       return;
     }
-    g("render", {
+    m("render", {
       tabId: t,
       sceneId: ($ == null ? void 0 : $.id) ?? null,
-      constructor: ((y = E == null ? void 0 : E.constructor) == null ? void 0 : y.name) ?? null
+      constructor: ((p = I == null ? void 0 : I.constructor) == null ? void 0 : p.name) ?? null
     });
     try {
-      const W = gi(U) ?? gi(E.element);
+      const W = Pi(j) ?? Pi(I.element);
       if (!W) {
-        p("Missing root element", { tabId: t });
+        T("Missing root element", { tabId: t });
         return;
       }
-      kt(E) ? B(E, W, $) : F(E, W, $);
+      rn(I) ? B(I, W, $) : F(I, W, $);
     } finally {
-      L();
+      v();
     }
   }
-  s(_, "handleRender");
-  function x(E, U, $) {
+  s(R, "handleRender");
+  function x(I, j, $) {
     var W;
-    if (!m) {
-      E.textContent = U;
+    if (!h) {
+      I.textContent = j;
       return;
     }
-    const V = (W = E.querySelector("i")) == null ? void 0 : W.cloneNode(!0);
-    E.textContent = "";
-    const y = V ?? document.createElement("i");
-    if (V || (y.className = m, $ && (y.inert = !0)), E.append(y, " "), $) {
-      const P = document.createElement("span");
-      P.textContent = U, E.append(P);
+    const V = (W = I.querySelector("i")) == null ? void 0 : W.cloneNode(!0);
+    I.textContent = "";
+    const p = V ?? document.createElement("i");
+    if (V || (p.className = h, $ && (p.inert = !0)), I.append(p, " "), $) {
+      const _ = document.createElement("span");
+      _.textContent = j, I.append(_);
     } else
-      E.append(document.createTextNode(U));
+      I.append(document.createTextNode(j));
   }
   s(x, "setButtonContent");
-  function F(E, U, $) {
-    var J, G, Y, Q, X, le, re, ce, Me, me, De, Fe, Pe, Te, _e, Ee;
-    const y = [
+  function F(I, j, $) {
+    var K, G, Y, Q, X, le, re, ce, Re, me, He, $e, Ve, be, ke, Ce;
+    const p = [
       "nav.sheet-tabs[data-group]",
       "nav.tabs[data-group]",
       "nav.sheet-tabs",
       "nav.tabs"
-    ].map((te) => U.querySelector(te)).find((te) => te instanceof HTMLElement), P = [
-      (J = U.querySelector(".tab[data-tab]")) == null ? void 0 : J.parentElement,
-      U.querySelector(".sheet-body"),
-      (Y = (G = y == null ? void 0 : y.parentElement) == null ? void 0 : G.querySelector) == null ? void 0 : Y.call(G, ":scope > .sheet-body"),
-      y == null ? void 0 : y.parentElement
-    ].find((te) => te instanceof HTMLElement), ne = ((Q = y == null ? void 0 : y.dataset) == null ? void 0 : Q.group) ?? ((re = (le = (X = y == null ? void 0 : y.querySelector) == null ? void 0 : X.call(y, "a[data-group]")) == null ? void 0 : le.dataset) == null ? void 0 : re.group) ?? ((me = (Me = (ce = y == null ? void 0 : y.querySelector) == null ? void 0 : ce.call(y, "[data-group]")) == null ? void 0 : Me.dataset) == null ? void 0 : me.group) ?? ((Pe = (Fe = (De = P == null ? void 0 : P.querySelector) == null ? void 0 : De.call(P, ".tab[data-group]")) == null ? void 0 : Fe.dataset) == null ? void 0 : Pe.group) ?? "main";
-    if (!y || !P) {
-      p("Missing navigation elements", {
+    ].map((te) => j.querySelector(te)).find((te) => te instanceof HTMLElement), _ = [
+      (K = j.querySelector(".tab[data-tab]")) == null ? void 0 : K.parentElement,
+      j.querySelector(".sheet-body"),
+      (Y = (G = p == null ? void 0 : p.parentElement) == null ? void 0 : G.querySelector) == null ? void 0 : Y.call(G, ":scope > .sheet-body"),
+      p == null ? void 0 : p.parentElement
+    ].find((te) => te instanceof HTMLElement), ne = ((Q = p == null ? void 0 : p.dataset) == null ? void 0 : Q.group) ?? ((re = (le = (X = p == null ? void 0 : p.querySelector) == null ? void 0 : X.call(p, "a[data-group]")) == null ? void 0 : le.dataset) == null ? void 0 : re.group) ?? ((me = (Re = (ce = p == null ? void 0 : p.querySelector) == null ? void 0 : ce.call(p, "[data-group]")) == null ? void 0 : Re.dataset) == null ? void 0 : me.group) ?? ((Ve = ($e = (He = _ == null ? void 0 : _.querySelector) == null ? void 0 : He.call(_, ".tab[data-group]")) == null ? void 0 : $e.dataset) == null ? void 0 : Ve.group) ?? "main";
+    if (!p || !_) {
+      T("Missing navigation elements", {
         tabId: t,
-        hasNav: !!y,
-        hasBody: !!P
+        hasNav: !!p,
+        hasBody: !!_
       });
       return;
     }
-    let z = y.querySelector(`[data-tab="${t}"]`);
+    let z = p.querySelector(`[data-tab="${t}"]`);
     if (!z) {
       z = document.createElement("a"), z.dataset.action = "tab", z.dataset.group = ne, z.dataset.tab = t;
-      const te = y.querySelector("a[data-tab]");
-      (Te = te == null ? void 0 : te.classList) != null && Te.contains("item") && z.classList.add("item"), y.appendChild(z), typeof l == "function" && l({ app: E, button: z, nav: y, scene: $ }), p("Created tab button", { tabId: t, group: ne });
+      const te = p.querySelector("a[data-tab]");
+      (be = te == null ? void 0 : te.classList) != null && be.contains("item") && z.classList.add("item"), p.appendChild(z), typeof l == "function" && l({ app: I, button: z, nav: p, scene: $ }), T("Created tab button", { tabId: t, group: ne });
     }
-    x(z, A({ app: E, scene: $ }) ?? t, kt(E));
-    let K = P.querySelector(`.tab[data-tab="${t}"]`);
-    if (!K) {
-      K = document.createElement("div"), K.classList.add("tab"), K.dataset.tab = t, K.dataset.group = ne;
-      const te = So(P);
-      P.insertBefore(K, te ?? null), typeof c == "function" && c({ app: E, tab: K, body: P, scene: $ }), p("Created tab container", { tabId: t, group: ne });
+    x(z, A({ app: I, scene: $ }) ?? t, rn(I));
+    let J = _.querySelector(`.tab[data-tab="${t}"]`);
+    if (!J) {
+      J = document.createElement("div"), J.classList.add("tab"), J.dataset.tab = t, J.dataset.group = ne;
+      const te = is(_);
+      _.insertBefore(J, te ?? null), typeof c == "function" && c({ app: I, tab: J, body: _, scene: $ }), T("Created tab container", { tabId: t, group: ne });
     }
-    ((_e = z.classList) == null ? void 0 : _e.contains("active")) || K.classList.contains("active") ? (z.classList.add("active"), K.classList.add("active"), K.removeAttribute("hidden")) : (z.classList.remove("active"), K.classList.remove("active"), K.setAttribute("hidden", "true"));
-    const Ne = /* @__PURE__ */ s(() => {
-      var pt, je;
-      ((pt = z.classList) != null && pt.contains("active") || K.classList.contains("active")) && ((je = z.classList) == null || je.add("active"), K.classList.add("active"), K.removeAttribute("hidden"), K.removeAttribute("aria-hidden"), K.style.display === "none" && (K.style.display = ""));
-    }, "ensureTabVisible"), C = /* @__PURE__ */ s(() => {
-      Ne(), requestAnimationFrame(Ne);
+    ((ke = z.classList) == null ? void 0 : ke.contains("active")) || J.classList.contains("active") ? (z.classList.add("active"), J.classList.add("active"), J.removeAttribute("hidden")) : (z.classList.remove("active"), J.classList.remove("active"), J.setAttribute("hidden", "true"));
+    const _e = /* @__PURE__ */ s(() => {
+      var Ct, Ye;
+      ((Ct = z.classList) != null && Ct.contains("active") || J.classList.contains("active")) && ((Ye = z.classList) == null || Ye.add("active"), J.classList.add("active"), J.removeAttribute("hidden"), J.removeAttribute("aria-hidden"), J.style.display === "none" && (J.style.display = ""));
+    }, "ensureTabVisible"), M = /* @__PURE__ */ s(() => {
+      _e(), requestAnimationFrame(_e);
     }, "scheduleEnsureTabVisible");
     z.dataset.eidolonEnsureSceneTabVisibility || (z.addEventListener("click", () => {
-      Io(E, t, ne), requestAnimationFrame(Ne);
-    }), z.dataset.eidolonEnsureSceneTabVisibility = "true"), Rn(E, I, p);
+      ts(I, t, ne), requestAnimationFrame(_e);
+    }), z.dataset.eidolonEnsureSceneTabVisibility = "true"), ei(I, w, T);
     const k = o({
-      app: E,
+      app: I,
       scene: $,
-      tab: K,
+      tab: J,
       tabButton: z,
-      ensureTabVisible: Ne,
-      scheduleEnsureTabVisible: C
+      ensureTabVisible: _e,
+      scheduleEnsureTabVisible: M
     });
-    typeof k == "function" && ki(E, I, k), typeof u == "function" && u({
-      app: E,
+    typeof k == "function" && mr(I, w, k), typeof u == "function" && u({
+      app: I,
       scene: $,
-      tab: K,
+      tab: J,
       tabButton: z,
-      ensureTabVisible: Ne,
-      scheduleEnsureTabVisible: C
-    }), (Ee = E.setPosition) == null || Ee.call(E, { height: "auto" });
+      ensureTabVisible: _e,
+      scheduleEnsureTabVisible: M
+    }), (Ce = I.setPosition) == null || Ce.call(I, { height: "auto" });
   }
   s(F, "handleRenderV1");
-  function B(E, U, $) {
-    const V = U.querySelector(`.tab[data-tab="${t}"]`), y = U.querySelector(`nav [data-tab="${t}"]`);
-    if (!V || !y) {
-      p("v2 mount not found, falling back to v1 injection", { tabId: t }), F(E, U, $);
+  function B(I, j, $) {
+    const V = j.querySelector(`.tab[data-tab="${t}"]`), p = j.querySelector(`nav [data-tab="${t}"]`);
+    if (!V || !p) {
+      T("v2 mount not found, falling back to v1 injection", { tabId: t }), F(I, j, $);
       return;
     }
-    x(y, A({ app: E, scene: $ }) ?? t, !0);
+    x(p, A({ app: I, scene: $ }) ?? t, !0);
     const W = /* @__PURE__ */ s(() => {
       var z;
-      !((z = y.classList) != null && z.contains("active")) && !V.classList.contains("active") || (V.classList.add("active"), V.removeAttribute("hidden"), V.removeAttribute("aria-hidden"), V.style.display === "none" && (V.style.display = ""));
-    }, "ensureTabVisible"), P = /* @__PURE__ */ s(() => {
+      !((z = p.classList) != null && z.contains("active")) && !V.classList.contains("active") || (V.classList.add("active"), V.removeAttribute("hidden"), V.removeAttribute("aria-hidden"), V.style.display === "none" && (V.style.display = ""));
+    }, "ensureTabVisible"), _ = /* @__PURE__ */ s(() => {
       W(), requestAnimationFrame(W);
     }, "scheduleEnsureTabVisible");
-    Rn(E, I, p);
+    ei(I, w, T);
     const ne = o({
-      app: E,
+      app: I,
       scene: $,
       tab: V,
-      tabButton: y,
+      tabButton: p,
       ensureTabVisible: W,
-      scheduleEnsureTabVisible: P
+      scheduleEnsureTabVisible: _
     });
-    typeof ne == "function" && ki(E, I, ne), typeof u == "function" && u({
-      app: E,
+    typeof ne == "function" && mr(I, w, ne), typeof u == "function" && u({
+      app: I,
       scene: $,
       tab: V,
-      tabButton: y,
+      tabButton: p,
       ensureTabVisible: W,
-      scheduleEnsureTabVisible: P
+      scheduleEnsureTabVisible: _
     });
   }
   s(B, "handleRenderV2");
-  function H(E) {
-    Rn(E, I, p);
+  function H(I) {
+    ei(I, w, T);
   }
   s(H, "handleClose");
   function q() {
     return Hooks.once("init", () => {
-      R();
-    }), Hooks.on("renderSceneConfig", _), Hooks.on("closeSceneConfig", H), () => ie();
+      P();
+    }), Hooks.on("renderSceneConfig", R), Hooks.on("closeSceneConfig", H), () => ie();
   }
   s(q, "register");
   function ie() {
-    Hooks.off("renderSceneConfig", _), Hooks.off("closeSceneConfig", H);
+    Hooks.off("renderSceneConfig", R), Hooks.off("closeSceneConfig", H);
   }
   return s(ie, "unregister"), { register: q, unregister: ie };
 }
-s(Nr, "createSceneConfigTabFactory");
-function ki(e, t, n) {
+s(ro, "createSceneConfigTabFactory");
+function mr(e, t, n) {
   if (!e || typeof n != "function") return;
   const i = e == null ? void 0 : e[t];
   Array.isArray(i) || (e[t] = []), e[t].push(n);
 }
-s(ki, "registerCleanup");
-function Rn(e, t, n) {
+s(mr, "registerCleanup");
+function ei(e, t, n) {
   if (!e) return;
   const i = e == null ? void 0 : e[t];
   if (Array.isArray(i))
@@ -2231,8 +2231,8 @@ function Rn(e, t, n) {
         }
     }
 }
-s(Rn, "invokeCleanup");
-function So(e) {
+s(ei, "invokeCleanup");
+function is(e) {
   if (!(e instanceof HTMLElement)) return null;
   const t = [
     ":scope > footer.sheet-footer",
@@ -2247,29 +2247,29 @@ function So(e) {
   }
   return null;
 }
-s(So, "findFooterElement");
-const wo = Ei(di), Co = `modules/${O}/templates/time-trigger-scene-tab.html`, Ao = Nr({
+s(is, "findFooterElement");
+const rs = zi(Mi), os = `modules/${E}/templates/time-trigger-scene-tab.html`, ss = ro({
   tabId: "time-triggers",
   tabLabel: /* @__PURE__ */ s(() => f("EIDOLON.TimeTrigger.Tab", "Time Triggers"), "tabLabel"),
-  getScene: Ie,
-  isApplicable: Fo,
-  renderContent: /* @__PURE__ */ s(({ app: e, scene: t, tab: n }) => Mo(e, n, t), "renderContent"),
+  getScene: Le,
+  isApplicable: us,
+  renderContent: /* @__PURE__ */ s(({ app: e, scene: t, tab: n }) => ls(e, n, t), "renderContent"),
   logger: {
-    log: T,
-    group: ft,
-    groupEnd: ke
+    log: b,
+    group: Et,
+    groupEnd: We
   }
 });
-function No() {
-  return T("Registering SceneConfig render hook"), Ao.register();
+function as() {
+  return b("Registering SceneConfig render hook"), ss.register();
 }
-s(No, "registerSceneConfigHook");
-function Mo(e, t, n) {
+s(as, "registerSceneConfigHook");
+function ls(e, t, n) {
   if (!(t instanceof HTMLElement)) return;
-  const i = ae(n) ? n : Ie(e);
-  Kt(e, t, i);
-  const r = Li(() => {
-    Kt(e, t, i);
+  const i = ae(n) ? n : Le(e);
+  gn(e, t, i);
+  const r = Bi(() => {
+    gn(e, t, i);
   });
   return () => {
     if (typeof r == "function")
@@ -2277,78 +2277,78 @@ function Mo(e, t, n) {
         r();
       } catch (o) {
         console.error(
-          `${O} | Failed to dispose scene config time format subscription`,
+          `${E} | Failed to dispose scene config time format subscription`,
           o
         );
       }
   };
 }
-s(Mo, "renderTimeTriggerTab");
-async function Kt(e, t, n) {
+s(ls, "renderTimeTriggerTab");
+async function gn(e, t, n) {
   var r, o;
-  const i = n ?? Ie(e);
-  ft("renderTimeTriggersTabContent", { sceneId: (i == null ? void 0 : i.id) ?? null });
+  const i = n ?? Le(e);
+  Et("renderTimeTriggersTabContent", { sceneId: (i == null ? void 0 : i.id) ?? null });
   try {
     if (!ae(i)) {
       const V = f(
         "EIDOLON.TimeTrigger.Unavailable",
         "Time triggers are unavailable for this configuration sheet."
       );
-      t.innerHTML = `<p class="notes">${V}</p>`, T("Scene lacks document for time triggers", { sceneId: (i == null ? void 0 : i.id) ?? null });
+      t.innerHTML = `<p class="notes">${V}</p>`, b("Scene lacks document for time triggers", { sceneId: (i == null ? void 0 : i.id) ?? null });
       return;
     }
-    const a = `flags.${O}.${jt}`, l = `flags.${O}.${Hn}`, c = `flags.${O}.${$n}`, u = !!i.getFlag(O, jt), d = !!i.getFlag(O, Hn), h = !!i.getFlag(O, $n), m = at(i);
-    T("Rendering time trigger list", {
+    const a = `flags.${E}.${an}`, l = `flags.${E}.${ti}`, c = `flags.${E}.${ni}`, u = !!i.getFlag(E, an), d = !!i.getFlag(E, ti), y = !!i.getFlag(E, ni), h = pt(i);
+    b("Rendering time trigger list", {
       sceneId: i.id,
       isActive: u,
       shouldHideWindow: d,
-      shouldShowPlayerWindow: h,
-      triggerCount: m.length
+      shouldShowPlayerWindow: y,
+      triggerCount: h.length
     });
-    const p = f("EIDOLON.TimeTrigger.Activate", "Activate Time Trigger"), g = f(
+    const T = f("EIDOLON.TimeTrigger.Activate", "Activate Time Trigger"), m = f(
       "EIDOLON.TimeTrigger.Description",
       "Enable scene time triggers so scheduled actions can run automatically."
-    ), L = f(
+    ), v = f(
       "EIDOLON.TimeTrigger.HideWindowLabel",
       "Hide Floating Time Window"
-    ), I = f(
+    ), w = f(
       "EIDOLON.TimeTrigger.HideWindowDescription",
       "Keep the floating time control window hidden while leaving time triggers active."
-    ), b = f(
+    ), O = f(
       "EIDOLON.TimeTrigger.ShowPlayerWindowLabel",
       "Share Floating Time Window with Players"
-    ), w = f(
+    ), L = f(
       "EIDOLON.TimeTrigger.ShowPlayerWindowDescription",
       "Let non-GM players see the floating time window (without time controls)."
     ), A = f(
       "EIDOLON.TimeTrigger.TriggerListLabel",
       "Scene Time Triggers"
-    ), R = f(
+    ), P = f(
       "EIDOLON.TimeTrigger.TriggerListEmpty",
       "No time triggers configured for this scene."
-    ), _ = f("EIDOLON.TimeTrigger.AddTrigger", "Add Trigger"), x = f("EIDOLON.TimeTrigger.EditTrigger", "Edit"), F = f("EIDOLON.TimeTrigger.DeleteTrigger", "Remove"), B = f("EIDOLON.TimeTrigger.TriggerNow", "Trigger Now"), H = f("EIDOLON.TimeTrigger.AtLabel", "At"), q = f("EIDOLON.TimeTrigger.DoLabel", "Do"), ie = f("EIDOLON.TimeTrigger.MissingTime", "(No time set)"), E = m.map((V, y) => {
-      const ne = (V.time ? bo(V.time) : "") || V.time || "" || ie, z = fo(V.action), K = [
+    ), R = f("EIDOLON.TimeTrigger.AddTrigger", "Add Trigger"), x = f("EIDOLON.TimeTrigger.EditTrigger", "Edit"), F = f("EIDOLON.TimeTrigger.DeleteTrigger", "Remove"), B = f("EIDOLON.TimeTrigger.TriggerNow", "Trigger Now"), H = f("EIDOLON.TimeTrigger.AtLabel", "At"), q = f("EIDOLON.TimeTrigger.DoLabel", "Do"), ie = f("EIDOLON.TimeTrigger.MissingTime", "(No time set)"), I = h.map((V, p) => {
+      const ne = (V.time ? Qo(V.time) : "") || V.time || "" || ie, z = Bo(V.action), J = [
         `${H} ${ne}`,
         `${q} ${z}`,
-        ...go(V)
+        ...Go(V)
       ];
       return {
-        index: y,
-        summaryParts: K,
+        index: p,
+        summaryParts: J,
         tooltips: {
           triggerNow: B,
           edit: x,
           delete: F
         }
       };
-    }), U = ((o = (r = foundry == null ? void 0 : foundry.applications) == null ? void 0 : r.handlebars) == null ? void 0 : o.renderTemplate) ?? (typeof renderTemplate == "function" ? renderTemplate : globalThis == null ? void 0 : globalThis.renderTemplate);
-    if (typeof U != "function") {
-      console.error(`${O} | renderTemplate is unavailable; cannot render scene tab.`), t.innerHTML = `<p class="notes">${R}</p>`;
+    }), j = ((o = (r = foundry == null ? void 0 : foundry.applications) == null ? void 0 : r.handlebars) == null ? void 0 : o.renderTemplate) ?? (typeof renderTemplate == "function" ? renderTemplate : globalThis == null ? void 0 : globalThis.renderTemplate);
+    if (typeof j != "function") {
+      console.error(`${E} | renderTemplate is unavailable; cannot render scene tab.`), t.innerHTML = `<p class="notes">${P}</p>`;
       return;
     }
     let $ = "";
     try {
-      $ = await U(Co, {
+      $ = await j(os, {
         flags: {
           active: a,
           hideWindow: l,
@@ -2357,63 +2357,63 @@ async function Kt(e, t, n) {
         states: {
           isActive: u,
           hideWindow: d,
-          showPlayerWindow: h
+          showPlayerWindow: y
         },
         labels: {
-          activate: p,
-          hideWindow: L,
-          showPlayerWindow: b,
+          activate: T,
+          hideWindow: v,
+          showPlayerWindow: O,
           triggerList: A,
-          empty: R,
-          add: _
+          empty: P,
+          add: R
         },
         hints: {
-          activate: g,
-          hideWindow: I,
-          showPlayerWindow: w
+          activate: m,
+          hideWindow: w,
+          showPlayerWindow: L
         },
-        triggers: E,
-        hasTriggers: E.length > 0
+        triggers: I,
+        hasTriggers: I.length > 0
       });
     } catch (V) {
-      console.error(`${O} | Failed to render time trigger scene tab template`, V), t.innerHTML = `<p class="notes">${R}</p>`;
+      console.error(`${E} | Failed to render time trigger scene tab template`, V), t.innerHTML = `<p class="notes">${P}</p>`;
       return;
     }
-    t.innerHTML = $, Do(e, t, i);
+    t.innerHTML = $, cs(e, t, i);
   } finally {
-    ke();
+    We();
   }
 }
-s(Kt, "renderTimeTriggersTabContent");
-function Do(e, t, n) {
-  const i = n ?? Ie(e);
+s(gn, "renderTimeTriggersTabContent");
+function cs(e, t, n) {
+  const i = n ?? Le(e);
   if (!ae(i)) return;
   const r = t.querySelector('[data-action="add-trigger"]');
   r && r.addEventListener("click", () => {
-    T("Add trigger button clicked", { sceneId: i.id }), xi(e, { scene: i });
+    b("Add trigger button clicked", { sceneId: i.id }), hr(e, { scene: i });
   }), t.querySelectorAll('[data-action="edit-trigger"]').forEach((o) => {
     o.addEventListener("click", () => {
       const a = Number(o.dataset.index);
       if (!Number.isInteger(a)) return;
-      const c = at(i)[a];
-      c && (T("Edit trigger button clicked", { sceneId: i.id, triggerId: c.id, index: a }), xi(e, { trigger: c, triggerIndex: a, scene: i }));
+      const c = pt(i)[a];
+      c && (b("Edit trigger button clicked", { sceneId: i.id, triggerId: c.id, index: a }), hr(e, { trigger: c, triggerIndex: a, scene: i }));
     });
   }), t.querySelectorAll('[data-action="delete-trigger"]').forEach((o) => {
     o.addEventListener("click", async () => {
       var u, d;
       const a = Number(o.dataset.index);
       if (!Number.isInteger(a)) return;
-      const l = at(i), c = l[a];
+      const l = pt(i), c = l[a];
       if (c) {
         l.splice(a, 1);
         try {
-          T("Deleting trigger", {
+          b("Deleting trigger", {
             sceneId: i.id,
             index: a,
             triggerId: (c == null ? void 0 : c.id) ?? null
-          }), await ar(i, l), await Kt(e, t, i);
-        } catch (h) {
-          console.error(`${O} | Failed to delete time trigger`, h), (d = (u = ui.notifications) == null ? void 0 : u.error) == null || d.call(
+          }), await Hr(i, l), await gn(e, t, i);
+        } catch (y) {
+          console.error(`${E} | Failed to delete time trigger`, y), (d = (u = ui.notifications) == null ? void 0 : u.error) == null || d.call(
             u,
             f(
               "EIDOLON.TimeTrigger.TriggerDeleteError",
@@ -2425,69 +2425,69 @@ function Do(e, t, n) {
     });
   }), t.querySelectorAll('[data-action="fire-trigger"]').forEach((o) => {
     o.addEventListener("click", async () => {
-      var u, d, h, m, p, g, L;
+      var u, d, y, h, T, m, v;
       const a = Number(o.dataset.index);
       if (!Number.isInteger(a)) return;
-      const c = at(i)[a];
+      const c = pt(i)[a];
       if (c) {
         if (!((u = game.user) != null && u.isGM)) {
-          (h = (d = ui.notifications) == null ? void 0 : d.warn) == null || h.call(
+          (y = (d = ui.notifications) == null ? void 0 : d.warn) == null || y.call(
             d,
             f("EIDOLON.TimeTrigger.GMOnly", "Only the GM can adjust time.")
           );
           return;
         }
         try {
-          T("Manually firing trigger", { sceneId: i.id, triggerId: c.id, index: a }), await lr(i, c), (p = (m = ui.notifications) == null ? void 0 : m.info) == null || p.call(
-            m,
+          b("Manually firing trigger", { sceneId: i.id, triggerId: c.id, index: a }), await $r(i, c), (T = (h = ui.notifications) == null ? void 0 : h.info) == null || T.call(
+            h,
             f(
               "EIDOLON.TimeTrigger.TriggerNowSuccess",
               "Triggered the selected time trigger."
             )
           );
-        } catch (I) {
-          console.error(`${O} | Failed to execute time trigger manually`, I), (L = (g = ui.notifications) == null ? void 0 : g.error) == null || L.call(
-            g,
+        } catch (w) {
+          console.error(`${E} | Failed to execute time trigger manually`, w), (v = (m = ui.notifications) == null ? void 0 : m.error) == null || v.call(
+            m,
             f(
               "EIDOLON.TimeTrigger.TriggerNowError",
               "Failed to execute the selected time trigger."
             )
-          ), T("Manual trigger execution failed", {
+          ), b("Manual trigger execution failed", {
             sceneId: i.id,
             triggerId: c.id,
             index: a,
-            message: (I == null ? void 0 : I.message) ?? String(I)
+            message: (w == null ? void 0 : w.message) ?? String(w)
           });
         }
       }
     });
   });
 }
-s(Do, "bindTimeTriggerTabEvents");
-function xi(e, t = {}) {
+s(cs, "bindTimeTriggerTabEvents");
+function hr(e, t = {}) {
   var a;
-  const n = t.scene ?? null, i = n && ae(n) ? n : Ie(e);
+  const n = t.scene ?? null, i = n && ae(n) ? n : Le(e);
   if (!ae(i)) {
-    console.warn(`${O} | Unable to open trigger form because no scene document is available.`);
+    console.warn(`${E} | Unable to open trigger form because no scene document is available.`);
     return;
   }
-  T("Opening trigger form", {
+  b("Opening trigger form", {
     sceneId: i.id,
     triggerId: ((a = t.trigger) == null ? void 0 : a.id) ?? null,
     index: Number.isInteger(t.triggerIndex) ? Number(t.triggerIndex) : null
-  }), wo({
+  }), rs({
     scene: i,
     trigger: t.trigger ?? null,
     triggerIndex: t.triggerIndex ?? null,
     onSave: /* @__PURE__ */ s(() => {
       var c, u;
       const l = (u = (c = e.element) == null ? void 0 : c[0]) == null ? void 0 : u.querySelector('.tab[data-tab="time-triggers"]');
-      l && Kt(e, l, i);
+      l && gn(e, l, i);
     }, "onSave")
   }).render({ force: !0 });
 }
-s(xi, "openTriggerForm");
-function Fo(e, t) {
+s(hr, "openTriggerForm");
+function us(e, t) {
   var o, a, l, c, u;
   if (!e) return !1;
   const n = ((a = (o = foundry == null ? void 0 : foundry.applications) == null ? void 0 : o.sheets) == null ? void 0 : a.SceneConfig) ?? (globalThis == null ? void 0 : globalThis.SceneConfig);
@@ -2501,50 +2501,50 @@ function Fo(e, t) {
   const r = ((c = e == null ? void 0 : e.options) == null ? void 0 : c.baseApplication) ?? ((u = e == null ? void 0 : e.options) == null ? void 0 : u.id);
   return !!(typeof r == "string" && r.includes("SceneConfig"));
 }
-s(Fo, "isRecognizedSceneConfig");
-const Mt = new ni(), Ui = new ii();
-function Po() {
-  T("Registering time trigger hooks"), Hooks.once("init", () => {
-    to(), ao(), T("Time trigger settings registered during init");
-  }), No(), T("Scene config hook registered"), Ui.registerHooks(), T("Time automation hooks registered"), Hooks.once("ready", () => {
-    lo(), T("Ready hook fired"), Mt.onReady(), Ui.initialize();
+s(us, "isRecognizedSceneConfig");
+const Jt = new Ei(), yr = new wi();
+function ds() {
+  b("Registering time trigger hooks"), Hooks.once("init", () => {
+    _o(), xo(), b("Time trigger settings registered during init");
+  }), as(), b("Scene config hook registered"), yr.registerHooks(), b("Time automation hooks registered"), Hooks.once("ready", () => {
+    jo(), b("Ready hook fired"), Jt.onReady(), yr.initialize();
   }), Hooks.on("canvasReady", (e) => {
     var t;
-    T("canvasReady hook received", { scene: ((t = e == null ? void 0 : e.scene) == null ? void 0 : t.id) ?? null }), Mt.onCanvasReady(e);
+    b("canvasReady hook received", { scene: ((t = e == null ? void 0 : e.scene) == null ? void 0 : t.id) ?? null }), Jt.onCanvasReady(e);
   }), Hooks.on("updateScene", (e) => {
-    T("updateScene hook received", { scene: (e == null ? void 0 : e.id) ?? null }), Mt.onUpdateScene(e);
+    b("updateScene hook received", { scene: (e == null ? void 0 : e.id) ?? null }), Jt.onUpdateScene(e);
   }), Hooks.on("updateWorldTime", (e, t) => {
-    T("updateWorldTime hook received", { worldTime: e, diff: t }), Mt.onUpdateWorldTime(e, t);
+    b("updateWorldTime hook received", { worldTime: e, diff: t }), Jt.onUpdateWorldTime(e, t);
   });
 }
-s(Po, "registerTimeTriggerHooks");
-Po();
-const ge = O, Mr = "objectVariants";
-function Nt(e) {
+s(ds, "registerTimeTriggerHooks");
+ds();
+const ge = E, oo = "objectVariants";
+function Wt(e) {
   var i;
-  const t = (i = e == null ? void 0 : e.getFlag) == null ? void 0 : i.call(e, ge, Mr);
+  const t = (i = e == null ? void 0 : e.getFlag) == null ? void 0 : i.call(e, ge, oo);
   if (!t) return [];
-  const n = Ze(t);
-  return Array.isArray(n) ? n.map((r) => Jt(r)).filter((r) => r !== null) : [];
+  const n = lt(t);
+  return Array.isArray(n) ? n.map((r) => mn(r)).filter((r) => r !== null) : [];
 }
-s(Nt, "getObjectVariantCategories");
-async function Dr(e, t) {
+s(Wt, "getObjectVariantCategories");
+async function so(e, t) {
   if (!(e != null && e.setFlag)) return;
-  const n = Array.isArray(t) ? t.map((i) => Jt(i)).filter((i) => i !== null) : [];
-  await e.setFlag(ge, Mr, n);
+  const n = Array.isArray(t) ? t.map((i) => mn(i)).filter((i) => i !== null) : [];
+  await e.setFlag(ge, oo, n);
 }
-s(Dr, "setObjectVariantCategories");
-function Fr(e = "") {
+s(so, "setObjectVariantCategories");
+function ao(e = "") {
   return {
-    id: Pr(),
+    id: lo(),
     name: typeof e == "string" ? e : "",
     values: []
   };
 }
-s(Fr, "createObjectVariantCategory");
-function Jt(e) {
+s(ao, "createObjectVariantCategory");
+function mn(e) {
   if (!e || typeof e != "object") return null;
-  const t = typeof e.id == "string" && e.id.trim() ? e.id.trim() : Pr(), n = typeof e.name == "string" ? e.name : "", i = Array.isArray(e.values) ? e.values : [], r = [];
+  const t = typeof e.id == "string" && e.id.trim() ? e.id.trim() : lo(), n = typeof e.name == "string" ? e.name : "", i = Array.isArray(e.values) ? e.values : [], r = [];
   for (const o of i) {
     if (typeof o != "string") continue;
     const a = o.trim();
@@ -2552,13 +2552,13 @@ function Jt(e) {
   }
   return { id: t, name: n, values: r };
 }
-s(Jt, "sanitizeCategory");
-function Pr() {
+s(mn, "sanitizeCategory");
+function lo() {
   var e;
   return (e = foundry == null ? void 0 : foundry.utils) != null && e.randomID ? foundry.utils.randomID() : typeof (crypto == null ? void 0 : crypto.randomUUID) == "function" ? crypto.randomUUID() : Math.random().toString(36).slice(2, 11);
 }
-s(Pr, "generateVariantId");
-function _r(e) {
+s(lo, "generateVariantId");
+function co(e) {
   var t, n;
   console.error(`${ge} | Failed to persist object variants`, e), (n = (t = ui.notifications) == null ? void 0 : t.error) == null || n.call(
     t,
@@ -2568,16 +2568,16 @@ function _r(e) {
     )
   );
 }
-s(_r, "notifyPersistError");
-var Zi, fe, Qe, ht, Rr, On, Ln, wt, Hr;
-const Ce = class Ce extends Sn(En) {
+s(co, "notifyPersistError");
+var Nr, fe, ot, It, uo, xn, jn, $t, fo;
+const Me = class Me extends Bn(qn) {
   constructor(n = {}) {
     const { scene: i, category: r, isNew: o, onSave: a, ...l } = n ?? {};
     super(l);
-    M(this, ht);
-    M(this, fe, null);
-    M(this, Qe, !1);
-    M(this, On, /* @__PURE__ */ s(async (n) => {
+    C(this, It);
+    C(this, fe, null);
+    C(this, ot, !1);
+    C(this, xn, /* @__PURE__ */ s(async (n) => {
       n.preventDefault(), n.stopPropagation();
       const i = n.currentTarget;
       if (!(i instanceof HTMLFormElement)) return;
@@ -2587,16 +2587,16 @@ const Ce = class Ce extends Sn(En) {
         const u = c.value.trim();
         u && (l.includes(u) || l.push(u));
       }
-      D(this, fe, {
-        ...v(this, fe),
+      N(this, fe, {
+        ...g(this, fe),
         name: o,
         values: l
-      }), await S(this, ht, Hr).call(this), this.close();
+      }), await S(this, It, fo).call(this), this.close();
     }, "#onSubmit"));
-    M(this, Ln, /* @__PURE__ */ s((n) => {
-      var m, p;
+    C(this, jn, /* @__PURE__ */ s((n) => {
+      var h, T;
       n.preventDefault();
-      const i = n.currentTarget, r = (i == null ? void 0 : i.form) ?? ((p = (m = this.element) == null ? void 0 : m.querySelector) == null ? void 0 : p.call(m, "form"));
+      const i = n.currentTarget, r = (i == null ? void 0 : i.form) ?? ((T = (h = this.element) == null ? void 0 : h.querySelector) == null ? void 0 : T.call(h, "form"));
       if (!r) return;
       const o = r.querySelector(".object-variant-editor__values");
       if (!o) return;
@@ -2604,9 +2604,9 @@ const Ce = class Ce extends Sn(En) {
       a && a.remove();
       const l = document.createElement("div");
       l.classList.add("object-variant-editor__value");
-      const c = qt(
+      const c = ln(
         f("EIDOLON.ObjectVariants.ValuePlaceholder", "Variant label")
-      ), u = qt(
+      ), u = ln(
         f("EIDOLON.ObjectVariants.RemoveValue", "Remove Value")
       );
       l.innerHTML = `
@@ -2616,11 +2616,11 @@ const Ce = class Ce extends Sn(En) {
       </button>
     `, o.appendChild(l);
       const d = l.querySelector('[data-action="remove-value"]');
-      d && d.addEventListener("click", v(this, wt));
-      const h = l.querySelector('input[name="categoryValues"]');
-      h && h.focus();
+      d && d.addEventListener("click", g(this, $t));
+      const y = l.querySelector('input[name="categoryValues"]');
+      y && y.focus();
     }, "#onAddValue"));
-    M(this, wt, /* @__PURE__ */ s((n) => {
+    C(this, $t, /* @__PURE__ */ s((n) => {
       var c, u;
       n.preventDefault();
       const i = n.currentTarget, r = i == null ? void 0 : i.closest(".object-variant-editor__value");
@@ -2637,14 +2637,14 @@ const Ce = class Ce extends Sn(En) {
         ), a.appendChild(d);
       }
     }, "#onRemoveValue"));
-    this.scene = i ?? null, this.category = r ?? null, this.onSave = typeof a == "function" ? a : null, D(this, Qe, !!o), D(this, fe, S(this, ht, Rr).call(this));
+    this.scene = i ?? null, this.category = r ?? null, this.onSave = typeof a == "function" ? a : null, N(this, ot, !!o), N(this, fe, S(this, It, uo).call(this));
   }
   async _prepareContext() {
     var i, r;
-    const n = Array.isArray((i = v(this, fe)) == null ? void 0 : i.values) ? v(this, fe).values : [];
+    const n = Array.isArray((i = g(this, fe)) == null ? void 0 : i.values) ? g(this, fe).values : [];
     return {
-      isNew: v(this, Qe),
-      name: ((r = v(this, fe)) == null ? void 0 : r.name) ?? "",
+      isNew: g(this, ot),
+      name: ((r = g(this, fe)) == null ? void 0 : r.name) ?? "",
       values: n.map((o, a) => ({
         index: a,
         value: o
@@ -2663,9 +2663,9 @@ const Ce = class Ce extends Sn(En) {
           "EIDOLON.ObjectVariants.ValuePlaceholder",
           "Variant label"
         ),
-        save: v(this, Qe) ? f("EIDOLON.ObjectVariants.CreateCategory", "Add Category") : f("EIDOLON.ObjectVariants.SaveCategory", "Save Category"),
+        save: g(this, ot) ? f("EIDOLON.ObjectVariants.CreateCategory", "Add Category") : f("EIDOLON.ObjectVariants.SaveCategory", "Save Category"),
         cancel: f("EIDOLON.ObjectVariants.CancelEdit", "Cancel"),
-        title: v(this, Qe) ? f("EIDOLON.ObjectVariants.CreateCategory", "Add Category") : f("EIDOLON.ObjectVariants.EditCategory", "Edit Category")
+        title: g(this, ot) ? f("EIDOLON.ObjectVariants.CreateCategory", "Add Category") : f("EIDOLON.ObjectVariants.EditCategory", "Edit Category")
       }
     };
   }
@@ -2680,10 +2680,10 @@ const Ce = class Ce extends Sn(En) {
     o && r.classList.add(o);
     const a = r.querySelector("form");
     if (!a) return;
-    a.addEventListener("submit", v(this, On)), a.querySelectorAll('[data-action="add-value"]').forEach((u) => {
-      u.addEventListener("click", v(this, Ln));
+    a.addEventListener("submit", g(this, xn)), a.querySelectorAll('[data-action="add-value"]').forEach((u) => {
+      u.addEventListener("click", g(this, jn));
     }), a.querySelectorAll('[data-action="remove-value"]').forEach((u) => {
-      u.addEventListener("click", v(this, wt));
+      u.addEventListener("click", g(this, $t));
     });
     const l = a.querySelector('[data-action="cancel"]');
     l && l.addEventListener("click", (u) => {
@@ -2691,8 +2691,8 @@ const Ce = class Ce extends Sn(En) {
     });
   }
 };
-fe = new WeakMap(), Qe = new WeakMap(), ht = new WeakSet(), Rr = /* @__PURE__ */ s(function() {
-  const n = Jt(this.category) ?? Fr(
+fe = new WeakMap(), ot = new WeakMap(), It = new WeakSet(), uo = /* @__PURE__ */ s(function() {
+  const n = mn(this.category) ?? ao(
     f("EIDOLON.ObjectVariants.DefaultCategoryName", "New Category")
   );
   return {
@@ -2700,30 +2700,30 @@ fe = new WeakMap(), Qe = new WeakMap(), ht = new WeakSet(), Rr = /* @__PURE__ */
     name: n.name ?? "",
     values: Array.isArray(n.values) ? [...n.values] : []
   };
-}, "#initializeState"), On = new WeakMap(), Ln = new WeakMap(), wt = new WeakMap(), Hr = /* @__PURE__ */ s(async function() {
+}, "#initializeState"), xn = new WeakMap(), jn = new WeakMap(), $t = new WeakMap(), fo = /* @__PURE__ */ s(async function() {
   if (!this.scene) return;
-  const n = Nt(this.scene), i = n.findIndex((o) => o.id === v(this, fe).id), r = Jt({
-    id: v(this, fe).id,
-    name: v(this, fe).name,
-    values: v(this, fe).values
+  const n = Wt(this.scene), i = n.findIndex((o) => o.id === g(this, fe).id), r = mn({
+    id: g(this, fe).id,
+    name: g(this, fe).name,
+    values: g(this, fe).values
   });
   i === -1 ? n.push(r) : n.splice(i, 1, r);
   try {
-    if (await Dr(this.scene, n), this.onSave)
+    if (await so(this.scene, n), this.onSave)
       try {
         await this.onSave(r);
       } catch (o) {
         console.error(`${ge} | Object variant editor onSave handler failed`, o);
       }
   } catch (o) {
-    _r(o);
+    co(o);
   }
-}, "#persist"), s(Ce, "CategoryEditorApplication"), qe(Ce, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
-  it(Ce, Ce, "DEFAULT_OPTIONS"),
+}, "#persist"), s(Me, "CategoryEditorApplication"), Qe(Me, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
+  ft(Me, Me, "DEFAULT_OPTIONS"),
   {
     id: `${ge}-variant-category-editor`,
     classes: Array.from(
-      /* @__PURE__ */ new Set([...((Zi = it(Ce, Ce, "DEFAULT_OPTIONS")) == null ? void 0 : Zi.classes) ?? [], "standard-form", "themed"])
+      /* @__PURE__ */ new Set([...((Nr = ft(Me, Me, "DEFAULT_OPTIONS")) == null ? void 0 : Nr.classes) ?? [], "standard-form", "themed"])
     ),
     window: {
       title: f("EIDOLON.ObjectVariants.EditCategory", "Edit Category"),
@@ -2735,13 +2735,13 @@ fe = new WeakMap(), Qe = new WeakMap(), ht = new WeakSet(), Rr = /* @__PURE__ */
     }
   },
   { inplace: !1 }
-)), qe(Ce, "PARTS", {
+)), Qe(Me, "PARTS", {
   content: {
     template: `modules/${ge}/templates/object-variants-category-editor.html`
   }
 });
-let mi = Ce;
-const _o = `modules/${ge}/templates/object-variants-scene-tab.html`, Ot = {
+let Fi = Me;
+const fs = `modules/${ge}/templates/object-variants-scene-tab.html`, Dt = {
   log: /* @__PURE__ */ s((...e) => {
     var t;
     return (t = console.debug) == null ? void 0 : t.call(console, `${ge} | ObjectVariants`, ...e);
@@ -2754,38 +2754,38 @@ const _o = `modules/${ge}/templates/object-variants-scene-tab.html`, Ot = {
     var e;
     return (e = console.groupEnd) == null ? void 0 : e.call(console);
   }, "groupEnd")
-}, Ro = Ei(mi), Ho = Nr({
+}, gs = zi(Fi), ms = ro({
   tabId: "variants",
   tabLabel: /* @__PURE__ */ s(() => f("EIDOLON.ObjectVariants.TabLabel", "Variants"), "tabLabel"),
-  getScene: Ie,
-  renderContent: /* @__PURE__ */ s(({ app: e, tab: t, scene: n }) => Vo(e, t, n), "renderContent"),
-  logger: Ot
+  getScene: Le,
+  renderContent: /* @__PURE__ */ s(({ app: e, tab: t, scene: n }) => ys(e, t, n), "renderContent"),
+  logger: Dt
 });
-function $o() {
-  return Ho.register();
+function hs() {
+  return ms.register();
 }
-s($o, "registerObjectVariantSceneConfigHook");
-function Vo(e, t, n) {
+s(hs, "registerObjectVariantSceneConfigHook");
+function ys(e, t, n) {
   if (!(t instanceof HTMLElement)) return;
-  const i = ae(n) ? n : Ie(e);
-  xt(e, t, i);
+  const i = ae(n) ? n : Le(e);
+  on(e, t, i);
 }
-s(Vo, "renderObjectVariantsTab");
-async function xt(e, t, n) {
+s(ys, "renderObjectVariantsTab");
+async function on(e, t, n) {
   var r, o;
-  const i = n ?? Ie(e);
-  Ot.group("renderObjectVariantsTabContent", { sceneId: (i == null ? void 0 : i.id) ?? null });
+  const i = n ?? Le(e);
+  Dt.group("renderObjectVariantsTabContent", { sceneId: (i == null ? void 0 : i.id) ?? null });
   try {
     if (!ae(i)) {
       const A = f(
         "EIDOLON.ObjectVariants.Unavailable",
         "Object variants are unavailable for this configuration sheet."
       );
-      t.innerHTML = `<p class="notes">${A}</p>`, Ot.log("Scene lacks document for object variants", { sceneId: (i == null ? void 0 : i.id) ?? null });
+      t.innerHTML = `<p class="notes">${A}</p>`, Dt.log("Scene lacks document for object variants", { sceneId: (i == null ? void 0 : i.id) ?? null });
       return;
     }
-    const a = Nt(i);
-    Ot.log("Rendering object variant list", {
+    const a = Wt(i);
+    Dt.log("Rendering object variant list", {
       sceneId: i.id,
       categoryCount: a.length
     });
@@ -2798,48 +2798,48 @@ async function xt(e, t, n) {
     ), u = f(
       "EIDOLON.ObjectVariants.CategoryListEmpty",
       "No variant categories configured for this scene."
-    ), d = f("EIDOLON.ObjectVariants.AddCategory", "Add Category"), h = f(
+    ), d = f("EIDOLON.ObjectVariants.AddCategory", "Add Category"), y = f(
       "EIDOLON.ObjectVariants.RemoveCategory",
       "Remove Category"
-    ), m = f("EIDOLON.ObjectVariants.EditCategory", "Edit Category"), p = f("EIDOLON.ObjectVariants.ValuesLabel", "Values"), g = f(
+    ), h = f("EIDOLON.ObjectVariants.EditCategory", "Edit Category"), T = f("EIDOLON.ObjectVariants.ValuesLabel", "Values"), m = f(
       "EIDOLON.ObjectVariants.ValueListEmpty",
       "No values have been added to this category."
-    ), L = f(
+    ), v = f(
       "EIDOLON.ObjectVariants.UnnamedCategory",
       "Unnamed Category"
-    ), I = /* @__PURE__ */ s((A) => qo(A), "formatCount"), b = ((o = (r = foundry == null ? void 0 : foundry.applications) == null ? void 0 : r.handlebars) == null ? void 0 : o.renderTemplate) ?? (typeof renderTemplate == "function" ? renderTemplate : globalThis == null ? void 0 : globalThis.renderTemplate);
-    if (typeof b != "function") {
+    ), w = /* @__PURE__ */ s((A) => vs(A), "formatCount"), O = ((o = (r = foundry == null ? void 0 : foundry.applications) == null ? void 0 : r.handlebars) == null ? void 0 : o.renderTemplate) ?? (typeof renderTemplate == "function" ? renderTemplate : globalThis == null ? void 0 : globalThis.renderTemplate);
+    if (typeof O != "function") {
       console.error(`${ge} | renderTemplate is unavailable; cannot render object variants tab.`), t.innerHTML = `<p class="notes">${u}</p>`;
       return;
     }
-    let w = "";
+    let L = "";
     try {
-      w = await b(_o, {
+      L = await O(fs, {
         description: l,
         labels: {
           categories: c,
           empty: u,
           addCategory: d,
-          removeCategory: h,
-          editCategory: m,
-          values: p,
-          emptyValue: g,
-          unnamedCategory: L
+          removeCategory: y,
+          editCategory: h,
+          values: T,
+          emptyValue: m,
+          unnamedCategory: v
         },
         categories: a.map((A) => {
-          var _, x;
-          const R = ((x = (_ = A.name) == null ? void 0 : _.trim) == null ? void 0 : x.call(_)) ?? "";
+          var R, x;
+          const P = ((x = (R = A.name) == null ? void 0 : R.trim) == null ? void 0 : x.call(R)) ?? "";
           return {
             id: A.id,
             name: A.name,
-            displayName: R || L,
-            isUnnamed: !R,
+            displayName: P || v,
+            isUnnamed: !P,
             values: A.values,
             hasValues: A.values.length > 0,
-            valuePreview: Uo(A.values),
+            valuePreview: bs(A.values),
             valueCount: A.values.length,
-            valueCountLabel: I(A.values.length),
-            valueChips: jo(A.values)
+            valueCountLabel: w(A.values.length),
+            valueChips: Os(A.values)
           };
         }),
         hasCategories: a.length > 0
@@ -2848,84 +2848,84 @@ async function xt(e, t, n) {
       console.error(`${ge} | Failed to render object variants scene tab template`, A), t.innerHTML = `<p class="notes">${u}</p>`;
       return;
     }
-    t.innerHTML = w, ko(e, t, i);
+    t.innerHTML = L, ps(e, t, i);
   } finally {
-    Ot.groupEnd();
+    Dt.groupEnd();
   }
 }
-s(xt, "renderObjectVariantsTabContent");
-function ko(e, t, n) {
-  const i = n ?? Ie(e);
+s(on, "renderObjectVariantsTabContent");
+function ps(e, t, n) {
+  const i = n ?? Le(e);
   if (!ae(i)) return;
   const r = f(
     "EIDOLON.ObjectVariants.DefaultCategoryName",
     "New Category"
   ), o = t.querySelector('[data-variant-action="add-category"]');
   o && o.addEventListener("click", () => {
-    ji(e, {
+    pr(e, {
       scene: i,
-      category: Fr(r),
+      category: ao(r),
       isNew: !0,
-      onSave: /* @__PURE__ */ s(() => xt(e, t, i), "onSave")
+      onSave: /* @__PURE__ */ s(() => on(e, t, i), "onSave")
     });
   }), t.querySelectorAll('[data-variant-action="remove-category"]').forEach((a) => {
     const l = a.dataset.categoryId;
     l && a.addEventListener("click", async () => {
-      await xo(i, (u) => {
-        const d = u.findIndex((h) => h.id === l);
+      await Ts(i, (u) => {
+        const d = u.findIndex((y) => y.id === l);
         return d === -1 ? !1 : (u.splice(d, 1), !0);
-      }) && await xt(e, t, i);
+      }) && await on(e, t, i);
     });
   }), t.querySelectorAll('[data-variant-action="edit-category"]').forEach((a) => {
     const l = a.dataset.categoryId;
     l && a.addEventListener("click", () => {
-      const u = Nt(i).find((d) => d.id === l);
-      u && ji(e, {
+      const u = Wt(i).find((d) => d.id === l);
+      u && pr(e, {
         scene: i,
         category: u,
-        onSave: /* @__PURE__ */ s(() => xt(e, t, i), "onSave")
+        onSave: /* @__PURE__ */ s(() => on(e, t, i), "onSave")
       });
     });
   });
 }
-s(ko, "bindObjectVariantTabEvents");
-async function xo(e, t) {
-  const n = Nt(e);
+s(ps, "bindObjectVariantTabEvents");
+async function Ts(e, t) {
+  const n = Wt(e);
   if (t(n) === !1) return !1;
   try {
-    return await Dr(e, n), !0;
+    return await so(e, n), !0;
   } catch (r) {
-    return _r(r), !1;
+    return co(r), !1;
   }
 }
-s(xo, "mutateVariantCategories");
-function ji(e, t = {}) {
-  const n = t.scene ?? null, i = n && ae(n) ? n : Ie(e);
+s(Ts, "mutateVariantCategories");
+function pr(e, t = {}) {
+  const n = t.scene ?? null, i = n && ae(n) ? n : Le(e);
   if (!ae(i)) {
     console.warn(
       `${ge} | Unable to open object variant editor because no scene document is available.`
     );
     return;
   }
-  Ro({
+  gs({
     scene: i,
     category: t.category ?? null,
     isNew: !!t.isNew,
     onSave: typeof t.onSave == "function" ? t.onSave : null
   }).render({ force: !0 });
 }
-s(ji, "openCategoryEditor");
-function Uo(e) {
+s(pr, "openCategoryEditor");
+function bs(e) {
   if (!Array.isArray(e) || e.length === 0) return "";
   const t = e.slice(0, 5), n = t.join(", ");
   return e.length > t.length ? `${n}, …` : n;
 }
-s(Uo, "buildValuePreview");
-function jo(e) {
+s(bs, "buildValuePreview");
+function Os(e) {
   return !Array.isArray(e) || e.length === 0 ? [] : e.map((t) => t);
 }
-s(jo, "buildValueChips");
-function qo(e) {
+s(Os, "buildValueChips");
+function vs(e) {
   var t, n;
   if ((n = (t = game.i18n) == null ? void 0 : t.has) != null && n.call(t, "EIDOLON.ObjectVariants.ValueCountLabel"))
     try {
@@ -2935,96 +2935,96 @@ function qo(e) {
     }
   return e === 0 ? "No values configured" : e === 1 ? "1 value" : `${e} values`;
 }
-s(qo, "formatValueCount");
-function Bo() {
-  $o();
+s(vs, "formatValueCount");
+function Es() {
+  hs();
 }
-s(Bo, "registerObjectVariantHooks");
-Bo();
-const Xe = O, lt = "lightPresets", Si = Object.freeze({
+s(Es, "registerObjectVariantHooks");
+Es();
+const at = E, Tt = "lightPresets", Wi = Object.freeze({
   default: null,
   presets: [],
   current: null
 });
-function $r(e) {
+function go(e) {
   var n;
-  const t = ((n = e == null ? void 0 : e.getFlag) == null ? void 0 : n.call(e, Xe, lt)) ?? Si;
-  return Vr(t);
+  const t = ((n = e == null ? void 0 : e.getFlag) == null ? void 0 : n.call(e, at, Tt)) ?? Wi;
+  return mo(t);
 }
-s($r, "getLightPresetState");
-async function Go(e, t) {
-  const n = Vr(t);
+s(go, "getLightPresetState");
+async function ws(e, t) {
+  const n = mo(t);
   if (!(e != null && e.setFlag))
     return n;
   const i = n.default !== null, r = n.presets.length > 0, o = n.current !== null;
-  return !i && !r && !o ? (typeof e.unsetFlag == "function" ? await e.unsetFlag(Xe, lt) : await e.setFlag(Xe, lt, null), Si) : (await e.setFlag(Xe, lt, n), n);
+  return !i && !r && !o ? (typeof e.unsetFlag == "function" ? await e.unsetFlag(at, Tt) : await e.setFlag(at, Tt, null), Wi) : (await e.setFlag(at, Tt, n), n);
 }
-s(Go, "setLightPresetState");
-async function wi(e, t) {
+s(ws, "setLightPresetState");
+async function Ji(e, t) {
   if (typeof t != "function")
     throw new TypeError("updateLightPresetState requires an updater function.");
-  const n = Ze($r(e)), i = await t(n);
-  return Go(e, i);
+  const n = lt(go(e)), i = await t(n);
+  return ws(e, i);
 }
-s(wi, "updateLightPresetState");
-async function qi(e, t) {
-  const n = gt(t);
+s(Ji, "updateLightPresetState");
+async function Tr(e, t) {
+  const n = wt(t);
   if (!n)
     throw new Error("Invalid light configuration payload.");
-  return wi(e, (i) => ({
+  return Ji(e, (i) => ({
     ...i,
     default: n
   }));
 }
-s(qi, "storeDefaultPreset");
-async function Bi(e, t, n, { label: i } = {}) {
-  const r = Ci(t);
+s(Tr, "storeDefaultPreset");
+async function br(e, t, n, { label: i } = {}) {
+  const r = Ki(t);
   if (!r)
     throw new Error("Cannot create preset without at least one category selection.");
-  const o = gt(n);
+  const o = wt(n);
   if (!o)
     throw new Error("Invalid light configuration payload.");
-  return wi(e, (a) => {
-    const l = Cn(r), c = Array.isArray(a == null ? void 0 : a.presets) ? [...a.presets] : [], u = c.findIndex((p) => (p == null ? void 0 : p.key) === l), d = u >= 0 ? c[u] : null, h = typeof (d == null ? void 0 : d.id) == "string" && d.id.trim() ? d.id.trim() : Ur(), m = kr({
-      id: h,
+  return Ji(e, (a) => {
+    const l = zn(r), c = Array.isArray(a == null ? void 0 : a.presets) ? [...a.presets] : [], u = c.findIndex((T) => (T == null ? void 0 : T.key) === l), d = u >= 0 ? c[u] : null, y = typeof (d == null ? void 0 : d.id) == "string" && d.id.trim() ? d.id.trim() : po(), h = ho({
+      id: y,
       categories: r,
       config: o,
       label: typeof i == "string" ? i : (d == null ? void 0 : d.label) ?? null,
       updatedAt: Date.now()
     });
-    if (!m)
+    if (!h)
       throw new Error("Failed to sanitize preset entry.");
-    return u >= 0 ? c[u] = m : c.push(m), {
+    return u >= 0 ? c[u] = h : c.push(h), {
       ...a,
       presets: c
     };
   });
 }
-s(Bi, "upsertLightPreset");
-async function Gi(e, t) {
-  const n = xr(t);
-  return wi(e, (i) => ({
+s(br, "upsertLightPreset");
+async function Or(e, t) {
+  const n = yo(t);
+  return Ji(e, (i) => ({
     ...i,
     current: n
   }));
 }
-s(Gi, "storeCurrentPresetSelection");
-function Vr(e) {
+s(Or, "storeCurrentPresetSelection");
+function mo(e) {
   var c;
-  const t = Ze(e);
+  const t = lt(e);
   if (!t || typeof t != "object")
-    return Ze(Si);
-  const n = gt(t.default ?? t.defaultPreset), i = Array.isArray(t.presets) ? t.presets : [], r = /* @__PURE__ */ new Map();
+    return lt(Wi);
+  const n = wt(t.default ?? t.defaultPreset), i = Array.isArray(t.presets) ? t.presets : [], r = /* @__PURE__ */ new Map();
   for (const u of i) {
-    const d = kr(u);
+    const d = ho(u);
     d && r.set(d.key, d);
   }
   const o = Array.from(r.values()), a = new Map(o.map((u) => [u.id, u]));
-  let l = xr(t.current);
+  let l = yo(t.current);
   if (l) {
     const u = l.categories && Object.keys(l.categories).length > 0;
     if (l.presetId && !a.has(l.presetId)) {
-      const d = u ? ((c = o.find((h) => h.key === Cn(l.categories))) == null ? void 0 : c.id) ?? null : null;
+      const d = u ? ((c = o.find((y) => y.key === zn(l.categories))) == null ? void 0 : c.id) ?? null : null;
       d ? l = {
         ...l,
         presetId: d
@@ -3041,26 +3041,26 @@ function Vr(e) {
     current: l
   };
 }
-s(Vr, "sanitizeLightPresetState");
-function gt(e) {
-  const t = Ze(e);
+s(mo, "sanitizeLightPresetState");
+function wt(e) {
+  const t = lt(e);
   if (!t || typeof t != "object") return null;
   "_id" in t && delete t._id, "id" in t && delete t.id;
   const n = t.flags;
   if (n && typeof n == "object") {
-    const i = n[Xe];
-    i && typeof i == "object" && (delete i[lt], Object.keys(i).length === 0 && delete n[Xe]), Object.keys(n).length === 0 && delete t.flags;
+    const i = n[at];
+    i && typeof i == "object" && (delete i[Tt], Object.keys(i).length === 0 && delete n[at]), Object.keys(n).length === 0 && delete t.flags;
   }
   return t;
 }
-s(gt, "sanitizeLightConfigPayload");
-function kr(e) {
+s(wt, "sanitizeLightConfigPayload");
+function ho(e) {
   if (!e || typeof e != "object") return null;
-  const t = Ci(e.categories);
+  const t = Ki(e.categories);
   if (!t) return null;
-  const n = gt(e.config);
+  const n = wt(e.config);
   if (!n) return null;
-  const i = typeof e.id == "string" && e.id.trim() ? e.id.trim() : Ur(), r = Cn(t), o = {
+  const i = typeof e.id == "string" && e.id.trim() ? e.id.trim() : po(), r = zn(t), o = {
     id: i,
     key: r,
     categories: t,
@@ -3069,160 +3069,160 @@ function kr(e) {
   };
   return typeof e.label == "string" && e.label.trim() && (o.label = e.label.trim()), o;
 }
-s(kr, "sanitizePresetEntry");
-function xr(e) {
+s(ho, "sanitizePresetEntry");
+function yo(e) {
   if (!e || typeof e != "object") return null;
-  const t = typeof e.presetId == "string" && e.presetId.trim() ? e.presetId.trim() : null, n = Ci(e.categories);
+  const t = typeof e.presetId == "string" && e.presetId.trim() ? e.presetId.trim() : null, n = Ki(e.categories);
   return !t && !n ? null : {
     presetId: t,
     categories: n,
     updatedAt: Number.isFinite(e.updatedAt) ? Number(e.updatedAt) : Date.now()
   };
 }
-s(xr, "sanitizeCurrentSelection");
-function Ci(e) {
+s(yo, "sanitizeCurrentSelection");
+function Ki(e) {
   const t = {};
   if (Array.isArray(e))
     for (const n of e) {
-      const i = zi((n == null ? void 0 : n.id) ?? (n == null ? void 0 : n.categoryId) ?? (n == null ? void 0 : n.category)), r = Wi((n == null ? void 0 : n.value) ?? (n == null ? void 0 : n.selection) ?? (n == null ? void 0 : n.label));
+      const i = vr((n == null ? void 0 : n.id) ?? (n == null ? void 0 : n.categoryId) ?? (n == null ? void 0 : n.category)), r = Er((n == null ? void 0 : n.value) ?? (n == null ? void 0 : n.selection) ?? (n == null ? void 0 : n.label));
       !i || !r || (t[i] = r);
     }
   else if (e && typeof e == "object")
     for (const [n, i] of Object.entries(e)) {
-      const r = zi(n), o = Wi(i);
+      const r = vr(n), o = Er(i);
       !r || !o || (t[r] = o);
     }
   return Object.keys(t).length > 0 ? t : null;
 }
-s(Ci, "sanitizePresetCategories");
-function Cn(e) {
+s(Ki, "sanitizePresetCategories");
+function zn(e) {
   if (!e || typeof e != "object") return "";
   const t = Object.entries(e).filter(([, n]) => typeof n == "string" && n).map(([n, i]) => `${n}:${i}`);
   return t.sort((n, i) => n < i ? -1 : n > i ? 1 : 0), t.join("|");
 }
-s(Cn, "computePresetKey");
-function Ur() {
+s(zn, "computePresetKey");
+function po() {
   var e;
   return (e = foundry == null ? void 0 : foundry.utils) != null && e.randomID ? foundry.utils.randomID() : typeof (crypto == null ? void 0 : crypto.randomUUID) == "function" ? crypto.randomUUID() : Math.random().toString(36).slice(2, 10);
 }
-s(Ur, "generateLightPresetId");
-function zi(e) {
+s(po, "generateLightPresetId");
+function vr(e) {
   if (typeof e != "string") return null;
   const t = e.trim();
   return t || null;
 }
-s(zi, "normalizeCategoryId");
-function Wi(e) {
+s(vr, "normalizeCategoryId");
+function Er(e) {
   if (typeof e != "string") return null;
   const t = e.trim();
   return t || null;
 }
-s(Wi, "normalizeCategoryValue");
-const Ut = /* @__PURE__ */ new WeakMap(), oe = "__eidolon_default__";
-function zo() {
-  Hooks.on("renderAmbientLightConfig", Wo), T("LightPresets | AmbientLightConfig controls registered");
+s(Er, "normalizeCategoryValue");
+const sn = /* @__PURE__ */ new WeakMap(), oe = "__eidolon_default__";
+function Ss() {
+  Hooks.on("renderAmbientLightConfig", Is), b("LightPresets | AmbientLightConfig controls registered");
 }
-s(zo, "registerAmbientLightConfigControls");
-function Wo(e, t) {
+s(Ss, "registerAmbientLightConfigControls");
+function Is(e, t) {
   var n;
-  ft("LightPresets | renderAmbientLightConfig", {
+  Et("LightPresets | renderAmbientLightConfig", {
     appId: (e == null ? void 0 : e.id) ?? null,
     constructor: ((n = e == null ? void 0 : e.constructor) == null ? void 0 : n.name) ?? null,
     isRendered: (e == null ? void 0 : e.rendered) ?? !1
   });
   try {
-    const i = gi(t);
+    const i = Pi(t);
     if (!i) return;
-    Ko(e, i);
+    Ls(e, i);
   } catch (i) {
     console.error("eidolon-utilities | Failed to enhance AmbientLightConfig UI", i);
   } finally {
-    ke();
+    We();
   }
 }
-s(Wo, "handleAmbientLightConfigRender");
-function Ko(e, t) {
-  var K, yt, Ne;
-  const n = (e == null ? void 0 : e.form) instanceof HTMLFormElement ? e.form : t instanceof HTMLFormElement ? t : (K = t == null ? void 0 : t.closest) == null ? void 0 : K.call(t, "form");
+s(Is, "handleAmbientLightConfigRender");
+function Ls(e, t) {
+  var J, Lt, _e;
+  const n = (e == null ? void 0 : e.form) instanceof HTMLFormElement ? e.form : t instanceof HTMLFormElement ? t : (J = t == null ? void 0 : t.closest) == null ? void 0 : J.call(t, "form");
   if (!(n instanceof HTMLFormElement)) return;
   const i = n.querySelector(".window-content");
   if (!(i instanceof HTMLElement)) return;
-  const r = qr(e);
+  const r = bo(e);
   if (!r) return;
-  const o = rs(r);
-  T("LightPresets | Resolved ambient light", {
+  const o = Hs(r);
+  b("LightPresets | Resolved ambient light", {
     sheetId: (r == null ? void 0 : r.id) ?? null,
     persistedId: (o == null ? void 0 : o.id) ?? null,
     sameRef: r === o
   });
-  const a = (o == null ? void 0 : o.parent) ?? r.parent ?? null, l = a ? Nt(a) : [], c = l.filter(
-    (C) => Array.isArray(C == null ? void 0 : C.values) && C.values.length > 0
-  ), u = es(l), d = $r(o ?? r);
-  T("LightPresets | Loaded preset state", {
+  const a = (o == null ? void 0 : o.parent) ?? r.parent ?? null, l = a ? Wt(a) : [], c = l.filter(
+    (M) => Array.isArray(M == null ? void 0 : M.values) && M.values.length > 0
+  ), u = Ps(l), d = go(o ?? r);
+  b("LightPresets | Loaded preset state", {
     hasDefault: !!(d != null && d.default),
     presetCount: Array.isArray(d == null ? void 0 : d.presets) ? d.presets.length : 0,
-    presets: Array.isArray(d == null ? void 0 : d.presets) ? d.presets.map((C) => {
-      var k, J;
+    presets: Array.isArray(d == null ? void 0 : d.presets) ? d.presets.map((M) => {
+      var k, K;
       return {
-        id: C.id,
-        key: C.key,
-        hasColor: !!((J = (k = C.config) == null ? void 0 : k.config) != null && J.color)
+        id: M.id,
+        key: M.key,
+        hasColor: !!((K = (k = M.config) == null ? void 0 : k.config) != null && K.color)
       };
     }) : []
   });
-  const h = i.querySelector(".eidolon-light-presets");
-  h && h.remove();
-  const m = document.createElement("fieldset");
-  m.classList.add("eidolon-light-presets");
-  const p = document.createElement("legend");
-  p.textContent = f("EIDOLON.LightPresets.Legend", "Light Presets"), m.appendChild(p);
-  const g = document.createElement("p");
-  g.classList.add("notes"), g.textContent = f(
+  const y = i.querySelector(".eidolon-light-presets");
+  y && y.remove();
+  const h = document.createElement("fieldset");
+  h.classList.add("eidolon-light-presets");
+  const T = document.createElement("legend");
+  T.textContent = f("EIDOLON.LightPresets.Legend", "Light Presets"), h.appendChild(T);
+  const m = document.createElement("p");
+  m.classList.add("notes"), m.textContent = f(
     "EIDOLON.LightPresets.Description",
     "Capture default lighting and register presets tied to scene variant values."
-  ), m.appendChild(g);
-  const L = document.createElement("div");
-  L.classList.add("eidolon-light-presets__controls");
-  const I = document.createElement("button");
-  I.type = "button", I.dataset.action = "make-default", I.classList.add("eidolon-light-presets__button"), I.textContent = f(
+  ), h.appendChild(m);
+  const v = document.createElement("div");
+  v.classList.add("eidolon-light-presets__controls");
+  const w = document.createElement("button");
+  w.type = "button", w.dataset.action = "make-default", w.classList.add("eidolon-light-presets__button"), w.textContent = f(
     "EIDOLON.LightPresets.MakeDefault",
     "Make Default"
-  ), L.appendChild(I);
-  const b = document.createElement("button");
-  b.type = "button", b.dataset.action = "create-preset", b.classList.add("eidolon-light-presets__button"), b.textContent = f(
+  ), v.appendChild(w);
+  const O = document.createElement("button");
+  O.type = "button", O.dataset.action = "create-preset", O.classList.add("eidolon-light-presets__button"), O.textContent = f(
     "EIDOLON.LightPresets.CreatePreset",
     "Create Preset"
-  ), b.setAttribute("aria-expanded", "false"), L.appendChild(b), m.appendChild(L);
-  const w = document.createElement("p");
-  w.classList.add("notes", "eidolon-light-presets__status"), m.appendChild(w);
+  ), O.setAttribute("aria-expanded", "false"), v.appendChild(O), h.appendChild(v);
+  const L = document.createElement("p");
+  L.classList.add("notes", "eidolon-light-presets__status"), h.appendChild(L);
   const A = document.createElement("div");
   A.classList.add("eidolon-light-presets__switcher");
-  const R = document.createElement("label");
-  R.classList.add("eidolon-light-presets__switcher-label");
-  const _ = `${(e == null ? void 0 : e.id) ?? (r == null ? void 0 : r.id) ?? "eidolon-light"}-preset-select`;
-  R.htmlFor = _, R.textContent = f("EIDOLON.LightPresets.SelectLabel", "Preset"), A.appendChild(R);
+  const P = document.createElement("label");
+  P.classList.add("eidolon-light-presets__switcher-label");
+  const R = `${(e == null ? void 0 : e.id) ?? (r == null ? void 0 : r.id) ?? "eidolon-light"}-preset-select`;
+  P.htmlFor = R, P.textContent = f("EIDOLON.LightPresets.SelectLabel", "Preset"), A.appendChild(P);
   const x = document.createElement("div");
   x.classList.add("eidolon-light-presets__switcher-controls"), A.appendChild(x);
   const F = document.createElement("select");
-  F.id = _, F.classList.add("eidolon-light-presets__select"), F.dataset.action = "select-preset", x.appendChild(F);
+  F.id = R, F.classList.add("eidolon-light-presets__select"), F.dataset.action = "select-preset", x.appendChild(F);
   const B = document.createElement("button");
   B.type = "button", B.dataset.action = "apply-selected-preset", B.classList.add("eidolon-light-presets__button", "secondary"), B.textContent = f("EIDOLON.LightPresets.ApplyButton", "Apply"), x.appendChild(B);
   const H = document.createElement("button");
   if (H.type = "button", H.dataset.action = "update-selected-preset", H.classList.add("eidolon-light-presets__button", "secondary"), H.textContent = f(
     "EIDOLON.LightPresets.UpdateButton",
     "Save Changes"
-  ), x.appendChild(H), m.appendChild(A), l.length === 0) {
-    const C = document.createElement("p");
-    C.classList.add("notification", "warning", "eidolon-light-presets__warning"), C.textContent = f(
+  ), x.appendChild(H), h.appendChild(A), l.length === 0) {
+    const M = document.createElement("p");
+    M.classList.add("notification", "warning", "eidolon-light-presets__warning"), M.textContent = f(
       "EIDOLON.LightPresets.NoCategoriesWarning",
       "This scene has no variant categories. Add categories under Scene → Variants to enable lighting presets."
-    ), m.appendChild(C);
+    ), h.appendChild(M);
   } else if (c.length === 0) {
-    const C = document.createElement("p");
-    C.classList.add("notification", "warning", "eidolon-light-presets__warning"), C.textContent = f(
+    const M = document.createElement("p");
+    M.classList.add("notification", "warning", "eidolon-light-presets__warning"), M.textContent = f(
       "EIDOLON.LightPresets.NoValuesWarning",
       "Variant categories exist, but none define selectable values. Add values in Scene → Variants."
-    ), m.appendChild(C);
+    ), h.appendChild(M);
   }
   const q = document.createElement("div");
   q.classList.add("eidolon-light-presets__creation"), q.dataset.section = "creation", q.hidden = !0;
@@ -3231,85 +3231,85 @@ function Ko(e, t) {
     "EIDOLON.LightPresets.CreateDescription",
     "Assign scene variant values to map the current configuration to a preset."
   ), q.appendChild(ie);
-  const E = document.createElement("div");
-  E.classList.add("eidolon-light-presets__category-list"), q.appendChild(E);
-  for (const C of c) {
+  const I = document.createElement("div");
+  I.classList.add("eidolon-light-presets__category-list"), q.appendChild(I);
+  for (const M of c) {
     const k = document.createElement("label");
     k.classList.add("eidolon-light-presets__category");
-    const J = document.createElement("span");
-    J.classList.add("eidolon-light-presets__category-name"), J.textContent = (Ne = (yt = C.name) == null ? void 0 : yt.trim) != null && Ne.call(yt) ? C.name.trim() : f("EIDOLON.LightPresets.UnnamedCategory", "Unnamed Category"), k.appendChild(J);
+    const K = document.createElement("span");
+    K.classList.add("eidolon-light-presets__category-name"), K.textContent = (_e = (Lt = M.name) == null ? void 0 : Lt.trim) != null && _e.call(Lt) ? M.name.trim() : f("EIDOLON.LightPresets.UnnamedCategory", "Unnamed Category"), k.appendChild(K);
     const G = document.createElement("select");
-    G.dataset.categoryId = C.id, G.classList.add("eidolon-light-presets__category-select");
+    G.dataset.categoryId = M.id, G.classList.add("eidolon-light-presets__category-select");
     const Y = document.createElement("option");
     Y.value = "", Y.textContent = f(
       "EIDOLON.LightPresets.IgnoreCategory",
       "Ignore"
     ), G.appendChild(Y);
-    for (const Q of C.values) {
+    for (const Q of M.values) {
       const X = document.createElement("option");
       X.value = Q, X.textContent = Q, G.appendChild(X);
     }
-    k.appendChild(G), E.appendChild(k);
+    k.appendChild(G), I.appendChild(k);
   }
-  const U = document.createElement("div");
-  U.classList.add("eidolon-light-presets__creation-actions");
+  const j = document.createElement("div");
+  j.classList.add("eidolon-light-presets__creation-actions");
   const $ = document.createElement("button");
   $.type = "button", $.dataset.action = "save-preset", $.classList.add("eidolon-light-presets__button", "primary"), $.textContent = f(
     "EIDOLON.LightPresets.SavePreset",
     "Save Preset"
-  ), U.appendChild($);
+  ), j.appendChild($);
   const V = document.createElement("button");
   V.type = "button", V.dataset.action = "cancel-create", V.classList.add("eidolon-light-presets__button", "secondary"), V.textContent = f(
     "EIDOLON.LightPresets.Cancel",
     "Cancel"
-  ), U.appendChild(V), q.appendChild(U), m.appendChild(q), i.appendChild(m), requestAnimationFrame(() => {
-    var C;
-    (C = e.setPosition) == null || C.call(e, { height: "auto" });
+  ), j.appendChild(V), q.appendChild(j), h.appendChild(q), i.appendChild(h), requestAnimationFrame(() => {
+    var M;
+    (M = e.setPosition) == null || M.call(e, { height: "auto" });
   });
-  let y = d;
-  rt(w, y), bt(b, {
-    state: y,
+  let p = d;
+  gt(L, p), At(O, {
+    state: p,
     hasCategories: c.length > 0
-  }), T("LightPresets | Controls injected", {
+  }), b("LightPresets | Controls injected", {
     sceneId: (a == null ? void 0 : a.id) ?? null,
     lightId: (r == null ? void 0 : r.id) ?? null,
-    hasDefault: !!(y != null && y.default),
-    presetCount: Array.isArray(y == null ? void 0 : y.presets) ? y.presets.length : 0,
+    hasDefault: !!(p != null && p.default),
+    presetCount: Array.isArray(p == null ? void 0 : p.presets) ? p.presets.length : 0,
     categories: c.length
   });
-  const W = ts(y), P = {
+  const W = Fs(p), _ = {
     restoreConfig: null,
     app: e,
     selectedPreset: W
   };
-  Ut.set(m, P), F.addEventListener("change", () => {
-    P.selectedPreset = F.value ?? "", Se({
+  sn.set(h, _), F.addEventListener("change", () => {
+    _.selectedPreset = F.value ?? "", Ne({
       presetSelect: F,
       applyPresetButton: B,
       updatePresetButton: H,
-      state: y
+      state: p
     });
   });
   const ne = /* @__PURE__ */ s(async () => {
-    var G, Y, Q, X, le, re, ce, Me, me, De, Fe, Pe, Te, _e;
-    const C = F.value ?? "";
-    if (!C) {
+    var G, Y, Q, X, le, re, ce, Re, me, He, $e, Ve, be, ke;
+    const M = F.value ?? "";
+    if (!M) {
       (Y = (G = ui.notifications) == null ? void 0 : G.warn) == null || Y.call(
         G,
         f(
           "EIDOLON.LightPresets.SelectPresetWarning",
           "Choose a preset before applying."
         )
-      ), Se({
+      ), Ne({
         presetSelect: F,
         applyPresetButton: B,
         updatePresetButton: H,
-        state: y
+        state: p
       });
       return;
     }
-    if (C === oe) {
-      if (!(y != null && y.default)) {
+    if (M === oe) {
+      if (!(p != null && p.default)) {
         (X = (Q = ui.notifications) == null ? void 0 : Q.warn) == null || X.call(
           Q,
           f(
@@ -3319,81 +3319,81 @@ function Ko(e, t) {
         );
         return;
       }
-      Dt(m, q, b), Pt(e, n, y.default), y = await Gi(o ?? r, {
+      Kt(h, q, O), Qt(e, n, p.default), p = await Or(o ?? r, {
         presetId: oe,
         categories: null,
         updatedAt: Date.now()
-      }), P.selectedPreset = oe, Re(F, y, u, P.selectedPreset), P.selectedPreset = F.value ?? oe, rt(w, y), bt(b, {
-        state: y,
+      }), _.selectedPreset = oe, xe(F, p, u, _.selectedPreset), _.selectedPreset = F.value ?? oe, gt(L, p), At(O, {
+        state: p,
         hasCategories: c.length > 0
-      }), Ki(n, {
+      }), wr(n, {
         presetId: oe,
-        color: ((re = (le = y.default) == null ? void 0 : le.config) == null ? void 0 : re.color) ?? null
-      }), (Me = (ce = ui.notifications) == null ? void 0 : ce.info) == null || Me.call(
+        color: ((re = (le = p.default) == null ? void 0 : le.config) == null ? void 0 : re.color) ?? null
+      }), (Re = (ce = ui.notifications) == null ? void 0 : ce.info) == null || Re.call(
         ce,
         f(
           "EIDOLON.LightPresets.DefaultApplied",
           "Applied the default preset to the form."
         )
-      ), Se({
+      ), Ne({
         presetSelect: F,
         applyPresetButton: B,
         updatePresetButton: H,
-        state: y
+        state: p
       });
       return;
     }
-    const k = Array.isArray(y == null ? void 0 : y.presets) && y.presets.length ? y.presets.find((Ee) => (Ee == null ? void 0 : Ee.id) === C) : null;
+    const k = Array.isArray(p == null ? void 0 : p.presets) && p.presets.length ? p.presets.find((Ce) => (Ce == null ? void 0 : Ce.id) === M) : null;
     if (!k) {
-      (De = (me = ui.notifications) == null ? void 0 : me.warn) == null || De.call(
+      (He = (me = ui.notifications) == null ? void 0 : me.warn) == null || He.call(
         me,
         f(
           "EIDOLON.LightPresets.PresetUnavailable",
           "The selected preset is no longer available."
         )
-      ), Re(F, y, u, ""), P.selectedPreset = F.value ?? "", Se({
+      ), xe(F, p, u, ""), _.selectedPreset = F.value ?? "", Ne({
         presetSelect: F,
         applyPresetButton: B,
         updatePresetButton: H,
-        state: y
+        state: p
       });
       return;
     }
-    Dt(m, q, b), Pt(e, n, k.config), y = await Gi(o ?? r, {
+    Kt(h, q, O), Qt(e, n, k.config), p = await Or(o ?? r, {
       presetId: k.id,
       categories: k.categories,
       updatedAt: Date.now()
-    }), P.selectedPreset = k.id, Re(F, y, u, P.selectedPreset), P.selectedPreset = F.value ?? k.id, rt(w, y), bt(b, {
-      state: y,
+    }), _.selectedPreset = k.id, xe(F, p, u, _.selectedPreset), _.selectedPreset = F.value ?? k.id, gt(L, p), At(O, {
+      state: p,
       hasCategories: c.length > 0
-    }), Ki(n, {
+    }), wr(n, {
       presetId: k.id,
-      color: ((Pe = (Fe = k.config) == null ? void 0 : Fe.config) == null ? void 0 : Pe.color) ?? null
+      color: ((Ve = ($e = k.config) == null ? void 0 : $e.config) == null ? void 0 : Ve.color) ?? null
     });
-    const J = ct(k, u);
-    (_e = (Te = ui.notifications) == null ? void 0 : Te.info) == null || _e.call(
-      Te,
+    const K = bt(k, u);
+    (ke = (be = ui.notifications) == null ? void 0 : be.info) == null || ke.call(
+      be,
       f(
         "EIDOLON.LightPresets.PresetApplied",
         "Applied preset: {label}"
-      ).replace("{label}", J)
-    ), Se({
+      ).replace("{label}", K)
+    ), Ne({
       presetSelect: F,
       applyPresetButton: B,
       updatePresetButton: H,
-      state: y
+      state: p
     });
   }, "applySelectedPreset");
   B.addEventListener("click", () => {
     ne();
-  }), F.addEventListener("keydown", (C) => {
-    C.key === "Enter" && (C.preventDefault(), ne());
+  }), F.addEventListener("keydown", (M) => {
+    M.key === "Enter" && (M.preventDefault(), ne());
   });
   const z = /* @__PURE__ */ s(async () => {
-    var k, J, G, Y, Q, X, le, re, ce, Me, me, De, Fe, Pe, Te, _e, Ee, te, pt, je, Mi;
-    const C = P.selectedPreset;
-    if (!C) {
-      (J = (k = ui.notifications) == null ? void 0 : k.warn) == null || J.call(
+    var k, K, G, Y, Q, X, le, re, ce, Re, me, He, $e, Ve, be, ke, Ce, te, Ct, Ye, or;
+    const M = _.selectedPreset;
+    if (!M) {
+      (K = (k = ui.notifications) == null ? void 0 : k.warn) == null || K.call(
         k,
         f(
           "EIDOLON.LightPresets.SelectPresetWarning",
@@ -3404,9 +3404,9 @@ function Ko(e, t) {
     }
     H.disabled = !0;
     try {
-      const ue = Ft(e, o);
-      if (C === oe)
-        y = await qi(o ?? r, ue), T("LightPresets | Default preset updated", {
+      const ue = Yt(e, o);
+      if (M === oe)
+        p = await Tr(o ?? r, ue), b("LightPresets | Default preset updated", {
           lightId: ((G = o ?? r) == null ? void 0 : G.id) ?? null,
           configColor: ((Y = ue == null ? void 0 : ue.config) == null ? void 0 : Y.color) ?? null
         }), (X = (Q = ui.notifications) == null ? void 0 : Q.info) == null || X.call(
@@ -3415,94 +3415,94 @@ function Ko(e, t) {
             "EIDOLON.LightPresets.DefaultUpdated",
             "Updated the default preset with the current configuration."
           )
-        ), P.selectedPreset = oe;
+        ), _.selectedPreset = oe;
       else {
-        const nt = hi(y, C);
-        if (!nt) {
+        const dt = _i(p, M);
+        if (!dt) {
           (re = (le = ui.notifications) == null ? void 0 : le.warn) == null || re.call(
             le,
             f(
               "EIDOLON.LightPresets.PresetUnavailable",
               "The selected preset is no longer available."
             )
-          ), Re(F, y, u, ""), P.selectedPreset = F.value ?? "";
+          ), xe(F, p, u, ""), _.selectedPreset = F.value ?? "";
           return;
         }
-        y = await Bi(
+        p = await br(
           o ?? r,
-          nt.categories,
+          dt.categories,
           ue,
-          { label: nt.label ?? null }
-        ), T("LightPresets | Preset updated", {
-          presetId: C,
+          { label: dt.label ?? null }
+        ), b("LightPresets | Preset updated", {
+          presetId: M,
           hasColor: !!((ce = ue == null ? void 0 : ue.config) != null && ce.color),
-          stored: Array.isArray(y == null ? void 0 : y.presets) ? ((Me = y.presets.find((An) => (An == null ? void 0 : An.id) === C)) == null ? void 0 : Me.config) ?? null : null,
-          persisted: (De = (me = o ?? r) == null ? void 0 : me.getFlag) == null ? void 0 : De.call(me, Xe, lt)
+          stored: Array.isArray(p == null ? void 0 : p.presets) ? ((Re = p.presets.find((Wn) => (Wn == null ? void 0 : Wn.id) === M)) == null ? void 0 : Re.config) ?? null : null,
+          persisted: (He = (me = o ?? r) == null ? void 0 : me.getFlag) == null ? void 0 : He.call(me, at, Tt)
         });
-        const Tt = hi(y, C), Jr = ct(Tt || nt, u);
-        T("LightPresets | Preset updated", {
-          presetId: C,
-          categories: nt.categories,
-          updatedColor: ((Fe = ue == null ? void 0 : ue.config) == null ? void 0 : Fe.color) ?? null,
-          storedColor: ((Te = (Pe = Tt == null ? void 0 : Tt.config) == null ? void 0 : Pe.config) == null ? void 0 : Te.color) ?? ((Ee = (_e = nt.config) == null ? void 0 : _e.config) == null ? void 0 : Ee.color) ?? null
-        }), (pt = (te = ui.notifications) == null ? void 0 : te.info) == null || pt.call(
+        const Nt = _i(p, M), No = bt(Nt || dt, u);
+        b("LightPresets | Preset updated", {
+          presetId: M,
+          categories: dt.categories,
+          updatedColor: (($e = ue == null ? void 0 : ue.config) == null ? void 0 : $e.color) ?? null,
+          storedColor: ((be = (Ve = Nt == null ? void 0 : Nt.config) == null ? void 0 : Ve.config) == null ? void 0 : be.color) ?? ((Ce = (ke = dt.config) == null ? void 0 : ke.config) == null ? void 0 : Ce.color) ?? null
+        }), (Ct = (te = ui.notifications) == null ? void 0 : te.info) == null || Ct.call(
           te,
           f(
             "EIDOLON.LightPresets.PresetUpdated",
             "Saved changes to preset: {label}"
-          ).replace("{label}", Jr)
-        ), P.selectedPreset = C;
+          ).replace("{label}", No)
+        ), _.selectedPreset = M;
       }
-      rt(w, y), bt(b, {
-        state: y,
+      gt(L, p), At(O, {
+        state: p,
         hasCategories: c.length > 0
-      }), Re(F, y, u, P.selectedPreset), P.selectedPreset = F.value ?? "";
+      }), xe(F, p, u, _.selectedPreset), _.selectedPreset = F.value ?? "";
     } catch (ue) {
-      console.error("eidolon-utilities | Failed to update light preset", ue), (Mi = (je = ui.notifications) == null ? void 0 : je.error) == null || Mi.call(
-        je,
+      console.error("eidolon-utilities | Failed to update light preset", ue), (or = (Ye = ui.notifications) == null ? void 0 : Ye.error) == null || or.call(
+        Ye,
         f(
           "EIDOLON.LightPresets.PresetUpdateError",
           "Failed to save the preset. Check the console for details."
         )
       );
     } finally {
-      H.disabled = !1, Se({
+      H.disabled = !1, Ne({
         presetSelect: F,
         applyPresetButton: B,
         updatePresetButton: H,
-        state: y
+        state: p
       });
     }
   }, "updateSelectedPreset");
   H.addEventListener("click", () => {
     z();
-  }), Re(F, y, u, P.selectedPreset), P.selectedPreset = F.value ?? P.selectedPreset ?? "", Se({
+  }), xe(F, p, u, _.selectedPreset), _.selectedPreset = F.value ?? _.selectedPreset ?? "", Ne({
     presetSelect: F,
     applyPresetButton: B,
     updatePresetButton: H,
-    state: y
-  }), I.addEventListener("click", async () => {
-    var C, k, J, G, Y, Q;
-    I.disabled = !0;
+    state: p
+  }), w.addEventListener("click", async () => {
+    var M, k, K, G, Y, Q;
+    w.disabled = !0;
     try {
-      const X = Ft(e, o);
-      y = await qi(o ?? r, X), T("LightPresets | Default preset stored", {
-        lightId: ((C = o ?? r) == null ? void 0 : C.id) ?? null,
+      const X = Yt(e, o);
+      p = await Tr(o ?? r, X), b("LightPresets | Default preset stored", {
+        lightId: ((M = o ?? r) == null ? void 0 : M.id) ?? null,
         configColor: ((k = X == null ? void 0 : X.config) == null ? void 0 : k.color) ?? null
-      }), (G = (J = ui.notifications) == null ? void 0 : J.info) == null || G.call(
-        J,
+      }), (G = (K = ui.notifications) == null ? void 0 : K.info) == null || G.call(
+        K,
         f(
           "EIDOLON.LightPresets.DefaultStored",
           "Saved the current configuration as the default preset."
         )
-      ), rt(w, y), bt(b, {
-        state: y,
+      ), gt(L, p), At(O, {
+        state: p,
         hasCategories: c.length > 0
-      }), P.selectedPreset = oe, Re(F, y, u, P.selectedPreset), P.selectedPreset = F.value ?? "", Se({
+      }), _.selectedPreset = oe, xe(F, p, u, _.selectedPreset), _.selectedPreset = F.value ?? "", Ne({
         presetSelect: F,
         applyPresetButton: B,
         updatePresetButton: H,
-        state: y
+        state: p
       });
     } catch (X) {
       console.error("eidolon-utilities | Failed to store default light preset", X), (Q = (Y = ui.notifications) == null ? void 0 : Y.error) == null || Q.call(
@@ -3513,12 +3513,12 @@ function Ko(e, t) {
         )
       );
     } finally {
-      I.disabled = !1;
+      w.disabled = !1;
     }
-  }), b.addEventListener("click", () => {
-    var k, J, G, Y;
-    if (!(y != null && y.default)) {
-      (J = (k = ui.notifications) == null ? void 0 : k.warn) == null || J.call(
+  }), O.addEventListener("click", () => {
+    var k, K, G, Y;
+    if (!(p != null && p.default)) {
+      (K = (k = ui.notifications) == null ? void 0 : k.warn) == null || K.call(
         k,
         f(
           "EIDOLON.LightPresets.RequiresDefault",
@@ -3537,16 +3537,16 @@ function Ko(e, t) {
       );
       return;
     }
-    const C = Ut.get(m);
-    C && (C.restoreConfig = Ft(e, o)), Pt(e, n, y.default), ns(E), q.hidden = !1, b.setAttribute("aria-expanded", "true"), requestAnimationFrame(() => {
+    const M = sn.get(h);
+    M && (M.restoreConfig = Yt(e, o)), Qt(e, n, p.default), _s(I), q.hidden = !1, O.setAttribute("aria-expanded", "true"), requestAnimationFrame(() => {
       var Q;
       (Q = e.setPosition) == null || Q.call(e, { height: "auto" });
     });
   }), $.addEventListener("click", async () => {
-    var k, J, G, Y, Q, X, le;
-    const C = is(E);
-    if (!C) {
-      (J = (k = ui.notifications) == null ? void 0 : k.warn) == null || J.call(
+    var k, K, G, Y, Q, X, le;
+    const M = Rs(I);
+    if (!M) {
+      (K = (k = ui.notifications) == null ? void 0 : k.warn) == null || K.call(
         k,
         f(
           "EIDOLON.LightPresets.SelectionRequired",
@@ -3557,14 +3557,14 @@ function Ko(e, t) {
     }
     $.disabled = !0;
     try {
-      const re = Ft(e, o);
-      y = await Bi(
+      const re = Yt(e, o);
+      p = await br(
         o ?? r,
-        C,
+        M,
         re,
         {}
-      ), T("LightPresets | Preset saved from editor", {
-        categories: C,
+      ), b("LightPresets | Preset saved from editor", {
+        categories: M,
         configColor: ((G = re == null ? void 0 : re.config) == null ? void 0 : G.color) ?? null
       }), (Q = (Y = ui.notifications) == null ? void 0 : Y.info) == null || Q.call(
         Y,
@@ -3572,14 +3572,14 @@ function Ko(e, t) {
           "EIDOLON.LightPresets.PresetSaved",
           "Updated lighting preset for the selected scene variants."
         )
-      ), rt(w, y);
-      const ce = jr(y, C);
-      ce && (P.selectedPreset = ce), Re(F, y, u, P.selectedPreset), P.selectedPreset = F.value ?? "", Se({
+      ), gt(L, p);
+      const ce = To(p, M);
+      ce && (_.selectedPreset = ce), xe(F, p, u, _.selectedPreset), _.selectedPreset = F.value ?? "", Ne({
         presetSelect: F,
         applyPresetButton: B,
         updatePresetButton: H,
-        state: y
-      }), Dt(m, q, b);
+        state: p
+      }), Kt(h, q, O);
     } catch (re) {
       console.error("eidolon-utilities | Failed to persist light preset", re), (le = (X = ui.notifications) == null ? void 0 : X.error) == null || le.call(
         X,
@@ -3592,20 +3592,20 @@ function Ko(e, t) {
       $.disabled = !1;
     }
   }), V.addEventListener("click", () => {
-    const C = Ut.get(m);
-    C != null && C.restoreConfig && Pt(e, n, C.restoreConfig), Dt(m, q, b);
+    const M = sn.get(h);
+    M != null && M.restoreConfig && Qt(e, n, M.restoreConfig), Kt(h, q, O);
   });
 }
-s(Ko, "enhanceAmbientLightConfig");
-function Dt(e, t, n) {
-  const i = Ut.get(e);
+s(Ls, "enhanceAmbientLightConfig");
+function Kt(e, t, n) {
+  const i = sn.get(e);
   i && (i.restoreConfig = null), t.hidden = !0, n.setAttribute("aria-expanded", "false"), requestAnimationFrame(() => {
     var r, o;
     (o = (r = i == null ? void 0 : i.app) == null ? void 0 : r.setPosition) == null || o.call(r, { height: "auto" });
   });
 }
-s(Dt, "hideCreationSection");
-function rt(e, t) {
+s(Kt, "hideCreationSection");
+function gt(e, t) {
   if (!e) return;
   const n = !!(t != null && t.default), i = Array.isArray(t == null ? void 0 : t.presets) ? t.presets.length : 0, r = [];
   r.push(
@@ -3623,8 +3623,8 @@ function rt(e, t) {
     ).replace("{count}", String(i))
   ), e.textContent = r.join(" ");
 }
-s(rt, "updateStatusLine");
-function bt(e, { state: t, hasCategories: n }) {
+s(gt, "updateStatusLine");
+function At(e, { state: t, hasCategories: n }) {
   if (!e) return;
   const i = !!(t != null && t.default), r = i && n;
   e.disabled = !r, e.title = r ? "" : i ? f(
@@ -3635,66 +3635,66 @@ function bt(e, { state: t, hasCategories: n }) {
     "Save a default preset before creating additional presets."
   );
 }
-s(bt, "updateCreateButtonState");
-function Ft(e, t) {
+s(At, "updateCreateButtonState");
+function Yt(e, t) {
   var c, u, d;
-  const n = t ?? qr(e);
+  const n = t ?? bo(e);
   if (!n)
     throw new Error("Ambient light document unavailable.");
-  const i = gt(((c = n.toObject) == null ? void 0 : c.call(n)) ?? {});
+  const i = wt(((c = n.toObject) == null ? void 0 : c.call(n)) ?? {});
   if (!i)
     throw new Error("Unable to duplicate ambient light data.");
-  const r = (e == null ? void 0 : e.form) instanceof HTMLFormElement ? e.form : null, o = r ? Eo(r) : {}, a = foundry.utils.mergeObject(i, o, {
+  const r = (e == null ? void 0 : e.form) instanceof HTMLFormElement ? e.form : null, o = r ? ns(r) : {}, a = foundry.utils.mergeObject(i, o, {
     inplace: !1,
     performDeletions: !0
   });
-  r && (r.querySelectorAll("color-picker[name]").forEach((h) => {
-    var b, w;
-    const m = h.getAttribute("name");
-    if (!m) return;
-    const p = typeof h.value == "string" ? h.value : "", g = ((b = h.ui) == null ? void 0 : b.input) ?? ((w = h.querySelector) == null ? void 0 : w.call(h, 'input[type="color"]')), L = (g == null ? void 0 : g.value) ?? "", I = p || L;
-    typeof I != "string" || !I || (foundry.utils.setProperty(a, m, I), T("LightPresets | Captured color-picker value", {
-      path: m,
-      pickerValue: p,
-      swatchValue: L,
-      chosenValue: I
+  r && (r.querySelectorAll("color-picker[name]").forEach((y) => {
+    var O, L;
+    const h = y.getAttribute("name");
+    if (!h) return;
+    const T = typeof y.value == "string" ? y.value : "", m = ((O = y.ui) == null ? void 0 : O.input) ?? ((L = y.querySelector) == null ? void 0 : L.call(y, 'input[type="color"]')), v = (m == null ? void 0 : m.value) ?? "", w = T || v;
+    typeof w != "string" || !w || (foundry.utils.setProperty(a, h, w), b("LightPresets | Captured color-picker value", {
+      path: h,
+      pickerValue: T,
+      swatchValue: v,
+      chosenValue: w
     }));
-  }), r.querySelectorAll("range-picker[name]").forEach((h) => {
-    var _, x;
-    const m = h.getAttribute("name");
-    if (!m) return;
-    const p = h.value !== void 0 && h.value !== null ? String(h.value) : "", g = (_ = h.querySelector) == null ? void 0 : _.call(h, 'input[type="range"]'), L = (x = h.querySelector) == null ? void 0 : x.call(h, 'input[type="number"]'), I = g instanceof HTMLInputElement ? g.value : "", b = L instanceof HTMLInputElement ? L.value : "", w = p || b || I;
-    if (typeof w != "string" || !w.length) return;
-    const A = Number(w), R = Number.isFinite(A) ? A : w;
-    foundry.utils.setProperty(a, m, R), T("LightPresets | Captured range-picker value", {
-      path: m,
-      elementValue: p,
-      numberValue: b,
-      rangeValue: I,
-      chosenValue: R
+  }), r.querySelectorAll("range-picker[name]").forEach((y) => {
+    var R, x;
+    const h = y.getAttribute("name");
+    if (!h) return;
+    const T = y.value !== void 0 && y.value !== null ? String(y.value) : "", m = (R = y.querySelector) == null ? void 0 : R.call(y, 'input[type="range"]'), v = (x = y.querySelector) == null ? void 0 : x.call(y, 'input[type="number"]'), w = m instanceof HTMLInputElement ? m.value : "", O = v instanceof HTMLInputElement ? v.value : "", L = T || O || w;
+    if (typeof L != "string" || !L.length) return;
+    const A = Number(L), P = Number.isFinite(A) ? A : L;
+    foundry.utils.setProperty(a, h, P), b("LightPresets | Captured range-picker value", {
+      path: h,
+      elementValue: T,
+      numberValue: O,
+      rangeValue: w,
+      chosenValue: P
     });
   }));
-  const l = gt(a);
-  return T("LightPresets | Captured form config", {
+  const l = wt(a);
+  return b("LightPresets | Captured form config", {
     lightId: (n == null ? void 0 : n.id) ?? null,
     hasColor: !!((u = l == null ? void 0 : l.config) != null && u.color),
     color: ((d = l == null ? void 0 : l.config) == null ? void 0 : d.color) ?? null
   }), l;
 }
-s(Ft, "captureAmbientLightFormConfig");
-function Pt(e, t, n) {
+s(Yt, "captureAmbientLightFormConfig");
+function Qt(e, t, n) {
   if (!n || typeof n != "object") return;
   const i = foundry.utils.flattenObject(n, { safe: !0 });
   for (const [r, o] of Object.entries(i)) {
     const a = t.querySelectorAll(`[name="${r}"]`);
     if (a.length) {
-      T("LightPresets | Applying field", {
+      b("LightPresets | Applying field", {
         path: r,
         value: o,
         elementCount: a.length
       });
       for (const l of a)
-        l instanceof HTMLElement && l.tagName === "COLOR-PICKER" ? Yo(l, o) : l instanceof HTMLElement && l.tagName === "RANGE-PICKER" ? Qo(l, o) : l instanceof HTMLInputElement ? Jo(l, o) : l instanceof HTMLSelectElement ? Xo(l, o) : l instanceof HTMLTextAreaElement && Zo(l, o);
+        l instanceof HTMLElement && l.tagName === "COLOR-PICKER" ? Ns(l, o) : l instanceof HTMLElement && l.tagName === "RANGE-PICKER" ? As(l, o) : l instanceof HTMLInputElement ? Cs(l, o) : l instanceof HTMLSelectElement ? Ms(l, o) : l instanceof HTMLTextAreaElement && Ds(l, o);
     }
   }
   requestAnimationFrame(() => {
@@ -3702,82 +3702,82 @@ function Pt(e, t, n) {
     return (r = e._previewChanges) == null ? void 0 : r.call(e);
   });
 }
-s(Pt, "applyConfigToForm");
-function Jo(e, t, n) {
+s(Qt, "applyConfigToForm");
+function Cs(e, t, n) {
   const i = e.type;
   if (i === "checkbox") {
     const a = !!t;
-    e.checked !== a && (e.checked = a, pe(e));
+    e.checked !== a && (e.checked = a, Te(e));
     return;
   }
   if (i === "radio") {
     const a = t == null ? "" : String(t), l = e.value === a;
-    e.checked !== l && (e.checked = l, l && pe(e));
+    e.checked !== l && (e.checked = l, l && Te(e));
     return;
   }
   const r = t == null ? "" : String(t);
   let o = !1;
-  e.value !== r && (e.value = r, o = !0), o && pe(e);
+  e.value !== r && (e.value = r, o = !0), o && Te(e);
 }
-s(Jo, "applyValueToInput");
-function Yo(e, t, n) {
-  var l, c, u, d, h, m;
+s(Cs, "applyValueToInput");
+function Ns(e, t, n) {
+  var l, c, u, d, y, h;
   const i = t == null ? "" : String(t);
   let r = !1;
   e.value !== i && (e.value = i, e.setAttribute("value", i), (l = e.ui) != null && l.setValue && e.ui.setValue(i), r = !0);
   const o = ((c = e.ui) == null ? void 0 : c.input) ?? ((u = e.querySelector) == null ? void 0 : u.call(e, 'input[type="color"]'));
-  o instanceof HTMLInputElement && o.value !== i && (o.value = i, pe(o));
-  const a = ((d = e.ui) == null ? void 0 : d.text) ?? ((h = e.querySelector) == null ? void 0 : h.call(e, 'input[type="text"]'));
-  a instanceof HTMLInputElement && a.value !== i && (a.value = i, pe(a)), (m = e.ui) != null && m.commit ? e.ui.commit() : (e.dispatchEvent(new Event("input", { bubbles: !0, cancelable: !0 })), e.dispatchEvent(new Event("change", { bubbles: !0, cancelable: !0 }))), T("LightPresets | Color picker applied", {
+  o instanceof HTMLInputElement && o.value !== i && (o.value = i, Te(o));
+  const a = ((d = e.ui) == null ? void 0 : d.text) ?? ((y = e.querySelector) == null ? void 0 : y.call(e, 'input[type="text"]'));
+  a instanceof HTMLInputElement && a.value !== i && (a.value = i, Te(a)), (h = e.ui) != null && h.commit ? e.ui.commit() : (e.dispatchEvent(new Event("input", { bubbles: !0, cancelable: !0 })), e.dispatchEvent(new Event("change", { bubbles: !0, cancelable: !0 }))), b("LightPresets | Color picker applied", {
     value: i,
     pickerValue: e.value ?? null,
     swatchValue: (o == null ? void 0 : o.value) ?? null,
     textValue: (a == null ? void 0 : a.value) ?? null
-  }), r && pe(e);
+  }), r && Te(e);
 }
-s(Yo, "applyValueToColorPicker");
-function Qo(e, t, n) {
+s(Ns, "applyValueToColorPicker");
+function As(e, t, n) {
   var u, d;
   const i = t == null ? "" : String(t), r = Number(i), o = Number.isFinite(r) ? r : i;
   let a = !1;
   e.value !== void 0 && e.value !== o && (e.value = o, a = !0), e.getAttribute("value") !== i && (e.setAttribute("value", i), a = !0);
   const l = (u = e.querySelector) == null ? void 0 : u.call(e, 'input[type="range"]');
-  l instanceof HTMLInputElement && l.value !== i && (l.value = i, pe(l));
+  l instanceof HTMLInputElement && l.value !== i && (l.value = i, Te(l));
   const c = (d = e.querySelector) == null ? void 0 : d.call(e, 'input[type="number"]');
-  if (c instanceof HTMLInputElement && c.value !== i && (c.value = i, pe(c)), typeof e.commit == "function")
+  if (c instanceof HTMLInputElement && c.value !== i && (c.value = i, Te(c)), typeof e.commit == "function")
     try {
       e.commit();
-    } catch (h) {
-      console.error("eidolon-utilities | range-picker commit failed", h);
+    } catch (y) {
+      console.error("eidolon-utilities | range-picker commit failed", y);
     }
-  T("LightPresets | Range picker applied", {
+  b("LightPresets | Range picker applied", {
     value: i,
     resolvedValue: o,
     rangeValue: (l == null ? void 0 : l.value) ?? null,
     numberValue: (c == null ? void 0 : c.value) ?? null
-  }), a && pe(e);
+  }), a && Te(e);
 }
-s(Qo, "applyValueToRangePicker");
-function Xo(e, t, n) {
+s(As, "applyValueToRangePicker");
+function Ms(e, t, n) {
   const i = t == null ? "" : String(t);
-  e.value !== i && (e.value = i, pe(e));
+  e.value !== i && (e.value = i, Te(e));
 }
-s(Xo, "applyValueToSelect");
-function Zo(e, t, n) {
+s(Ms, "applyValueToSelect");
+function Ds(e, t, n) {
   const i = t == null ? "" : String(t);
-  e.value !== i && (e.value = i, pe(e));
+  e.value !== i && (e.value = i, Te(e));
 }
-s(Zo, "applyValueToTextarea");
-function pe(e) {
+s(Ds, "applyValueToTextarea");
+function Te(e) {
   e.dispatchEvent(new Event("input", { bubbles: !0, cancelable: !0 })), e.dispatchEvent(new Event("change", { bubbles: !0, cancelable: !0 }));
 }
-s(pe, "triggerInputChange");
-function Se({ presetSelect: e, applyPresetButton: t, updatePresetButton: n, state: i }) {
-  const r = (e == null ? void 0 : e.value) ?? "", o = !!(i != null && i.default), a = r && r !== oe ? !!hi(i, r) : !1;
+s(Te, "triggerInputChange");
+function Ne({ presetSelect: e, applyPresetButton: t, updatePresetButton: n, state: i }) {
+  const r = (e == null ? void 0 : e.value) ?? "", o = !!(i != null && i.default), a = r && r !== oe ? !!_i(i, r) : !1;
   t instanceof HTMLButtonElement && (r ? r === oe ? t.disabled = !o : t.disabled = !a : t.disabled = !0), n instanceof HTMLButtonElement && (r ? r === oe ? n.disabled = !1 : n.disabled = !a : n.disabled = !0);
 }
-s(Se, "syncPresetSwitcherState");
-function es(e) {
+s(Ne, "syncPresetSwitcherState");
+function Ps(e) {
   const t = /* @__PURE__ */ new Map();
   for (const n of e) {
     if (!n) continue;
@@ -3788,8 +3788,8 @@ function es(e) {
   }
   return t;
 }
-s(es, "buildCategoryNameLookup");
-function Re(e, t, n, i) {
+s(Ps, "buildCategoryNameLookup");
+function xe(e, t, n, i) {
   if (!(e instanceof HTMLSelectElement)) return;
   const r = typeof i == "string" ? i : "", o = !!(t != null && t.default), a = Array.isArray(t == null ? void 0 : t.presets) ? [...t.presets] : [], l = e.value;
   e.innerHTML = "";
@@ -3802,24 +3802,24 @@ function Re(e, t, n, i) {
   u.value = oe, u.textContent = f(
     "EIDOLON.LightPresets.DefaultOption",
     "Default Preset"
-  ), u.disabled = !o, e.appendChild(u), a.slice().sort((m, p) => {
-    var I;
-    const g = ct(m, n), L = ct(p, n);
-    return g.localeCompare(L, ((I = game.i18n) == null ? void 0 : I.lang) ?? void 0, {
+  ), u.disabled = !o, e.appendChild(u), a.slice().sort((h, T) => {
+    var w;
+    const m = bt(h, n), v = bt(T, n);
+    return m.localeCompare(v, ((w = game.i18n) == null ? void 0 : w.lang) ?? void 0, {
       sensitivity: "base"
     });
-  }).forEach((m) => {
-    if (!(m != null && m.id)) return;
-    const p = document.createElement("option");
-    p.value = m.id, p.textContent = ct(m, n), e.appendChild(p);
+  }).forEach((h) => {
+    if (!(h != null && h.id)) return;
+    const T = document.createElement("option");
+    T.value = h.id, T.textContent = bt(h, n), e.appendChild(T);
   });
   const d = new Set(
-    Array.from(e.options).filter((m) => !m.disabled).map((m) => m.value)
-  ), h = r || (d.has(l) ? l : "");
-  h && d.has(h) ? e.value = h : o ? e.value = oe : e.value = "";
+    Array.from(e.options).filter((h) => !h.disabled).map((h) => h.value)
+  ), y = r || (d.has(l) ? l : "");
+  y && d.has(y) ? e.value = y : o ? e.value = oe : e.value = "";
 }
-s(Re, "populatePresetSelector");
-function ct(e, t) {
+s(xe, "populatePresetSelector");
+function bt(e, t) {
   if (!e || typeof e != "object")
     return f("EIDOLON.LightPresets.UnnamedPreset", "Unnamed Preset");
   if (typeof e.label == "string" && e.label.trim())
@@ -3830,20 +3830,20 @@ function ct(e, t) {
   });
   return i.length === 0 ? f("EIDOLON.LightPresets.UnnamedPreset", "Unnamed Preset") : i.join(" • ");
 }
-s(ct, "formatPresetOptionLabel");
-function jr(e, t) {
+s(bt, "formatPresetOptionLabel");
+function To(e, t) {
   if (!e || typeof e != "object" || !Array.isArray(e.presets)) return null;
-  const n = Cn(t);
+  const n = zn(t);
   if (!n) return null;
   const i = e.presets.find((r) => (r == null ? void 0 : r.key) === n);
   return (i == null ? void 0 : i.id) ?? null;
 }
-s(jr, "findPresetIdByCategories");
-function hi(e, t) {
+s(To, "findPresetIdByCategories");
+function _i(e, t) {
   return !t || !e || typeof e != "object" || !Array.isArray(e.presets) ? null : e.presets.find((n) => (n == null ? void 0 : n.id) === t) ?? null;
 }
-s(hi, "getPresetById");
-function ts(e) {
+s(_i, "getPresetById");
+function Fs(e) {
   if (!e || typeof e != "object") return "";
   const t = e.current;
   if (t != null && t.presetId) {
@@ -3853,31 +3853,31 @@ function ts(e) {
       return t.presetId;
   }
   if (t != null && t.categories) {
-    const n = jr(e, t.categories);
+    const n = To(e, t.categories);
     if (n) return n;
   }
   return "";
 }
-s(ts, "resolveInitialPresetSelection");
-function Ki(e, t = {}) {
+s(Fs, "resolveInitialPresetSelection");
+function wr(e, t = {}) {
   var a, l, c, u;
   if (!(e instanceof HTMLFormElement)) return;
   const n = e.querySelector('color-picker[name="config.color"]'), i = (n == null ? void 0 : n.value) ?? null, r = ((a = n == null ? void 0 : n.ui) == null ? void 0 : a.text) ?? ((l = n == null ? void 0 : n.querySelector) == null ? void 0 : l.call(n, 'input[type="text"]')), o = ((c = n == null ? void 0 : n.ui) == null ? void 0 : c.input) ?? ((u = n == null ? void 0 : n.querySelector) == null ? void 0 : u.call(n, 'input[type="color"]'));
-  T("LightPresets | Color state after apply", {
+  b("LightPresets | Color state after apply", {
     ...t,
     textValue: (r == null ? void 0 : r.value) ?? null,
     pickerValue: i,
     swatchValue: (o == null ? void 0 : o.value) ?? null
   });
 }
-s(Ki, "logAppliedColorState");
-function ns(e) {
+s(wr, "logAppliedColorState");
+function _s(e) {
   e.querySelectorAll("select[data-category-id]").forEach((t) => {
     t.value = "";
   });
 }
-s(ns, "resetCategorySelections");
-function is(e) {
+s(_s, "resetCategorySelections");
+function Rs(e) {
   const t = {};
   return e.querySelectorAll("select[data-category-id]").forEach((n) => {
     var o, a;
@@ -3885,13 +3885,13 @@ function is(e) {
     !i || !r || (t[i] = r);
   }), Object.keys(t).length > 0 ? t : null;
 }
-s(is, "readCategorySelections");
-function qr(e) {
+s(Rs, "readCategorySelections");
+function bo(e) {
   const t = (e == null ? void 0 : e.object) ?? (e == null ? void 0 : e.document) ?? null;
   return !(t != null && t.isEmbedded) || t.documentName !== "AmbientLight" ? null : t;
 }
-s(qr, "getAmbientLightDocument");
-function rs(e) {
+s(bo, "getAmbientLightDocument");
+function Hs(e) {
   if (!(e != null && e.isEmbedded)) return null;
   const t = e.parent ?? null;
   if (!t) return e;
@@ -3906,64 +3906,67 @@ function rs(e) {
   }
   return e;
 }
-s(rs, "getPersistedAmbientLightDocument");
-function os() {
-  zo();
+s(Hs, "getPersistedAmbientLightDocument");
+function $s() {
+  Ss();
 }
-s(os, "registerLightPresetHooks");
-os();
-const yi = /* @__PURE__ */ new Map();
-let pi = !1;
-function ss(e, t) {
-  yi.has(e) && console.warn(`[${O}] Socket handler for type "${e}" already registered, overwriting.`), yi.set(e, t);
+s($s, "registerLightPresetHooks");
+$s();
+const Ri = /* @__PURE__ */ new Map();
+let Hi = !1;
+function Yi(e, t) {
+  Ri.has(e) && console.warn(`[${E}] Socket handler for type "${e}" already registered, overwriting.`), Ri.set(e, t);
 }
-s(ss, "registerSocketHandler");
-function as(e, t) {
-  if (!pi) {
-    console.error(`[${O}] Socket not initialized. Call initializeSocket() first.`);
+s(Yi, "registerSocketHandler");
+function $i(e, t) {
+  if (!Hi) {
+    console.error(`[${E}] Socket not initialized. Call initializeSocket() first.`);
     return;
   }
-  game.socket.emit(`module.${O}`, { type: e, payload: t });
+  game.socket.emit(`module.${E}`, { type: e, payload: t });
 }
-s(as, "emitSocket");
-function ls() {
-  pi || (game.socket.on(`module.${O}`, (e) => {
-    const { type: t, payload: n } = e ?? {}, i = yi.get(t);
-    i ? i(n) : console.warn(`[${O}] No socket handler for type "${t}"`);
-  }), pi = !0, console.log(`[${O}] Socket initialized on channel module.${O}`));
+s($i, "emitSocket");
+function Vs() {
+  Hi || (game.socket.on(`module.${E}`, (e) => {
+    const { type: t, payload: n } = e ?? {}, i = Ri.get(t);
+    i ? i(n) : console.warn(`[${E}] No socket handler for type "${t}"`);
+  }), Hi = !0, console.log(`[${E}] Socket initialized on channel module.${E}`));
 }
-s(ls, "initializeSocket");
-const Br = "tween", Yt = /* @__PURE__ */ new Map();
-function Gr({ type: e, execute: t, validate: n }) {
-  Yt.has(e) && console.warn(`[tween-registry] Type "${e}" already registered, overwriting.`), Yt.set(e, { type: e, execute: t, validate: n ?? (() => {
+s(Vs, "initializeSocket");
+const Oo = "tween", vo = "tween-sequence", Eo = "tween-sequence-cancel", ve = Object.freeze({
+  ABORT: "abort",
+  CONTINUE: "continue"
+}), hn = /* @__PURE__ */ new Map();
+function Qi({ type: e, execute: t, validate: n }) {
+  hn.has(e) && console.warn(`[tween-registry] Type "${e}" already registered, overwriting.`), hn.set(e, { type: e, execute: t, validate: n ?? (() => {
   }) });
 }
-s(Gr, "registerTweenType");
-function zr(e) {
-  return Yt.get(e);
+s(Qi, "registerTweenType");
+function Xi(e) {
+  return hn.get(e);
 }
-s(zr, "getTweenType");
-function Ti() {
-  return [...Yt.keys()];
+s(Xi, "getTweenType");
+function Vi() {
+  return [...hn.keys()];
 }
-s(Ti, "listTweenTypes");
-function Wr(e) {
+s(Vi, "listTweenTypes");
+function wo(e) {
   const t = foundry.canvas.animation.CanvasAnimation;
   return {
     linear: t.easeLinear,
     easeInOutCosine: t.easeInOutCosine
   }[e] ?? t.easeInOutCosine;
 }
-s(Wr, "resolveEasing");
-function Qt(e) {
+s(wo, "resolveEasing");
+function yn(e) {
   return e <= 0.04045 ? e / 12.92 : ((e + 0.055) / 1.055) ** 2.4;
 }
-s(Qt, "srgbToLinear");
-function ut(e) {
+s(yn, "srgbToLinear");
+function Ot(e) {
   return e <= 31308e-7 ? 12.92 * e : 1.055 * e ** (1 / 2.4) - 0.055;
 }
-s(ut, "linearToSrgb");
-function Ji(e, t, n) {
+s(Ot, "linearToSrgb");
+function Sr(e, t, n) {
   const i = 0.4122214708 * e + 0.5363325363 * t + 0.0514459929 * n, r = 0.2119034982 * e + 0.6806995451 * t + 0.1073969566 * n, o = 0.0883024619 * e + 0.2817188376 * t + 0.6299787005 * n, a = Math.cbrt(i), l = Math.cbrt(r), c = Math.cbrt(o);
   return [
     0.2104542553 * a + 0.793617785 * l - 0.0040720468 * c,
@@ -3971,8 +3974,8 @@ function Ji(e, t, n) {
     0.0259040371 * a + 0.7827717662 * l - 0.808675766 * c
   ];
 }
-s(Ji, "linearRgbToOklab");
-function cs(e, t, n) {
+s(Sr, "linearRgbToOklab");
+function ks(e, t, n) {
   const i = (e + 0.3963377774 * t + 0.2158037573 * n) ** 3, r = (e - 0.1055613458 * t - 0.0638541728 * n) ** 3, o = (e - 0.0894841775 * t - 1.291485548 * n) ** 3;
   return [
     4.0767416621 * i - 3.3077115913 * r + 0.2309699292 * o,
@@ -3980,62 +3983,62 @@ function cs(e, t, n) {
     -0.0041960863 * i - 0.7034186147 * r + 1.707614701 * o
   ];
 }
-s(cs, "oklabToLinearRgb");
-function Xt(e) {
+s(ks, "oklabToLinearRgb");
+function pn(e) {
   return [e.r, e.g, e.b];
 }
-s(Xt, "colorToRgb");
-function Kr(e, t, n) {
+s(pn, "colorToRgb");
+function So(e, t, n) {
   const i = /* @__PURE__ */ s((o) => Math.max(0, Math.min(1, o)), "clamp"), r = /* @__PURE__ */ s((o) => Math.round(i(o) * 255).toString(16).padStart(2, "0"), "toHex");
   return `#${r(e)}${r(t)}${r(n)}`;
 }
-s(Kr, "rgbToHex");
-function us(e, t, n) {
+s(So, "rgbToHex");
+function xs(e, t, n) {
   if (n <= 0) return e.toHTML();
   if (n >= 1) return t.toHTML();
-  const i = foundry.utils.Color, [r, o, a] = e.hsl, [l, c, u] = t.hsl, d = (l - r + 0.5) % 1 - 0.5, h = (r + d * n + 1) % 1, m = o + (c - o) * n, p = a + (u - a) * n;
-  return i.fromHSL([h, m, p]).toHTML();
+  const i = foundry.utils.Color, [r, o, a] = e.hsl, [l, c, u] = t.hsl, d = (l - r + 0.5) % 1 - 0.5, y = (r + d * n + 1) % 1, h = o + (c - o) * n, T = a + (u - a) * n;
+  return i.fromHSL([y, h, T]).toHTML();
 }
-s(us, "interpolateHsl");
-function ds(e, t, n) {
+s(xs, "interpolateHsl");
+function js(e, t, n) {
   if (n <= 0) return e.toHTML();
   if (n >= 1) return t.toHTML();
-  const [i, r, o] = Xt(e).map(Qt), [a, l, c] = Xt(t).map(Qt), u = ut(i + (a - i) * n), d = ut(r + (l - r) * n), h = ut(o + (c - o) * n);
-  return Kr(u, d, h);
+  const [i, r, o] = pn(e).map(yn), [a, l, c] = pn(t).map(yn), u = Ot(i + (a - i) * n), d = Ot(r + (l - r) * n), y = Ot(o + (c - o) * n);
+  return So(u, d, y);
 }
-s(ds, "interpolateRgb");
-function fs(e, t, n) {
+s(js, "interpolateRgb");
+function Us(e, t, n) {
   if (n <= 0) return e.toHTML();
   if (n >= 1) return t.toHTML();
-  const [i, r, o] = Xt(e).map(Qt), [a, l, c] = Xt(t).map(Qt), [u, d, h] = Ji(i, r, o), [m, p, g] = Ji(a, l, c), L = 0.02, I = Math.sqrt(d * d + h * h), b = Math.sqrt(p * p + g * g);
-  let w, A, R;
-  if (I < L || b < L)
-    w = u + (m - u) * n, A = d + (p - d) * n, R = h + (g - h) * n;
+  const [i, r, o] = pn(e).map(yn), [a, l, c] = pn(t).map(yn), [u, d, y] = Sr(i, r, o), [h, T, m] = Sr(a, l, c), v = 0.02, w = Math.sqrt(d * d + y * y), O = Math.sqrt(T * T + m * m);
+  let L, A, P;
+  if (w < v || O < v)
+    L = u + (h - u) * n, A = d + (T - d) * n, P = y + (m - y) * n;
   else {
-    const B = Math.atan2(h, d);
-    let q = Math.atan2(g, p) - B;
-    q > Math.PI && (q -= 2 * Math.PI), q < -Math.PI && (q += 2 * Math.PI), w = u + (m - u) * n;
-    const ie = I + (b - I) * n, E = B + q * n;
-    A = ie * Math.cos(E), R = ie * Math.sin(E);
+    const B = Math.atan2(y, d);
+    let q = Math.atan2(m, T) - B;
+    q > Math.PI && (q -= 2 * Math.PI), q < -Math.PI && (q += 2 * Math.PI), L = u + (h - u) * n;
+    const ie = w + (O - w) * n, I = B + q * n;
+    A = ie * Math.cos(I), P = ie * Math.sin(I);
   }
-  const [_, x, F] = cs(w, A, R);
-  return Kr(ut(_), ut(x), ut(F));
+  const [R, x, F] = ks(L, A, P);
+  return So(Ot(R), Ot(x), Ot(F));
 }
-s(fs, "interpolateOklch");
-const bi = {
-  hsl: us,
-  rgb: ds,
-  oklch: fs
+s(Us, "interpolateOklch");
+const ki = {
+  hsl: xs,
+  rgb: js,
+  oklch: Us
 };
-function gs(e = "hsl") {
-  return bi[e] ?? bi.hsl;
+function qs(e = "hsl") {
+  return ki[e] ?? ki.hsl;
 }
-s(gs, "getInterpolator");
-function Yi() {
-  return Object.keys(bi);
+s(qs, "getInterpolator");
+function Ir() {
+  return Object.keys(ki);
 }
-s(Yi, "listInterpolationModes");
-function ms(e) {
+s(Ir, "listInterpolationModes");
+function Bs(e) {
   if ((Array.isArray(e.uuid) ? e.uuid : [e.uuid]).some((n) => !n || typeof n != "string"))
     throw new Error("light-color tween: 'uuid' is required (string or array of AmbientLight document UUIDs).");
   if (e.toColor == null && e.toAlpha == null)
@@ -4048,77 +4051,77 @@ function ms(e) {
   }
   if (e.toAlpha != null && (typeof e.toAlpha != "number" || e.toAlpha < 0 || e.toAlpha > 1))
     throw new Error("light-color tween: 'toAlpha' must be a number between 0 and 1.");
-  if (e.mode && !Yi().includes(e.mode))
+  if (e.mode && !Ir().includes(e.mode))
     throw new Error(
-      `light-color tween: unknown mode "${e.mode}". Available: ${Yi().join(", ")}`
+      `light-color tween: unknown mode "${e.mode}". Available: ${Ir().join(", ")}`
     );
 }
-s(ms, "validate$1");
-async function hs(e, t = {}) {
+s(Bs, "validate$2");
+async function Gs(e, t = {}) {
   const { CanvasAnimation: n } = foundry.canvas.animation, { Color: i } = foundry.utils, { uuid: r, toColor: o, toAlpha: a, mode: l = "oklch" } = e, c = Array.isArray(r) ? r : [r];
   if (c.length === 0)
     return console.warn("light-color tween: empty uuid array, nothing to animate."), !0;
   const {
     durationMS: u = 2e3,
     easing: d = "easeInOutCosine",
-    commit: h = !0,
-    startEpochMS: m = null
-  } = t, p = Wr(d), g = o != null, L = a != null, I = g ? gs(l) : null, b = g ? i.fromString(o) : null;
-  if (g && !b.valid) throw new Error(`light-color tween: invalid target color "${o}".`);
-  async function w(R) {
+    commit: y = !0,
+    startEpochMS: h = null
+  } = t, T = wo(d), m = o != null, v = a != null, w = m ? qs(l) : null, O = m ? i.fromString(o) : null;
+  if (m && !O.valid) throw new Error(`light-color tween: invalid target color "${o}".`);
+  async function L(P) {
     var $, V;
-    const _ = await fromUuid(R);
-    if (!_) return !1;
-    const x = _.object;
+    const R = await fromUuid(P);
+    if (!R) return !1;
+    const x = R.object;
     if (!x) return !1;
     let F;
-    if (g) {
-      const y = ($ = _.config) == null ? void 0 : $.color;
-      y != null && y.valid || console.warn(`light-color tween: source color invalid on ${R}, using white.`), F = y != null && y.valid ? y : i.fromString("#ffffff");
+    if (m) {
+      const p = ($ = R.config) == null ? void 0 : $.color;
+      p != null && p.valid || console.warn(`light-color tween: source color invalid on ${P}, using white.`), F = p != null && p.valid ? p : i.fromString("#ffffff");
     }
-    const B = L ? ((V = _._source.config) == null ? void 0 : V.alpha) ?? 0.5 : null, H = { t: 0 }, q = `ambient-hue-tween:${R}`;
+    const B = v ? ((V = R._source.config) == null ? void 0 : V.alpha) ?? 0.5 : null, H = { t: 0 }, q = `ambient-hue-tween:${P}`;
     n.terminateAnimation(q);
-    const ie = typeof m == "number" ? Math.max(0, Math.min(u, Date.now() - m)) : 0, E = /* @__PURE__ */ s((y) => {
+    const ie = typeof h == "number" ? Math.max(0, Math.min(u, Date.now() - h)) : 0, I = /* @__PURE__ */ s((p) => {
       const W = {};
-      g && (W.color = I(F, b, y)), L && (W.alpha = B + (a - B) * y), _.updateSource({ config: W }), x.initializeLightSource();
+      m && (W.color = w(F, O, p)), v && (W.alpha = B + (a - B) * p), R.updateSource({ config: W }), x.initializeLightSource();
     }, "applyFrame");
-    ie > 0 && (H.t = ie / u, E(H.t));
-    const U = await n.animate(
+    ie > 0 && (H.t = ie / u, I(H.t));
+    const j = await n.animate(
       [{ parent: H, attribute: "t", to: 1 }],
       {
         name: q,
         duration: u,
-        easing: p,
+        easing: T,
         time: ie,
-        ontick: /* @__PURE__ */ s(() => E(H.t), "ontick")
+        ontick: /* @__PURE__ */ s(() => I(H.t), "ontick")
       }
     );
-    if (U !== !1) {
-      const y = {};
-      g && (y.color = b.toHTML()), L && (y.alpha = a), _.updateSource({ config: y }), x.initializeLightSource();
+    if (j !== !1) {
+      const p = {};
+      m && (p.color = O.toHTML()), v && (p.alpha = a), R.updateSource({ config: p }), x.initializeLightSource();
     }
-    if (h && U !== !1 && _.canUserModify(game.user, "update")) {
-      const y = {}, W = {};
-      g && (y.color = F.toHTML(), W["config.color"] = b.toHTML()), L && (y.alpha = B, W["config.alpha"] = a), _.updateSource({ config: y }), await _.update(W);
+    if (y && j !== !1 && R.canUserModify(game.user, "update")) {
+      const p = {}, W = {};
+      m && (p.color = F.toHTML(), W["config.color"] = O.toHTML()), v && (p.alpha = B, W["config.alpha"] = a), R.updateSource({ config: p }), await R.update(W);
     }
-    return U !== !1;
+    return j !== !1;
   }
-  return s(w, "animateOne"), (await Promise.all(c.map(w))).every(Boolean);
+  return s(L, "animateOne"), (await Promise.all(c.map(L))).every(Boolean);
 }
-s(hs, "execute$1");
-function ys() {
-  Gr({ type: "light-color", execute: hs, validate: ms });
+s(Gs, "execute$2");
+function zs() {
+  Qi({ type: "light-color", execute: Gs, validate: Bs });
 }
-s(ys, "registerLightColorTween");
-const He = /* @__PURE__ */ new WeakMap();
-function ps(e) {
+s(zs, "registerLightColorTween");
+const je = /* @__PURE__ */ new WeakMap();
+function Ws(e) {
   if ((Array.isArray(e.uuid) ? e.uuid : [e.uuid]).some((n) => !n || typeof n != "string"))
     throw new Error("light-state tween: 'uuid' is required (string or array of AmbientLight document UUIDs).");
   if (typeof e.enabled != "boolean")
     throw new Error("light-state tween: 'enabled' (boolean) is required.");
 }
-s(ps, "validate");
-async function Ts(e, t = {}) {
+s(Ws, "validate$1");
+async function Js(e, t = {}) {
   const { CanvasAnimation: n } = foundry.canvas.animation, { uuid: i, enabled: r } = e, o = Array.isArray(i) ? i : [i];
   if (o.length === 0)
     return console.warn("light-state tween: empty uuid array, nothing to animate."), !0;
@@ -4127,72 +4130,460 @@ async function Ts(e, t = {}) {
     easing: l = "easeInOutCosine",
     commit: c = !0,
     startEpochMS: u = null
-  } = t, d = Wr(l);
-  async function h(p) {
-    var _, x, F, B;
-    const g = await fromUuid(p);
-    if (!g) return !1;
-    const L = g.object;
-    if (!L) return !1;
-    const I = `ambient-state-tween:${p}`;
-    n.terminateAnimation(I);
-    const b = He.get(g) ?? {
-      hidden: g._source.hidden,
-      alpha: ((_ = g._source.config) == null ? void 0 : _.alpha) ?? 0.5
+  } = t, d = wo(l);
+  async function y(T) {
+    var R, x, F, B;
+    const m = await fromUuid(T);
+    if (!m) return !1;
+    const v = m.object;
+    if (!v) return !1;
+    const w = `ambient-state-tween:${T}`;
+    n.terminateAnimation(w);
+    const O = je.get(m) ?? {
+      hidden: m._source.hidden,
+      alpha: ((R = m._source.config) == null ? void 0 : R.alpha) ?? 0.5
     };
-    if (He.set(g, b), T(`light-state START ${r ? "ON" : "OFF"} | snap: ${JSON.stringify(b)} | _source.hidden=${g._source.hidden}, _source.config.alpha=${(x = g._source.config) == null ? void 0 : x.alpha}`), r && !b.hidden || !r && b.hidden)
-      return He.delete(g), !0;
-    const w = b.alpha, A = typeof u == "number" ? Math.max(0, Math.min(a, Date.now() - u)) : 0, R = /* @__PURE__ */ s((H) => {
-      g.updateSource({ config: { alpha: H } }), L.initializeLightSource();
+    if (je.set(m, O), b(`light-state START ${r ? "ON" : "OFF"} | snap: ${JSON.stringify(O)} | _source.hidden=${m._source.hidden}, _source.config.alpha=${(x = m._source.config) == null ? void 0 : x.alpha}`), r && !O.hidden || !r && O.hidden)
+      return je.delete(m), !0;
+    const L = O.alpha, A = typeof u == "number" ? Math.max(0, Math.min(a, Date.now() - u)) : 0, P = /* @__PURE__ */ s((H) => {
+      m.updateSource({ config: { alpha: H } }), v.initializeLightSource();
     }, "applyAlpha");
     if (r) {
-      g.updateSource({ hidden: !1, config: { alpha: 0 } }), L.initializeLightSource(), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
+      m.updateSource({ hidden: !1, config: { alpha: 0 } }), v.initializeLightSource(), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
       const H = { t: 0 };
-      A > 0 && (H.t = A / a, R(w * H.t));
+      A > 0 && (H.t = A / a, P(L * H.t));
       const q = await n.animate(
         [{ parent: H, attribute: "t", to: 1 }],
         {
-          name: I,
+          name: w,
           duration: a,
           easing: d,
           time: A,
-          ontick: /* @__PURE__ */ s(() => R(w * H.t), "ontick")
+          ontick: /* @__PURE__ */ s(() => P(L * H.t), "ontick")
         }
       );
-      return q !== !1 && c && g.canUserModify(game.user, "update") ? (g.updateSource({ hidden: !0, config: { alpha: w } }), await g.update({ hidden: !1 }), T(`light-state FADE-IN committed. _source.hidden=${g._source.hidden}, _source.config.alpha=${(F = g._source.config) == null ? void 0 : F.alpha}`), He.delete(g)) : q === !1 || He.delete(g), q !== !1;
+      return q !== !1 && c && m.canUserModify(game.user, "update") ? (m.updateSource({ hidden: !0, config: { alpha: L } }), await m.update({ hidden: !1 }), b(`light-state FADE-IN committed. _source.hidden=${m._source.hidden}, _source.config.alpha=${(F = m._source.config) == null ? void 0 : F.alpha}`), je.delete(m)) : q === !1 || je.delete(m), q !== !1;
     } else {
-      g.updateSource({ hidden: !1, config: { alpha: b.alpha } }), L.initializeLightSource();
+      m.updateSource({ hidden: !1, config: { alpha: O.alpha } }), v.initializeLightSource();
       const H = { t: 0 };
-      A > 0 && (H.t = A / a, R(w * (1 - H.t)));
+      A > 0 && (H.t = A / a, P(L * (1 - H.t)));
       const q = await n.animate(
         [{ parent: H, attribute: "t", to: 1 }],
         {
-          name: I,
+          name: w,
           duration: a,
           easing: d,
           time: A,
-          ontick: /* @__PURE__ */ s(() => R(w * (1 - H.t)), "ontick")
+          ontick: /* @__PURE__ */ s(() => P(L * (1 - H.t)), "ontick")
         }
       );
-      return q !== !1 && c && g.canUserModify(game.user, "update") ? (await g.update({ hidden: !0 }), g.updateSource({ config: { alpha: w } }), L.initializeLightSource(), T(`light-state FADE-OUT committed+restored. _source.hidden=${g._source.hidden}, _source.config.alpha=${(B = g._source.config) == null ? void 0 : B.alpha}`), He.delete(g)) : q === !1 || (g.updateSource({ hidden: !0, config: { alpha: w } }), L.initializeLightSource(), He.delete(g)), q !== !1;
+      return q !== !1 && c && m.canUserModify(game.user, "update") ? (await m.update({ hidden: !0 }), m.updateSource({ config: { alpha: L } }), v.initializeLightSource(), b(`light-state FADE-OUT committed+restored. _source.hidden=${m._source.hidden}, _source.config.alpha=${(B = m._source.config) == null ? void 0 : B.alpha}`), je.delete(m)) : q === !1 || (m.updateSource({ hidden: !0, config: { alpha: L } }), v.initializeLightSource(), je.delete(m)), q !== !1;
     }
   }
-  return s(h, "animateOne"), (await Promise.all(o.map(h))).every(Boolean);
+  return s(y, "animateOne"), (await Promise.all(o.map(y))).every(Boolean);
 }
-s(Ts, "execute");
-function bs() {
-  Gr({ type: "light-state", execute: Ts, validate: ps });
+s(Js, "execute$1");
+function Ks() {
+  Qi({ type: "light-state", execute: Js, validate: Ws });
 }
-s(bs, "registerLightStateTween");
-async function vs(e, t, n = {}) {
+s(Ks, "registerLightStateTween");
+var Be, Vt, kt;
+const nr = class nr {
+  /**
+   * @param {AbortController} controller
+   */
+  constructor(t) {
+    C(this, Be);
+    C(this, Vt);
+    C(this, kt);
+    N(this, Be, t), N(this, kt, new Promise((n) => {
+      N(this, Vt, n);
+    }));
+  }
+  /** @returns {Promise<boolean>} Resolves true (completed) or false (cancelled). */
+  get finished() {
+    return g(this, kt);
+  }
+  /** @returns {boolean} */
+  get cancelled() {
+    return g(this, Be).signal.aborted;
+  }
+  /** @returns {AbortSignal} */
+  get signal() {
+    return g(this, Be).signal;
+  }
+  /** Abort the timeline, triggering onCancel callbacks. */
+  cancel() {
+    g(this, Be).signal.aborted || g(this, Be).abort();
+  }
+  /**
+   * Called internally by the execution engine when the timeline finishes.
+   * @param {boolean} completed - true if all steps ran, false if cancelled
+   */
+  _resolve(t) {
+    g(this, Vt).call(this, t);
+  }
+};
+Be = new WeakMap(), Vt = new WeakMap(), kt = new WeakMap(), s(nr, "TimelineHandle");
+let xi = nr;
+const ht = /* @__PURE__ */ new Map();
+function Ys(e, t) {
+  const n = ht.get(e);
+  n && !n.cancelled && n.cancel(), ht.set(e, t), t.finished.then(() => {
+    ht.get(e) === t && ht.delete(e);
+  });
+}
+s(Ys, "registerTimeline");
+function Io(e) {
+  const t = ht.get(e);
+  return t && !t.cancelled ? (t.cancel(), !0) : !1;
+}
+s(Io, "cancelTimeline");
+function Qs(e) {
+  return ht.get(e);
+}
+s(Qs, "getTimeline");
+function Xs(e, t) {
+  return e <= 0 ? Promise.resolve() : new Promise((n, i) => {
+    if (t.aborted) return i(t.reason);
+    const r = setTimeout(n, e);
+    t.addEventListener("abort", () => {
+      clearTimeout(r), i(t.reason);
+    }, { once: !0 });
+  });
+}
+s(Xs, "cancellableDelay");
+var Se, Ge, xt, jt;
+const ir = class ir {
+  constructor(t) {
+    /** @type {TweenTimeline} */
+    C(this, Se);
+    /** @type {Array<{ type: string, params: object, opts?: object, detach: boolean }>} */
+    C(this, Ge, []);
+    /** @type {Function|null} */
+    C(this, xt, null);
+    /** @type {Function|null} */
+    C(this, jt, null);
+    N(this, Se, t);
+  }
+  /**
+   * Add a tween entry to this step.
+   * @param {string} type  Registered tween type name
+   * @param {object} params  Type-specific parameters
+   * @param {object} [opts]  Options (durationMS, easing, etc.)
+   * @returns {StepBuilder} this
+   */
+  add(t, n, i) {
+    return g(this, Ge).push({ type: t, params: n, opts: i ?? {}, detach: !1 }), this;
+  }
+  /**
+   * Mark the last entry as fire-and-forget (does not block step progression).
+   * @returns {StepBuilder} this
+   */
+  detach() {
+    if (g(this, Ge).length === 0)
+      throw new Error("StepBuilder.detach(): no entry to detach.");
+    return g(this, Ge)[g(this, Ge).length - 1].detach = !0, this;
+  }
+  /**
+   * Callback invoked before this step's tweens start.
+   * @param {Function} fn
+   * @returns {StepBuilder} this
+   */
+  before(t) {
+    return N(this, xt, t), this;
+  }
+  /**
+   * Callback invoked after this step's awaited tweens complete.
+   * @param {Function} fn
+   * @returns {StepBuilder} this
+   */
+  after(t) {
+    return N(this, jt, t), this;
+  }
+  // ── Delegation to parent TweenTimeline for fluent chaining ──
+  /** Start a new step (finalizes this one). */
+  step() {
+    return g(this, Se).step();
+  }
+  /** Insert a delay between steps. */
+  delay(t) {
+    return g(this, Se).delay(t);
+  }
+  /** Register onComplete callback. */
+  onComplete(t) {
+    return g(this, Se).onComplete(t);
+  }
+  /** Register onCancel callback. */
+  onCancel(t) {
+    return g(this, Se).onCancel(t);
+  }
+  /** Execute the timeline. */
+  run(t) {
+    return g(this, Se).run(t);
+  }
+  /** Serialize the timeline. */
+  toJSON() {
+    return g(this, Se).toJSON();
+  }
+  // ── Internal access ──
+  /** @returns {{ entries: Array, before: Function|null, after: Function|null }} */
+  _finalize() {
+    return {
+      entries: g(this, Ge),
+      before: g(this, xt),
+      after: g(this, jt)
+    };
+  }
+};
+Se = new WeakMap(), Ge = new WeakMap(), xt = new WeakMap(), jt = new WeakMap(), s(ir, "StepBuilder");
+let ji = ir;
+var he, Pe, st, ze, Ut, qt, Bt, Fe, Pt, Lo;
+const rr = class rr {
+  constructor() {
+    C(this, Fe);
+    /** @type {string|null} */
+    C(this, he, null);
+    /** @type {string} */
+    C(this, Pe, ve.ABORT);
+    /** @type {Array<{ kind: "step", data: object } | { kind: "delay", ms: number }>} */
+    C(this, st, []);
+    /** @type {StepBuilder|null} */
+    C(this, ze, null);
+    /** @type {Function|null} */
+    C(this, Ut, null);
+    /** @type {Function|null} */
+    C(this, qt, null);
+    /** @type {Function|null} */
+    C(this, Bt, null);
+  }
+  /**
+   * Register this timeline in the named registry. Starting a new
+   * timeline with the same name cancels the previous one.
+   * @param {string} name
+   * @returns {TweenTimeline} this
+   */
+  name(t) {
+    return N(this, he, t), this;
+  }
+  /**
+   * Set the error policy for step execution.
+   * @param {"abort"|"continue"} policy
+   * @returns {TweenTimeline} this
+   */
+  errorPolicy(t) {
+    if (t !== ve.ABORT && t !== ve.CONTINUE)
+      throw new Error(`Invalid error policy: "${t}". Use "abort" or "continue".`);
+    return N(this, Pe, t), this;
+  }
+  /**
+   * Start a new step. Finalizes the previous step if one is open.
+   * @returns {StepBuilder}
+   */
+  step() {
+    return S(this, Fe, Pt).call(this), N(this, ze, new ji(this)), g(this, ze);
+  }
+  /**
+   * Insert a delay (in ms) between the previous step and the next.
+   * @param {number} ms
+   * @returns {TweenTimeline} this
+   */
+  delay(t) {
+    return S(this, Fe, Pt).call(this), g(this, st).push({ kind: "delay", ms: t }), this;
+  }
+  /**
+   * Callback invoked before the first step runs.
+   * @param {Function} fn
+   * @returns {TweenTimeline} this
+   */
+  beforeAll(t) {
+    return N(this, Ut, t), this;
+  }
+  /**
+   * Callback invoked on successful completion.
+   * @param {Function} fn
+   * @returns {TweenTimeline} this
+   */
+  onComplete(t) {
+    return N(this, qt, t), this;
+  }
+  /**
+   * Callback invoked on cancellation (mutually exclusive with onComplete).
+   * @param {Function} fn
+   * @returns {TweenTimeline} this
+   */
+  onCancel(t) {
+    return N(this, Bt, t), this;
+  }
+  /**
+   * Execute the timeline.
+   * @param {object} [opts]
+   * @param {boolean} [opts.commit]     Default true for GM, false for socket receivers
+   * @param {number}  [opts.startEpochMS]  For socket sync
+   * @param {boolean} [opts.broadcast]  Default game.user.isGM, gates socket emission
+   * @returns {TimelineHandle}
+   */
+  run(t = {}) {
+    S(this, Fe, Pt).call(this);
+    const n = new AbortController(), i = new xi(n);
+    g(this, he) && Ys(g(this, he), i);
+    const r = t.broadcast ?? game.user.isGM, o = t.commit ?? game.user.isGM, a = t.startEpochMS ?? Date.now();
+    return r && g(this, he) && $i(vo, {
+      name: g(this, he),
+      data: this.toJSON(),
+      startEpochMS: a
+    }), S(this, Fe, Lo).call(this, i, { commit: o, startEpochMS: a }).then((l) => {
+      var c, u;
+      i._resolve(l), l ? (c = g(this, qt)) == null || c.call(this) : ((u = g(this, Bt)) == null || u.call(this), r && g(this, he) && $i(Eo, { name: g(this, he) }));
+    }), i;
+  }
+  /**
+   * Serialize the timeline to a JSON-safe object (steps/delays only, no hooks).
+   * @returns {object}
+   */
+  toJSON() {
+    S(this, Fe, Pt).call(this);
+    const t = [];
+    for (const i of g(this, st))
+      if (i.kind === "delay")
+        t.push({ delay: i.ms });
+      else {
+        const r = i.data.entries.map((o) => {
+          const a = { type: o.type, params: o.params };
+          return Object.keys(o.opts).length > 0 && (a.opts = o.opts), o.detach && (a.detach = !0), a;
+        });
+        t.push(r);
+      }
+    const n = { timeline: t };
+    return g(this, he) && (n.name = g(this, he)), g(this, Pe) !== ve.ABORT && (n.errorPolicy = g(this, Pe)), n;
+  }
+};
+he = new WeakMap(), Pe = new WeakMap(), st = new WeakMap(), ze = new WeakMap(), Ut = new WeakMap(), qt = new WeakMap(), Bt = new WeakMap(), Fe = new WeakSet(), // ── Private ─────────────────────────────────────────────────────────
+Pt = /* @__PURE__ */ s(function() {
+  g(this, ze) && (g(this, st).push({ kind: "step", data: g(this, ze)._finalize() }), N(this, ze, null));
+}, "#finalizeCurrentStep"), Lo = /* @__PURE__ */ s(async function(t, { commit: n, startEpochMS: i }) {
+  var o;
+  const r = t.signal;
+  try {
+    if (r.aborted) return !1;
+    await ((o = g(this, Ut)) == null ? void 0 : o.call(this));
+    let a = 0;
+    const l = [];
+    for (const c of g(this, st)) {
+      if (r.aborted) return !1;
+      if (c.kind === "delay") {
+        await Xs(c.ms, r), a += c.ms;
+        continue;
+      }
+      const { entries: u, before: d, after: y } = c.data;
+      if (await (d == null ? void 0 : d()), r.aborted) return !1;
+      const h = [];
+      let T = 0;
+      for (const v of u) {
+        const w = Xi(v.type);
+        if (!w) {
+          const P = `TweenTimeline: unknown tween type "${v.type}"`;
+          if (g(this, Pe) === ve.ABORT) throw new Error(P);
+          console.warn(P);
+          continue;
+        }
+        const O = {
+          ...v.opts,
+          commit: n,
+          startEpochMS: i + a
+        }, L = O.durationMS ?? 2e3, A = w.execute(v.params, O).catch((P) => {
+          if (g(this, Pe) === ve.ABORT) throw P;
+          return console.warn(`TweenTimeline: entry "${v.type}" failed:`, P), !1;
+        });
+        v.detach ? l.push(A) : (h.push(A), T = Math.max(T, L));
+      }
+      const m = await Promise.all(h);
+      if (g(this, Pe) === ve.ABORT && m.some((v) => v === !1))
+        throw new Error("TweenTimeline: a step entry returned false (abort policy).");
+      if (await (y == null ? void 0 : y()), r.aborted) return !1;
+      a += T;
+    }
+    return await Promise.allSettled(l), !r.aborted;
+  } catch (a) {
+    return r.aborted || console.error("TweenTimeline execution error:", a), !1;
+  }
+}, "#execute"), s(rr, "TweenTimeline");
+let Tn = rr;
+function Co(e) {
+  if (!e || typeof e != "object")
+    throw new Error("Sequence JSON: data must be an object.");
+  if (!Array.isArray(e.timeline))
+    throw new Error("Sequence JSON: 'timeline' must be an array.");
+  if (e.name != null && typeof e.name != "string")
+    throw new Error("Sequence JSON: 'name' must be a string.");
+  if (e.errorPolicy != null && e.errorPolicy !== ve.ABORT && e.errorPolicy !== ve.CONTINUE)
+    throw new Error(`Sequence JSON: 'errorPolicy' must be "abort" or "continue".`);
+  for (let t = 0; t < e.timeline.length; t++) {
+    const n = e.timeline[t];
+    if (!Array.isArray(n)) {
+      if (typeof n != "object" || typeof n.delay != "number" || n.delay < 0)
+        throw new Error(`Sequence JSON: timeline[${t}] must be a step array or { delay: <ms> }.`);
+      continue;
+    }
+    if (n.length === 0)
+      throw new Error(`Sequence JSON: timeline[${t}] is an empty step.`);
+    for (let i = 0; i < n.length; i++) {
+      const r = n[i];
+      if (!r || typeof r != "object")
+        throw new Error(`Sequence JSON: timeline[${t}][${i}] must be an object.`);
+      if (typeof r.type != "string" || !r.type)
+        throw new Error(`Sequence JSON: timeline[${t}][${i}].type must be a non-empty string.`);
+      if (r.params != null && typeof r.params != "object")
+        throw new Error(`Sequence JSON: timeline[${t}][${i}].params must be an object.`);
+      if (r.opts != null && typeof r.opts != "object")
+        throw new Error(`Sequence JSON: timeline[${t}][${i}].opts must be an object.`);
+      if (r.detach != null && typeof r.detach != "boolean")
+        throw new Error(`Sequence JSON: timeline[${t}][${i}].detach must be a boolean.`);
+    }
+  }
+}
+s(Co, "validateSequenceJSON");
+function Zi(e) {
+  Co(e);
+  const t = new Tn();
+  e.name && t.name(e.name), e.errorPolicy && t.errorPolicy(e.errorPolicy);
+  for (const n of e.timeline) {
+    if (!Array.isArray(n)) {
+      t.delay(n.delay);
+      continue;
+    }
+    const i = t.step();
+    for (const r of n)
+      i.add(r.type, r.params ?? {}, r.opts), r.detach && i.detach();
+  }
+  return t;
+}
+s(Zi, "compileSequence");
+function Zs(e) {
+  Co(e);
+}
+s(Zs, "validate");
+async function ea(e, t = {}) {
+  return Zi(e).run({
+    broadcast: !1,
+    commit: t.commit,
+    startEpochMS: t.startEpochMS
+  }).finished;
+}
+s(ea, "execute");
+function ta() {
+  Qi({ type: "sequence", execute: ea, validate: Zs });
+}
+s(ta, "registerSequenceTween");
+async function na(e, t, n = {}) {
   if (!game.user.isGM)
     return ui.notifications.warn("Only the GM can dispatch tweens."), !1;
-  const i = zr(e);
+  const i = Xi(e);
   if (!i)
-    throw new Error(`Unknown tween type: "${e}". Registered types: ${Ti().join(", ")}`);
+    throw new Error(`Unknown tween type: "${e}". Registered types: ${Vi().join(", ")}`);
   i.validate(t);
   const { durationMS: r = 2e3, easing: o = "easeInOutCosine", commit: a = !0 } = n, l = Date.now();
-  return as(Br, {
+  return $i(Oo, {
     type: e,
     params: t,
     durationMS: r,
@@ -4201,11 +4592,11 @@ async function vs(e, t, n = {}) {
     commit: !1
   }), i.execute(t, { durationMS: r, easing: o, commit: a, startEpochMS: l });
 }
-s(vs, "dispatchTween");
-function Os(e) {
-  const { type: t, params: n, durationMS: i, easing: r, startEpochMS: o, commit: a } = e ?? {}, l = zr(t);
+s(na, "dispatchTween");
+function ia(e) {
+  const { type: t, params: n, durationMS: i, easing: r, startEpochMS: o, commit: a } = e ?? {}, l = Xi(t);
   if (!l) {
-    console.warn(`[${O}] Received unknown tween type over socket: "${t}"`);
+    console.warn(`[${E}] Received unknown tween type over socket: "${t}"`);
     return;
   }
   l.execute(n, {
@@ -4215,20 +4606,46 @@ function Os(e) {
     startEpochMS: o
   });
 }
-s(Os, "handleTweenSocketMessage");
-ys();
-bs();
-ss(Br, Os);
-function Ls() {
+s(ia, "handleTweenSocketMessage");
+zs();
+Ks();
+ta();
+Yi(Oo, ia);
+Yi(vo, ra);
+Yi(Eo, oa);
+function ra(e) {
+  const { data: t, startEpochMS: n } = e ?? {};
+  if (!t) {
+    console.warn(`[${E}] Received empty tween-sequence socket message.`);
+    return;
+  }
+  try {
+    Zi(t).run({ commit: !1, startEpochMS: n, broadcast: !1 });
+  } catch (i) {
+    console.error(`[${E}] Failed to run received tween sequence:`, i);
+  }
+}
+s(ra, "handleSequenceSocketMessage");
+function oa(e) {
+  const { name: t } = e ?? {};
+  t && Io(t);
+}
+s(oa, "handleSequenceCancelMessage");
+function sa() {
   Hooks.once("ready", () => {
-    ls();
-    const e = game.modules.get(O);
+    Vs();
+    const e = game.modules.get(E);
     e.api || (e.api = {}), e.api.tween = {
-      dispatch: vs,
-      types: Ti
-    }, console.log(`[${O}] Tween API registered. Types: ${Ti().join(", ")}`);
+      dispatch: na,
+      types: Vi,
+      Timeline: Tn,
+      ErrorPolicy: ve,
+      compileSequence: Zi,
+      cancelTimeline: Io,
+      getTimeline: Qs
+    }, console.log(`[${E}] Tween API registered. Types: ${Vi().join(", ")}`);
   });
 }
-s(Ls, "registerTweenHooks");
-Ls();
+s(sa, "registerTweenHooks");
+sa();
 //# sourceMappingURL=eidolon-utilities.js.map
