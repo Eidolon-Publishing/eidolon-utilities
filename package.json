@@ -6,12 +6,19 @@
   "scripts": {
     "dev": "node ./node_modules/vite/bin/vite.js",
     "build": "node ./node_modules/vite/bin/vite.js build && node scripts/postbuild-copy.mjs",
-    "test": "node ./node_modules/vitest/vitest.mjs",
-    "test:run": "node ./node_modules/vitest/vitest.mjs run",
+    "test": "node ./node_modules/vitest/vitest.mjs src/__tests__",
+    "test:run": "node ./node_modules/vitest/vitest.mjs run src/__tests__",
+    "e2e": "node ./node_modules/@playwright/test/cli.js test",
+    "e2e:fast": "node ./node_modules/@playwright/test/cli.js test tests/e2e/harness-seed.gm.spec.mjs tests/e2e/criteria-state-sync.gm.spec.mjs tests/e2e/criteria-state-guard.player.spec.mjs tests/e2e/conflict-resolution-order.gm.spec.mjs",
+    "e2e:headed": "node ./node_modules/@playwright/test/cli.js test --headed",
+    "e2e:ui": "node ./node_modules/@playwright/test/cli.js test --ui",
+    "e2e:install": "node ./node_modules/@playwright/test/cli.js install chromium",
     "package": "npm run build && cd dist && zip -r ../eidolon-utilities.zip .",
     "release": "node scripts/release.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "dotenv": "^16.6.1",
     "vite": "^6.0.0",
     "vitest": "^2.1.0"
   }
