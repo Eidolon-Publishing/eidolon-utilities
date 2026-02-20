@@ -1,14 +1,16 @@
-import { getSceneCriteriaCategories } from "../../scene-criteria/core/storage.js";
+import { getSceneCriteria, getSceneCriteriaCategories } from "../../scene-criteria/core/storage.js";
 import { localize } from "../../time-triggers/core/utils.js";
 import {
   getLightCriteriaState,
+  setLightCriteriaState,
   storeBaseLighting,
   upsertLightCriteriaMapping,
   retargetLightCriteriaMapping,
   removeLightCriteriaMapping,
   sanitizeLightConfigPayload,
   computeCriteriaMappingKey,
-  storeCurrentCriteriaSelection
+  storeCurrentCriteriaSelection,
+  migrateLightCriteriaCategoriesToKeys
 } from "../core/storage.js";
 import { MODULE_ID, FLAG_LIGHT_CRITERIA } from "../core/constants.js";
 import { debugGroup, debugGroupEnd, debugLog } from "../../time-triggers/core/debug.js";
@@ -69,7 +71,18 @@ function enhanceAmbientLightConfig(app, root) {
   );
   const categoryNameLookup = buildCategoryNameLookup(categoriesRaw);
 
-  const state = getLightCriteriaState(persistedLight ?? ambientLight);
+  const activeLight = persistedLight ?? ambientLight;
+  const sceneCriteria = scene ? getSceneCriteria(scene) : [];
+
+  let state = getLightCriteriaState(activeLight);
+  const migratedState = migrateLightCriteriaCategoriesToKeys(state, sceneCriteria);
+  if (JSON.stringify(migratedState) !== JSON.stringify(state)) {
+    state = migratedState;
+    void setLightCriteriaState(activeLight, migratedState).catch((error) => {
+      console.warn("eidolon-utilities | Failed to persist migrated light criteria keys", error);
+    });
+  }
+
   debugLog("LightCriteria | Loaded mapping state", {
     hasBase: Boolean(state?.base),
     mappingCount: Array.isArray(state?.mappings) ? state.mappings.length : 0,

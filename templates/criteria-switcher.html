@@ -1,0 +1,31 @@
+<div class="criteria-switcher">
+  <header class="criteria-switcher__header">
+    <p class="criteria-switcher__scene">{{sceneName}}</p>
+    <p class="criteria-switcher__subtitle">{{labels.subtitle}}</p>
+  </header>
+
+  {{#if hasCriteria}}
+  <div class="criteria-switcher__grid">
+    {{#each criteria}}
+    <label class="criteria-switcher__control">
+      <span class="criteria-switcher__label">{{label}}</span>
+      <select data-criteria-key="{{key}}" class="criteria-switcher__select">
+        {{#each values}}
+        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>
+        {{/each}}
+      </select>
+    </label>
+    {{/each}}
+  </div>
+
+  <footer class="criteria-switcher__footer">
+    <button type="button" class="criteria-switcher__button" data-action="reset-defaults">{{labels.reset}}</button>
+    <button type="button" class="criteria-switcher__button criteria-switcher__button--quiet" data-action="close-switcher">{{labels.close}}</button>
+  </footer>
+  {{else}}
+  <p class="criteria-switcher__empty">{{labels.empty}}</p>
+  {{/if}}
+
+  <p class="criteria-switcher__status" data-role="status" data-mode="ready">{{labels.ready}}: {{stateSummary}}</p>
+</div>
+

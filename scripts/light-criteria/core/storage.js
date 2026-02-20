@@ -7,6 +7,28 @@ const EMPTY_STATE = Object.freeze({
   current: null
 });
 
+function isPlainObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value);
+}
+
+function computeDelta(base, snapshot) {
+  if (!isPlainObject(snapshot)) return {};
+
+  const delta = {};
+  for (const [key, value] of Object.entries(snapshot)) {
+    const baseValue = base?.[key];
+    if (isPlainObject(value) && isPlainObject(baseValue)) {
+      const nested = computeDelta(baseValue, value);
+      if (Object.keys(nested).length > 0) {
+        delta[key] = nested;
+      }
+    } else if (value !== baseValue) {
+      delta[key] = duplicateData(value);
+    }
+  }
+  return delta;
+}
+
 /**
  * Read the full criteria-mapping state from a light's module flags, sanitized.
  * @param {AmbientLightDocument} light
@@ -276,6 +298,103 @@ export async function storeCurrentCriteriaSelection(light, selection) {
     ...state,
     current: sanitizedSelection
   }));
+}
+
+/**
+ * Convert current light criteria mappings into a `{ base, rules[] }` resolver shape.
+ */
+export function convertLightCriteriaStateToPresets(state) {
+  const sanitized = sanitizeLightCriteriaState(state);
+  const base = sanitized.base ?? {};
+  const rules = [];
+
+  for (const mapping of sanitized.mappings) {
+    const criteria = sanitizeCriteriaCategories(mapping?.categories);
+    if (!criteria) continue;
+
+    const delta = computeDelta(base, mapping?.config ?? {});
+    if (Object.keys(delta).length === 0) continue;
+
+    rules.push({
+      criteria,
+      delta
+    });
+  }
+
+  return {
+    base,
+    rules
+  };
+}
+
+/**
+ * One-way migration: remap mapping category keys from criterion IDs to criterion keys.
+ * Unknown categories are dropped.
+ */
+export function migrateLightCriteriaCategoriesToKeys(state, sceneCriteria = []) {
+  const idToKey = new Map();
+  const knownKeys = new Set();
+
+  for (const criterion of sceneCriteria) {
+    if (typeof criterion?.key === "string" && criterion.key.trim()) {
+      knownKeys.add(criterion.key.trim());
+    }
+    if (typeof criterion?.id === "string" && criterion.id.trim() && typeof criterion?.key === "string") {
+      idToKey.set(criterion.id.trim(), criterion.key.trim());
+    }
+  }
+
+  const sanitized = sanitizeLightCriteriaState(state);
+
+  const remapCategories = (categories) => {
+    const mapped = {};
+    for (const [rawCategory, rawValue] of Object.entries(categories ?? {})) {
+      const category = String(rawCategory ?? "").trim();
+      const value = typeof rawValue === "string" ? rawValue.trim() : "";
+      if (!category || !value) continue;
+
+      if (knownKeys.has(category)) {
+        mapped[category] = value;
+        continue;
+      }
+
+      const remapped = idToKey.get(category);
+      if (remapped) {
+        mapped[remapped] = value;
+      }
+    }
+
+    return Object.keys(mapped).length ? mapped : null;
+  };
+
+  const mappings = sanitized.mappings
+    .map((mapping) => {
+      const categories = remapCategories(mapping.categories);
+      if (!categories) return null;
+      return sanitizeCriteriaMappingEntry({
+        ...mapping,
+        categories,
+        key: computeCriteriaMappingKey(categories)
+      });
+    })
+    .filter(Boolean);
+
+  let current = sanitized.current;
+  if (current?.categories) {
+    const categories = remapCategories(current.categories);
+    current = categories
+      ? {
+          ...current,
+          categories
+        }
+      : null;
+  }
+
+  return sanitizeLightCriteriaState({
+    ...sanitized,
+    mappings,
+    current
+  });
 }
 
 /**
