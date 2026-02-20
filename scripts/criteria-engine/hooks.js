@@ -1,6 +1,8 @@
 import { MODULE_ID } from "./core/constants.js";
 import { api as criteriaApi } from "./core/api.js";
 import { canManageCriteria } from "./core/permissions.js";
+import { invalidateTileCriteriaCaches } from "./core/tiles.js";
+import { invalidatePlaceableCriteriaCaches } from "./core/placeables.js";
 import { getCriteriaSwitcher, toggleCriteriaSwitcher } from "./ui/switcher-service.js";
 import { registerTileCriteriaConfigControls } from "./ui/TileCriteriaConfigControls.js";
 
@@ -75,9 +77,84 @@ function registerSceneControlButton() {
   });
 }
 
+function hasOwnPath(source, path) {
+  if (!source || typeof source !== "object") return false;
+
+  const segments = String(path).split(".");
+  let current = source;
+  for (const segment of segments) {
+    if (!current || typeof current !== "object") return false;
+    if (!Object.prototype.hasOwnProperty.call(current, segment)) return false;
+    current = current[segment];
+  }
+
+  return true;
+}
+
+function registerCriteriaCacheInvalidationHooks() {
+  const invalidateTileScene = (scene, tile = null) => {
+    if (!scene) return;
+    invalidateTileCriteriaCaches(scene, tile);
+  };
+
+  const invalidatePlaceableScene = (scene, doc = null) => {
+    if (!scene) return;
+    invalidatePlaceableCriteriaCaches(scene, doc);
+  };
+
+  Hooks.on("createTile", (doc) => {
+    invalidateTileScene(doc?.parent ?? null, doc ?? null);
+  });
+
+  Hooks.on("deleteTile", (doc) => {
+    invalidateTileScene(doc?.parent ?? null, doc ?? null);
+  });
+
+  Hooks.on("updateTile", (doc, change) => {
+    const touchesTileCriteria = hasOwnPath(change, `flags.${MODULE_ID}.${"tileCriteria"}`)
+      || hasOwnPath(change, `flags.${MODULE_ID}.${"fileIndex"}`);
+    if (!touchesTileCriteria) return;
+
+    invalidateTileScene(doc?.parent ?? null, doc ?? null);
+  });
+
+  const registerPlaceableHooks = (documentName) => {
+    Hooks.on(`create${documentName}`, (doc) => {
+      invalidatePlaceableScene(doc?.parent ?? null, doc ?? null);
+    });
+
+    Hooks.on(`delete${documentName}`, (doc) => {
+      invalidatePlaceableScene(doc?.parent ?? null, doc ?? null);
+    });
+
+    Hooks.on(`update${documentName}`, (doc, change) => {
+      const touchesPresets = hasOwnPath(change, `flags.${MODULE_ID}.${"presets"}`);
+      const touchesLightCriteria = documentName === "AmbientLight"
+        && hasOwnPath(change, `flags.${MODULE_ID}.${"lightCriteria"}`);
+
+      if (!touchesPresets && !touchesLightCriteria) return;
+
+      invalidatePlaceableScene(doc?.parent ?? null, doc ?? null);
+    });
+  };
+
+  registerPlaceableHooks("AmbientLight");
+  registerPlaceableHooks("Wall");
+  registerPlaceableHooks("AmbientSound");
+
+  Hooks.on("canvasReady", (canvas) => {
+    const scene = canvas?.scene ?? null;
+    if (!scene) return;
+
+    invalidateTileScene(scene);
+    invalidatePlaceableScene(scene);
+  });
+}
+
 export function registerCriteriaEngineHooks() {
   registerSceneControlButton();
   registerTileCriteriaConfigControls();
+  registerCriteriaCacheInvalidationHooks();
 
   Hooks.once("init", () => {
     game.keybindings?.register?.(MODULE_ID, "toggleCriteriaSwitcher", {

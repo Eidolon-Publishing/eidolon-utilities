@@ -38,7 +38,10 @@ export default class CriteriaSwitcherApplication extends HandlebarsApplicationMi
   #criteria = [];
   #state = {};
   #applying = false;
+  #applyTimer = null;
+  #pendingState = null;
   #hookId = null;
+  #applyDebounceMs = 120;
 
   constructor(options = {}) {
     super(options);
@@ -108,6 +111,11 @@ export default class CriteriaSwitcherApplication extends HandlebarsApplicationMi
   }
 
   async _onClose(options) {
+    if (this.#applyTimer !== null) {
+      clearTimeout(this.#applyTimer);
+      this.#applyTimer = null;
+    }
+
     if (this.#hookId !== null) {
       Hooks.off("eidolon-utilities.criteriaStateApplied", this.#hookId);
       this.#hookId = null;
@@ -132,7 +140,7 @@ export default class CriteriaSwitcherApplication extends HandlebarsApplicationMi
           [key]: select.value
         };
 
-        void this.#applyPartialState({ [key]: select.value });
+        this.#queuePartialState({ [key]: select.value });
       });
     });
 
@@ -180,7 +188,36 @@ export default class CriteriaSwitcherApplication extends HandlebarsApplicationMi
       this.#setStatus("error", error?.message ?? "Unknown error");
     } finally {
       this.#applying = false;
+
+      if (this.#pendingState) {
+        void this.#flushPendingState();
+      }
     }
+  }
+
+  #queuePartialState(partialState) {
+    this.#pendingState = {
+      ...(this.#pendingState ?? {}),
+      ...(partialState ?? {})
+    };
+
+    if (this.#applyTimer !== null) {
+      clearTimeout(this.#applyTimer);
+    }
+
+    this.#setStatus("applying");
+    this.#applyTimer = setTimeout(() => {
+      this.#applyTimer = null;
+      void this.#flushPendingState();
+    }, this.#applyDebounceMs);
+  }
+
+  async #flushPendingState() {
+    if (this.#applying || !this.#pendingState) return;
+
+    const queued = this.#pendingState;
+    this.#pendingState = null;
+    await this.#applyPartialState(queued);
   }
 
   async #resetToDefaults() {
@@ -192,6 +229,13 @@ export default class CriteriaSwitcherApplication extends HandlebarsApplicationMi
     }, {});
 
     this.#state = defaults;
+
+    if (this.#applyTimer !== null) {
+      clearTimeout(this.#applyTimer);
+      this.#applyTimer = null;
+    }
+    this.#pendingState = null;
+
     await this.#applyPartialState(defaults);
   }
 
@@ -224,4 +268,3 @@ export default class CriteriaSwitcherApplication extends HandlebarsApplicationMi
     return `[${this.#criteria.map((criterion) => this.#state?.[criterion.key] ?? criterion.default).join(" | ")}]`;
   }
 }
-

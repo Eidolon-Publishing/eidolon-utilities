@@ -1,6 +1,133 @@
 import { FLAG_TILE_CRITERIA, FLAG_TILE_FILE_INDEX, MODULE_ID } from "./constants.js";
 
 const log = (...args) => console.log(`${MODULE_ID} | criteria tiles:`, ...args);
+let tileMatcherCache = new WeakMap();
+let tileDependencyCache = new WeakMap();
+const DEFAULT_UPDATE_CHUNK_SIZE = 200;
+
+function getCollectionSize(collection) {
+  if (!collection) return 0;
+  if (Number.isInteger(collection.size)) return collection.size;
+  if (Array.isArray(collection)) return collection.length;
+  if (typeof collection.length === "number") return collection.length;
+  return Array.from(collection).length;
+}
+
+function nowMs() {
+  if (typeof performance?.now === "function") return performance.now();
+  return Date.now();
+}
+
+function uniqueStringKeys(keys) {
+  if (!Array.isArray(keys)) return [];
+
+  const unique = new Set();
+  for (const key of keys) {
+    if (typeof key !== "string") continue;
+    const normalized = key.trim();
+    if (!normalized) continue;
+    unique.add(normalized);
+  }
+
+  return Array.from(unique);
+}
+
+function chunkArray(values, chunkSize = DEFAULT_UPDATE_CHUNK_SIZE) {
+  if (!Array.isArray(values) || values.length === 0) return [];
+  const size = Number.isInteger(chunkSize) && chunkSize > 0 ? chunkSize : DEFAULT_UPDATE_CHUNK_SIZE;
+
+  const chunks = [];
+  for (let index = 0; index < values.length; index += size) {
+    chunks.push(values.slice(index, index + size));
+  }
+  return chunks;
+}
+
+async function updateTilesInChunks(scene, updates, chunkSize) {
+  const chunks = chunkArray(updates, chunkSize);
+  for (const chunk of chunks) {
+    await scene.updateEmbeddedDocuments("Tile", chunk);
+    if (chunks.length > 1) {
+      await Promise.resolve();
+    }
+  }
+
+  return chunks.length;
+}
+
+function getTileCriteriaDependencyKeys(tileCriteria) {
+  const normalized = normalizeTileCriteria(tileCriteria, { files: null });
+  if (!normalized?.variants?.length) return [];
+
+  const keys = new Set();
+  for (const variant of normalized.variants) {
+    for (const key of Object.keys(variant.criteria ?? {})) {
+      if (key) keys.add(key);
+    }
+  }
+
+  return Array.from(keys);
+}
+
+function buildTileDependencyIndex(scene, collection) {
+  const keyToTileIds = new Map();
+  const allTileIds = new Set();
+
+  for (const tile of collection) {
+    const tileCriteria = tile.getFlag(MODULE_ID, FLAG_TILE_CRITERIA)
+      ?? tile.getFlag(MODULE_ID, FLAG_TILE_FILE_INDEX);
+    if (!tileCriteria) continue;
+
+    allTileIds.add(tile.id);
+
+    for (const key of getTileCriteriaDependencyKeys(tileCriteria)) {
+      if (!keyToTileIds.has(key)) keyToTileIds.set(key, new Set());
+      keyToTileIds.get(key).add(tile.id);
+    }
+  }
+
+  return {
+    collection,
+    keyToTileIds,
+    allTileIds
+  };
+}
+
+function getTileDependencyIndex(scene, collection) {
+  const cached = tileDependencyCache.get(scene);
+  if (cached?.collection === collection) return cached;
+
+  const rebuilt = buildTileDependencyIndex(scene, collection);
+  tileDependencyCache.set(scene, rebuilt);
+  return rebuilt;
+}
+
+function getTilesForChangedKeys(scene, collection, changedKeys) {
+  const normalizedChangedKeys = uniqueStringKeys(changedKeys);
+  if (!normalizedChangedKeys.length) {
+    return Array.from(collection ?? []);
+  }
+
+  const index = getTileDependencyIndex(scene, collection);
+  const affectedIds = new Set();
+  for (const key of normalizedChangedKeys) {
+    const matches = index.keyToTileIds.get(key);
+    if (!matches) continue;
+    for (const tileId of matches) {
+      affectedIds.add(tileId);
+    }
+  }
+
+  if (!affectedIds.size) return [];
+
+  if (typeof collection?.get === "function") {
+    return Array.from(affectedIds)
+      .map((tileId) => collection.get(tileId))
+      .filter(Boolean);
+  }
+
+  return Array.from(collection ?? []).filter((tile) => affectedIds.has(tile.id));
+}
 
 function getFilePath(file) {
   if (typeof file?.name === "string") return file.name;
@@ -327,14 +454,18 @@ export function normalizeTileCriteria(tileCriteria, options = {}) {
  * Select one file index for a tile based on criteria specificity.
  */
 export function selectTileFileIndex(tileCriteria, state, files) {
-  const normalized = normalizeTileCriteria(tileCriteria, { files });
-  if (!normalized) return -1;
+  const compiled = compileTileMatcher(tileCriteria, files);
+  return selectTileFileIndexFromCompiled(compiled, state);
+}
 
-  let bestVariant = null;
+function selectTileFileIndexFromCompiled(compiled, state) {
+  if (!compiled) return -1;
+
+  let bestIndex = -1;
   let bestSpecificity = -1;
 
-  for (const variant of normalized.variants) {
-    const keys = Object.keys(variant.criteria);
+  for (const variant of compiled.variants) {
+    const keys = variant.keys;
 
     let matches = true;
     for (const key of keys) {
@@ -346,57 +477,178 @@ export function selectTileFileIndex(tileCriteria, state, files) {
 
     if (matches && keys.length > bestSpecificity) {
       bestSpecificity = keys.length;
-      bestVariant = variant;
+      bestIndex = variant.targetIndex;
     }
   }
 
-  const target = bestVariant?.target ?? normalized.defaultTarget;
-  return resolveTileTargetIndex(target, files);
+  if (bestIndex >= 0) return bestIndex;
+  return compiled.defaultIndex;
+}
+
+function compileTileMatcher(tileCriteria, files) {
+  const normalized = normalizeTileCriteria(tileCriteria, { files });
+  if (!normalized) return null;
+
+  const variants = normalized.variants
+    .map((variant) => {
+      const criteria = sanitizeCriteria(variant.criteria);
+      const targetIndex = resolveTileTargetIndex(variant.target, files);
+      if (!Number.isInteger(targetIndex) || targetIndex < 0) return null;
+
+      return {
+        criteria,
+        keys: Object.keys(criteria),
+        targetIndex
+      };
+    })
+    .filter(Boolean);
+
+  const defaultIndex = resolveTileTargetIndex(normalized.defaultTarget, files);
+  if (!variants.length && (!Number.isInteger(defaultIndex) || defaultIndex < 0)) {
+    return null;
+  }
+
+  return {
+    variants,
+    defaultIndex
+  };
+}
+
+function getCompiledTileMatcher(tile, tileCriteria, files) {
+  const cached = tileMatcherCache.get(tile);
+  if (cached && cached.tileCriteria === tileCriteria && cached.files === files) {
+    return cached.compiled;
+  }
+
+  const compiled = compileTileMatcher(tileCriteria, files);
+  tileMatcherCache.set(tile, {
+    tileCriteria,
+    files,
+    compiled
+  });
+  return compiled;
+}
+
+export function invalidateTileCriteriaCaches(scene = null, tile = null) {
+  if (scene) {
+    tileDependencyCache.delete(scene);
+  } else {
+    tileDependencyCache = new WeakMap();
+  }
+
+  if (tile) {
+    tileMatcherCache.delete(tile);
+  } else if (!scene) {
+    tileMatcherCache = new WeakMap();
+  }
 }
 
 /**
  * Apply criteria-driven file selection to all tiles carrying tile criteria flags.
  */
-export async function updateTiles(state, scene) {
-  scene = scene ?? game.scenes?.viewed;
-  if (!scene) return;
+export async function updateTiles(state, scene, options = {}) {
+  const start = nowMs();
+  const metrics = {
+    total: 0,
+    scanned: 0,
+    updated: 0,
+    chunks: 0,
+    skipped: {
+      unaffected: 0,
+      noCriteria: 0,
+      noFiles: 0,
+      noMatch: 0,
+      unchanged: 0
+    },
+    durationMs: 0
+  };
 
-  const tiles = scene.getEmbeddedCollection("Tile") ?? [];
+  scene = scene ?? game.scenes?.viewed;
+  if (!scene) {
+    metrics.durationMs = nowMs() - start;
+    return metrics;
+  }
+
+  const collection = scene.getEmbeddedCollection("Tile") ?? [];
+  metrics.total = getCollectionSize(collection);
+
+  const tiles = getTilesForChangedKeys(scene, collection, options.changedKeys);
+  metrics.scanned = tiles.length;
+  if (!tiles.length) {
+    metrics.skipped.unaffected = metrics.total;
+    metrics.durationMs = nowMs() - start;
+    return metrics;
+  }
+
   const tileUpdates = [];
 
   for (const tile of tiles) {
     const tileCriteria = tile.getFlag(MODULE_ID, FLAG_TILE_CRITERIA)
       ?? tile.getFlag(MODULE_ID, FLAG_TILE_FILE_INDEX);
-    if (!tileCriteria) continue;
-
-    const files = tile.getFlag("monks-active-tiles", "files");
-    if (!files?.length) continue;
-
-    const matchIndex = selectTileFileIndex(tileCriteria, state, files);
-    if (!Number.isInteger(matchIndex) || matchIndex < 0 || matchIndex >= files.length) {
-      console.warn(`${MODULE_ID} | Tile ${tile.id} has no valid file match for state`, state);
+    if (!tileCriteria) {
+      metrics.skipped.noCriteria += 1;
       continue;
     }
 
-    await tile.setFlag(
-      "monks-active-tiles",
-      "files",
-      files.map((file, i) => ({
+    const files = tile.getFlag("monks-active-tiles", "files");
+    if (!files?.length) {
+      metrics.skipped.noFiles += 1;
+      continue;
+    }
+
+    const compiled = getCompiledTileMatcher(tile, tileCriteria, files);
+    const matchIndex = selectTileFileIndexFromCompiled(compiled, state);
+    if (!Number.isInteger(matchIndex) || matchIndex < 0 || matchIndex >= files.length) {
+      console.warn(`${MODULE_ID} | Tile ${tile.id} has no valid file match for state`, state);
+      metrics.skipped.noMatch += 1;
+      continue;
+    }
+
+    const nextFileIndex = matchIndex + 1;
+    const currentFileIndex = Number(tile.getFlag("monks-active-tiles", "fileindex"));
+    const shouldUpdateFileIndex = currentFileIndex !== nextFileIndex;
+
+    const shouldUpdateSelection = files.some((file, index) => Boolean(file?.selected) !== (index === matchIndex));
+
+    const currentTextureSrc = normalizeFilePath(tile.texture?.src ?? tile._source?.texture?.src ?? "");
+    const nextTextureSrcRaw = getFilePath(files[matchIndex]);
+    const nextTextureSrc = normalizeFilePath(nextTextureSrcRaw);
+    const shouldUpdateTexture = Boolean(nextTextureSrc) && nextTextureSrc !== currentTextureSrc;
+
+    if (!shouldUpdateSelection && !shouldUpdateFileIndex && !shouldUpdateTexture) {
+      metrics.skipped.unchanged += 1;
+      continue;
+    }
+
+    const update = {
+      _id: tile._id
+    };
+
+    if (shouldUpdateSelection) {
+      update["flags.monks-active-tiles.files"] = files.map((file, index) => ({
         ...file,
-        selected: i === matchIndex
-      }))
-    );
-    await tile.setFlag("monks-active-tiles", "fileindex", matchIndex + 1);
+        selected: index === matchIndex
+      }));
+    }
 
-    tileUpdates.push({
-      _id: tile._id,
-      texture: { src: files[matchIndex].name }
-    });
+    if (shouldUpdateFileIndex) {
+      update["flags.monks-active-tiles.fileindex"] = nextFileIndex;
+    }
 
-    log(`Tile ${tile.id} -> ${files[matchIndex].name}`);
+    if (shouldUpdateTexture) {
+      update.texture = { src: nextTextureSrcRaw };
+    }
+
+    tileUpdates.push(update);
+
+    log(`Tile ${tile.id} -> ${nextTextureSrcRaw}`);
   }
 
   if (tileUpdates.length > 0) {
-    await scene.updateEmbeddedDocuments("Tile", tileUpdates);
+    metrics.chunks = await updateTilesInChunks(scene, tileUpdates, options.chunkSize);
+    metrics.updated = tileUpdates.length;
   }
+
+  metrics.durationMs = nowMs() - start;
+  return metrics;
 }
