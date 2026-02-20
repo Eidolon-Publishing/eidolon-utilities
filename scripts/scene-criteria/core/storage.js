@@ -131,7 +131,8 @@ export function sanitizeSceneCriteriaState(input, criteria = []) {
 export function getSceneCriteriaCategories(scene) {
   const criteria = getSceneCriteria(scene);
   return criteria.map((criterion) => ({
-    id: criterion.id,
+    id: criterion.key,
+    key: criterion.key,
     name: criterion.label,
     values: [...criterion.values]
   }));

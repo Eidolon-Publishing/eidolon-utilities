@@ -14,6 +14,28 @@
     "minimum": "12",
     "verified": "13"
   },
+  "relationships": {
+    "requires": [
+      {
+        "id": "tagger",
+        "type": "module",
+        "manifest": "https://github.com/fantasycalendar/FoundryVTT-Tagger/releases/latest/download/module.json",
+        "compatibility": {
+          "minimum": "1.5.0",
+          "verified": "1.5.1"
+        }
+      },
+      {
+        "id": "monks-active-tiles",
+        "type": "module",
+        "manifest": "https://github.com/ironmonk88/monks-active-tiles/releases/latest/download/module.json",
+        "compatibility": {
+          "minimum": "12.01",
+          "verified": "12.02"
+        }
+      }
+    ]
+  },
   "authors": [
     {
       "name": "Eidolon",
