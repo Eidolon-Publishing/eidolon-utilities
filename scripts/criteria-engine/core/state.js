@@ -1,6 +1,7 @@
 import {
   getSceneCriteria,
   getSceneCriteriaState,
+  sanitizeSceneCriteriaState,
   setSceneCriteriaState
 } from "../../scene-criteria/core/storage.js";
 import {
@@ -9,9 +10,15 @@ import {
   MODULE_ID,
   getSceneEngineVersion
 } from "./constants.js";
+import { debugLog } from "../../time-triggers/core/debug.js";
 import { requireCriteriaAccess } from "./permissions.js";
 import { updateTiles } from "./tiles.js";
 import { updatePlaceables } from "./placeables.js";
+
+function nowMs() {
+  if (typeof performance?.now === "function") return performance.now();
+  return Date.now();
+}
 
 export function getState(scene) {
   scene = scene ?? game.scenes?.viewed;
@@ -20,6 +27,7 @@ export function getState(scene) {
 }
 
 export async function applyState(newState, scene) {
+  const startedAt = nowMs();
   scene = scene ?? game.scenes?.viewed;
   if (!scene) return null;
 
@@ -32,15 +40,36 @@ export async function applyState(newState, scene) {
   }
 
   const current = getSceneCriteriaState(scene, criteria);
-  const merged = { ...current, ...(newState ?? {}) };
+  const merged = sanitizeSceneCriteriaState({ ...current, ...(newState ?? {}) }, criteria);
 
-  await setSceneCriteriaState(scene, merged, criteria);
+  const changedKeys = criteria
+    .filter((criterion) => current?.[criterion.key] !== merged?.[criterion.key])
+    .map((criterion) => criterion.key);
+  const didChange = changedKeys.length > 0;
 
-  const persisted = getSceneCriteriaState(scene, criteria);
-  await Promise.all([updateTiles(persisted, scene), updatePlaceables(persisted, scene)]);
+  if (didChange) {
+    await setSceneCriteriaState(scene, merged, criteria);
+  }
 
-  Hooks.callAll("eidolon-utilities.criteriaStateApplied", scene, persisted);
-  return persisted;
+  const nextState = didChange ? merged : current;
+  const [tileMetrics, placeableMetrics] = await Promise.all([
+    updateTiles(nextState, scene, { changedKeys }),
+    updatePlaceables(nextState, scene, { changedKeys })
+  ]);
+
+  const durationMs = nowMs() - startedAt;
+
+  debugLog("Criteria apply telemetry", {
+    sceneId: scene.id,
+    changedKeys,
+    didChange,
+    durationMs,
+    tiles: tileMetrics,
+    placeables: placeableMetrics
+  });
+
+  Hooks.callAll("eidolon-utilities.criteriaStateApplied", scene, nextState);
+  return nextState;
 }
 
 export function getVersion(scene) {

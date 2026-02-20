@@ -1,17 +1,19 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { findFileIndex } from "../../scripts/criteria-engine/core/matcher.js";
 import { resolveRules } from "../../scripts/criteria-engine/core/resolver.js";
 import {
   buildTileCriteriaFromFileIndex,
   detectTileCriteriaConflicts,
   resolveTileTargetIndex,
-  selectTileFileIndex
+  selectTileFileIndex,
+  updateTiles
 } from "../../scripts/criteria-engine/core/tiles.js";
 import {
   convertLightCriteriaStateToPresets,
   migrateLightCriteriaCategoriesToKeys
 } from "../../scripts/light-criteria/core/storage.js";
 import { setTileCriteria } from "../../scripts/criteria-engine/core/tile-storage.js";
+import { applyState } from "../../scripts/criteria-engine/core/state.js";
 
 beforeEach(() => {
   globalThis.foundry = {
@@ -326,5 +328,195 @@ describe("light criteria conversion", () => {
     expect(migrated.mappings).toHaveLength(1);
     expect(migrated.mappings[0].categories).toEqual({ mood: "Night", effect: "Fog" });
     expect(migrated.current.categories).toEqual({ mood: "Night", effect: "Fog" });
+  });
+});
+
+describe("criteria engine performance guards", () => {
+  it("skips tile updates when resolved file is already active", async () => {
+    const tile = {
+      id: "tile-1",
+      _id: "tile-1",
+      texture: { src: "maps/day.webp" },
+      _source: { texture: { src: "maps/day.webp" } },
+      getFlag: (scope, key) => {
+        if (scope === "eidolon-utilities" && key === "tileCriteria") {
+          return {
+            strategy: "select-one",
+            variants: [
+              { criteria: {}, target: { indexHint: 0 } },
+              { criteria: { mood: "Night" }, target: { indexHint: 1 } }
+            ],
+            defaultTarget: { indexHint: 0 }
+          };
+        }
+
+        if (scope === "monks-active-tiles" && key === "files") {
+          return [
+            { name: "maps/day.webp", selected: true },
+            { name: "maps/night.webp", selected: false }
+          ];
+        }
+
+        if (scope === "monks-active-tiles" && key === "fileindex") {
+          return 1;
+        }
+
+        return null;
+      }
+    };
+
+    const updateEmbeddedDocuments = vi.fn(async () => null);
+    const scene = {
+      getEmbeddedCollection: (type) => (type === "Tile" ? [tile] : []),
+      updateEmbeddedDocuments
+    };
+
+    await updateTiles({ mood: "Day" }, scene);
+
+    expect(updateEmbeddedDocuments).not.toHaveBeenCalled();
+  });
+
+  it("batches tile flag + texture changes into a single scene update", async () => {
+    const tile = {
+      id: "tile-1",
+      _id: "tile-1",
+      texture: { src: "maps/day.webp" },
+      _source: { texture: { src: "maps/day.webp" } },
+      getFlag: (scope, key) => {
+        if (scope === "eidolon-utilities" && key === "tileCriteria") {
+          return {
+            strategy: "select-one",
+            variants: [
+              { criteria: {}, target: { indexHint: 0 } },
+              { criteria: { mood: "Night" }, target: { indexHint: 1 } }
+            ],
+            defaultTarget: { indexHint: 0 }
+          };
+        }
+
+        if (scope === "monks-active-tiles" && key === "files") {
+          return [
+            { name: "maps/day.webp", selected: true },
+            { name: "maps/night.webp", selected: false }
+          ];
+        }
+
+        if (scope === "monks-active-tiles" && key === "fileindex") {
+          return 1;
+        }
+
+        return null;
+      }
+    };
+
+    const updateEmbeddedDocuments = vi.fn(async () => null);
+    const scene = {
+      getEmbeddedCollection: (type) => (type === "Tile" ? [tile] : []),
+      updateEmbeddedDocuments
+    };
+
+    await updateTiles({ mood: "Night" }, scene);
+
+    expect(updateEmbeddedDocuments).toHaveBeenCalledTimes(1);
+    expect(updateEmbeddedDocuments).toHaveBeenCalledWith("Tile", [
+      {
+        _id: "tile-1",
+        "flags.monks-active-tiles.files": [
+          { name: "maps/day.webp", selected: false },
+          { name: "maps/night.webp", selected: true }
+        ],
+        "flags.monks-active-tiles.fileindex": 2,
+        texture: { src: "maps/night.webp" }
+      }
+    ]);
+  });
+
+  it("returns early when applyState does not change scene criteria state", async () => {
+    const criteria = [
+      {
+        id: "criterion-1",
+        key: "mood",
+        label: "Mood",
+        values: ["Day", "Night"],
+        default: "Day",
+        order: 0
+      }
+    ];
+
+    const flagStore = {
+      "eidolon-utilities.criteria": criteria,
+      "eidolon-utilities.state": { mood: "Day" }
+    };
+
+    const scene = {
+      isOwner: true,
+      getFlag: (scope, key) => flagStore[`${scope}.${key}`],
+      setFlag: vi.fn(async (scope, key, value) => {
+        flagStore[`${scope}.${key}`] = JSON.parse(JSON.stringify(value));
+      }),
+      getEmbeddedCollection: () => [],
+      updateEmbeddedDocuments: vi.fn(async () => null)
+    };
+
+    globalThis.game = {
+      user: { isGM: true },
+      scenes: { viewed: scene }
+    };
+    globalThis.Hooks = { callAll: vi.fn() };
+
+    const result = await applyState({ mood: "Day" }, scene);
+
+    expect(result).toEqual({ mood: "Day" });
+    expect(scene.setFlag).not.toHaveBeenCalled();
+    expect(Hooks.callAll).toHaveBeenCalledTimes(1);
+    expect(Hooks.callAll).toHaveBeenCalledWith(
+      "eidolon-utilities.criteriaStateApplied",
+      scene,
+      { mood: "Day" }
+    );
+  });
+
+  it("skips tile processing when changed keys do not affect tile criteria", async () => {
+    const tile = {
+      id: "tile-1",
+      _id: "tile-1",
+      texture: { src: "maps/day.webp" },
+      _source: { texture: { src: "maps/day.webp" } },
+      getFlag: (scope, key) => {
+        if (scope === "eidolon-utilities" && key === "tileCriteria") {
+          return {
+            strategy: "select-one",
+            variants: [
+              { criteria: {}, target: { indexHint: 0 } },
+              { criteria: { mood: "Night" }, target: { indexHint: 1 } }
+            ],
+            defaultTarget: { indexHint: 0 }
+          };
+        }
+
+        if (scope === "monks-active-tiles" && key === "files") {
+          return [
+            { name: "maps/day.webp", selected: true },
+            { name: "maps/night.webp", selected: false }
+          ];
+        }
+
+        if (scope === "monks-active-tiles" && key === "fileindex") {
+          return 1;
+        }
+
+        return null;
+      }
+    };
+
+    const updateEmbeddedDocuments = vi.fn(async () => null);
+    const scene = {
+      getEmbeddedCollection: (type) => (type === "Tile" ? [tile] : []),
+      updateEmbeddedDocuments
+    };
+
+    await updateTiles({ mood: "Night" }, scene, { changedKeys: ["weather"] });
+
+    expect(updateEmbeddedDocuments).not.toHaveBeenCalled();
   });
 });
