@@ -1,6 +1,7 @@
 import { asHTMLElement, setActiveTab } from "../../common/ui/foundry-compat.js";
 import { localize } from "../../time-triggers/core/utils.js";
 import { getSceneCriteria } from "../../scene-criteria/core/storage.js";
+import { getCriteriaSurfacesEnabled } from "../../scene-criteria/core/settings.js";
 import { MODULE_ID } from "../core/constants.js";
 import {
   createDefaultTileCriteria,
@@ -1384,6 +1385,12 @@ export function registerTileCriteriaConfigControls() {
     if (!tile) return;
 
     root.querySelector(".eidolon-tile-criteria")?.remove();
+
+    if (!getCriteriaSurfacesEnabled()) {
+      root.querySelector(`.item[data-tab='${TILE_TAB_ID}']`)?.remove();
+      root.querySelector(`.tab[data-tab='${TILE_TAB_ID}']`)?.remove();
+      return;
+    }
 
     const controller = createController(tile, app);
     const tabPanel = ensureTileCriteriaTab(app, root);

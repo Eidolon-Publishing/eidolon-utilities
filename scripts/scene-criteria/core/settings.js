@@ -1,4 +1,8 @@
-import { MODULE_ID, SETTING_SHOW_SCENE_CRITERIA_TAB } from "./constants.js";
+import {
+  MODULE_ID,
+  SETTING_ENABLE_CRITERIA_SURFACES,
+  SETTING_SHOW_SCENE_CRITERIA_TAB
+} from "./constants.js";
 import { localize } from "../../time-triggers/core/utils.js";
 
 let settingsRegistered = false;
@@ -27,6 +31,22 @@ export function registerSceneCriteriaSettings() {
       promptReloadForSceneCriteriaTab();
     }
   });
+
+  game.settings.register(MODULE_ID, SETTING_ENABLE_CRITERIA_SURFACES, {
+    name: localize("EIDOLON.SceneCriteria.EnableSurfacesSettingName", "Enable Criteria UI Surfaces"),
+    hint: localize(
+      "EIDOLON.SceneCriteria.EnableSurfacesSettingHint",
+      "Show all criteria-driven UI surfaces (scene tab, tile/light editors, and criteria switcher controls)."
+    ),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange: () => {
+      // Some surfaces are registered at initialization; prompt for reload.
+      promptReloadForSceneCriteriaTab();
+    }
+  });
 }
 
 export function getShowSceneCriteriaTabSetting() {
@@ -38,6 +58,17 @@ export function getShowSceneCriteriaTabSetting() {
     console.error(`${MODULE_ID} | Failed to read Scene Criteria tab setting`, error);
   }
   return false;
+}
+
+export function getCriteriaSurfacesEnabled() {
+  try {
+    if (game?.settings?.get) {
+      return Boolean(game.settings.get(MODULE_ID, SETTING_ENABLE_CRITERIA_SURFACES));
+    }
+  } catch (error) {
+    console.error(`${MODULE_ID} | Failed to read criteria surfaces setting`, error);
+  }
+  return true;
 }
 
 function promptReloadForSceneCriteriaTab() {
