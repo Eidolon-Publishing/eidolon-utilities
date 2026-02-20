@@ -3,4 +3,10 @@ dist/
 release/
 .vite/
 .env
+.env.*
+!.env.example
+playwright-report/
+test-results/
+blob-report/
+tests/e2e/.auth/
 *.zip
