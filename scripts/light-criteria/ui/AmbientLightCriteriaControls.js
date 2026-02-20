@@ -1,4 +1,5 @@
 import { getSceneCriteria, getSceneCriteriaCategories } from "../../scene-criteria/core/storage.js";
+import { getCriteriaSurfacesEnabled } from "../../scene-criteria/core/settings.js";
 import { localize } from "../../time-triggers/core/utils.js";
 import {
   getLightCriteriaState,
@@ -34,6 +35,11 @@ function handleAmbientLightConfigRender(app, html) {
   try {
     const root = asHTMLElement(html);
     if (!root) return;
+
+    if (!getCriteriaSurfacesEnabled()) {
+      root.querySelectorAll(".eidolon-light-criteria, .eidolon-light-criteria-main-switcher").forEach((node) => node.remove());
+      return;
+    }
 
     enhanceAmbientLightConfig(app, root);
   } catch (error) {

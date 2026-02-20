@@ -3,6 +3,7 @@ import { api as criteriaApi } from "./core/api.js";
 import { canManageCriteria } from "./core/permissions.js";
 import { invalidateTileCriteriaCaches } from "./core/tiles.js";
 import { invalidatePlaceableCriteriaCaches } from "./core/placeables.js";
+import { getCriteriaSurfacesEnabled } from "../scene-criteria/core/settings.js";
 import { getCriteriaSwitcher, toggleCriteriaSwitcher } from "./ui/switcher-service.js";
 import { registerTileCriteriaConfigControls } from "./ui/TileCriteriaConfigControls.js";
 
@@ -69,8 +70,12 @@ function registerSceneControlButton() {
       icon: "fa-solid fa-sliders",
       button: true,
       toggle: false,
-      visible: canManageCriteria(game.scenes?.viewed ?? null),
+      visible: getCriteriaSurfacesEnabled() && canManageCriteria(game.scenes?.viewed ?? null),
       onClick: () => {
+        if (!getCriteriaSurfacesEnabled()) {
+          ui.notifications?.warn?.("Criteria UI surfaces are disabled in module settings.");
+          return;
+        }
         toggleCriteriaSwitcher();
       }
     });
@@ -162,6 +167,11 @@ export function registerCriteriaEngineHooks() {
       hint: "Open or close the criteria switcher window for live scene state updates.",
       editable: [{ key: "KeyM", modifiers: ["Alt"] }],
       onDown: () => {
+        if (!getCriteriaSurfacesEnabled()) {
+          ui.notifications?.warn?.("Criteria UI surfaces are disabled in module settings.");
+          return true;
+        }
+
         if (!canManageCriteria(game.scenes?.viewed ?? null)) {
           ui.notifications?.warn?.("You do not have permission to manage scene criteria.");
           return true;
