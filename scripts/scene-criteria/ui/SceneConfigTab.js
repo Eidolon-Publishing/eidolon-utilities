@@ -5,7 +5,7 @@ import {
   hasSceneDocument,
   localize
 } from "../../time-triggers/core/utils.js";
-import { getCriteriaSurfacesEnabled, getShowSceneCriteriaTabSetting } from "../core/settings.js";
+import { getCriteriaSurfacesEnabled } from "../core/settings.js";
 import {
   createSceneCriterion,
   getSceneCriteria,
@@ -30,7 +30,7 @@ const sceneCriteriaConfigFactory = createSceneConfigTabFactory({
   tabId: "criteria",
   tabLabel: () => localize("EIDOLON.SceneCriteria.TabLabel", "Criteria"),
   getScene: getSceneFromApplication,
-  isApplicable: () => getCriteriaSurfacesEnabled() && getShowSceneCriteriaTabSetting(),
+  isApplicable: () => getCriteriaSurfacesEnabled(),
   renderContent: ({ app, tab, scene }) => renderCriteriaTab(app, tab, scene),
   logger
 });

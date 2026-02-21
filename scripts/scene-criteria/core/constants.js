@@ -5,5 +5,4 @@ export const FLAG_SCENE_CRITERIA = "criteria";
 export const FLAG_SCENE_STATE = "state";
 export const FLAG_SCENE_CRITERIA_VERSION = "criteriaVersion";
 export const CURRENT_SCENE_CRITERIA_VERSION = 1;
-export const SETTING_SHOW_SCENE_CRITERIA_TAB = "showSceneCriteriaTab";
 export const SETTING_ENABLE_CRITERIA_SURFACES = "enableCriteriaSurfaces";
