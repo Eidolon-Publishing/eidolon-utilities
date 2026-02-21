@@ -1,6 +1,5 @@
 import { createApplicationFactory } from "../../common/ui/application-factories.js";
 import { canManageCriteria } from "../core/permissions.js";
-import { getCriteriaSurfacesEnabled } from "../../scene-criteria/core/settings.js";
 import CriteriaSwitcherApplication from "./CriteriaSwitcherApplication.js";
 
 const createSwitcher = createApplicationFactory(CriteriaSwitcherApplication);
@@ -24,11 +23,6 @@ export function getCriteriaSwitcher() {
 }
 
 export function openCriteriaSwitcher(scene) {
-  if (!getCriteriaSurfacesEnabled()) {
-    ui.notifications?.warn?.("Criteria UI surfaces are disabled in module settings.");
-    return null;
-  }
-
   const targetScene = resolveScene(scene);
   if (!targetScene) {
     ui.notifications?.warn?.("No active scene to open the criteria switcher.");

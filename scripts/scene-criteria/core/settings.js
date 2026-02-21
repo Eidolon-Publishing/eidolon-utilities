@@ -1,7 +1,6 @@
 import {
   MODULE_ID,
-  SETTING_ENABLE_CRITERIA_SURFACES,
-  SETTING_SHOW_SCENE_CRITERIA_TAB
+  SETTING_ENABLE_CRITERIA_SURFACES
 } from "./constants.js";
 import { localize } from "../../time-triggers/core/utils.js";
 
@@ -16,27 +15,11 @@ export function registerSceneCriteriaSettings() {
     return;
   }
 
-  game.settings.register(MODULE_ID, SETTING_SHOW_SCENE_CRITERIA_TAB, {
-    name: localize("EIDOLON.SceneCriteria.ShowTabSettingName", "Show Scene Criteria Tab"),
-    hint: localize(
-      "EIDOLON.SceneCriteria.ShowTabSettingHint",
-      "Enable the Scene Config > Criteria tab for scene criteria authoring."
-    ),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-    onChange: () => {
-      // SceneConfig tab patching happens at initialization; prompt for reload.
-      promptReloadForSceneCriteriaTab();
-    }
-  });
-
   game.settings.register(MODULE_ID, SETTING_ENABLE_CRITERIA_SURFACES, {
-    name: localize("EIDOLON.SceneCriteria.EnableSurfacesSettingName", "Enable Criteria UI Surfaces"),
+    name: localize("EIDOLON.SceneCriteria.EnableSurfacesSettingName", "Enable Criteria Editor Surfaces"),
     hint: localize(
       "EIDOLON.SceneCriteria.EnableSurfacesSettingHint",
-      "Show all criteria-driven UI surfaces (scene tab, tile/light editors, and criteria switcher controls)."
+      "Show criteria authoring surfaces (Scene > Criteria tab and tile/light editor controls). The Criteria Switcher remains available."
     ),
     scope: "world",
     config: true,
@@ -44,20 +27,9 @@ export function registerSceneCriteriaSettings() {
     default: true,
     onChange: () => {
       // Some surfaces are registered at initialization; prompt for reload.
-      promptReloadForSceneCriteriaTab();
+      promptReloadForCriteriaSurfaces();
     }
   });
-}
-
-export function getShowSceneCriteriaTabSetting() {
-  try {
-    if (game?.settings?.get) {
-      return Boolean(game.settings.get(MODULE_ID, SETTING_SHOW_SCENE_CRITERIA_TAB));
-    }
-  } catch (error) {
-    console.error(`${MODULE_ID} | Failed to read Scene Criteria tab setting`, error);
-  }
-  return false;
 }
 
 export function getCriteriaSurfacesEnabled() {
@@ -71,11 +43,11 @@ export function getCriteriaSurfacesEnabled() {
   return true;
 }
 
-function promptReloadForSceneCriteriaTab() {
+function promptReloadForCriteriaSurfaces() {
   const title = localize("EIDOLON.SceneCriteria.ReloadPromptTitle", "Reload Required");
   const content = `<p>${localize(
     "EIDOLON.SceneCriteria.ReloadPromptBody",
-    "Changes to the Scene Criteria tab visibility require a reload. Reload now?"
+    "Changes to criteria editor surfaces require a reload. Reload now?"
   )}</p>`;
 
   const canReload = typeof foundry?.utils?.debouncedReload === "function";
@@ -111,7 +83,7 @@ function promptReloadForSceneCriteriaTab() {
   ui.notifications?.info?.(
     localize(
       "EIDOLON.SceneCriteria.ReloadNotice",
-      "Please reload the world to apply Scene Criteria tab visibility changes."
+      "Please reload the world to apply criteria editor surface changes."
     )
   );
 }

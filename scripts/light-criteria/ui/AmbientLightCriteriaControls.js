@@ -76,6 +76,9 @@ function enhanceAmbientLightConfig(app, root) {
     (category) => Array.isArray(category?.values) && category.values.length > 0
   );
   const categoryNameLookup = buildCategoryNameLookup(categoriesRaw);
+  const categoryOrder = categoriesRaw
+    .map((category) => (typeof category?.id === "string" ? category.id : null))
+    .filter((id) => Boolean(id));
 
   const activeLight = persistedLight ?? ambientLight;
   const sceneCriteria = scene ? getSceneCriteria(scene) : [];
@@ -164,6 +167,80 @@ function enhanceAmbientLightConfig(app, root) {
   switcherLabel.textContent = localize("EIDOLON.LightCriteria.SelectLabel", "Criteria Mapping");
   switcher.appendChild(switcherLabel);
 
+  const filterDetails = document.createElement("details");
+  filterDetails.classList.add("eidolon-light-criteria__filter-details");
+
+  const filterSummary = document.createElement("summary");
+  filterSummary.classList.add("eidolon-light-criteria__filter-summary");
+
+  const filterSummaryLabel = document.createElement("span");
+  filterSummaryLabel.classList.add("eidolon-light-criteria__filter-summary-label");
+  filterSummaryLabel.textContent = localize(
+    "EIDOLON.LightCriteria.FilterHeading",
+    "Filter mappings"
+  );
+  filterSummary.appendChild(filterSummaryLabel);
+
+  const filterMeta = document.createElement("span");
+  filterMeta.classList.add("eidolon-light-criteria__filter-meta");
+  filterSummary.appendChild(filterMeta);
+
+  filterDetails.appendChild(filterSummary);
+
+  const filterPanel = document.createElement("div");
+  filterPanel.classList.add("eidolon-light-criteria__filter-panel");
+
+  const filterGrid = document.createElement("div");
+  filterGrid.classList.add("eidolon-light-criteria__filter-grid");
+
+  for (const category of categoriesWithValues) {
+    const filterLabel = document.createElement("label");
+    filterLabel.classList.add("eidolon-light-criteria__filter");
+
+    const name = document.createElement("span");
+    name.classList.add("eidolon-light-criteria__filter-name");
+    name.textContent = category.name?.trim?.()
+      ? category.name.trim()
+      : localize("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category");
+    filterLabel.appendChild(name);
+
+    const select = document.createElement("select");
+    select.dataset.filterCategoryId = category.id;
+    select.classList.add("eidolon-light-criteria__filter-select");
+
+    const anyOption = document.createElement("option");
+    anyOption.value = "";
+    anyOption.textContent = localize("EIDOLON.LightCriteria.FilterAny", "Any");
+    select.appendChild(anyOption);
+
+    for (const value of category.values) {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = value;
+      select.appendChild(option);
+    }
+
+    filterLabel.appendChild(select);
+    filterGrid.appendChild(filterLabel);
+  }
+
+  filterPanel.appendChild(filterGrid);
+
+  const filterActions = document.createElement("div");
+  filterActions.classList.add("eidolon-light-criteria__filter-actions");
+
+  const clearFiltersButton = document.createElement("button");
+  clearFiltersButton.type = "button";
+  clearFiltersButton.dataset.action = "clear-mapping-filters";
+  clearFiltersButton.classList.add("eidolon-light-criteria__button", "secondary", "compact");
+  clearFiltersButton.textContent = localize("EIDOLON.LightCriteria.ClearFilters", "Clear Filters");
+  filterActions.appendChild(clearFiltersButton);
+
+  filterPanel.appendChild(filterActions);
+  filterDetails.appendChild(filterPanel);
+  filterDetails.hidden = categoriesWithValues.length === 0;
+  switcher.appendChild(filterDetails);
+
   const switcherControls = document.createElement("div");
   switcherControls.classList.add("eidolon-light-criteria__switcher-controls");
   switcher.appendChild(switcherControls);
@@ -174,54 +251,62 @@ function enhanceAmbientLightConfig(app, root) {
   mappingSelect.dataset.action = "select-mapping";
   switcherControls.appendChild(mappingSelect);
 
-  const actionStack = document.createElement("div");
-  actionStack.classList.add("eidolon-light-criteria__action-stack");
-  switcherControls.appendChild(actionStack);
-
   const applyMappingButton = document.createElement("button");
   applyMappingButton.type = "button";
   applyMappingButton.dataset.action = "apply-selected-mapping";
-  applyMappingButton.classList.add("eidolon-light-criteria__button", "secondary", "icon-only");
-  applyMappingButton.dataset.tooltip = localize("EIDOLON.LightCriteria.ApplyButton", "Apply");
-  applyMappingButton.setAttribute("aria-label", localize("EIDOLON.LightCriteria.ApplyButton", "Apply"));
-  applyMappingButton.innerHTML = '<i class="fa-solid fa-play" inert=""></i>';
-  actionStack.appendChild(applyMappingButton);
+  applyMappingButton.classList.add("eidolon-light-criteria__button", "secondary");
+  applyMappingButton.textContent = localize("EIDOLON.LightCriteria.ApplyButton", "Apply");
+  switcherControls.appendChild(applyMappingButton);
+
+  const actionsMenu = document.createElement("details");
+  actionsMenu.classList.add("eidolon-light-criteria__menu");
+  actionsMenu.dataset.action = "mapping-actions-menu";
+
+  const actionsSummary = document.createElement("summary");
+  actionsSummary.classList.add("eidolon-light-criteria__menu-toggle");
+  actionsSummary.innerHTML = '<i class="fa-solid fa-ellipsis-vertical" inert=""></i>';
+  actionsSummary.setAttribute(
+    "aria-label",
+    localize("EIDOLON.LightCriteria.MoreActions", "More actions")
+  );
+  actionsSummary.dataset.tooltip = localize("EIDOLON.LightCriteria.MoreActions", "More actions");
+  actionsMenu.appendChild(actionsSummary);
+
+  const menuList = document.createElement("div");
+  menuList.classList.add("eidolon-light-criteria__menu-list");
+  actionsMenu.appendChild(menuList);
 
   const updateMappingButton = document.createElement("button");
   updateMappingButton.type = "button";
   updateMappingButton.dataset.action = "update-selected-mapping";
-  updateMappingButton.classList.add("eidolon-light-criteria__button", "secondary", "icon-only");
-  updateMappingButton.dataset.tooltip = localize("EIDOLON.LightCriteria.UpdateButton", "Save Changes");
-  updateMappingButton.setAttribute(
-    "aria-label",
-    localize("EIDOLON.LightCriteria.UpdateButton", "Save Changes")
+  updateMappingButton.classList.add("eidolon-light-criteria__menu-item");
+  updateMappingButton.textContent = localize(
+    "EIDOLON.LightCriteria.UpdateSelected",
+    "Save current config to selected"
   );
-  updateMappingButton.innerHTML = '<i class="fa-solid fa-floppy-disk" inert=""></i>';
-  actionStack.appendChild(updateMappingButton);
+  menuList.appendChild(updateMappingButton);
 
   const editCriteriaButton = document.createElement("button");
   editCriteriaButton.type = "button";
   editCriteriaButton.dataset.action = "edit-selected-mapping-criteria";
-  editCriteriaButton.classList.add("eidolon-light-criteria__button", "secondary", "icon-only");
-  editCriteriaButton.dataset.tooltip = localize("EIDOLON.LightCriteria.EditCriteriaButton", "Edit Criteria");
-  editCriteriaButton.setAttribute(
-    "aria-label",
-    localize("EIDOLON.LightCriteria.EditCriteriaButton", "Edit Criteria")
+  editCriteriaButton.classList.add("eidolon-light-criteria__menu-item");
+  editCriteriaButton.textContent = localize(
+    "EIDOLON.LightCriteria.EditSelectedCriteria",
+    "Edit selected mapping criteria"
   );
-  editCriteriaButton.innerHTML = '<i class="fa-solid fa-sliders" inert=""></i>';
-  actionStack.appendChild(editCriteriaButton);
+  menuList.appendChild(editCriteriaButton);
 
   const removeMappingButton = document.createElement("button");
   removeMappingButton.type = "button";
   removeMappingButton.dataset.action = "remove-selected-mapping";
-  removeMappingButton.classList.add("eidolon-light-criteria__button", "secondary", "icon-only", "danger");
-  removeMappingButton.dataset.tooltip = localize("EIDOLON.LightCriteria.RemoveMapping", "Remove Mapping");
-  removeMappingButton.setAttribute(
-    "aria-label",
-    localize("EIDOLON.LightCriteria.RemoveMapping", "Remove Mapping")
+  removeMappingButton.classList.add("eidolon-light-criteria__menu-item", "danger");
+  removeMappingButton.textContent = localize(
+    "EIDOLON.LightCriteria.RemoveSelected",
+    "Delete selected mapping"
   );
-  removeMappingButton.innerHTML = '<i class="fa-solid fa-trash" inert=""></i>';
-  actionStack.appendChild(removeMappingButton);
+  menuList.appendChild(removeMappingButton);
+
+  switcherControls.appendChild(actionsMenu);
 
   const switcherRegion = document.createElement("div");
   switcherRegion.classList.add("eidolon-light-criteria-main-switcher");
@@ -363,9 +448,91 @@ function enhanceAmbientLightConfig(app, root) {
     app,
     selectedMapping: initialSelection,
     editorMode: "create",
-    editingMappingId: null
+    editingMappingId: null,
+    mappingFilters: {}
   };
   creationState.set(fieldset, stateEntry);
+
+  const closeActionsMenu = () => {
+    actionsMenu.open = false;
+  };
+
+  actionsSummary.addEventListener("click", (event) => {
+    if (!actionsMenu.classList.contains("is-disabled")) return;
+    event.preventDefault();
+    closeActionsMenu();
+  });
+
+  const refreshMappingSelector = (preferredSelection = stateEntry.selectedMapping) => {
+    const filters = readMappingFilterSelections(filterGrid);
+    const allMappings = Array.isArray(currentState?.mappings) ? currentState.mappings : [];
+    const filteredMappings = filterMappingsByCriteria(allMappings, filters);
+    const activeFilterCount = Object.keys(filters).length;
+
+    stateEntry.mappingFilters = filters;
+    clearFiltersButton.disabled = activeFilterCount === 0;
+    updateMappingFilterMeta(filterMeta, {
+      totalCount: allMappings.length,
+      visibleCount: filteredMappings.length,
+      hasFilters: activeFilterCount > 0,
+      activeFilterCount
+    });
+    filterDetails.classList.toggle("has-active-filters", activeFilterCount > 0);
+
+    populateMappingSelector(mappingSelect, currentState, categoryNameLookup, preferredSelection, {
+      mappings: filteredMappings,
+      categoryOrder
+    });
+    stateEntry.selectedMapping = mappingSelect.value ?? "";
+
+    syncMappingSwitcherState({
+      mappingSelect,
+      applyMappingButton,
+      updateMappingButton,
+      editCriteriaButton,
+      removeMappingButton,
+      actionsMenu,
+      state: currentState
+    });
+
+    if (actionsMenu.classList.contains("is-disabled")) {
+      closeActionsMenu();
+    }
+  };
+
+  filterGrid.querySelectorAll("select[data-filter-category-id]").forEach((select) => {
+    select.addEventListener("change", () => {
+      const previousSelection = stateEntry.selectedMapping;
+      refreshMappingSelector(previousSelection);
+      if (stateEntry.selectedMapping !== previousSelection) {
+        void persistCurrentSelection(
+          persistedLight ?? ambientLight,
+          currentState,
+          stateEntry.selectedMapping
+        ).then((nextState) => {
+          if (!nextState) return;
+          currentState = nextState;
+        });
+      }
+    });
+  });
+
+  clearFiltersButton.addEventListener("click", () => {
+    resetMappingFilterSelections(filterGrid);
+    const previousSelection = stateEntry.selectedMapping;
+    refreshMappingSelector(previousSelection);
+    filterDetails.open = false;
+    if (stateEntry.selectedMapping !== previousSelection) {
+      void persistCurrentSelection(
+        persistedLight ?? ambientLight,
+        currentState,
+        stateEntry.selectedMapping
+      ).then((nextState) => {
+        if (!nextState) return;
+        currentState = nextState;
+      });
+    }
+  });
 
   mappingSelect.addEventListener("change", () => {
     stateEntry.selectedMapping = mappingSelect.value ?? "";
@@ -375,6 +542,7 @@ function enhanceAmbientLightConfig(app, root) {
       updateMappingButton,
       editCriteriaButton,
       removeMappingButton,
+      actionsMenu,
       state: currentState
     });
     void persistCurrentSelection(
@@ -397,14 +565,7 @@ function enhanceAmbientLightConfig(app, root) {
           "Choose a criteria mapping before applying."
         )
       );
-      syncMappingSwitcherState({
-        mappingSelect,
-        applyMappingButton,
-        updateMappingButton,
-        editCriteriaButton,
-        removeMappingButton,
-        state: currentState
-      });
+      refreshMappingSelector(stateEntry.selectedMapping);
       return;
     }
 
@@ -426,8 +587,7 @@ function enhanceAmbientLightConfig(app, root) {
         updatedAt: Date.now()
       });
       stateEntry.selectedMapping = BASE_SELECT_VALUE;
-      populateMappingSelector(mappingSelect, currentState, categoryNameLookup, stateEntry.selectedMapping);
-      stateEntry.selectedMapping = mappingSelect.value ?? BASE_SELECT_VALUE;
+      refreshMappingSelector(stateEntry.selectedMapping);
       updateStatusLine(statusLine, currentState);
       updateActiveMappingVisibility({ switcher, emptyState: switcherEmptyState, state: currentState });
       updateCreateButtonState(createButton, {
@@ -444,14 +604,7 @@ function enhanceAmbientLightConfig(app, root) {
           "Applied the base lighting state to the form."
         )
       );
-      syncMappingSwitcherState({
-        mappingSelect,
-        applyMappingButton,
-        updateMappingButton,
-        editCriteriaButton,
-        removeMappingButton,
-        state: currentState
-      });
+      closeActionsMenu();
       return;
     }
 
@@ -466,16 +619,8 @@ function enhanceAmbientLightConfig(app, root) {
           "The selected criteria mapping is no longer available."
         )
       );
-      populateMappingSelector(mappingSelect, currentState, categoryNameLookup, "");
-      stateEntry.selectedMapping = mappingSelect.value ?? "";
-      syncMappingSwitcherState({
-        mappingSelect,
-        applyMappingButton,
-        updateMappingButton,
-        editCriteriaButton,
-        removeMappingButton,
-        state: currentState
-      });
+      stateEntry.selectedMapping = "";
+      refreshMappingSelector(stateEntry.selectedMapping);
       return;
     }
 
@@ -487,8 +632,7 @@ function enhanceAmbientLightConfig(app, root) {
       updatedAt: Date.now()
     });
     stateEntry.selectedMapping = mapping.id;
-    populateMappingSelector(mappingSelect, currentState, categoryNameLookup, stateEntry.selectedMapping);
-    stateEntry.selectedMapping = mappingSelect.value ?? mapping.id;
+    refreshMappingSelector(stateEntry.selectedMapping);
     updateStatusLine(statusLine, currentState);
     updateActiveMappingVisibility({ switcher, emptyState: switcherEmptyState, state: currentState });
     updateCreateButtonState(createButton, {
@@ -499,21 +643,14 @@ function enhanceAmbientLightConfig(app, root) {
       mappingId: mapping.id,
       color: mapping.config?.config?.color ?? null
     });
-    const mappingLabel = formatMappingOptionLabel(mapping, categoryNameLookup);
+    const mappingLabel = formatMappingOptionLabel(mapping, categoryNameLookup, categoryOrder);
     ui.notifications?.info?.(
       localize(
         "EIDOLON.LightCriteria.MappingApplied",
         "Applied mapping: {label}"
       ).replace("{label}", mappingLabel)
     );
-    syncMappingSwitcherState({
-      mappingSelect,
-      applyMappingButton,
-      updateMappingButton,
-      editCriteriaButton,
-      removeMappingButton,
-      state: currentState
-    });
+    closeActionsMenu();
   };
 
   applyMappingButton.addEventListener("click", () => {
@@ -563,8 +700,8 @@ function enhanceAmbientLightConfig(app, root) {
               "The selected criteria mapping is no longer available."
             )
           );
-          populateMappingSelector(mappingSelect, currentState, categoryNameLookup, "");
-          stateEntry.selectedMapping = mappingSelect.value ?? "";
+          stateEntry.selectedMapping = "";
+          refreshMappingSelector(stateEntry.selectedMapping);
           return;
         }
 
@@ -585,8 +722,8 @@ function enhanceAmbientLightConfig(app, root) {
         });
         const mappingAfter = getMappingById(currentState, selectedValue);
         const label = mappingAfter
-          ? formatMappingOptionLabel(mappingAfter, categoryNameLookup)
-          : formatMappingOptionLabel(mappingBefore, categoryNameLookup);
+          ? formatMappingOptionLabel(mappingAfter, categoryNameLookup, categoryOrder)
+          : formatMappingOptionLabel(mappingBefore, categoryNameLookup, categoryOrder);
         debugLog("LightCriteria | Mapping updated", {
           mappingId: selectedValue,
           categories: mappingBefore.categories,
@@ -608,8 +745,8 @@ function enhanceAmbientLightConfig(app, root) {
         state: currentState,
         hasCategories: categoriesWithValues.length > 0
       });
-      populateMappingSelector(mappingSelect, currentState, categoryNameLookup, stateEntry.selectedMapping);
-      stateEntry.selectedMapping = mappingSelect.value ?? "";
+      refreshMappingSelector(stateEntry.selectedMapping);
+      closeActionsMenu();
     } catch (error) {
       console.error("eidolon-utilities | Failed to update light criteria mapping", error);
       ui.notifications?.error?.(
@@ -626,6 +763,7 @@ function enhanceAmbientLightConfig(app, root) {
         updateMappingButton,
         editCriteriaButton,
         removeMappingButton,
+        actionsMenu,
         state: currentState
       });
     }
@@ -635,16 +773,7 @@ function enhanceAmbientLightConfig(app, root) {
     void updateSelectedMapping();
   });
 
-  populateMappingSelector(mappingSelect, currentState, categoryNameLookup, stateEntry.selectedMapping);
-  stateEntry.selectedMapping = mappingSelect.value ?? stateEntry.selectedMapping ?? "";
-  syncMappingSwitcherState({
-    mappingSelect,
-    applyMappingButton,
-    updateMappingButton,
-    editCriteriaButton,
-    removeMappingButton,
-    state: currentState
-  });
+  refreshMappingSelector(stateEntry.selectedMapping);
 
   makeDefaultButton.addEventListener("click", async () => {
     makeDefaultButton.disabled = true;
@@ -668,16 +797,7 @@ function enhanceAmbientLightConfig(app, root) {
         hasCategories: categoriesWithValues.length > 0
       });
       stateEntry.selectedMapping = BASE_SELECT_VALUE;
-      populateMappingSelector(mappingSelect, currentState, categoryNameLookup, stateEntry.selectedMapping);
-      stateEntry.selectedMapping = mappingSelect.value ?? "";
-      syncMappingSwitcherState({
-        mappingSelect,
-        applyMappingButton,
-        updateMappingButton,
-        editCriteriaButton,
-        removeMappingButton,
-        state: currentState
-      });
+      refreshMappingSelector(stateEntry.selectedMapping);
     } catch (error) {
       console.error("eidolon-utilities | Failed to store base light criteria state", error);
       ui.notifications?.error?.(
@@ -750,6 +870,7 @@ function enhanceAmbientLightConfig(app, root) {
       return;
     }
 
+    closeActionsMenu();
     openManagerDialog(app, { fieldset, homeContainer: windowContent });
 
     openMappingEditor({
@@ -837,17 +958,9 @@ function enhanceAmbientLightConfig(app, root) {
       if (updatedSelection) {
         stateEntry.selectedMapping = updatedSelection;
       }
-      populateMappingSelector(mappingSelect, currentState, categoryNameLookup, stateEntry.selectedMapping);
-      stateEntry.selectedMapping = mappingSelect.value ?? "";
-      syncMappingSwitcherState({
-        mappingSelect,
-        applyMappingButton,
-        updateMappingButton,
-        editCriteriaButton,
-        removeMappingButton,
-        state: currentState
-      });
+      refreshMappingSelector(stateEntry.selectedMapping);
       hideCreationSection(fieldset, creationSection, createButton);
+      closeActionsMenu();
     } catch (error) {
       console.error("eidolon-utilities | Failed to persist light criteria mapping", error);
       ui.notifications?.error?.(
@@ -880,15 +993,8 @@ function enhanceAmbientLightConfig(app, root) {
     stateEntry.selectedMapping = "";
     updateStatusLine(statusLine, currentState);
     updateActiveMappingVisibility({ switcher, emptyState: switcherEmptyState, state: currentState });
-    populateMappingSelector(mappingSelect, currentState, categoryNameLookup, "");
-    syncMappingSwitcherState({
-      mappingSelect,
-      applyMappingButton,
-      updateMappingButton,
-      editCriteriaButton,
-      removeMappingButton,
-      state: currentState
-    });
+    refreshMappingSelector(stateEntry.selectedMapping);
+    closeActionsMenu();
     ui.notifications?.info?.(
       localize("EIDOLON.LightCriteria.MappingRemoved", "Removed selected mapping.")
     );
@@ -1530,6 +1636,7 @@ function syncMappingSwitcherState({
   updateMappingButton,
   editCriteriaButton,
   removeMappingButton,
+  actionsMenu,
   state
 }) {
   const selectedValue = mappingSelect?.value ?? "";
@@ -1568,6 +1675,18 @@ function syncMappingSwitcherState({
     removeMappingButton.disabled =
       !selectedValue || selectedValue === BASE_SELECT_VALUE || !mappingExists;
   }
+
+  if (actionsMenu instanceof HTMLElement) {
+    const hasEnabledAction =
+      (updateMappingButton instanceof HTMLButtonElement && !updateMappingButton.disabled) ||
+      (editCriteriaButton instanceof HTMLButtonElement && !editCriteriaButton.disabled) ||
+      (removeMappingButton instanceof HTMLButtonElement && !removeMappingButton.disabled);
+
+    actionsMenu.classList.toggle("is-disabled", !hasEnabledAction);
+    if (!hasEnabledAction && "open" in actionsMenu) {
+      actionsMenu.open = false;
+    }
+  }
 }
 
 function buildCategoryNameLookup(categories) {
@@ -1587,12 +1706,77 @@ function buildCategoryNameLookup(categories) {
   return lookup;
 }
 
-function populateMappingSelector(select, state, categoryNameLookup, selectedValue) {
+function readMappingFilterSelections(container) {
+  const filters = {};
+  if (!(container instanceof HTMLElement)) return filters;
+
+  container.querySelectorAll("select[data-filter-category-id]").forEach((select) => {
+    const categoryId = select.dataset.filterCategoryId;
+    const value = select.value?.trim?.();
+    if (!categoryId || !value) return;
+    filters[categoryId] = value;
+  });
+
+  return filters;
+}
+
+function resetMappingFilterSelections(container) {
+  if (!(container instanceof HTMLElement)) return;
+  container.querySelectorAll("select[data-filter-category-id]").forEach((select) => {
+    select.value = "";
+  });
+}
+
+function filterMappingsByCriteria(mappings, filters) {
+  const source = Array.isArray(mappings) ? mappings : [];
+  const entries = Object.entries(filters ?? {}).filter(([, value]) => Boolean(value));
+  if (!entries.length) return source.slice();
+
+  return source.filter((mapping) => {
+    if (!mapping || typeof mapping !== "object") return false;
+    const categories = mapping.categories ?? {};
+    for (const [categoryId, expected] of entries) {
+      if (categories?.[categoryId] !== expected) return false;
+    }
+    return true;
+  });
+}
+
+function updateMappingFilterMeta(
+  element,
+  { totalCount = 0, visibleCount = 0, hasFilters = false, activeFilterCount = 0 } = {}
+) {
+  if (!(element instanceof HTMLElement)) return;
+
+  if (!hasFilters) {
+    element.textContent = localize(
+      "EIDOLON.LightCriteria.FilterSummaryAll",
+      "All ({count})"
+    ).replace("{count}", String(totalCount));
+    return;
+  }
+
+  const summary = localize(
+    "EIDOLON.LightCriteria.FilterSummaryActive",
+    "{active} filters · {visible}/{total}"
+  )
+    .replace("{active}", String(activeFilterCount))
+    .replace("{visible}", String(visibleCount))
+    .replace("{total}", String(totalCount));
+  element.textContent = summary;
+}
+
+function populateMappingSelector(select, state, categoryNameLookup, selectedValue, options = {}) {
   if (!(select instanceof HTMLSelectElement)) return;
 
   const selection = typeof selectedValue === "string" ? selectedValue : "";
   const hasBase = Boolean(state?.base);
-  const mappings = Array.isArray(state?.mappings) ? [...state.mappings] : [];
+  const categoryOrder = Array.isArray(options?.categoryOrder) ? options.categoryOrder : [];
+  const mappings = Array.isArray(options?.mappings)
+    ? options.mappings.slice()
+    : Array.isArray(state?.mappings)
+    ? state.mappings.slice()
+    : [];
 
   const previous = select.value;
   select.innerHTML = "";
@@ -1618,8 +1802,8 @@ function populateMappingSelector(select, state, categoryNameLookup, selectedValu
   mappings
     .slice()
     .sort((a, b) => {
-      const labelA = formatMappingOptionLabel(a, categoryNameLookup);
-      const labelB = formatMappingOptionLabel(b, categoryNameLookup);
+      const labelA = formatMappingOptionLabel(a, categoryNameLookup, categoryOrder);
+      const labelB = formatMappingOptionLabel(b, categoryNameLookup, categoryOrder);
       return labelA.localeCompare(labelB, game.i18n?.lang ?? undefined, {
         sensitivity: "base"
       });
@@ -1628,7 +1812,7 @@ function populateMappingSelector(select, state, categoryNameLookup, selectedValu
       if (!mapping?.id) return;
       const option = document.createElement("option");
       option.value = mapping.id;
-      option.textContent = formatMappingOptionLabel(mapping, categoryNameLookup);
+      option.textContent = formatMappingOptionLabel(mapping, categoryNameLookup, categoryOrder);
       select.appendChild(option);
     });
 
@@ -1650,7 +1834,7 @@ function populateMappingSelector(select, state, categoryNameLookup, selectedValu
   }
 }
 
-function formatMappingOptionLabel(mapping, categoryNameLookup) {
+function formatMappingOptionLabel(mapping, categoryNameLookup, categoryOrder = []) {
   if (!mapping || typeof mapping !== "object") {
     return localize("EIDOLON.LightCriteria.UnnamedMapping", "Unnamed Mapping");
   }
@@ -1660,21 +1844,39 @@ function formatMappingOptionLabel(mapping, categoryNameLookup) {
   }
 
   const categories = mapping.categories ?? {};
-  const pairs = Object.entries(categories)
-    .filter(([, value]) => typeof value === "string" && value.trim())
-    .map(([categoryId, value]) => {
-      const trimmedValue = value.trim();
+  const orderedCategoryIds = [];
+  const seen = new Set();
+
+  for (const categoryId of categoryOrder) {
+    if (!categoryId || seen.has(categoryId)) continue;
+    orderedCategoryIds.push(categoryId);
+    seen.add(categoryId);
+  }
+
+  for (const categoryId of Object.keys(categories).sort((left, right) => left.localeCompare(right))) {
+    if (seen.has(categoryId)) continue;
+    orderedCategoryIds.push(categoryId);
+    seen.add(categoryId);
+  }
+
+  const pairs = orderedCategoryIds
+    .map((categoryId) => {
+      const rawValue = categories?.[categoryId];
+      if (typeof rawValue !== "string" || !rawValue.trim()) return null;
+
+      const trimmedValue = rawValue.trim();
       const categoryName =
         categoryNameLookup.get(categoryId) ??
         localize("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category");
-      return `${categoryName}: ${trimmedValue}`;
-    });
+      return `${categoryName}=${trimmedValue}`;
+    })
+    .filter(Boolean);
 
   if (pairs.length === 0) {
     return localize("EIDOLON.LightCriteria.UnnamedMapping", "Unnamed Mapping");
   }
 
-  return pairs.join(" • ");
+  return pairs.join(" | ");
 }
 
 function findMappingIdByCategories(state, categoriesSelection) {
