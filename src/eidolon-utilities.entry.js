@@ -11,3 +11,4 @@ import "../scripts/scene-criteria/index.js";
 import "../scripts/criteria-engine/index.js";
 import "../scripts/light-criteria/index.js";
 import "../scripts/tween/index.js";
+import "../scripts/cinematic/index.js";
