@@ -4,6 +4,7 @@ import { SOCKET_TYPE_TWEEN } from "./core/constants.js";
 import { SOCKET_TYPE_SEQUENCE, SOCKET_TYPE_SEQUENCE_CANCEL, ErrorPolicy } from "./core/timeline/constants.js";
 import { registerLightColorTween } from "./core/executors/light-color.js";
 import { registerLightStateTween } from "./core/executors/light-state.js";
+import { registerTilePropTween } from "./core/executors/tile-prop.js";
 import { registerSequenceTween } from "./core/executors/sequence.js";
 import { dispatchTween, handleTweenSocketMessage } from "./core/dispatcher.js";
 import { listTweenTypes } from "./core/registry.js";
@@ -13,6 +14,7 @@ import { compileSequence } from "./core/timeline/schema.js";
 // Register tween types synchronously at module load time
 registerLightColorTween();
 registerLightStateTween();
+registerTilePropTween();
 registerSequenceTween();
 
 // Register socket handlers
