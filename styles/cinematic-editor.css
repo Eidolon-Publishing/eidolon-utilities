@@ -1,0 +1,421 @@
+/* ── Window ─────────────────────────────────────────────────────────────── */
+
+.eidolon-cinematic-editor-window .window-content {
+	padding: 0;
+}
+
+/* ── Root ───────────────────────────────────────────────────────────────── */
+
+.cinematic-editor {
+	display: flex;
+	flex-direction: column;
+}
+
+/* ── Toolbar ────────────────────────────────────────────────────────────── */
+
+.cinematic-editor__toolbar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+}
+
+.cinematic-editor__toolbar-left,
+.cinematic-editor__toolbar-right {
+	display: flex;
+	gap: 0.25rem;
+}
+
+.cinematic-editor__scene-name {
+	flex: 1;
+	text-align: center;
+	font-weight: 600;
+}
+
+/* ── Config bar ─────────────────────────────────────────────────────────── */
+
+.cinematic-editor__config {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.4rem 0.75rem;
+	border-bottom: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+	font-size: 0.82rem;
+}
+
+.cinematic-editor__config-item {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.cinematic-editor__config-item span {
+	font-weight: 600;
+	color: var(--color-text-secondary, inherit);
+}
+
+.cinematic-editor__config-item select {
+	font-size: 0.82rem;
+	padding: 0.1rem 0.3rem;
+}
+
+.cinematic-editor__config-item input[type="checkbox"] {
+	margin: 0;
+}
+
+/* ── Timeline strip ─────────────────────────────────────────────────────── */
+
+.cinematic-editor__timeline {
+	padding: 0.5rem 0.75rem;
+}
+
+.cinematic-editor__timeline-strip {
+	display: flex;
+	gap: 2px;
+	min-height: 56px;
+	border: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.cinematic-editor__block {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 0.25rem 0.5rem;
+	cursor: pointer;
+	transition: background-color 0.15s;
+	user-select: none;
+}
+
+.cinematic-editor__block:hover {
+	filter: brightness(1.05);
+}
+
+.cinematic-editor__block--step {
+	background: var(--color-warm-2, #e8d5b5);
+	color: var(--color-text-dark-primary, #191813);
+}
+
+.cinematic-editor__block--delay {
+	background: transparent;
+	border: 1px dashed var(--color-border-light-tertiary, rgba(0, 0, 0, 0.3));
+	color: var(--color-text-secondary, #888);
+}
+
+.cinematic-editor__block--await {
+	background: #b8d4e3;
+	color: var(--color-text-dark-primary, #191813);
+}
+
+.cinematic-editor__block--emit {
+	background: #b8e3c0;
+	color: var(--color-text-dark-primary, #191813);
+}
+
+.cinematic-editor__block--parallel {
+	background: #d4b8e3;
+	color: var(--color-text-dark-primary, #191813);
+}
+
+.cinematic-editor__block--selected {
+	outline: 2px solid var(--color-border-highlight, #d9a441);
+	outline-offset: -2px;
+	z-index: 1;
+}
+
+.cinematic-editor__block.dragging {
+	opacity: 0.4;
+}
+
+.cinematic-editor__block--drag-over {
+	box-shadow: inset 3px 0 0 0 var(--color-border-highlight, #d9a441);
+}
+
+.cinematic-editor__block-label {
+	font-weight: 600;
+	font-size: 0.82rem;
+	white-space: nowrap;
+}
+
+.cinematic-editor__block-sub {
+	font-size: 0.72rem;
+	opacity: 0.7;
+	white-space: nowrap;
+}
+
+.cinematic-editor__timeline-actions {
+	display: flex;
+	gap: 0.35rem;
+	margin-top: 0.35rem;
+}
+
+/* ── Detail panel ───────────────────────────────────────────────────────── */
+
+.cinematic-editor__detail {
+	padding: 0.5rem 0.75rem;
+	border-top: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+}
+
+.cinematic-editor__detail-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding-bottom: 0.4rem;
+	border-bottom: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.15));
+}
+
+.cinematic-editor__detail-title {
+	font-weight: 600;
+}
+
+.cinematic-editor__detail-duration {
+	flex: 1;
+	font-size: 0.82rem;
+	color: var(--color-text-secondary, #888);
+}
+
+.cinematic-editor__delay-input {
+	width: 80px;
+	font-size: 0.82rem;
+}
+
+/* ── Entry config (await/emit/parallel detail) ─────────────────────────── */
+
+.cinematic-editor__entry-config {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.4rem 0;
+	font-size: 0.82rem;
+}
+
+.cinematic-editor__entry-config select,
+.cinematic-editor__entry-config input[type="text"] {
+	font-size: 0.82rem;
+	padding: 0.1rem 0.3rem;
+}
+
+/* ── State rows (before/after) ──────────────────────────────────────────── */
+
+.cinematic-editor__state-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.3rem 0;
+	font-size: 0.78rem;
+}
+
+.cinematic-editor__state-label {
+	font-weight: 600;
+	color: var(--color-text-secondary, #888);
+}
+
+.cinematic-editor__state-summary {
+	flex: 1;
+	color: var(--color-text-secondary, #888);
+}
+
+/* ── Tween rows ─────────────────────────────────────────────────────────── */
+
+.cinematic-editor__tweens {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	margin-top: 0.4rem;
+	margin-bottom: 0.4rem;
+}
+
+.cinematic-editor__tween-row {
+	display: grid;
+	grid-template-columns: 100px 1fr 80px 60px 70px 100px 28px 28px;
+	gap: 0.25rem;
+	align-items: center;
+}
+
+.cinematic-editor__tween-row select,
+.cinematic-editor__tween-row input[type="text"],
+.cinematic-editor__tween-row input[type="number"] {
+	font-size: 0.78rem;
+	padding: 0.15rem 0.3rem;
+	min-width: 0;
+}
+
+.cinematic-editor__tween-detach {
+	display: flex;
+	align-items: center;
+	gap: 0.15rem;
+	font-size: 0.72rem;
+	cursor: pointer;
+}
+
+.cinematic-editor__tween-detach input[type="checkbox"] {
+	margin: 0;
+}
+
+/* ── Parallel branch columns ───────────────────────────────────────────── */
+
+.cinematic-editor__branches {
+	display: flex;
+	gap: 0.5rem;
+	padding: 0.4rem 0;
+	overflow-x: auto;
+}
+
+.cinematic-editor__branch {
+	flex: 1;
+	min-width: 120px;
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+	border-radius: 4px;
+	background: rgba(212, 184, 227, 0.08);
+}
+
+.cinematic-editor__branch-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.25rem 0.4rem;
+	border-bottom: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.15));
+	font-size: 0.78rem;
+	font-weight: 600;
+}
+
+.cinematic-editor__branch-label {
+	color: var(--color-text-dark-primary, #191813);
+}
+
+.cinematic-editor__branch-entries {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 0.3rem;
+	min-height: 32px;
+}
+
+.cinematic-editor__branch-entry {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.2rem 0.35rem;
+	border-radius: 3px;
+	font-size: 0.75rem;
+}
+
+.cinematic-editor__branch-entry--step {
+	background: var(--color-warm-2, #e8d5b5);
+}
+
+.cinematic-editor__branch-entry--delay {
+	background: transparent;
+	border: 1px dashed var(--color-border-light-tertiary, rgba(0, 0, 0, 0.3));
+}
+
+.cinematic-editor__branch-entry--await {
+	background: #b8d4e3;
+}
+
+.cinematic-editor__branch-entry--emit {
+	background: #b8e3c0;
+}
+
+.cinematic-editor__branch-entry-label {
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.cinematic-editor__branch-entry-sub {
+	flex: 1;
+	opacity: 0.7;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.cinematic-editor__branch-entry .cinematic-editor__btn--icon {
+	width: 18px;
+	height: 18px;
+	font-size: 0.7rem;
+	flex-shrink: 0;
+}
+
+.cinematic-editor__branch-actions {
+	display: flex;
+	gap: 0.25rem;
+	padding: 0.25rem 0.3rem;
+	border-top: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.1));
+}
+
+.cinematic-editor__branch-actions .cinematic-editor__btn--small {
+	font-size: 0.72rem;
+	padding: 0.1rem 0.35rem;
+}
+
+/* ── Setup/Landing panels ───────────────────────────────────────────────── */
+
+.cinematic-editor__state-panels {
+	display: flex;
+	gap: 0.5rem;
+	padding: 0.5rem 0.75rem;
+	border-top: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+}
+
+.cinematic-editor__state-panel {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	font-size: 0.78rem;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.cinematic-editor__btn {
+	cursor: pointer;
+}
+
+.cinematic-editor__btn--accent {
+	background: var(--color-border-highlight, #d9a441);
+	color: var(--color-text-dark-primary, #191813);
+	font-weight: 600;
+}
+
+.cinematic-editor__btn--danger {
+	color: var(--color-level-error, #c53030);
+}
+
+.cinematic-editor__btn--small {
+	font-size: 0.78rem;
+	padding: 0.15rem 0.5rem;
+}
+
+.cinematic-editor__btn--icon {
+	width: 28px;
+	height: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+}
+
+/* ── Status bar ─────────────────────────────────────────────────────────── */
+
+.cinematic-editor__status {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	padding: 0.3rem 0.75rem;
+	font-size: 0.75rem;
+	border-top: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+	color: var(--color-text-secondary, #888);
+}
+
+.cinematic-editor__status-dirty {
+	color: var(--color-border-highlight, #d9a441);
+	font-weight: 600;
+}

@@ -136,6 +136,8 @@ async function execute(params, opts = {}) {
 	return results.every(Boolean);
 }
 
+export { execute, validate };
+
 export function registerTilePropTween() {
 	registerTweenType({ type: "tile-prop", execute, validate });
 }

@@ -19,4 +19,7 @@ export const TimelineErrorPhase = Object.freeze({
 	AFTER_STEP: "after",
 	RUNTIME: "runtime",
 	VALIDATION: "validation",
+	AWAIT: "await",
+	EMIT: "emit",
+	PARALLEL: "parallel",
 });

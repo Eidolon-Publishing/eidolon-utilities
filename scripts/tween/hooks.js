@@ -7,10 +7,12 @@ import { registerLightStateTween } from "./core/executors/light-state.js";
 import { registerTilePropTween } from "./core/executors/tile-prop.js";
 import { registerParticlesPropTween } from "./core/executors/particles-prop.js";
 import { registerSequenceTween } from "./core/executors/sequence.js";
+import { registerCameraPanTween } from "./core/executors/camera-pan.js";
 import { dispatchTween, handleTweenSocketMessage } from "./core/dispatcher.js";
-import { listTweenTypes } from "./core/registry.js";
+import { listTweenTypes, registerTweenType } from "./core/registry.js";
 import { TweenTimeline, cancelTimeline, getTimeline } from "./core/timeline/TweenTimeline.js";
 import { compileSequence } from "./core/timeline/schema.js";
+import { execute as tilePropExecute, validate as tilePropValidate } from "./core/executors/tile-prop.js";
 
 // Register tween types synchronously at module load time
 registerLightColorTween();
@@ -18,6 +20,12 @@ registerLightStateTween();
 registerTilePropTween();
 registerParticlesPropTween();
 registerSequenceTween();
+registerCameraPanTween();
+
+// Register aliases that reuse tile-prop executor for other placeable types
+registerTweenType({ type: "token-prop", execute: tilePropExecute, validate: tilePropValidate });
+registerTweenType({ type: "drawing-prop", execute: tilePropExecute, validate: tilePropValidate });
+registerTweenType({ type: "sound-prop", execute: tilePropExecute, validate: tilePropValidate });
 
 // Register socket handlers
 registerSocketHandler(SOCKET_TYPE_TWEEN, handleTweenSocketMessage);
