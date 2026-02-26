@@ -4,6 +4,7 @@ import "../styles/scene-criteria.css";
 import "../styles/light-criteria.css";
 import "../styles/criteria-switcher.css";
 import "../styles/tile-criteria.css";
+import "../styles/cinematic-editor.css";
 
 // Feature modules - preserve existing load order
 import "../scripts/time-triggers/index.js";

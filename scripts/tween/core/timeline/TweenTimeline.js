@@ -8,6 +8,8 @@ import {
 	TimelineErrorPhase,
 } from "./constants.js";
 import { TimelineHandle } from "./TimelineHandle.js";
+import { EventBus } from "./EventBus.js";
+import { createAwaitPromise } from "./await-providers.js";
 
 // ── Named timeline registry ────────────────────────────────────────────
 
@@ -149,6 +151,12 @@ class StepBuilder {
 	step() { return this.#timeline.step(); }
 	/** Insert a delay between steps. */
 	delay(ms) { return this.#timeline.delay(ms); }
+	/** Insert an await segment. */
+	await(config) { return this.#timeline.await(config); }
+	/** Insert an emit segment. */
+	emit(signal) { return this.#timeline.emit(signal); }
+	/** Insert a parallel segment. */
+	parallel(branchFns, opts) { return this.#timeline.parallel(branchFns, opts); }
 	/** Register onComplete callback. */
 	onComplete(fn) { return this.#timeline.onComplete(fn); }
 	/** Register onCancel callback. */
@@ -179,7 +187,7 @@ export class TweenTimeline {
 	#name = null;
 	/** @type {string} */
 	#errorPolicy = ErrorPolicy.ABORT;
-	/** @type {Array<{ kind: "step", data: object } | { kind: "delay", ms: number }>} */
+	/** @type {Array<object>} */
 	#segments = [];
 	/** @type {StepBuilder|null} */
 	#currentStep = null;
@@ -234,6 +242,62 @@ export class TweenTimeline {
 	delay(ms) {
 		this.#finalizeCurrentStep();
 		this.#segments.push({ kind: "delay", ms });
+		return this;
+	}
+
+	/**
+	 * Pause execution until an event occurs.
+	 * @param {object} config  e.g. { event: "click" }, { event: "signal", name: "fog-done" }
+	 * @returns {TweenTimeline} this
+	 */
+	await(config) {
+		this.#finalizeCurrentStep();
+		this.#segments.push({ kind: "await", config });
+		return this;
+	}
+
+	/**
+	 * Fire a named signal (instant, non-blocking).
+	 * @param {string} signal  Signal name
+	 * @returns {TweenTimeline} this
+	 */
+	emit(signal) {
+		this.#finalizeCurrentStep();
+		this.#segments.push({ kind: "emit", signal });
+		return this;
+	}
+
+	/**
+	 * Fork N branches with a join strategy.
+	 * @param {Array<(tl: TweenTimeline) => void>} branchFns  Callbacks that build each branch
+	 * @param {object} [opts]
+	 * @param {"all"|"any"|number} [opts.join="all"]  Join strategy
+	 * @param {"detach"|"cancel"} [opts.overflow="detach"]  What to do with un-joined branches
+	 * @returns {TweenTimeline} this
+	 */
+	parallel(branchFns, opts = {}) {
+		this.#finalizeCurrentStep();
+
+		const join = opts.join ?? "all";
+		const overflow = opts.overflow ?? "detach";
+
+		// Validate join
+		if (join !== "all" && join !== "any" && (typeof join !== "number" || join < 1 || join > branchFns.length)) {
+			throw new Error(`parallel: join must be "all", "any", or 1..${branchFns.length}, got ${JSON.stringify(join)}`);
+		}
+		if (overflow !== "detach" && overflow !== "cancel") {
+			throw new Error(`parallel: overflow must be "detach" or "cancel", got ${JSON.stringify(overflow)}`);
+		}
+
+		// Build each branch by running callback on a sub-timeline, then extracting segments
+		const branches = branchFns.map((fn) => {
+			const sub = new TweenTimeline();
+			fn(sub);
+			sub.#finalizeCurrentStep();
+			return sub.#segments;
+		});
+
+		this.#segments.push({ kind: "parallel", branches, join, overflow });
 		return this;
 	}
 
@@ -319,8 +383,20 @@ export class TweenTimeline {
 			});
 		}
 
+		// Create shared execution context
+		const eventBus = new EventBus();
+		const ctx = {
+			signal: handle.signal,
+			commit,
+			startEpochMS,
+			eventBus,
+			errors: [],
+			detachedPromises: [],
+		};
+
 		// Launch execution (non-blocking — the handle is returned immediately)
-		this.#execute(handle, { commit, startEpochMS }).then((outcome) => {
+		this.#execute(handle, ctx).then((outcome) => {
+			eventBus.destroy();
 			handle._resolve(outcome);
 			if (outcome.status === TimelineStatus.COMPLETED) {
 				this.#onComplete?.();
@@ -348,31 +424,54 @@ export class TweenTimeline {
 	}
 
 	/**
-	 * Serialize the timeline to a JSON-safe object (steps/delays only, no hooks).
+	 * Serialize the timeline to a JSON-safe object.
 	 * @returns {object}
 	 */
 	toJSON() {
 		this.#finalizeCurrentStep();
 
-		const timeline = [];
-		for (const segment of this.#segments) {
+		const timeline = TweenTimeline.#serializeSegments(this.#segments);
+
+		const result = { timeline };
+		if (this.#name) result.name = this.#name;
+		if (this.#errorPolicy !== ErrorPolicy.ABORT) result.errorPolicy = this.#errorPolicy;
+		return result;
+	}
+
+	/**
+	 * Serialize a segment array to JSON-safe format.
+	 * @param {Array<object>} segments
+	 * @returns {Array}
+	 */
+	static #serializeSegments(segments) {
+		const out = [];
+		for (const segment of segments) {
 			if (segment.kind === "delay") {
-				timeline.push({ delay: segment.ms });
+				out.push({ delay: segment.ms });
+			} else if (segment.kind === "await") {
+				out.push({ await: segment.config });
+			} else if (segment.kind === "emit") {
+				out.push({ emit: segment.signal });
+			} else if (segment.kind === "parallel") {
+				out.push({
+					parallel: {
+						branches: segment.branches.map((b) => TweenTimeline.#serializeSegments(b)),
+						join: segment.join,
+						overflow: segment.overflow,
+					},
+				});
 			} else {
+				// Step segment
 				const stepEntries = segment.data.entries.map((e) => {
 					const entry = { type: e.type, params: e.params };
 					if (Object.keys(e.opts).length > 0) entry.opts = e.opts;
 					if (e.detach) entry.detach = true;
 					return entry;
 				});
-				timeline.push(stepEntries);
+				out.push(stepEntries);
 			}
 		}
-
-		const result = { timeline };
-		if (this.#name) result.name = this.#name;
-		if (this.#errorPolicy !== ErrorPolicy.ABORT) result.errorPolicy = this.#errorPolicy;
-		return result;
+		return out;
 	}
 
 	// ── Private ─────────────────────────────────────────────────────────
@@ -385,155 +484,355 @@ export class TweenTimeline {
 	}
 
 	/**
-	 * Core execution engine. Iterates segments sequentially.
+	 * Drain detached promises fire-and-forget (suppress unhandled rejections).
+	 * @param {Promise[]} promises
+	 */
+	static #drainDetached(promises) {
+		if (promises.length === 0) return;
+		Promise.allSettled(promises).catch(() => {});
+	}
+
+	/**
+	 * Core execution engine. Sets up context and delegates to #executeSegments.
 	 * @param {TimelineHandle} handle
-	 * @param {{ commit: boolean, startEpochMS: number }} opts
+	 * @param {object} ctx  Shared execution context
 	 * @returns {Promise<object>} Timeline outcome
 	 */
-	async #execute(handle, { commit, startEpochMS }) {
-		const signal = handle.signal;
-		const errors = [];
-		let stepIndex = -1;
-
+	async #execute(handle, ctx) {
 		try {
-			if (signal.aborted) return this.#cancelledOutcome(signal.reason);
+			if (ctx.signal.aborted) return this.#cancelledOutcome(ctx.signal.reason);
 
 			const beforeAllFailure = await this.#runHook(this.#beforeAll, TimelineErrorPhase.BEFORE_ALL, null);
 			if (beforeAllFailure) {
 				if (this.#errorPolicy === ErrorPolicy.ABORT) return beforeAllFailure;
-				errors.push(beforeAllFailure);
+				ctx.errors.push(beforeAllFailure);
 			}
 
-			let cumulativeOffsetMS = 0;
-			const detachedPromises = [];
-
-			for (const segment of this.#segments) {
-				if (signal.aborted) return this.#cancelledOutcome(signal.reason);
-
-				if (segment.kind === "delay") {
-					try {
-						await cancellableDelay(segment.ms, signal);
-					} catch {
-						return this.#cancelledOutcome(signal.reason);
-					}
-					cumulativeOffsetMS += segment.ms;
-					continue;
-				}
-
-				stepIndex += 1;
-
-				// Step segment
-				const { entries, before, after } = segment.data;
-
-				const beforeFailure = await this.#runHook(before, TimelineErrorPhase.BEFORE_STEP, stepIndex);
-				if (beforeFailure) {
-					if (this.#errorPolicy === ErrorPolicy.ABORT) return beforeFailure;
-					errors.push(beforeFailure);
-					continue;
-				}
-
-				if (signal.aborted) return this.#cancelledOutcome(signal.reason);
-
-				// Dispatch all entries in this step in parallel
-				const stepPromises = [];
-				let maxAwaitedDurationMS = 0;
-
-				for (const entry of entries) {
-					const tweenDef = getTweenType(entry.type);
-					if (!tweenDef) {
-						const failure = this.#failedOutcome(
-							new Error(`TweenTimeline: unknown tween type "${entry.type}"`),
-							TimelineErrorPhase.ENTRY,
-							stepIndex,
-							entry.type
-						);
-						if (this.#errorPolicy === ErrorPolicy.ABORT) return failure;
-						errors.push(failure);
-						console.warn(failure.error.message);
-						continue;
-					}
-
-					const entryOpts = {
-						...entry.opts,
-						commit,
-						startEpochMS: startEpochMS + cumulativeOffsetMS,
-						signal,
-					};
-					const durationMS = entryOpts.durationMS ?? 2000;
-
-					const promise = Promise.resolve()
-						.then(() => tweenDef.execute(entry.params, entryOpts))
-						.then((result) => {
-							if (result === false) {
-								return {
-									ok: false,
-									failure: this.#failedOutcome(
-										new Error("Tween entry returned false."),
-										TimelineErrorPhase.ENTRY,
-										stepIndex,
-										entry.type
-									),
-								};
-							}
-							return { ok: true };
-						})
-						.catch((err) => ({
-							ok: false,
-							failure: this.#failedOutcome(err, TimelineErrorPhase.ENTRY, stepIndex, entry.type),
-						}));
-
-					if (entry.detach) {
-						detachedPromises.push(promise);
-					} else {
-						stepPromises.push(promise);
-						maxAwaitedDurationMS = Math.max(maxAwaitedDurationMS, durationMS);
-					}
-				}
-
-				// Wait for all non-detached entries; abort does not block here.
-				const results = await this.#waitForStep(stepPromises, signal);
-				if (results === null) return this.#cancelledOutcome(signal.reason);
-
-				for (const result of results) {
-					if (result.ok) continue;
-					if (this.#errorPolicy === ErrorPolicy.ABORT) return result.failure;
-					errors.push(result.failure);
-					console.warn(`TweenTimeline: entry failed:`, result.failure.error);
-				}
-
-				const afterFailure = await this.#runHook(after, TimelineErrorPhase.AFTER_STEP, stepIndex);
-				if (afterFailure) {
-					if (this.#errorPolicy === ErrorPolicy.ABORT) return afterFailure;
-					errors.push(afterFailure);
-				}
-
-				if (signal.aborted) return this.#cancelledOutcome(signal.reason);
-
-				cumulativeOffsetMS += maxAwaitedDurationMS;
+			const result = await this.#executeSegments(this.#segments, ctx);
+			if (result) {
+				// Early termination (cancel or fatal error) — drain detached to prevent unhandled rejections
+				TweenTimeline.#drainDetached(ctx.detachedPromises);
+				return result;
 			}
 
 			// Wait for detached tweens only if we were not cancelled.
-			if (!signal.aborted) {
-				const detachedResults = await Promise.allSettled(detachedPromises);
-				for (const result of detachedResults) {
-					if (result.status === "rejected") {
-						const failure = this.#failedOutcome(result.reason, TimelineErrorPhase.ENTRY, stepIndex);
+			if (!ctx.signal.aborted) {
+				const detachedResults = await Promise.allSettled(ctx.detachedPromises);
+				for (const dr of detachedResults) {
+					if (dr.status === "rejected") {
+						const failure = this.#failedOutcome(dr.reason, TimelineErrorPhase.ENTRY);
 						if (this.#errorPolicy === ErrorPolicy.ABORT) return failure;
-						errors.push(failure);
+						ctx.errors.push(failure);
 					}
 				}
 			}
 
-			if (signal.aborted) return this.#cancelledOutcome(signal.reason);
+			if (ctx.signal.aborted) return this.#cancelledOutcome(ctx.signal.reason);
 			return {
 				status: TimelineStatus.COMPLETED,
-				...(errors.length > 0 ? { errors } : {}),
+				...(ctx.errors.length > 0 ? { errors: ctx.errors } : {}),
 			};
 		} catch (err) {
-			if (signal.aborted) return this.#cancelledOutcome(signal.reason);
+			TweenTimeline.#drainDetached(ctx.detachedPromises);
+			if (ctx.signal.aborted) return this.#cancelledOutcome(ctx.signal.reason);
 			console.error("TweenTimeline execution error:", err);
-			return this.#failedOutcome(err, TimelineErrorPhase.RUNTIME, stepIndex);
+			return this.#failedOutcome(err, TimelineErrorPhase.RUNTIME);
 		}
+	}
+
+	/**
+	 * Process a segment array sequentially.
+	 * @param {Array<object>} segments
+	 * @param {object} ctx  Execution context (signal, commit, startEpochMS, eventBus, errors, detachedPromises)
+	 * @returns {Promise<object|null>}  null = success, object = early termination outcome
+	 */
+	async #executeSegments(segments, ctx) {
+		let stepIndex = -1;
+		let cumulativeOffsetMS = 0;
+
+		for (const segment of segments) {
+			if (ctx.signal.aborted) return this.#cancelledOutcome(ctx.signal.reason);
+
+			if (segment.kind === "delay") {
+				try {
+					await cancellableDelay(segment.ms, ctx.signal);
+				} catch {
+					return this.#cancelledOutcome(ctx.signal.reason);
+				}
+				cumulativeOffsetMS += segment.ms;
+				continue;
+			}
+
+			if (segment.kind === "await") {
+				try {
+					let awaitPromise = createAwaitPromise(segment.config, {
+						signal: ctx.signal,
+						eventBus: ctx.eventBus,
+					});
+					const timeout = segment.config.timeout;
+					if (typeof timeout === "number" && timeout > 0) {
+						awaitPromise = Promise.race([
+							awaitPromise,
+							cancellableDelay(timeout, ctx.signal),
+						]);
+					}
+					await awaitPromise;
+				} catch (err) {
+					if (ctx.signal.aborted) return this.#cancelledOutcome(ctx.signal.reason);
+					const failure = this.#failedOutcome(err, TimelineErrorPhase.AWAIT);
+					if (this.#errorPolicy === ErrorPolicy.ABORT) return failure;
+					ctx.errors.push(failure);
+				}
+				continue;
+			}
+
+			if (segment.kind === "emit") {
+				try {
+					ctx.eventBus.emit(segment.signal);
+				} catch (err) {
+					const failure = this.#failedOutcome(err, TimelineErrorPhase.EMIT);
+					if (this.#errorPolicy === ErrorPolicy.ABORT) return failure;
+					ctx.errors.push(failure);
+				}
+				continue;
+			}
+
+			if (segment.kind === "parallel") {
+				const result = await this.#executeParallel(segment, ctx);
+				if (result) return result;
+				continue;
+			}
+
+			// Step segment
+			stepIndex += 1;
+			const { entries, before, after } = segment.data;
+
+			const beforeFailure = await this.#runHook(before, TimelineErrorPhase.BEFORE_STEP, stepIndex);
+			if (beforeFailure) {
+				if (this.#errorPolicy === ErrorPolicy.ABORT) return beforeFailure;
+				ctx.errors.push(beforeFailure);
+				continue;
+			}
+
+			if (ctx.signal.aborted) return this.#cancelledOutcome(ctx.signal.reason);
+
+			// Dispatch all entries in this step in parallel
+			const stepPromises = [];
+			let maxAwaitedDurationMS = 0;
+
+			for (const entry of entries) {
+				const tweenDef = getTweenType(entry.type);
+				if (!tweenDef) {
+					const failure = this.#failedOutcome(
+						new Error(`TweenTimeline: unknown tween type "${entry.type}"`),
+						TimelineErrorPhase.ENTRY,
+						stepIndex,
+						entry.type
+					);
+					if (this.#errorPolicy === ErrorPolicy.ABORT) return failure;
+					ctx.errors.push(failure);
+					console.warn(failure.error.message);
+					continue;
+				}
+
+				const entryOpts = {
+					...entry.opts,
+					commit: ctx.commit,
+					startEpochMS: ctx.startEpochMS + cumulativeOffsetMS,
+					signal: ctx.signal,
+				};
+				const durationMS = entryOpts.durationMS ?? 2000;
+
+				const promise = Promise.resolve()
+					.then(() => tweenDef.execute(entry.params, entryOpts))
+					.then((result) => {
+						if (result === false) {
+							return {
+								ok: false,
+								failure: this.#failedOutcome(
+									new Error("Tween entry returned false."),
+									TimelineErrorPhase.ENTRY,
+									stepIndex,
+									entry.type
+								),
+							};
+						}
+						return { ok: true };
+					})
+					.catch((err) => ({
+						ok: false,
+						failure: this.#failedOutcome(err, TimelineErrorPhase.ENTRY, stepIndex, entry.type),
+					}));
+
+				if (entry.detach) {
+					ctx.detachedPromises.push(promise);
+				} else {
+					stepPromises.push(promise);
+					maxAwaitedDurationMS = Math.max(maxAwaitedDurationMS, durationMS);
+				}
+			}
+
+			// Wait for all non-detached entries
+			const results = await this.#waitForStep(stepPromises, ctx.signal);
+			if (results === null) return this.#cancelledOutcome(ctx.signal.reason);
+
+			for (const result of results) {
+				if (result.ok) continue;
+				if (this.#errorPolicy === ErrorPolicy.ABORT) return result.failure;
+				ctx.errors.push(result.failure);
+				console.warn(`TweenTimeline: entry failed:`, result.failure.error);
+			}
+
+			const afterFailure = await this.#runHook(after, TimelineErrorPhase.AFTER_STEP, stepIndex);
+			if (afterFailure) {
+				if (this.#errorPolicy === ErrorPolicy.ABORT) return afterFailure;
+				ctx.errors.push(afterFailure);
+			}
+
+			if (ctx.signal.aborted) return this.#cancelledOutcome(ctx.signal.reason);
+
+			cumulativeOffsetMS += maxAwaitedDurationMS;
+		}
+
+		return null; // success
+	}
+
+	/**
+	 * Execute a parallel segment: spawn N branches, join per strategy, handle overflow.
+	 * @param {object} segment  { kind: "parallel", branches, join, overflow }
+	 * @param {object} ctx  Parent execution context
+	 * @returns {Promise<object|null>}  null = success, object = early termination
+	 */
+	async #executeParallel(segment, ctx) {
+		const { branches, join, overflow } = segment;
+		const branchCount = branches.length;
+		const joinTarget = join === "all" ? branchCount : join === "any" ? 1 : join;
+
+		// Each branch gets its own AbortController linked to the parent signal
+		const branchControllers = branches.map(() => {
+			const bc = new AbortController();
+			if (ctx.signal.aborted) {
+				bc.abort(ctx.signal.reason ?? "parent-aborted");
+			} else {
+				ctx.signal.addEventListener("abort", () => {
+					if (!bc.signal.aborted) bc.abort(ctx.signal.reason ?? "parent-aborted");
+				}, { once: true });
+			}
+			return bc;
+		});
+
+		// Track branch results
+		let completedCount = 0;
+		let failedCount = 0;
+		const branchResults = new Array(branchCount).fill(null);
+
+		let branchPromises;
+
+		return new Promise((resolveParallel) => {
+			let joinResolved = false;
+
+			const checkJoin = () => {
+				if (joinResolved) return;
+
+				// Join met?
+				if (completedCount >= joinTarget) {
+					joinResolved = true;
+					applyOverflow();
+					resolveParallel(null); // success
+					return;
+				}
+
+				// Join impossible? (too many failures)
+				const remaining = branchCount - completedCount - failedCount;
+				if (completedCount + remaining < joinTarget) {
+					joinResolved = true;
+					applyOverflow();
+					// Collect all branch errors
+					const branchErrors = branchResults
+						.filter((r) => r && r.status === TimelineStatus.FAILED)
+						.map((r) => r);
+					const failure = this.#failedOutcome(
+						new Error(`parallel: join target ${joinTarget} impossible (${completedCount} completed, ${failedCount} failed)`),
+						TimelineErrorPhase.PARALLEL
+					);
+					if (this.#errorPolicy === ErrorPolicy.ABORT) {
+						resolveParallel(failure);
+					} else {
+						ctx.errors.push(failure);
+						ctx.errors.push(...branchErrors);
+						resolveParallel(null);
+					}
+				}
+			};
+
+			const applyOverflow = () => {
+				if (overflow === "cancel") {
+					// Abort all un-finished branches
+					for (let i = 0; i < branchCount; i++) {
+						if (!branchResults[i] && !branchControllers[i].signal.aborted) {
+							branchControllers[i].abort("overflow-cancel");
+						}
+					}
+				}
+				// "detach" = do nothing, branches keep running
+				// But we still need to track them for cleanup
+				for (let i = 0; i < branchCount; i++) {
+					if (!branchResults[i]) {
+						// Still running — push its promise to detached
+						ctx.detachedPromises.push(branchPromises[i]);
+					}
+				}
+			};
+
+			// Launch all branches
+			branchPromises = branches.map((branchSegments, i) => {
+				// Create a branch-local context sharing eventBus and errors but with own signal
+				const branchCtx = {
+					signal: branchControllers[i].signal,
+					commit: ctx.commit,
+					startEpochMS: ctx.startEpochMS,
+					eventBus: ctx.eventBus, // shared
+					errors: ctx.errors, // shared
+					detachedPromises: ctx.detachedPromises, // shared
+				};
+
+				return this.#executeSegments(branchSegments, branchCtx).then((result) => {
+					if (result) {
+						// Early termination in branch
+						if (result.status === TimelineStatus.CANCELLED) {
+							// Don't count aborted-by-overflow as failure
+							if (branchControllers[i].signal.aborted) {
+								branchResults[i] = result;
+								return;
+							}
+							// Parent was cancelled — propagate
+							branchResults[i] = result;
+							failedCount++;
+						} else {
+							branchResults[i] = result;
+							failedCount++;
+						}
+					} else {
+						branchResults[i] = { status: TimelineStatus.COMPLETED };
+						completedCount++;
+					}
+					checkJoin();
+				});
+			});
+
+			// If parent signal aborts, resolve immediately
+			if (ctx.signal.aborted) {
+				joinResolved = true;
+				resolveParallel(this.#cancelledOutcome(ctx.signal.reason));
+				return;
+			}
+			ctx.signal.addEventListener("abort", () => {
+				if (!joinResolved) {
+					joinResolved = true;
+					resolveParallel(this.#cancelledOutcome(ctx.signal.reason));
+				}
+			}, { once: true });
+		});
 	}
 
 	/**
