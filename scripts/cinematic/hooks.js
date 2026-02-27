@@ -1,13 +1,41 @@
 import { MODULE_ID } from "../time-triggers/core/constants.js";
 import { resolveAllTargets, applyState, buildTimeline, captureSnapshot, gatherAllStateMaps, stopAllCinematicSounds } from "./runtime.js";
+import { createAwaitPromise } from "../tween/core/timeline/await-providers.js";
 import CinematicEditorApplication from "./ui/CinematicEditorApplication.js";
+import { CinematicState } from "./ui/cinematic-state.js";
 import { TileAnimator, registerBehaviour, getBehaviour } from "./tile-animator.js";
+import { computeTotalDuration } from "./ui/swimlane-layout.js";
 
 const CINEMATIC_FLAG = "cinematic";
-const CURRENT_VERSION = 3;
+const CURRENT_VERSION = 4;
+
+// ── Playback Progress Event Bus ──────────────────────────────────────────
+
+const playbackListeners = new Set();
+
+function emitPlaybackEvent(event) {
+	for (const fn of playbackListeners) {
+		try { fn(event); } catch (err) {
+			console.error("[cinematic] playback listener error:", err);
+		}
+	}
+}
+
+/**
+ * Subscribe to playback progress events emitted during playCinematic().
+ * @param {(event: object) => void} fn  Listener function
+ * @returns {() => void}  Unsubscribe function
+ */
+export function onPlaybackProgress(fn) {
+	playbackListeners.add(fn);
+	return () => playbackListeners.delete(fn);
+}
 
 /** Handle for the currently running cinematic timeline (if any). */
 let activeCinematicHandle = null;
+
+/** AbortController for the currently running segment walker. */
+let activeWalkerAbort = null;
 
 /** Pre-cinematic snapshot for revert. */
 let preCinematicSnapshot = null;
@@ -18,29 +46,27 @@ let preCinematicTargets = null;
 /** Generation counter to detect superseded onCanvasReady invocations. */
 let canvasReadyGeneration = 0;
 
-/** Pending cross-scene cinematic transition (set by transitionTo, consumed by canvasReady). */
+/** Pending cross-scene cinematic transition (set by segment next, consumed by canvasReady). */
 let pendingCinematic = null;
+
+// ── Progress tracking ────────────────────────────────────────────────────
 
 /** Progress flag key prefix for mid-refresh recovery. */
 function progressFlagKey(sceneId, cinematicName = "default") {
 	return `cinematic-progress-${sceneId}-${cinematicName}`;
 }
 
-/** Debounce counter for progress saves. */
-let stepsSinceLastSave = 0;
-
 /**
- * Save cinematic progress to user flag (debounced: every 3 steps).
+ * Save segment-based cinematic progress to user flag.
  * @param {string} sceneId
  * @param {string} cinematicName
- * @param {number} stepIndex
+ * @param {string} currentSegment
+ * @param {string[]} completedSegments
  */
-function saveProgress(sceneId, cinematicName, stepIndex) {
-	stepsSinceLastSave++;
-	if (stepsSinceLastSave < 3) return;
-	stepsSinceLastSave = 0;
+function saveSegmentProgress(sceneId, cinematicName, currentSegment, completedSegments) {
 	game.user.setFlag(MODULE_ID, progressFlagKey(sceneId, cinematicName), {
-		step: stepIndex,
+		currentSegment,
+		completedSegments: [...completedSegments],
 		timestamp: Date.now(),
 	}).catch(() => {});
 }
@@ -51,7 +77,6 @@ function saveProgress(sceneId, cinematicName, stepIndex) {
  * @param {string} cinematicName
  */
 function clearProgress(sceneId, cinematicName = "default") {
-	stepsSinceLastSave = 0;
 	game.user.unsetFlag(MODULE_ID, progressFlagKey(sceneId, cinematicName)).catch(() => {});
 }
 
@@ -60,20 +85,19 @@ function clearProgress(sceneId, cinematicName = "default") {
  * @param {string} sceneId
  * @param {string} cinematicName
  * @param {number} [maxAgeMs=300000]  Max age in ms (default: 5 min)
- * @returns {{ step: number, timestamp: number } | null}
+ * @returns {{ currentSegment: string, completedSegments: string[], timestamp: number } | null}
  */
 function getSavedProgress(sceneId, cinematicName = "default", maxAgeMs = 300000) {
 	const progress = game.user.getFlag(MODULE_ID, progressFlagKey(sceneId, cinematicName));
-	if (!progress || typeof progress.step !== "number" || typeof progress.timestamp !== "number") return null;
+	if (!progress || typeof progress.timestamp !== "number") return null;
 	if (Date.now() - progress.timestamp > maxAgeMs) return null;
-	return progress;
+	// Support both old step-based and new segment-based progress
+	if (progress.currentSegment) return progress;
+	return null;
 }
 
 /**
  * Get the per-user "seen" flag key for a scene cinematic.
- * @param {string} sceneId
- * @param {string} cinematicName
- * @returns {string}
  */
 function seenFlagKey(sceneId, cinematicName = "default") {
 	return `cinematic-seen-${sceneId}-${cinematicName}`;
@@ -81,18 +105,15 @@ function seenFlagKey(sceneId, cinematicName = "default") {
 
 /**
  * Check if the current user has already seen this scene's cinematic.
- * @param {string} sceneId
- * @param {string} cinematicName
- * @returns {boolean}
  */
 function hasSeenCinematic(sceneId, cinematicName = "default") {
 	return !!game.user.getFlag(MODULE_ID, seenFlagKey(sceneId, cinematicName));
 }
 
-// ── v3 Data Access ──────────────────────────────────────────────────────
+// ── v4 Data Access ──────────────────────────────────────────────────────
 
 /**
- * Validate a single cinematic entry's shape.
+ * Validate a single cinematic entry's shape (v4 segment-based).
  * @param {*} data  Raw cinematic data
  * @param {string} label  Label for warnings
  * @returns {object|null}
@@ -115,35 +136,51 @@ function validateSingleCinematic(data, label) {
 		console.warn(`[${MODULE_ID}] Cinematic: invalid 'synchronized' on ${label} (expected boolean). Ignoring.`);
 		return null;
 	}
-	if (data.setup !== undefined && (typeof data.setup !== "object" || data.setup === null || Array.isArray(data.setup))) {
-		console.warn(`[${MODULE_ID}] Cinematic: invalid 'setup' on ${label} (expected object). Ignoring.`);
-		return null;
+	// v4: validate segments
+	if (data.segments) {
+		if (typeof data.segments !== "object" || Array.isArray(data.segments)) {
+			console.warn(`[${MODULE_ID}] Cinematic: invalid 'segments' on ${label} (expected object). Ignoring.`);
+			return null;
+		}
+		for (const [segName, seg] of Object.entries(data.segments)) {
+			if (!seg || typeof seg !== "object" || Array.isArray(seg)) {
+				console.warn(`[${MODULE_ID}] Cinematic: invalid segment "${segName}" on ${label}. Removing.`);
+				delete data.segments[segName];
+				continue;
+			}
+			if (seg.timeline !== undefined && !Array.isArray(seg.timeline)) {
+				console.warn(`[${MODULE_ID}] Cinematic: invalid timeline on segment "${segName}" of ${label}. Removing.`);
+				delete data.segments[segName];
+				continue;
+			}
+			// Filter out malformed timeline entries
+			if (seg.timeline?.length) {
+				seg.timeline = seg.timeline.filter((entry, i) => {
+					if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+						console.warn(`[${MODULE_ID}] Cinematic: segment "${segName}" timeline[${i}] on ${label} is not a valid object, removing.`);
+						return false;
+					}
+					return true;
+				});
+			}
+		}
+		if (Object.keys(data.segments).length === 0) {
+			console.warn(`[${MODULE_ID}] Cinematic: no valid segments on ${label}. Ignoring.`);
+			return null;
+		}
 	}
-	if (data.landing !== undefined && (typeof data.landing !== "object" || data.landing === null || Array.isArray(data.landing))) {
-		console.warn(`[${MODULE_ID}] Cinematic: invalid 'landing' on ${label} (expected object). Ignoring.`);
-		return null;
-	}
+	// Legacy v3 flat validation
 	if (data.timeline !== undefined && !Array.isArray(data.timeline)) {
 		console.warn(`[${MODULE_ID}] Cinematic: invalid 'timeline' on ${label} (expected array). Ignoring.`);
 		return null;
-	}
-	// Filter out malformed timeline entries
-	if (data.timeline?.length) {
-		data.timeline = data.timeline.filter((entry, i) => {
-			if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-				console.warn(`[${MODULE_ID}] Cinematic: timeline[${i}] on ${label} is not a valid object, removing.`);
-				return false;
-			}
-			return true;
-		});
 	}
 	return data;
 }
 
 /**
- * Get the full v3 cinematic wrapper from a scene's flags (with inline v2→v3 migration).
+ * Get the full cinematic wrapper from a scene's flags (with inline v2→v3→v4 migration).
  * @param {string} [sceneId]
- * @returns {object|null}  The v3 wrapper: { version, cinematics: { name: data, ... } }
+ * @returns {object|null}  The v4 wrapper: { version, cinematics: { name: data, ... } }
  */
 function getCinematicData(sceneId) {
 	const scene = sceneId ? game.scenes.get(sceneId) : canvas.scene;
@@ -158,7 +195,15 @@ function getCinematicData(sceneId) {
 	// v2→v3 migration
 	if ((raw.version ?? 1) < 3) {
 		const { version, ...rest } = raw;
-		raw = { version: CURRENT_VERSION, cinematics: { "default": rest } };
+		raw = { version: 3, cinematics: { "default": rest } };
+	}
+
+	// v3→v4 migration
+	if (raw.version === 3) {
+		for (const [name, data] of Object.entries(raw.cinematics ?? {})) {
+			raw.cinematics[name] = CinematicState.migrateV3toV4(data);
+		}
+		raw.version = CURRENT_VERSION;
 	}
 
 	// Version check
@@ -189,9 +234,6 @@ function getCinematicData(sceneId) {
 
 /**
  * Get a specific named cinematic's data from a scene.
- * @param {string} sceneId
- * @param {string} cinematicName
- * @returns {object|null}
  */
 function getNamedCinematic(sceneId, cinematicName = "default") {
 	const wrapper = getCinematicData(sceneId);
@@ -200,8 +242,6 @@ function getNamedCinematic(sceneId, cinematicName = "default") {
 
 /**
  * List all cinematic names on a scene.
- * @param {string} sceneId
- * @returns {string[]}
  */
 function listCinematicNames(sceneId) {
 	const wrapper = getCinematicData(sceneId);
@@ -210,20 +250,11 @@ function listCinematicNames(sceneId) {
 
 // ── Async Helpers ─────────────────────────────────────────────────────────
 
-/**
- * Wait for the game to be fully ready.
- * @returns {Promise<void>}
- */
 function waitForReady() {
 	if (game.ready) return Promise.resolve();
 	return new Promise((resolve) => Hooks.once("ready", resolve));
 }
 
-/**
- * Wait for the tween API to become available.
- * @param {number} [timeoutMs=10000]
- * @returns {Promise<typeof import("../tween/core/timeline/TweenTimeline.js").TweenTimeline | null>}
- */
 async function waitForTweenAPI(timeoutMs = 10000) {
 	const api = game.modules.get(MODULE_ID)?.api?.tween;
 	if (api?.Timeline) return api.Timeline;
@@ -252,11 +283,6 @@ async function waitForTweenAPI(timeoutMs = 10000) {
 	});
 }
 
-/**
- * Wait for the Tagger API to become available.
- * @param {number} [timeoutMs=5000]
- * @returns {Promise<boolean>} true if Tagger is available
- */
 async function waitForTagger(timeoutMs = 5000) {
 	if (window.Tagger ?? game.modules.get("tagger")?.api) return true;
 
@@ -275,11 +301,97 @@ async function waitForTagger(timeoutMs = 5000) {
 	});
 }
 
+// ── Gate Processing ──────────────────────────────────────────────────────
+
+/**
+ * Process a segment gate — waits for the interaction event before proceeding.
+ *
+ * @param {object} gate  Gate config: { event, target?, animation?, timeout? }
+ * @param {Map<string, object>} targets  Resolved target map
+ * @param {AbortController} abortController  Controller for cancellation
+ * @returns {Promise<void>}
+ */
+async function processGate(gate, targets, abortController) {
+	if (!gate || !gate.event) return;
+
+	const config = { ...gate };
+	console.log(`[${MODULE_ID}] Cinematic: waiting for gate: ${gate.event}`);
+
+	// Set up tile animator for tile-click gates
+	let animator = null;
+	if (gate.event === "tile-click" && gate.target && gate.animation) {
+		const resolved = targets.get(gate.target);
+		if (resolved?.kind === "placeable" && resolved.placeable) {
+			animator = new TileAnimator(resolved.placeable, gate.animation);
+			animator.start();
+		}
+	}
+
+	try {
+		// Handle timeout if specified
+		if (gate.timeout && gate.timeout > 0) {
+			const timeoutPromise = new Promise((resolve) => setTimeout(resolve, gate.timeout));
+			const gatePromise = createAwaitPromise(config, { signal: abortController.signal, eventBus: null });
+			await Promise.race([gatePromise, timeoutPromise]);
+		} else {
+			await createAwaitPromise(config, { signal: abortController.signal, eventBus: null });
+		}
+	} finally {
+		if (animator) animator.detach();
+	}
+}
+
+// ── Segment Graph Walker ─────────────────────────────────────────────────
+
+/**
+ * Walk the segment graph in order from the entry, following next edges.
+ * Returns segment names in execution order.
+ *
+ * @param {object} data  Cinematic data with segments and entry
+ * @returns {string[]}  Ordered segment names
+ */
+function getSegmentOrder(data) {
+	if (!data.segments) return [];
+	const order = [];
+	const visited = new Set();
+	let current = data.entry;
+	while (current && typeof current === "string" && data.segments[current]) {
+		if (visited.has(current)) break; // cycle protection
+		visited.add(current);
+		order.push(current);
+		current = data.segments[current].next;
+	}
+	return order;
+}
+
+/**
+ * Apply landing states for all segments in order (used when cinematic already seen).
+ */
+function applyAllSegmentLandingStates(data, targets) {
+	const order = getSegmentOrder(data);
+	for (const name of order) {
+		const seg = data.segments[name];
+		if (seg.setup) {
+			try { applyState(seg.setup, targets); } catch (err) {
+				console.warn(`[${MODULE_ID}] Cinematic: error applying setup for segment "${name}":`, err);
+			}
+		}
+		if (seg.landing) {
+			try { applyState(seg.landing, targets); } catch (err) {
+				console.warn(`[${MODULE_ID}] Cinematic: error applying landing for segment "${name}":`, err);
+			}
+		}
+	}
+	canvas.perception.update({ refreshLighting: true, refreshVision: true });
+}
+
 // ── Playback ──────────────────────────────────────────────────────────────
 
 /**
  * Play a cinematic on the current (or specified) scene.
  * Ignores tracking — always plays. Used by the public API for re-watch.
+ *
+ * v4: walks the segment graph, processing gates and running timelines per segment.
  *
  * @param {string} [sceneId]  Defaults to current canvas scene
  * @param {string} [cinematicName="default"]  Which cinematic to play
@@ -304,6 +416,10 @@ async function playCinematic(sceneId, cinematicName = "default", _visitedChain =
 		activeCinematicHandle.cancel("replaced");
 	}
 	activeCinematicHandle = null;
+	if (activeWalkerAbort) {
+		activeWalkerAbort.abort("replaced");
+		activeWalkerAbort = null;
+	}
 
 	const data = getNamedCinematic(id, cinematicName);
 	if (!data) {
@@ -313,18 +429,13 @@ async function playCinematic(sceneId, cinematicName = "default", _visitedChain =
 
 	const Timeline = await waitForTweenAPI();
 	if (!Timeline) return;
-
-	// Scene may have changed during async wait
 	if (canvas.scene?.id !== id) return;
 
-	// Ensure Tagger is ready before resolving tag-based targets
 	await waitForTagger();
-
-	// Scene may have changed during async wait
 	if (canvas.scene?.id !== id) return;
 
 	const { targets, unresolved } = resolveAllTargets(data);
-	console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": resolved ${targets.size} targets:`, [...targets.entries()].map(([k, v]) => `${k} → ${v?.document?.uuid ?? v?.constructor?.name ?? "?"}`));
+	console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": resolved ${targets.size} targets`);
 	if (unresolved.length) {
 		console.warn(`[${MODULE_ID}] Cinematic "${cinematicName}": skipping ${unresolved.length} unresolved: ${unresolved.join(", ")}`);
 	}
@@ -338,55 +449,168 @@ async function playCinematic(sceneId, cinematicName = "default", _visitedChain =
 	preCinematicSnapshot = captureSnapshot(allStateMaps, targets);
 	preCinematicTargets = targets;
 
-	// Check for saved progress from a mid-refresh recovery
+	// Check for saved segment progress from a mid-refresh recovery
 	const savedProgress = getSavedProgress(id, cinematicName);
-	const skipToStep = savedProgress ? savedProgress.step : undefined;
-	if (skipToStep != null) {
-		console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": resuming from step ${skipToStep} (saved ${Date.now() - savedProgress.timestamp}ms ago)`);
+
+	const abortController = new AbortController();
+	activeWalkerAbort = abortController;
+
+	const isSynchronized = data.synchronized === true && game.user.isGM;
+
+	// Determine segment execution order
+	const segmentOrder = getSegmentOrder(data);
+	if (segmentOrder.length === 0) {
+		console.warn(`[${MODULE_ID}] Cinematic "${cinematicName}": no segments to execute.`);
+		return;
 	}
 
-	const { tl, transitionTo } = buildTimeline(data, targets, Timeline, {
-		skipToStep,
-		onStepComplete: (stepIndex) => saveProgress(id, cinematicName, stepIndex),
-		timelineName: `cinematic-${id}-${cinematicName}`,
-	});
-	console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": timeline built, JSON:`, JSON.stringify(tl.toJSON()));
+	// Determine starting point based on saved progress
+	let startIdx = 0;
+	const completedSegments = new Set();
+	if (savedProgress) {
+		const savedCompleted = savedProgress.completedSegments ?? [];
+		for (const s of savedCompleted) completedSegments.add(s);
+		const savedCurrentIdx = segmentOrder.indexOf(savedProgress.currentSegment);
+		if (savedCurrentIdx >= 0) {
+			startIdx = savedCurrentIdx;
+			console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": resuming from segment "${savedProgress.currentSegment}" (${savedCompleted.length} completed)`);
+		}
+	}
 
-	tl.onComplete(async () => {
-		activeCinematicHandle = null;
-		preCinematicSnapshot = null;
-		preCinematicTargets = null;
-		clearProgress(id, cinematicName);
-		stopAllCinematicSounds();
-
-		// Apply landing state so tiles end up in their final position
-		if (data.landing) {
-			try {
-				applyState(data.landing, targets);
-				canvas.perception.update({ refreshLighting: true, refreshVision: true });
-			} catch (err) {
-				console.error(`[${MODULE_ID}] Cinematic "${cinematicName}": error applying landing state on complete for scene ${id}:`, err);
+	// Apply landing states for already-completed segments (from saved progress)
+	for (let i = 0; i < startIdx; i++) {
+		const segName = segmentOrder[i];
+		const seg = data.segments[segName];
+		if (seg.setup) {
+			try { applyState(seg.setup, targets); } catch (err) {
+				console.warn(`[${MODULE_ID}] Cinematic: error applying setup for completed segment "${segName}":`, err);
 			}
 		}
-		if (data.tracking !== false) {
-			await game.user.setFlag(MODULE_ID, seenFlagKey(id, cinematicName), true);
+		if (seg.landing) {
+			try { applyState(seg.landing, targets); } catch (err) {
+				console.warn(`[${MODULE_ID}] Cinematic: error applying landing for completed segment "${segName}":`, err);
+			}
 		}
-		console.log(`[${MODULE_ID}] Cinematic "${cinematicName}" complete on scene ${id}.`);
+	}
 
-		// Handle transition
-		if (transitionTo) {
-			const targetCinematic = transitionTo.cinematic;
-			const targetScene = transitionTo.scene;
-			if (!targetCinematic) {
-				console.warn(`[${MODULE_ID}] Cinematic "${cinematicName}": transitionTo has no cinematic name, ignoring.`);
-			} else if (!targetScene || targetScene === id) {
-				// Same-scene transition
-				console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": transitioning to "${targetCinematic}" on same scene.`);
-				playCinematic(id, targetCinematic, _visitedChain);
-			} else {
+	let cancelled = false;
+	let errored = false;
+
+	emitPlaybackEvent({ type: "playback-start", sceneName: canvas.scene?.name ?? id });
+
+	try {
+		// Walk segments sequentially
+		for (let i = startIdx; i < segmentOrder.length; i++) {
+			if (abortController.signal.aborted) { cancelled = true; break; }
+			if (canvas.scene?.id !== id) { cancelled = true; break; }
+
+			const segmentName = segmentOrder[i];
+			const segment = data.segments[segmentName];
+			console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": entering segment "${segmentName}"`);
+
+			emitPlaybackEvent({ type: "segment-start", segmentName });
+
+			// Save progress
+			saveSegmentProgress(id, cinematicName, segmentName, [...completedSegments]);
+
+			// Process gate (wait for interaction)
+			if (segment.gate) {
+				emitPlaybackEvent({ type: "gate-wait", segmentName, gate: segment.gate });
+				try {
+					await processGate(segment.gate, targets, abortController);
+				} catch (err) {
+					if (abortController.signal.aborted) { cancelled = true; break; }
+					throw err;
+				}
+				emitPlaybackEvent({ type: "gate-resolved", segmentName });
+			}
+
+			if (abortController.signal.aborted) { cancelled = true; break; }
+
+			// Apply segment setup
+			if (segment.setup) {
+				try {
+					applyState(segment.setup, targets);
+					canvas.perception.update({ refreshLighting: true, refreshVision: true });
+				} catch (err) {
+					console.error(`[${MODULE_ID}] Cinematic "${cinematicName}": error applying setup for segment "${segmentName}":`, err);
+				}
+			}
+
+			// Build and run segment timeline
+			if (segment.timeline?.length) {
+				const durationMs = computeTotalDuration(segment.timeline);
+				emitPlaybackEvent({ type: "timeline-start", segmentName, durationMs });
+
+				const { tl } = buildTimeline(
+					{ setup: {}, timeline: segment.timeline },
+					targets, Timeline,
+					{
+						timelineName: `cinematic-${id}-${cinematicName}-${segmentName}`,
+						onStepComplete: (stepIndex) => {
+							emitPlaybackEvent({ type: "step-complete", segmentName, stepIndex });
+						},
+					},
+				);
+
+				const handle = tl.run({
+					broadcast: isSynchronized,
+					commit: isSynchronized,
+				});
+				activeCinematicHandle = handle;
+
+				// Wait for timeline to finish
+				try {
+					await new Promise((resolve, reject) => {
+						tl.onComplete(() => resolve());
+						tl.onCancel(() => reject(new Error("cancelled")));
+						tl.onError((outcome) => reject(new Error(`timeline error: ${outcome}`)));
+						// Also abort if the walker is cancelled
+						const onAbort = () => reject(new Error("cancelled"));
+						abortController.signal.addEventListener("abort", onAbort, { once: true });
+					});
+				} catch (err) {
+					if (err.message === "cancelled" || abortController.signal.aborted) {
+						cancelled = true;
+						break;
+					}
+					throw err;
+				}
+				emitPlaybackEvent({ type: "timeline-end", segmentName });
+			}
+
+			if (abortController.signal.aborted) { cancelled = true; break; }
+
+			// Apply segment landing
+			if (segment.landing) {
+				try {
+					applyState(segment.landing, targets);
+					canvas.perception.update({ refreshLighting: true, refreshVision: true });
+				} catch (err) {
+					console.error(`[${MODULE_ID}] Cinematic "${cinematicName}": error applying landing for segment "${segmentName}":`, err);
+				}
+			}
+
+			emitPlaybackEvent({ type: "segment-complete", segmentName });
+			completedSegments.add(segmentName);
+
+			// Check for cross-scene transition on next edge
+			const nextEdge = segment.next;
+			if (nextEdge && typeof nextEdge === "object" && nextEdge.scene) {
 				// Cross-scene transition
-				console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": transitioning to "${targetCinematic}" on scene ${targetScene}.`);
-				pendingCinematic = { sceneId: targetScene, cinematicName: targetCinematic, visitedChain: _visitedChain };
+				const targetScene = nextEdge.scene;
+				const targetSegment = nextEdge.segment ?? data.entry;
+				console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": cross-scene transition to scene ${targetScene}, segment "${targetSegment}"`);
+				// Clean up current cinematic
+				activeCinematicHandle = null;
+				activeWalkerAbort = null;
+				clearProgress(id, cinematicName);
+				stopAllCinematicSounds();
+				if (data.tracking !== false) {
+					await game.user.setFlag(MODULE_ID, seenFlagKey(id, cinematicName), true);
+				}
+				// Set pending and navigate
+				pendingCinematic = { sceneId: targetScene, cinematicName, visitedChain: _visitedChain };
 				const scene = game.scenes.get(targetScene);
 				if (scene) {
 					scene.view();
@@ -394,56 +618,45 @@ async function playCinematic(sceneId, cinematicName = "default", _visitedChain =
 					console.warn(`[${MODULE_ID}] Cinematic: cross-scene transition target scene "${targetScene}" not found.`);
 					pendingCinematic = null;
 				}
+				return;
 			}
 		}
-	});
+	} catch (err) {
+		errored = true;
+		console.error(`[${MODULE_ID}] Cinematic "${cinematicName}" error on scene ${id}:`, err);
+	}
 
-	tl.onCancel(() => {
-		activeCinematicHandle = null;
-		preCinematicSnapshot = null;
-		preCinematicTargets = null;
-		clearProgress(id, cinematicName);
-		stopAllCinematicSounds();
+	// Cleanup
+	activeCinematicHandle = null;
+	activeWalkerAbort = null;
+	clearProgress(id, cinematicName);
+	stopAllCinematicSounds();
+	preCinematicSnapshot = null;
+	preCinematicTargets = null;
+	emitPlaybackEvent({ type: "playback-end", cancelled: !!cancelled });
+
+	if (cancelled) {
 		console.log(`[${MODULE_ID}] Cinematic "${cinematicName}" cancelled on scene ${id}.`);
-		if (data.landing) {
-			try {
-				applyState(data.landing, targets);
-				canvas.perception.update({ refreshLighting: true, refreshVision: true });
-			} catch (err) {
-				console.error(`[${MODULE_ID}] Cinematic "${cinematicName}": error applying landing state after cancel on scene ${id}:`, err);
-			}
-		}
-	});
+		// Apply all landing states on cancel so scene ends in final state
+		applyAllSegmentLandingStates(data, targets);
+		return;
+	}
 
-	tl.onError((outcome) => {
-		activeCinematicHandle = null;
-		preCinematicSnapshot = null;
-		preCinematicTargets = null;
-		clearProgress(id, cinematicName);
-		stopAllCinematicSounds();
-		console.error(`[${MODULE_ID}] Cinematic "${cinematicName}" error on scene ${id}:`, outcome);
-		if (data.landing) {
-			try {
-				applyState(data.landing, targets);
-				canvas.perception.update({ refreshLighting: true, refreshVision: true });
-			} catch (err) {
-				console.error(`[${MODULE_ID}] Cinematic "${cinematicName}": error applying landing state after error on scene ${id}:`, err);
-			}
-		}
-	});
+	if (errored) {
+		// Apply landing on error too
+		applyAllSegmentLandingStates(data, targets);
+		return;
+	}
 
-	const isSynchronized = data.synchronized === true && game.user.isGM;
-	activeCinematicHandle = tl.run({
-		broadcast: isSynchronized,
-		commit: isSynchronized,
-	});
-	console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": timeline started, handle status: ${activeCinematicHandle.status}`);
+	// Cinematic completed successfully
+	if (data.tracking !== false) {
+		await game.user.setFlag(MODULE_ID, seenFlagKey(id, cinematicName), true);
+	}
+	console.log(`[${MODULE_ID}] Cinematic "${cinematicName}" complete on scene ${id}.`);
 }
 
 /**
  * Clear the "seen" flag for the current user on a scene cinematic.
- * @param {string} [sceneId]
- * @param {string} [cinematicName="default"]
  */
 async function resetCinematic(sceneId, cinematicName = "default") {
 	const id = sceneId ?? canvas.scene?.id;
@@ -454,9 +667,6 @@ async function resetCinematic(sceneId, cinematicName = "default") {
 
 /**
  * Clear the "seen" flag for a specific user on a scene cinematic. GM only.
- * @param {string} [sceneId]
- * @param {string} userId
- * @param {string} [cinematicName="default"]
  */
 async function resetCinematicForUser(sceneId, userId, cinematicName = "default") {
 	if (!game.user.isGM) return;
@@ -470,8 +680,6 @@ async function resetCinematicForUser(sceneId, userId, cinematicName = "default")
 
 /**
  * Clear the "seen" flag for ALL users on a scene cinematic. GM only.
- * @param {string} [sceneId]
- * @param {string} [cinematicName="default"]
  */
 async function resetCinematicForAll(sceneId, cinematicName = "default") {
 	if (!game.user.isGM) return;
@@ -488,9 +696,6 @@ async function resetCinematicForAll(sceneId, cinematicName = "default") {
 
 /**
  * Get the "seen" status for all users on a scene cinematic.
- * @param {string} [sceneId]
- * @param {string} [cinematicName="default"]
- * @returns {Array<{ userId: string, name: string, color: string, isGM: boolean, seen: boolean }>}
  */
 function getSeenStatus(sceneId, cinematicName = "default") {
 	const id = sceneId ?? canvas.scene?.id;
@@ -505,12 +710,6 @@ function getSeenStatus(sceneId, cinematicName = "default") {
 	}));
 }
 
-/**
- * Check if a scene has cinematic data (optionally for a specific name).
- * @param {string} [sceneId]
- * @param {string} [cinematicName]
- * @returns {boolean}
- */
 function hasCinematic(sceneId, cinematicName) {
 	const id = sceneId ?? canvas.scene?.id;
 	if (cinematicName) {
@@ -521,7 +720,6 @@ function hasCinematic(sceneId, cinematicName) {
 
 /**
  * Revert the scene to its pre-cinematic state using the captured snapshot.
- * Only works if a snapshot was captured from a recent playCinematic call.
  */
 function revertCinematic() {
 	if (!preCinematicSnapshot || !preCinematicTargets) {
@@ -534,6 +732,10 @@ function revertCinematic() {
 		activeCinematicHandle.cancel("reverted");
 	}
 	activeCinematicHandle = null;
+	if (activeWalkerAbort) {
+		activeWalkerAbort.abort("reverted");
+		activeWalkerAbort = null;
+	}
 
 	try {
 		applyState(preCinematicSnapshot, preCinematicTargets);
@@ -549,15 +751,10 @@ function revertCinematic() {
 
 // ── canvasReady Handler ──────────────────────────────────────────────────
 
-/**
- * Main handler: fires on every canvas ready, checks for cinematic data,
- * handles tracking, applies setup/landing, and runs timeline.
- */
 async function onCanvasReady() {
 	const gen = ++canvasReadyGeneration;
 	console.log(`[${MODULE_ID}] Cinematic: canvasReady fired, gen=${gen}, game.ready=${game.ready}`);
 
-	// Ensure game is fully ready
 	await waitForReady();
 	if (gen !== canvasReadyGeneration) return;
 	console.log(`[${MODULE_ID}] Cinematic: game is ready`);
@@ -577,7 +774,7 @@ async function onCanvasReady() {
 		}
 		return;
 	}
-	pendingCinematic = null; // Clear stale pending if scene doesn't match
+	pendingCinematic = null;
 
 	const wrapper = getCinematicData(scene.id);
 	if (!wrapper) { console.log(`[${MODULE_ID}] Cinematic: no cinematic flag on scene ${scene.id}, exiting`); return; }
@@ -601,7 +798,7 @@ async function onCanvasReady() {
 		const savedProgress = getSavedProgress(scene.id, name);
 		if (gen !== canvasReadyGeneration) return;
 		if (savedProgress) {
-			console.log(`[${MODULE_ID}] Cinematic "${name}": found saved progress at step ${savedProgress.step}, resuming...`);
+			console.log(`[${MODULE_ID}] Cinematic "${name}": found saved progress at segment "${savedProgress.currentSegment}", resuming...`);
 			try {
 				await playCinematic(scene.id, name);
 			} catch (err) {
@@ -626,7 +823,6 @@ async function onCanvasReady() {
 		console.log(`[${MODULE_ID}] Cinematic: all canvasReady cinematics already seen on scene ${scene.id}`);
 		clearAllCanvasReadyProgress(scene.id, canvasReadyCinematics);
 
-		// Cancel any in-flight cinematic
 		if (activeCinematicHandle?.status === "running") {
 			activeCinematicHandle.cancel("already-seen");
 		}
@@ -636,13 +832,11 @@ async function onCanvasReady() {
 		if (gen !== canvasReadyGeneration) return;
 
 		for (const { name, data } of canvasReadyCinematics) {
-			if (data.landing) {
-				try {
-					const { targets } = resolveAllTargets(data);
-					applyState(data.landing, targets);
-				} catch (err) {
-					console.error(`[${MODULE_ID}] Cinematic "${name}": error applying landing state (already seen) on scene ${scene.id}:`, err);
-				}
+			try {
+				const { targets } = resolveAllTargets(data);
+				applyAllSegmentLandingStates(data, targets);
+			} catch (err) {
+				console.error(`[${MODULE_ID}] Cinematic "${name}": error applying landing states (already seen) on scene ${scene.id}:`, err);
 			}
 		}
 		canvas.perception.update({ refreshLighting: true, refreshVision: true });
@@ -651,7 +845,6 @@ async function onCanvasReady() {
 
 	if (gen !== canvasReadyGeneration) return;
 
-	// Play the first unseen cinematic
 	console.log(`[${MODULE_ID}] Cinematic: playing first unseen cinematic "${firstUnseen.name}"...`);
 
 	// Apply landing states for all seen cinematics first
@@ -659,14 +852,14 @@ async function onCanvasReady() {
 	if (gen !== canvasReadyGeneration) return;
 
 	for (const { name, data } of canvasReadyCinematics) {
-		if (name === firstUnseen.name) continue; // skip the one we're about to play
+		if (name === firstUnseen.name) continue;
 		const seen = data.tracking !== false && hasSeenCinematic(scene.id, name);
-		if (seen && data.landing) {
+		if (seen) {
 			try {
 				const { targets } = resolveAllTargets(data);
-				applyState(data.landing, targets);
+				applyAllSegmentLandingStates(data, targets);
 			} catch (err) {
-				console.error(`[${MODULE_ID}] Cinematic "${name}": error applying landing state (already seen) on scene ${scene.id}:`, err);
+				console.error(`[${MODULE_ID}] Cinematic "${name}": error applying landing states (already seen) on scene ${scene.id}:`, err);
 			}
 		}
 	}
@@ -684,10 +877,6 @@ function clearAllCanvasReadyProgress(sceneId, cinematics) {
 	}
 }
 
-/**
- * Clean up stale cinematic progress flags on game.user.
- * @param {number} [maxAgeMs=300000]
- */
 function cleanupStaleProgressFlags(maxAgeMs = 300000) {
 	const flags = game.user.flags?.[MODULE_ID];
 	if (!flags) return;
@@ -721,7 +910,6 @@ function registerEditorButton() {
 		const tools = target.tools;
 		const toolName = "eidolonCinematicEditor";
 
-		// Check if already registered
 		if (Array.isArray(tools) && tools.some((t) => t?.name === toolName)) return;
 		if (tools instanceof Map && tools.has(toolName)) return;
 
@@ -766,6 +954,7 @@ export function registerCinematicHooks() {
 			get: getNamedCinematic,
 			list: listCinematicNames,
 			revert: revertCinematic,
+			onPlaybackProgress,
 			TileAnimator,
 			registerBehaviour,
 			getBehaviour,
@@ -779,6 +968,6 @@ export function registerCinematicHooks() {
 			},
 		};
 
-		console.log(`[${MODULE_ID}] Cinematic API registered (v3).`);
+		console.log(`[${MODULE_ID}] Cinematic API registered (v4).`);
 	});
 }

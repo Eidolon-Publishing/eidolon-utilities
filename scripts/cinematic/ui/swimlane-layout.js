@@ -46,7 +46,7 @@ function computeParallelDuration(entry) {
 	return Math.max(500, maxDuration);
 }
 
-function computeTotalDuration(timeline) {
+export function computeTotalDuration(timeline) {
 	return timeline.reduce((sum, entry) => {
 		if (entry.delay != null) return sum + entry.delay;
 		if (entry.await != null) return sum;
@@ -266,24 +266,6 @@ export function computeLanes(timeline, { selectedPath, windowWidth }) {
 				label: `${entry.delay}ms`, entryPath, selected: isSelected,
 			});
 			cursorPx += w;
-		} else if (entry.await != null) {
-			const awaitEvent = entry.await.event ?? "click";
-			const gateIcon = awaitEvent === "tile-click" ? "fa-hand-pointer"
-				: awaitEvent === "signal" ? "fa-bolt"
-				: "fa-pause";
-			mainBlocks.push({
-				type: "await", leftPx: cursorPx, widthPx: GATE_WIDTH,
-				label: awaitEvent, entryPath, selected: isSelected,
-				isGate: true, gateIcon,
-			});
-			if (entry.await.event === "signal") {
-				signals.awaits.push({
-					signal: entry.await.signal,
-					centerPx: cursorPx + GATE_WIDTH / 2,
-					laneIndex: 0,
-				});
-			}
-			cursorPx += GATE_WIDTH;
 		} else if (entry.emit != null) {
 			mainBlocks.push({
 				type: "emit", leftPx: cursorPx, widthPx: MARKER_WIDTH,
@@ -295,13 +277,6 @@ export function computeLanes(timeline, { selectedPath, windowWidth }) {
 				laneIndex: 0,
 			});
 			// instant — don't advance cursor
-		} else if (entry.transitionTo != null) {
-			const targetName = entry.transitionTo.cinematic || "?";
-			mainBlocks.push({
-				type: "transitionTo", leftPx: cursorPx, widthPx: FIXED_BLOCK_WIDTH,
-				label: `→ ${targetName}`, entryPath, selected: isSelected,
-			});
-			cursorPx += FIXED_BLOCK_WIDTH;
 		} else if (entry.sound != null) {
 			const filename = (entry.sound.src || "").split("/").pop() || "Sound";
 			const soundDur = entry.sound.duration ?? 0;

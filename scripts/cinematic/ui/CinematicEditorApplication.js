@@ -4,8 +4,9 @@ import { escapeHtml } from "../../time-triggers/core/utils.js";
 import { CinematicState } from "./cinematic-state.js";
 import { resolveAllTargets, validateCinematicDeep } from "../runtime.js";
 
-import { TRIGGER_OPTIONS } from "./editor-constants.js";
+import { TRIGGER_OPTIONS, SETUP_WIDTH } from "./editor-constants.js";
 import { computeLanes } from "./swimlane-layout.js";
+import { computeSegmentGraph } from "./segment-graph.js";
 import { buildDetail, parseEntryPath, getEntryAtPath, countUniqueTargets } from "./detail-builder.js";
 import { showImportDialog } from "./editor-dialogs.js";
 
@@ -16,6 +17,8 @@ import { bindDetailPanelEvents } from "./event-handlers/detail-panel.js";
 import { bindTweenFieldEvents } from "./event-handlers/tween-fields.js";
 import { bindSoundFieldEvents } from "./event-handlers/sound-fields.js";
 import { bindSpecialEntryEvents } from "./event-handlers/special-entries.js";
+import { bindSegmentGraphEvents } from "./event-handlers/segment-graph.js";
+import { bindSegmentDetailEvents } from "./event-handlers/segment-detail.js";
 
 export default class CinematicEditorApplication extends HandlebarsApplicationMixin(ApplicationV2) {
 	static APP_ID = `${MODULE_ID}-cinematic-editor`;
@@ -60,6 +63,10 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 	#maxHistory = 50;
 	#keydownHandler = null;
 	#insertMenuState = null;
+	#playbackState = null;
+	#playbackUnsub = null;
+	#rafId = null;
+	#playingSegmentName = null;
 
 	constructor(options = {}) {
 		super(options);
@@ -70,6 +77,7 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 	// ── Context ───────────────────────────────────────────────────────────
 
 	async _prepareContext() {
+		const segmentGraph = computeSegmentGraph(this.#state, this.#state.activeSegmentName);
 		const lanes = computeLanes(this.#state.timeline, {
 			selectedPath: this.#selectedPath,
 			windowWidth: this.position?.width ?? 1100,
@@ -78,6 +86,14 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 
 		const cinematicNames = this.#state.listCinematicNames();
 		const activeName = this.#state.activeCinematicName;
+		const segmentNames = this.#state.listSegmentNames();
+		const hasMultipleSegments = segmentNames.length > 1;
+
+		// Active segment info for detail
+		const activeSeg = this.#state.activeSegment;
+		const activeSegmentGate = activeSeg?.gate ?? null;
+		const rawNext = activeSeg?.next ?? null;
+		const activeSegmentNext = typeof rawNext === "string" ? rawNext : rawNext?.segment ?? null;
 
 		return {
 			// Toolbar
@@ -96,6 +112,11 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			})),
 			hasMultipleCinematics: cinematicNames.length > 1,
 
+			// Segment graph
+			segmentGraph,
+			activeSegmentName: this.#state.activeSegmentName,
+			hasMultipleSegments,
+
 			// Swimlane
 			timeMarkers: lanes.timeMarkers,
 			mainBlocks: lanes.mainBlocks,
@@ -108,6 +129,12 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 
 			// Detail
 			detail,
+
+			// Active segment detail
+			activeSegmentGate,
+			activeSegmentNext,
+			activeSegmentSetupCount: Object.keys(activeSeg?.setup ?? {}).length,
+			activeSegmentLandingCount: Object.keys(activeSeg?.landing ?? {}).length,
 
 			// Footer
 			trigger: this.#state.trigger,
@@ -130,6 +157,32 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 	_onRender(context, options) {
 		super._onRender(context, options);
 		this.#bindEvents();
+
+		// Subscribe to playback progress events (once)
+		if (!this.#playbackUnsub) {
+			const api = game.modules.get(MODULE_ID)?.api?.cinematic;
+			if (api?.onPlaybackProgress) {
+				this.#playbackUnsub = api.onPlaybackProgress((ev) => this.#onPlaybackEvent(ev));
+				console.log("[cinematic-editor] Subscribed to playback progress events");
+			} else {
+				console.warn("[cinematic-editor] onPlaybackProgress not available on API", api);
+			}
+		}
+
+		// Re-apply playback visual state after re-render (DOM was rebuilt)
+		if (this.#playingSegmentName) {
+			this.element?.querySelectorAll(".cinematic-editor__segment-node").forEach((n) => {
+				n.classList.toggle("cinematic-editor__segment-node--playing", n.dataset.segmentName === this.#playingSegmentName);
+			});
+			// Restart cursor if the active segment's timeline is playing
+			if (this.#playbackState && this.#playbackState.segmentName === this.#state.activeSegmentName) {
+				const elapsed = performance.now() - this.#playbackState.startTime;
+				const remaining = this.#playbackState.durationMs - elapsed;
+				if (remaining > 0) {
+					this.#startCursorAnimation(this.#playbackState.durationMs, this.#playbackState.startTime);
+				}
+			}
+		}
 
 		// Register keyboard shortcuts (once)
 		if (!this.#keydownHandler) {
@@ -179,6 +232,9 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			document.removeEventListener("keydown", this.#keydownHandler);
 			this.#keydownHandler = null;
 		}
+		this.#playbackUnsub?.();
+		this.#playbackUnsub = null;
+		this.#stopCursorAnimation();
 		return super._onClose(options);
 	}
 
@@ -191,11 +247,13 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 		const ctx = this.#createEventContext();
 		bindToolbarEvents(root, ctx);
 		bindCinematicSelectorEvents(root, ctx);
+		bindSegmentGraphEvents(root, ctx);
 		bindSwimlaneEvents(root, ctx);
 		bindDetailPanelEvents(root, ctx);
 		bindTweenFieldEvents(root, ctx);
 		bindSoundFieldEvents(root, ctx);
 		bindSpecialEntryEvents(root, ctx);
+		bindSegmentDetailEvents(root, ctx);
 	}
 
 	#createEventContext() {
@@ -220,6 +278,30 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 				this.#selectedPath = null;
 				this.#expandedTweens.clear();
 				this.render({ force: true });
+			},
+
+			// Segment management
+			selectSegment: (name) => {
+				if (this.#pendingChanges) this.#flushTweenChanges();
+				this.#state = this.#state.switchSegment(name);
+				this.#selectedPath = null;
+				this.#expandedTweens.clear();
+				this.render({ force: true });
+			},
+			addSegment: (name) => {
+				this.#mutate((s) => s.addSegment(name, s.activeSegmentName));
+			},
+			removeSegment: (name) => {
+				this.#mutate((s) => s.removeSegment(name));
+			},
+			renameSegment: (oldName, newName) => {
+				this.#mutate((s) => s.renameSegment(oldName, newName));
+			},
+			setSegmentGate: (gate) => {
+				this.#mutate((s) => s.setSegmentGate(gate));
+			},
+			setSegmentNext: (next) => {
+				this.#mutate((s) => s.setSegmentNext(next));
 			},
 
 			// Tween debouncing
@@ -463,5 +545,95 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			content: `<p>${allIssues.length} issue(s) found:</p><ul style="list-style:none;padding:0;max-height:300px;overflow:auto">${lines.join("")}</ul>`,
 			buttons: { ok: { label: "Close" } },
 		}).render(true);
+	}
+
+	// ── Playback progress ────────────────────────────────────────────────
+
+	#onPlaybackEvent(ev) {
+		console.log(`[cinematic-editor] playback event: ${ev.type}`, ev);
+		switch (ev.type) {
+			case "segment-start":
+				this.#playingSegmentName = ev.segmentName;
+				// Auto-follow: switch the swimlane to the playing segment
+				if (ev.segmentName !== this.#state.activeSegmentName) {
+					this.#state = this.#state.switchSegment(ev.segmentName);
+					this.#selectedPath = null;
+					this.#expandedTweens.clear();
+					this.render({ force: true });
+					// _onRender will apply the --playing class via #playingSegmentName
+				} else {
+					// Already on the right segment, just toggle classes directly
+					this.element?.querySelectorAll(".cinematic-editor__segment-node").forEach((n) => {
+						n.classList.toggle("cinematic-editor__segment-node--playing", n.dataset.segmentName === ev.segmentName);
+					});
+				}
+				break;
+
+			case "gate-wait":
+				this.element?.querySelector(`.cinematic-editor__segment-node[data-segment-name="${CSS.escape(ev.segmentName)}"]`)
+					?.classList.add("cinematic-editor__segment-node--gate-waiting");
+				break;
+
+			case "gate-resolved":
+				this.element?.querySelector(`.cinematic-editor__segment-node[data-segment-name="${CSS.escape(ev.segmentName)}"]`)
+					?.classList.remove("cinematic-editor__segment-node--gate-waiting");
+				break;
+
+			case "timeline-start":
+				this.#playbackState = { segmentName: ev.segmentName, startTime: performance.now(), durationMs: ev.durationMs };
+				// Only show cursor if the playing segment is the one currently displayed in the swimlane
+				if (ev.segmentName === this.#state.activeSegmentName) {
+					this.#startCursorAnimation(ev.durationMs);
+				}
+				break;
+
+			case "timeline-end":
+				this.#stopCursorAnimation();
+				this.#playbackState = null;
+				break;
+
+			case "playback-end":
+				this.#stopCursorAnimation();
+				this.#playbackState = null;
+				this.#playingSegmentName = null;
+				this.element?.querySelectorAll(".cinematic-editor__segment-node--playing, .cinematic-editor__segment-node--gate-waiting")
+					.forEach((n) => {
+						n.classList.remove("cinematic-editor__segment-node--playing", "cinematic-editor__segment-node--gate-waiting");
+					});
+				break;
+		}
+	}
+
+	#startCursorAnimation(durationMs, resumeStartTime = null) {
+		this.#stopCursorAnimation();
+		const cursor = this.element?.querySelector(".cinematic-editor__playback-cursor");
+		const swimlane = this.element?.querySelector(".cinematic-editor__swimlane");
+		console.log(`[cinematic-editor] startCursor: duration=${durationMs}, cursor=${!!cursor}, swimlane=${!!swimlane}, width=${swimlane?.scrollWidth}`);
+		if (!cursor || !swimlane || durationMs <= 0) return;
+
+		cursor.style.display = "block";
+		const startTime = resumeStartTime ?? performance.now();
+		const swimlaneWidth = swimlane.scrollWidth;
+
+		const tick = () => {
+			const elapsed = performance.now() - startTime;
+			const progress = Math.min(elapsed / durationMs, 1);
+			const leftPx = SETUP_WIDTH + progress * (swimlaneWidth - SETUP_WIDTH);
+			cursor.style.left = `${leftPx}px`;
+
+			if (progress < 1) {
+				this.#rafId = requestAnimationFrame(tick);
+			}
+		};
+		this.#rafId = requestAnimationFrame(tick);
+	}
+
+	#stopCursorAnimation() {
+		if (this.#rafId) {
+			cancelAnimationFrame(this.#rafId);
+			this.#rafId = null;
+		}
+		const cursor = this.element?.querySelector(".cinematic-editor__playback-cursor");
+		if (cursor) cursor.style.display = "none";
 	}
 }
