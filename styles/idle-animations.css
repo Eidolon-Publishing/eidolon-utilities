@@ -1,0 +1,180 @@
+.eidolon-idle-animation {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 0.25rem 0;
+}
+
+/* ── Slot list (scrollable) ───────────────────────────────────────── */
+
+.idle-anim__slots {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	max-height: 360px;
+	overflow-y: auto;
+	padding-right: 2px;
+}
+
+.idle-anim__slot {
+	border: 1px solid var(--color-border-light-tertiary, #555);
+	border-radius: 4px;
+	padding: 0.4rem 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	background: color-mix(in srgb, var(--color-cool-5, #1a1a2e) 30%, transparent);
+}
+
+/* ── Slot header (clickable collapse toggle) ─────────────────────── */
+
+.idle-anim__slot-header {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	cursor: pointer;
+	user-select: none;
+}
+
+.idle-anim__slot-chevron {
+	font-size: 0.7rem;
+	transition: transform 0.15s ease;
+	flex: none;
+	width: 0.8rem;
+	text-align: center;
+	opacity: 0.6;
+}
+
+.idle-anim__slot:not(.is-collapsed) .idle-anim__slot-chevron {
+	transform: rotate(90deg);
+}
+
+.idle-anim__slot-title {
+	font-weight: bold;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	opacity: 0.7;
+	flex: none;
+}
+
+.idle-anim__slot-summary {
+	flex: 1;
+	font-size: 0.75rem;
+	opacity: 0.55;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.idle-anim__slot:not(.is-collapsed) .idle-anim__slot-summary {
+	display: none;
+}
+
+.idle-anim__slot-remove {
+	width: 1.5rem;
+	height: 1.5rem;
+	padding: 0;
+	line-height: 1.5rem;
+	text-align: center;
+	flex: none;
+	background: none;
+	border: 1px solid transparent;
+	color: var(--color-text-light-6, #aaa);
+	cursor: pointer;
+	border-radius: 3px;
+}
+
+.idle-anim__slot-remove:hover {
+	border-color: var(--color-border-light-tertiary, #555);
+	color: var(--color-text-hyperlink, #ff6400);
+}
+
+/* ── Collapsible body ────────────────────────────────────────────── */
+
+.idle-anim__slot-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.idle-anim__slot.is-collapsed .idle-anim__slot-body {
+	display: none;
+}
+
+/* ── Type-specific fields ────────────────────────────────────────── */
+
+.idle-anim__type-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.idle-anim__range-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.5rem;
+}
+
+/* ── Color inputs ────────────────────────────────────────────────── */
+
+.idle-anim__color-wrapper {
+	display: flex;
+	gap: 0.3rem;
+	align-items: center;
+}
+
+.idle-anim__color-wrapper input[type="color"] {
+	width: 2rem;
+	height: 1.75rem;
+	padding: 1px;
+	border: 1px solid var(--color-border-light-tertiary, #555);
+	border-radius: 3px;
+	cursor: pointer;
+	flex: none;
+}
+
+.idle-anim__color-wrapper input[type="text"] {
+	flex: 1;
+	min-width: 0;
+	font-family: monospace;
+	font-size: 0.8rem;
+}
+
+/* ── Hints ───────────────────────────────────────────────────────── */
+
+.idle-anim__hint {
+	margin: 0;
+	font-size: 0.75rem;
+	opacity: 0.5;
+	font-style: italic;
+}
+
+/* ── Add button ──────────────────────────────────────────────────── */
+
+.idle-anim__add {
+	width: 100%;
+	border-style: dashed;
+	opacity: 0.8;
+}
+
+.idle-anim__add:hover {
+	opacity: 1;
+}
+
+/* ── Actions ─────────────────────────────────────────────────────── */
+
+.idle-anim__actions {
+	display: flex;
+	gap: 0.4rem;
+	padding-top: 0.25rem;
+}
+
+.idle-anim__actions button {
+	flex: 1;
+}
+
+.idle-anim__preview.is-active {
+	background: color-mix(in srgb, var(--color-warm-1, #cf9f4a) 24%, transparent);
+	border-color: var(--color-warm-1, #cf9f4a);
+}

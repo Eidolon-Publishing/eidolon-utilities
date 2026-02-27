@@ -598,7 +598,7 @@ export class TweenTimeline {
 			}
 
 			if (segment.kind === "parallel") {
-				const result = await this.#executeParallel(segment, ctx);
+				const result = await this.#executeParallel(segment, ctx, cumulativeOffsetMS);
 				if (result) return result;
 				continue;
 			}
@@ -701,9 +701,10 @@ export class TweenTimeline {
 	 * Execute a parallel segment: spawn N branches, join per strategy, handle overflow.
 	 * @param {object} segment  { kind: "parallel", branches, join, overflow }
 	 * @param {object} ctx  Parent execution context
+	 * @param {number} parentOffsetMS  Cumulative time offset from the parent timeline
 	 * @returns {Promise<object|null>}  null = success, object = early termination
 	 */
-	async #executeParallel(segment, ctx) {
+	async #executeParallel(segment, ctx, parentOffsetMS = 0) {
 		const { branches, join, overflow } = segment;
 		const branchCount = branches.length;
 		const joinTarget = join === "all" ? branchCount : join === "any" ? 1 : join;
@@ -790,7 +791,7 @@ export class TweenTimeline {
 				const branchCtx = {
 					signal: branchControllers[i].signal,
 					commit: ctx.commit,
-					startEpochMS: ctx.startEpochMS,
+					startEpochMS: ctx.startEpochMS + parentOffsetMS,
 					eventBus: ctx.eventBus, // shared
 					errors: ctx.errors, // shared
 					detachedPromises: ctx.detachedPromises, // shared

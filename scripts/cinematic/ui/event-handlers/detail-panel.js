@@ -21,6 +21,18 @@ export function bindDetailPanelEvents(root, ctx) {
 		}
 	});
 
+	// Step duration input
+	root.querySelector("[data-action='step-duration']")?.addEventListener("input", (e) => {
+		const parsed = ctx.parseEntryPath(ctx.selectedPath);
+		if (!parsed) return;
+		const val = Number(e.target.value) || 0;
+		if (parsed.type === "timeline") {
+			ctx.mutate((s) => s.updateStepDuration(parsed.index, val));
+		} else if (parsed.type === "branch") {
+			ctx.mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { duration: Math.max(0, val) }));
+		}
+	});
+
 	// Add tween
 	root.querySelector("[data-action='add-tween']")?.addEventListener("click", () => {
 		const parsed = ctx.parseEntryPath(ctx.selectedPath);
@@ -30,7 +42,7 @@ export function bindDetailPanelEvents(root, ctx) {
 		} else if (parsed.type === "branch") {
 			const entry = ctx.getEntryAtPath(ctx.selectedPath);
 			if (!entry) return;
-			const defaultTween = { type: "tile-prop", target: "", attribute: "alpha", value: 1, duration: 1000 };
+			const defaultTween = { type: "tile-prop", target: "", attribute: "alpha", value: 1 };
 			const tweens = [...(entry.tweens ?? []), defaultTween];
 			ctx.mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { tweens }));
 		}

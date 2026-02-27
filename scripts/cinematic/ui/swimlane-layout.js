@@ -9,23 +9,7 @@ import {
 // ── Duration helpers ─────────────────────────────────────────────────────────
 
 function computeStepDurations(entry) {
-	const tweens = entry.tweens ?? [];
-	if (tweens.length === 0) return { stepDuration: 500, detachOverflow: 0 };
-
-	let maxAttached = 0;
-	let maxDetached = 0;
-	for (const tw of tweens) {
-		const d = tw.duration ?? 0;
-		if (tw.detach) {
-			maxDetached = Math.max(maxDetached, d);
-		} else {
-			maxAttached = Math.max(maxAttached, d);
-		}
-	}
-
-	const stepDuration = Math.max(500, maxAttached);
-	const detachOverflow = Math.max(0, maxDetached - stepDuration);
-	return { stepDuration, detachOverflow };
+	return { stepDuration: Math.max(500, entry.duration ?? 500), detachOverflow: 0 };
 }
 
 function computeParallelDuration(entry) {
@@ -351,14 +335,13 @@ export function computeLanes(timeline, { selectedPath, windowWidth }) {
 			cursorPx += parallelWidth;
 		} else {
 			// Step
-			const { stepDuration, detachOverflow } = computeStepDurations(entry);
+			const { stepDuration } = computeStepDurations(entry);
 			const stepW = Math.max(MIN_STEP_WIDTH, stepDuration * scale);
-			const detachTailW = detachOverflow > 0 ? Math.max(4, detachOverflow * scale) : 0;
 			const label = deriveStepLabel(entry);
 
 			mainBlocks.push({
 				type: "step", leftPx: cursorPx, widthPx: stepW,
-				detachTailPx: detachTailW, label, entryPath, selected: isSelected,
+				label, entryPath, selected: isSelected,
 			});
 			cursorPx += stepW;
 		}

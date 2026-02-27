@@ -405,7 +405,7 @@ const PARAMS_FIELDS = {
 /**
  * Fields that are always routed to opts regardless of tween type.
  */
-const OPTS_FIELDS = new Set(["duration", "easing", "detach"]);
+const OPTS_FIELDS = new Set(["easing"]);
 
 /**
  * Fields consumed by the cinematic compiler itself (not passed through).
@@ -415,12 +415,12 @@ const META_FIELDS = new Set(["type", "target"]);
 /**
  * Compile a single cinematic tween entry into Timeline .add() arguments.
  *
- * @param {object} tweenEntry  Flat cinematic tween (type, target, attribute, value, duration, ...)
+ * @param {object} tweenEntry  Flat cinematic tween (type, target, attribute, value, easing, ...)
  * @param {Map<string, object>} targets  Resolved target map
- * @returns {{ type: string, params: object, opts: object, detach: boolean } | null}
+ * @returns {{ type: string, params: object, opts: object } | null}
  */
 export function compileTween(tweenEntry, targets) {
-	const { type, target: selector, detach: shouldDetach = false, ...rest } = tweenEntry;
+	const { type, target: selector, ...rest } = tweenEntry;
 
 	if (!type) {
 		console.warn(`[${MODULE_ID}] Cinematic: tween entry missing 'type', skipping.`);
@@ -448,10 +448,7 @@ export function compileTween(tweenEntry, targets) {
 	for (const [key, value] of Object.entries(rest)) {
 		if (META_FIELDS.has(key)) continue;
 
-		if (key === "duration") {
-			// Map flat "duration" → Timeline's "durationMS"
-			opts.durationMS = value;
-		} else if (OPTS_FIELDS.has(key)) {
+		if (OPTS_FIELDS.has(key)) {
 			opts[key] = value;
 		} else if (knownParams?.has(key)) {
 			params[key] = value;
@@ -461,7 +458,7 @@ export function compileTween(tweenEntry, targets) {
 		}
 	}
 
-	return { type, params, opts, detach: shouldDetach };
+	return { type, params, opts };
 }
 
 // ── Client-Side Sound Playback ───────────────────────────────────────────
@@ -772,16 +769,13 @@ function compileCinematicEntries(entries, tl, targets, opts = {}) {
 			});
 		}
 
-		// Compile and add each tween
+		// Compile and add each tween — duration comes from the step, not per-tween
+		const stepDurationMS = entry.duration ?? 500;
 		for (const tweenEntry of entry.tweens) {
 			const compiled = compileTween(tweenEntry, targets);
 			if (!compiled) continue;
 
-			step.add(compiled.type, compiled.params, compiled.opts);
-
-			if (compiled.detach) {
-				step.detach();
-			}
+			step.add(compiled.type, compiled.params, { ...compiled.opts, durationMS: stepDurationMS });
 		}
 
 		// Step-level after callback (includes progress tracking)

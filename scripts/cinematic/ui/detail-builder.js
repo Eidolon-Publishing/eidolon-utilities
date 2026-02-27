@@ -87,11 +87,6 @@ export function countUniqueTargets(state) {
 
 // ── Detail builder ───────────────────────────────────────────────────────────
 
-function maxTweenDuration(entry) {
-	if (!entry.tweens?.length) return 500;
-	return Math.max(500, ...entry.tweens.map((t) => t.duration ?? 0));
-}
-
 function stepNumberForPath(path, state) {
 	const parsed = parseEntryPath(path);
 	if (!parsed) return 0;
@@ -225,9 +220,7 @@ function buildStepDetail(entry, path, expandedTweens, state) {
 			attribute: tw.attribute ?? "",
 			attributePlaceholder: typeDefaults?.placeholder ?? "",
 			value: tw.value ?? "",
-			duration: tw.duration ?? 0,
 			easing: tw.easing ?? "",
-			detach: tw.detach ?? false,
 			// Form group flags
 			formGroup,
 			formIsProp: formGroup === "prop",
@@ -271,7 +264,7 @@ function buildStepDetail(entry, path, expandedTweens, state) {
 		isStep: true,
 		isDelay: false,
 		stepNumber: stepNumberForPath(path, state),
-		maxDuration: maxTweenDuration(entry),
+		stepDuration: entry.duration ?? 1000,
 		tweens,
 		beforeSummary: beforeKeys.length ? `${beforeKeys.length} target${beforeKeys.length !== 1 ? "s" : ""}` : "(none)",
 		afterSummary: afterKeys.length ? `${afterKeys.length} target${afterKeys.length !== 1 ? "s" : ""}` : "(none)",
