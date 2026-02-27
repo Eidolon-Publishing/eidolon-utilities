@@ -167,6 +167,7 @@ export function gatherAllStateMaps(cinematicData) {
 function gatherFromEntries(entries, merged, mergeMap) {
 	for (const entry of entries) {
 		if (entry.delay != null || entry.await != null || entry.emit != null) continue;
+		if (entry.transitionTo != null || entry.sound != null || entry.stopSound != null) continue;
 
 		if (entry.parallel?.branches) {
 			for (const branch of entry.parallel.branches) {
@@ -202,6 +203,9 @@ function collectSelectorsFromEntries(entries, selectors) {
 		if (entry.delay != null) continue;
 		if (entry.await != null) continue;
 		if (entry.emit != null) continue;
+		if (entry.transitionTo != null) continue;
+		if (entry.sound != null) continue;
+		if (entry.stopSound != null) continue;
 
 		// Parallel — recurse into branches
 		if (entry.parallel) {
@@ -451,6 +455,103 @@ export function compileTween(tweenEntry, targets) {
 	return { type, params, opts, detach: shouldDetach };
 }
 
+// ── Client-Side Sound Playback ───────────────────────────────────────────
+
+/** Active cinematic sounds, keyed by user-assigned id. */
+const activeCinematicSounds = new Map();
+let soundAutoId = 0;
+
+/**
+ * Play a sound locally (never broadcast, never committed to Foundry documents).
+ * @param {object} config
+ * @param {string} [config.id]  User-assigned id for later stop reference
+ * @param {string} config.src   Audio file path
+ * @param {number} [config.volume=0.8]
+ * @param {boolean} [config.loop=false]
+ * @param {number} [config.fadeIn]  Fade-in duration in ms
+ * @param {number} [config.fadeOut]  Fade-out duration in ms (used on stop)
+ */
+export async function playLocalSound(config) {
+	const { id, src, volume = 0.8, loop = false, fadeIn } = config;
+	if (!src) {
+		console.warn(`[${MODULE_ID}] Cinematic sound: missing 'src', skipping.`);
+		return;
+	}
+
+	const soundId = id || `__auto_${++soundAutoId}`;
+
+	const soundConfig = {
+		src,
+		autoplay: true,
+		loop,
+		volume,
+	};
+
+	let sound = null;
+	try {
+		if (typeof foundry?.audio?.AudioHelper?.play === "function") {
+			sound = await foundry.audio.AudioHelper.play(soundConfig, false);
+		} else if (typeof game?.audio?.constructor?.play === "function") {
+			sound = await game.audio.constructor.play(soundConfig, false);
+		} else if (typeof game?.audio?.play === "function") {
+			sound = await game.audio.play(soundConfig, false);
+		}
+	} catch (err) {
+		console.error(`[${MODULE_ID}] Cinematic sound: failed to play "${src}":`, err);
+		return;
+	}
+
+	if (!sound) {
+		console.warn(`[${MODULE_ID}] Cinematic sound: audio helper unavailable for "${src}".`);
+		return;
+	}
+
+	if (fadeIn && fadeIn > 0 && sound.fade) {
+		sound.fade(volume, { duration: fadeIn, from: 0 });
+	}
+
+	activeCinematicSounds.set(soundId, { sound, config });
+	console.log(`[${MODULE_ID}] Cinematic sound: playing "${src}" as "${soundId}" (loop=${loop}, vol=${volume})`);
+}
+
+/**
+ * Stop a specific cinematic sound by id.
+ * @param {string} id  The sound id to stop
+ * @param {number} [fadeOut]  Fade-out duration in ms (optional)
+ */
+export function stopCinematicSound(id) {
+	const entry = activeCinematicSounds.get(id);
+	if (!entry) {
+		console.warn(`[${MODULE_ID}] Cinematic sound: no active sound with id "${id}".`);
+		return;
+	}
+	const fadeOut = entry.config.fadeOut;
+	try {
+		if (fadeOut && fadeOut > 0 && entry.sound.fade) {
+			entry.sound.fade(0, { duration: fadeOut }).then(() => entry.sound.stop?.());
+		} else {
+			entry.sound.stop?.();
+		}
+	} catch (err) {
+		console.warn(`[${MODULE_ID}] Cinematic sound: error stopping "${id}":`, err);
+	}
+	activeCinematicSounds.delete(id);
+}
+
+/**
+ * Stop all active cinematic sounds. Called on cancel/error/complete.
+ */
+export function stopAllCinematicSounds() {
+	for (const [id, entry] of activeCinematicSounds) {
+		try {
+			entry.sound.stop?.();
+		} catch (err) {
+			console.warn(`[${MODULE_ID}] Cinematic sound: error stopping "${id}" during cleanup:`, err);
+		}
+	}
+	activeCinematicSounds.clear();
+}
+
 // ── Timeline Compilation ─────────────────────────────────────────────────
 
 /**
@@ -462,11 +563,12 @@ export function compileTween(tweenEntry, targets) {
  * @param {object} [opts]
  * @param {number} [opts.skipToStep]  Resume from this step index (apply prior states instantly)
  * @param {(stepIndex: number) => void} [opts.onStepComplete]  Callback after each step completes
- * @returns {import("../tween/core/timeline/TweenTimeline.js").TweenTimeline}
+ * @param {string} [opts.timelineName]  Custom timeline name (default: cinematic-{sceneId})
+ * @returns {{ tl: import("../tween/core/timeline/TweenTimeline.js").TweenTimeline, transitionTo: { cinematic: string, scene?: string } | null }}
  */
 export function buildTimeline(cinematicData, targets, Timeline, opts = {}) {
-	const tl = new Timeline().name(`cinematic-${canvas.scene.id}`);
-	const { skipToStep, onStepComplete } = opts;
+	const { skipToStep, onStepComplete, timelineName } = opts;
+	const tl = new Timeline().name(timelineName ?? `cinematic-${canvas.scene.id}`);
 
 	// Setup state applied as beforeAll
 	tl.beforeAll(() => {
@@ -479,9 +581,10 @@ export function buildTimeline(cinematicData, targets, Timeline, opts = {}) {
 		}
 	});
 
-	compileCinematicEntries(cinematicData.timeline, tl, targets, { skipToStep, onStepComplete });
+	const meta = { transitionTo: null };
+	compileCinematicEntries(cinematicData.timeline, tl, targets, { skipToStep, onStepComplete, meta });
 
-	return tl;
+	return { tl, transitionTo: meta.transitionTo };
 }
 
 /**
@@ -512,7 +615,8 @@ function applyParallelStatesForSkip(branches, targets) {
 
 /**
  * Compile cinematic timeline entries into a TweenTimeline.
- * Handles steps, delays, awaits, emits, and parallel branches recursively.
+ * Handles steps, delays, awaits, emits, sound, stopSound, transitionTo,
+ * and parallel branches recursively.
  *
  * @param {Array} entries  Cinematic timeline entries
  * @param {import("../tween/core/timeline/TweenTimeline.js").TweenTimeline} tl  Target timeline
@@ -520,12 +624,69 @@ function applyParallelStatesForSkip(branches, targets) {
  * @param {object} [opts]
  * @param {number} [opts.skipToStep]  Skip entries before this step index (apply states instantly)
  * @param {(stepIndex: number) => void} [opts.onStepComplete]  Callback after each step
+ * @param {object} [opts.meta]  Mutable metadata object for collecting transitionTo info
  */
 function compileCinematicEntries(entries, tl, targets, opts = {}) {
-	const { skipToStep, onStepComplete } = opts;
+	const { skipToStep, onStepComplete, meta } = opts;
 	let stepIndex = -1;
 
 	for (const entry of entries) {
+		// TransitionTo entry — terminal, no further entries processed
+		if (entry.transitionTo != null) {
+			if (skipToStep != null && stepIndex < skipToStep) continue;
+			if (meta) meta.transitionTo = entry.transitionTo;
+			// Add a zero-duration step as a marker (for timeline completeness)
+			tl.step();
+			break; // terminal — stop processing
+		}
+
+		// Sound entry — play audio locally (duration-aware)
+		if (entry.sound != null) {
+			if (skipToStep != null && stepIndex < skipToStep) continue;
+			const soundConfig = entry.sound;
+			const { duration, loop, fireAndForget } = soundConfig;
+
+			// Always: fire the sound
+			const step = tl.step();
+			step.before(() => {
+				playLocalSound(soundConfig);
+			});
+
+			// If duration set: hold the timeline (or schedule auto-stop for fire-and-forget)
+			if (duration && duration > 0) {
+				if (fireAndForget) {
+					// Don't hold timeline — schedule auto-stop outside the timeline
+					if (loop && soundConfig.id) {
+						const id = soundConfig.id;
+						const dur = duration;
+						step.before(() => { setTimeout(() => stopCinematicSound(id), dur); });
+					}
+				} else {
+					// Hold timeline for duration
+					tl.delay(duration);
+					// Timed loop: auto-stop after duration expires
+					if (loop) {
+						const stopStep = tl.step();
+						stopStep.before(() => {
+							stopCinematicSound(soundConfig.id);
+						});
+					}
+				}
+			}
+			continue;
+		}
+
+		// StopSound entry — stop a playing sound by id
+		if (entry.stopSound != null) {
+			if (skipToStep != null && stepIndex < skipToStep) continue;
+			const soundId = entry.stopSound;
+			const step = tl.step();
+			step.before(() => {
+				stopCinematicSound(soundId);
+			});
+			continue;
+		}
+
 		// Delay entry
 		if (entry.delay != null) {
 			// Skip delays when fast-forwarding
@@ -678,6 +839,7 @@ function validateEntries(entries, pathPrefix, targets, diagnostics) {
 		const path = `${pathPrefix}[${i}]`;
 
 		if (entry.delay != null || entry.await != null || entry.emit != null) continue;
+		if (entry.transitionTo != null || entry.sound != null || entry.stopSound != null) continue;
 
 		if (entry.parallel?.branches) {
 			for (let bi = 0; bi < entry.parallel.branches.length; bi++) {
