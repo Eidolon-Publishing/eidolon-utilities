@@ -1,6 +1,7 @@
 import { MODULE_ID } from "../time-triggers/core/constants.js";
 import { resolveAllTargets, applyState, buildTimeline, captureSnapshot, gatherAllStateMaps } from "./runtime.js";
 import CinematicEditorApplication from "./ui/CinematicEditorApplication.js";
+import { TileAnimator, registerBehaviour, getBehaviour } from "./tile-animator.js";
 
 const CINEMATIC_FLAG = "cinematic";
 const CURRENT_VERSION = 2;
@@ -365,6 +366,56 @@ async function resetCinematic(sceneId) {
 }
 
 /**
+ * Clear the "seen" flag for a specific user on a scene. GM only.
+ * @param {string} [sceneId]
+ * @param {string} userId
+ */
+async function resetCinematicForUser(sceneId, userId) {
+	if (!game.user.isGM) return;
+	const id = sceneId ?? canvas.scene?.id;
+	if (!id || !userId) return;
+	const user = game.users.get(userId);
+	if (!user) return;
+	await user.unsetFlag(MODULE_ID, seenFlagKey(id));
+	console.log(`[${MODULE_ID}] Cinematic: cleared seen flag for user ${user.name} on scene ${id}.`);
+}
+
+/**
+ * Clear the "seen" flag for ALL users on a scene. GM only.
+ * @param {string} [sceneId]
+ */
+async function resetCinematicForAll(sceneId) {
+	if (!game.user.isGM) return;
+	const id = sceneId ?? canvas.scene?.id;
+	if (!id) return;
+	const key = seenFlagKey(id);
+	const promises = game.users.map((u) => {
+		if (u.getFlag(MODULE_ID, key)) return u.unsetFlag(MODULE_ID, key);
+		return Promise.resolve();
+	});
+	await Promise.all(promises);
+	console.log(`[${MODULE_ID}] Cinematic: cleared seen flag for all users on scene ${id}.`);
+}
+
+/**
+ * Get the "seen" status for all users on a scene.
+ * @param {string} [sceneId]
+ * @returns {Array<{ userId: string, name: string, color: string, isGM: boolean, seen: boolean }>}
+ */
+function getSeenStatus(sceneId) {
+	const id = sceneId ?? canvas.scene?.id;
+	if (!id) return [];
+	const key = seenFlagKey(id);
+	return game.users.map((u) => ({
+		userId: u.id,
+		name: u.name,
+		color: u.color ?? "#888888",
+		isGM: u.isGM,
+		seen: !!u.getFlag(MODULE_ID, key),
+	}));
+}
+
+/**
  * Check if a scene has cinematic data.
  * @param {string} [sceneId]
  * @returns {boolean}
@@ -562,9 +613,15 @@ export function registerCinematicHooks() {
 		mod.api.cinematic = {
 			play: playCinematic,
 			reset: resetCinematic,
+			resetForUser: resetCinematicForUser,
+			resetForAll: resetCinematicForAll,
+			getSeenStatus: getSeenStatus,
 			has: hasCinematic,
 			get: getCinematicData,
 			revert: revertCinematic,
+			TileAnimator,
+			registerBehaviour,
+			getBehaviour,
 			trigger: async (triggerName, sceneId) => {
 				const id = sceneId ?? canvas.scene?.id;
 				if (!id) return;

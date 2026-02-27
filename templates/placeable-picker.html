@@ -1,0 +1,80 @@
+<div class="placeable-picker">
+
+  {{!-- Add by Tags --}}
+  <fieldset class="placeable-picker__section">
+    <legend>Add by Tags</legend>
+    <div class="placeable-picker__tag-row">
+      <input type="text" class="placeable-picker__tag-input" data-role="tag-input"
+             placeholder="Enter tag name" />
+      <select data-role="tag-mode">
+        <option value="any" {{#if tagModeIsAny}}selected{{/if}}>Match Any</option>
+        <option value="all" {{#if tagModeIsAll}}selected{{/if}}>Match All</option>
+      </select>
+      <button type="button" class="placeable-picker__btn placeable-picker__btn--small"
+              data-action="add-tag-selector">Add to List</button>
+    </div>
+    {{#if tagPreviewCount}}
+    <div class="placeable-picker__tag-preview" data-role="tag-preview">
+      {{tagPreviewCount}} matching placeable(s)
+    </div>
+    {{/if}}
+  </fieldset>
+
+  {{!-- Pick from Canvas --}}
+  <fieldset class="placeable-picker__section">
+    <legend>Pick from Canvas</legend>
+    <div class="placeable-picker__pick-row">
+      <button type="button" class="placeable-picker__btn {{#if pickModeActive}}placeable-picker__btn--active{{/if}}"
+              data-action="toggle-pick-mode">
+        {{#if pickModeActive}}Stop Picking{{else}}Start Picking{{/if}}
+      </button>
+      <span class="placeable-picker__pick-hint">Click tiles on the canvas to add them</span>
+    </div>
+  </fieldset>
+
+  {{!-- Browse Tiles --}}
+  <fieldset class="placeable-picker__section">
+    <legend>Browse Tiles ({{tileCount}})</legend>
+    <div class="placeable-picker__grid" data-role="tile-grid">
+      {{#each tiles}}
+      <div class="placeable-picker__tile {{#if selected}}placeable-picker__tile--selected{{/if}}"
+           data-action="toggle-tile" data-doc-id="{{id}}" data-index="{{@index}}"
+           title="{{name}}">
+        {{#if thumbnailSrc}}
+        <img class="placeable-picker__tile-img" src="{{thumbnailSrc}}" alt="{{name}}" loading="lazy" />
+        {{else}}
+        <div class="placeable-picker__tile-placeholder"><i class="fa-solid fa-image"></i></div>
+        {{/if}}
+        <span class="placeable-picker__tile-name">{{name}}</span>
+        {{#if selected}}
+        <span class="placeable-picker__tile-badge"><i class="fa-solid fa-check"></i></span>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </fieldset>
+
+  {{!-- Selection List --}}
+  <div class="placeable-picker__selections">
+    <div class="placeable-picker__selections-header">
+      Selected ({{selectionCount}}):
+    </div>
+    {{#each selections}}
+    <div class="placeable-picker__selection-item" data-index="{{@index}}">
+      <code class="placeable-picker__selector-text">{{this}}</code>
+      <button type="button" class="placeable-picker__btn--icon placeable-picker__btn--danger"
+              data-action="remove-selection" data-selection-index="{{@index}}"
+              title="Remove"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    {{/each}}
+    {{#unless selections.length}}
+    <div class="placeable-picker__empty">No targets selected</div>
+    {{/unless}}
+  </div>
+
+  {{!-- Footer buttons --}}
+  <footer class="placeable-picker__footer">
+    <button type="button" class="placeable-picker__btn" data-action="cancel">Cancel</button>
+    <button type="button" class="placeable-picker__btn placeable-picker__btn--primary" data-action="apply">Apply</button>
+  </footer>
+</div>

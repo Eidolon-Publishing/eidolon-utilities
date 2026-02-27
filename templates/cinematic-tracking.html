@@ -1,0 +1,32 @@
+<div class="cinematic-tracking">
+  <header class="cinematic-tracking__header">
+    <span class="cinematic-tracking__scene-name">{{sceneName}}</span>
+    <button type="button" class="cinematic-tracking__btn cinematic-tracking__btn--icon"
+            data-action="refresh" title="Refresh"><i class="fa-solid fa-arrows-rotate"></i></button>
+  </header>
+
+  <div class="cinematic-tracking__table">
+    {{#each users}}
+    <div class="cinematic-tracking__row">
+      <span class="cinematic-tracking__user-color" style="background: {{color}};"></span>
+      <span class="cinematic-tracking__user-name">{{name}}{{#if isGM}} <i class="fa-solid fa-crown" style="font-size:0.65rem;opacity:0.5" title="GM"></i>{{/if}}</span>
+      <span class="cinematic-tracking__status {{statusClass}}">{{statusLabel}}</span>
+      {{#if seen}}
+      <button type="button" class="cinematic-tracking__btn cinematic-tracking__btn--small"
+              data-action="reset-user" data-user-id="{{userId}}" title="Reset for {{name}}">
+        <i class="fa-solid fa-rotate-left"></i>
+      </button>
+      {{else}}
+      <span class="cinematic-tracking__btn-placeholder"></span>
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+
+  {{#if hasAnyTracked}}
+  <footer class="cinematic-tracking__footer">
+    <button type="button" class="cinematic-tracking__btn cinematic-tracking__btn--danger"
+            data-action="reset-all">Reset All</button>
+  </footer>
+  {{/if}}
+</div>
