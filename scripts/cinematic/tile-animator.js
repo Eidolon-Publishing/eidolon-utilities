@@ -74,12 +74,12 @@ registerBehaviour("pulse", (placeable, opts = {}) => {
 	const maxAlpha = opts.maxAlpha ?? 1.0;
 	const speed = opts.speed ?? 0.05;
 	const originalAlpha = mesh.alpha;
-	let elapsed = 0;
+	let phase = Math.PI / 2; // start at peak so first frame = maxAlpha
 
 	return {
 		update(dt) {
-			elapsed += dt;
-			const t = (Math.sin(elapsed * speed) + 1) / 2;
+			phase += dt * speed;
+			const t = (Math.sin(phase) + 1) / 2;
 			mesh.alpha = minAlpha + (maxAlpha - minAlpha) * t;
 		},
 		detach() {
@@ -199,9 +199,10 @@ const DEFAULT_CONFIG = {
  *   - undefined/null → defaults
  *   - { idle: "float", hover: ["scale", "glow"] } → arrays per state
  *   - { idle: ["float"] } → missing states get defaults
+ *   - { idle: [{ name: "pulse", minAlpha: 0.3 }] } → parameterized behaviours
  *
  * @param {object|undefined} raw
- * @returns {{ idle: string[], hover: string[], dim: string[] }}
+ * @returns {{ idle: Array<string|object>, hover: Array<string|object>, dim: Array<string|object> }}
  */
 export function normalizeConfig(raw) {
 	if (!raw) return { ...DEFAULT_CONFIG };
@@ -209,6 +210,7 @@ export function normalizeConfig(raw) {
 	const normalize = (val, fallback) => {
 		if (val === undefined) return fallback;
 		if (typeof val === "string") return [val];
+		if (typeof val === "object" && !Array.isArray(val) && val.name) return [val];
 		if (Array.isArray(val)) return val;
 		return fallback;
 	};
@@ -287,14 +289,16 @@ export class TileAnimator {
 
 	#attachBehaviours(state) {
 		this.#currentState = state;
-		const names = this.#config[state] ?? this.#config.idle ?? ["none"];
-		for (const name of names) {
+		const entries = this.#config[state] ?? this.#config.idle ?? ["none"];
+		for (const entry of entries) {
+			const name = typeof entry === "string" ? entry : entry.name;
+			const opts = typeof entry === "string" ? undefined : entry;
 			const factory = getBehaviour(name);
 			if (!factory) {
 				console.warn(`TileAnimator: unknown behaviour "${name}"`);
 				continue;
 			}
-			this.#activeBehaviours.push(factory(this.#placeable));
+			this.#activeBehaviours.push(factory(this.#placeable, opts));
 		}
 	}
 
