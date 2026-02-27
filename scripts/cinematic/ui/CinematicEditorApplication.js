@@ -18,16 +18,50 @@ const TWEEN_TYPES = [
 	{ value: "sound-prop", label: "Sound Prop" },
 ];
 
+/** Sensible defaults per tween type — used when switching types to reset fields.
+ *  `form` determines which field group the editor renders. */
+const TWEEN_TYPE_DEFAULTS = {
+	"tile-prop":      { form: "prop",       attribute: "alpha",  value: 1,    placeholder: "alpha, rotation, x, y, width, height" },
+	"token-prop":     { form: "prop",       attribute: "alpha",  value: 1,    placeholder: "alpha, rotation, x, y" },
+	"drawing-prop":   { form: "prop",       attribute: "alpha",  value: 1,    placeholder: "alpha, rotation, x, y" },
+	"sound-prop":     { form: "prop",       attribute: "volume", value: 0.5,  placeholder: "volume, radius" },
+	"particles-prop": { form: "particles",  attribute: "alpha",  value: 1,    placeholder: "alpha, rate, speed, size" },
+	"camera-pan":     { form: "camera",     x: 0,   y: 0,   scale: 1 },
+	"light-color":    { form: "lightColor", toColor: "#ffffff", toAlpha: "", mode: "oklch" },
+	"light-state":    { form: "lightState", enabled: true },
+};
+
 const TRIGGER_OPTIONS = [
 	{ value: "canvasReady", label: "Canvas Ready" },
 	{ value: "manual", label: "Manual Only" },
 ];
+
+/** Derive a stable sound ID from a file path: "audio/rain.ogg" → "rain" */
+function soundIdFromPath(src) {
+	if (!src) return "";
+	const filename = src.split("/").pop() || "";
+	return filename.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "-") || "";
+}
+
+/** Load an audio file's duration in ms from its metadata. Returns 0 on failure. */
+function loadAudioDurationMs(src) {
+	if (!src) return Promise.resolve(0);
+	return new Promise((resolve) => {
+		const audio = new Audio(src);
+		audio.addEventListener("loadedmetadata", () => {
+			resolve(Math.round(audio.duration * 1000));
+		});
+		audio.addEventListener("error", () => resolve(0));
+	});
+}
 
 const LANE_HEIGHT = 40;
 const RULER_HEIGHT = 24;
 const SETUP_WIDTH = 50;
 const LANDING_WIDTH = 50;
 const FIXED_BLOCK_WIDTH = 60;
+const MARKER_WIDTH = 10;
+const GATE_WIDTH = 16;
 const MIN_STEP_WIDTH = 40;
 const MIN_DELAY_WIDTH = 20;
 
@@ -87,6 +121,9 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 		const lanes = this.#computeLanes();
 		const detail = this.#selectedPath != null ? this.#buildDetail(this.#selectedPath) : null;
 
+		const cinematicNames = this.#state.listCinematicNames();
+		const activeName = this.#state.activeCinematicName;
+
 		return {
 			// Toolbar
 			sceneName: this.#scene?.name ?? "No scene",
@@ -94,11 +131,22 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			canUndo: this.#canUndo,
 			canRedo: this.#canRedo,
 
+			// Cinematic selector
+			cinematicNames,
+			activeCinematicName: activeName,
+			cinematicOptions: cinematicNames.map((name) => ({
+				value: name,
+				label: name,
+				selected: name === activeName,
+			})),
+			hasMultipleCinematics: cinematicNames.length > 1,
+
 			// Swimlane
 			timeMarkers: lanes.timeMarkers,
 			mainBlocks: lanes.mainBlocks,
 			subLanes: lanes.subLanes,
 			signalArcs: lanes.signalArcs,
+			fafConnectors: lanes.fafConnectors,
 			totalWidthPx: lanes.totalWidthPx,
 			swimlaneHeightPx: lanes.swimlaneHeightPx,
 			insertionPoints: lanes.insertionPoints,
@@ -188,7 +236,6 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 		// Block selection (swimlane)
 		root.querySelectorAll("[data-action='select-block']").forEach((el) => {
 			el.addEventListener("click", (e) => {
-				// Don't select if clicking a button inside the block
 				if (e.target.closest("button")) return;
 				const path = el.dataset.entryPath;
 				this.#selectedPath = this.#selectedPath === path ? null : path;
@@ -200,7 +247,7 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 		let dragSourcePath = null;
 		root.querySelectorAll(".cinematic-editor__lane--main [data-action='select-block']").forEach((el) => {
 			const path = el.dataset.entryPath;
-			if (path === "setup" || path === "landing") return; // not draggable
+			if (path === "setup" || path === "landing") return;
 
 			el.addEventListener("dragstart", (e) => {
 				dragSourcePath = path;
@@ -226,7 +273,6 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 					const fromIdx = this.#getTimelineIndexFromPath(dragSourcePath);
 					const toIdx = this.#getTimelineIndexFromPath(targetPath);
 					if (fromIdx != null && toIdx != null) {
-						// Update selectedPath to follow the moved entry
 						if (this.#selectedPath === dragSourcePath) {
 							this.#selectedPath = targetPath;
 						}
@@ -252,6 +298,77 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 		root.querySelector("[data-action='import-json']")?.addEventListener("click", () => this.#onImportJSON());
 		root.querySelector("[data-action='open-tracking']")?.addEventListener("click", () => {
 			new CinematicTrackingApplication({ scene: this.#scene }).render(true);
+		});
+
+		// Cinematic selector
+		root.querySelector("[data-action='change-cinematic']")?.addEventListener("change", (e) => {
+			if (this.#pendingChanges) this.#flushTweenChanges();
+			this.#state = this.#state.switchCinematic(e.target.value);
+			this.#selectedPath = null;
+			this.#expandedTweens.clear();
+			this.render({ force: true });
+		});
+		root.querySelector("[data-action='add-cinematic']")?.addEventListener("click", () => {
+			new Dialog({
+				title: "New Cinematic",
+				content: '<label style="display:flex;align-items:center;gap:0.5rem"><span>Name:</span><input id="cinematic-new-name" type="text" style="flex:1" placeholder="intro" /></label>',
+				buttons: {
+					ok: {
+						label: "Create",
+						callback: (html) => {
+							const name = html.find("#cinematic-new-name").val()?.trim();
+							if (!name) { ui.notifications?.warn?.("Name cannot be empty."); return; }
+							if (/[.\s]/.test(name)) { ui.notifications?.warn?.("Name cannot contain dots or spaces."); return; }
+							if (this.#state.listCinematicNames().includes(name)) { ui.notifications?.warn?.("Name already exists."); return; }
+							this.#mutate((s) => s.addCinematic(name));
+						},
+					},
+					cancel: { label: "Cancel" },
+				},
+				default: "ok",
+			}).render(true);
+		});
+		root.querySelector("[data-action='remove-cinematic']")?.addEventListener("click", () => {
+			const names = this.#state.listCinematicNames();
+			if (names.length <= 1) { ui.notifications?.warn?.("Cannot remove the last cinematic."); return; }
+			const active = this.#state.activeCinematicName;
+			new Dialog({
+				title: "Remove Cinematic",
+				content: `<p>Remove cinematic "${active}"? This cannot be undone after saving.</p>`,
+				buttons: {
+					ok: {
+						label: "Remove",
+						callback: () => {
+							this.#selectedPath = null;
+							this.#mutate((s) => s.removeCinematic(active));
+						},
+					},
+					cancel: { label: "Cancel" },
+				},
+				default: "cancel",
+			}).render(true);
+		});
+		root.querySelector("[data-action='rename-cinematic']")?.addEventListener("click", () => {
+			const active = this.#state.activeCinematicName;
+			new Dialog({
+				title: "Rename Cinematic",
+				content: `<label style="display:flex;align-items:center;gap:0.5rem"><span>Name:</span><input id="cinematic-rename" type="text" style="flex:1" value="${escapeHtml(active)}" /></label>`,
+				buttons: {
+					ok: {
+						label: "Rename",
+						callback: (html) => {
+							const newName = html.find("#cinematic-rename").val()?.trim();
+							if (!newName) { ui.notifications?.warn?.("Name cannot be empty."); return; }
+							if (/[.\s]/.test(newName)) { ui.notifications?.warn?.("Name cannot contain dots or spaces."); return; }
+							if (newName === active) return;
+							if (this.#state.listCinematicNames().includes(newName)) { ui.notifications?.warn?.("Name already exists."); return; }
+							this.#mutate((s) => s.renameCinematic(active, newName));
+						},
+					},
+					cancel: { label: "Cancel" },
+				},
+				default: "ok",
+			}).render(true);
 		});
 
 		// Footer config
@@ -373,14 +490,37 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 					let value;
 					if (input.type === "checkbox") {
 						value = input.checked;
-					} else if (field === "duration") {
-						value = Number(input.value) || 0;
+					} else if (field === "duration" || field === "x" || field === "y" || field === "scale" || field === "toAlpha") {
+						value = input.value.trim() === "" ? "" : Number(input.value) || 0;
 					} else if (field === "value" && !Number.isNaN(Number(input.value)) && input.value.trim() !== "") {
 						value = Number(input.value);
 					} else {
 						value = input.value;
 					}
-					this.#queueTweenChange(tweenIdx, { [field]: value });
+					// When type changes, reset fields to sensible defaults per form group, flush, and re-render
+					if (field === "type") {
+						const defaults = TWEEN_TYPE_DEFAULTS[value];
+						const patch = { type: value };
+						if (defaults) {
+							const form = defaults.form ?? "prop";
+							if (form === "prop" || form === "particles") {
+								Object.assign(patch, { attribute: defaults.attribute, value: defaults.value });
+							} else if (form === "camera") {
+								Object.assign(patch, { x: defaults.x, y: defaults.y, scale: defaults.scale });
+							} else if (form === "lightColor") {
+								Object.assign(patch, { toColor: defaults.toColor, toAlpha: defaults.toAlpha, mode: defaults.mode });
+							} else if (form === "lightState") {
+								Object.assign(patch, { enabled: defaults.enabled });
+							}
+						}
+						this.#queueTweenChange(tweenIdx, patch);
+						if (this.#changeTimer !== null) clearTimeout(this.#changeTimer);
+						this.#changeTimer = null;
+						this.#flushTweenChanges();
+						this.render({ force: true });
+					} else {
+						this.#queueTweenChange(tweenIdx, { [field]: value });
+					}
 				});
 			});
 		});
@@ -468,6 +608,161 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			}
 		});
 
+		// TransitionTo detail
+		root.querySelector("[data-action='change-transition-cinematic']")?.addEventListener("change", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.transitionTo) return;
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { transitionTo: { ...entry.transitionTo, cinematic: e.target.value } }));
+			}
+		});
+		root.querySelector("[data-action='change-transition-scene']")?.addEventListener("change", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.transitionTo) return;
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { transitionTo: { ...entry.transitionTo, scene: e.target.value } }));
+			}
+		});
+
+		// Sound detail
+		root.querySelector("[data-action='change-sound-src']")?.addEventListener("change", async (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.sound) return;
+			const src = e.target.value;
+			const patch = { ...entry.sound, src };
+			if (!patch.id) patch.id = soundIdFromPath(src);
+			const durationMs = await loadAudioDurationMs(src);
+			if (durationMs > 0) patch.duration = durationMs;
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { sound: patch }));
+			} else if (parsed.type === "branch") {
+				this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { sound: patch }));
+			}
+		});
+		root.querySelector("[data-action='pick-sound-src']")?.addEventListener("click", () => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.sound) return;
+			const fp = new FilePicker({
+				type: "audio",
+				current: entry.sound.src || "",
+				callback: async (path) => {
+					const patch = { ...entry.sound, src: path };
+					if (!patch.id) patch.id = soundIdFromPath(path);
+					const durationMs = await loadAudioDurationMs(path);
+					if (durationMs > 0) patch.duration = durationMs;
+					if (parsed.type === "timeline") {
+						this.#mutate((s) => s.updateEntry(parsed.index, { sound: patch }));
+					} else if (parsed.type === "branch") {
+						this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { sound: patch }));
+					}
+				},
+			});
+			fp.render(true);
+		});
+		root.querySelector("[data-action='change-sound-id']")?.addEventListener("change", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.sound) return;
+			const soundPatch = { ...entry.sound, id: e.target.value || undefined };
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { sound: soundPatch }));
+			} else if (parsed.type === "branch") {
+				this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { sound: soundPatch }));
+			}
+		});
+		root.querySelector("[data-action='change-sound-volume']")?.addEventListener("input", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.sound) return;
+			const soundPatch = { ...entry.sound, volume: Number(e.target.value) || 0.8 };
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { sound: soundPatch }));
+			} else if (parsed.type === "branch") {
+				this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { sound: soundPatch }));
+			}
+		});
+		root.querySelector("[data-action='change-sound-loop']")?.addEventListener("change", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.sound) return;
+			const soundPatch = { ...entry.sound, loop: e.target.checked };
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { sound: soundPatch }));
+			} else if (parsed.type === "branch") {
+				this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { sound: soundPatch }));
+			}
+		});
+		root.querySelector("[data-action='change-sound-fadein']")?.addEventListener("change", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.sound) return;
+			const soundPatch = { ...entry.sound, fadeIn: Number(e.target.value) || undefined };
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { sound: soundPatch }));
+			} else if (parsed.type === "branch") {
+				this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { sound: soundPatch }));
+			}
+		});
+		root.querySelector("[data-action='change-sound-fadeout']")?.addEventListener("change", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.sound) return;
+			const soundPatch = { ...entry.sound, fadeOut: Number(e.target.value) || undefined };
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { sound: soundPatch }));
+			} else if (parsed.type === "branch") {
+				this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { sound: soundPatch }));
+			}
+		});
+		root.querySelector("[data-action='change-sound-duration']")?.addEventListener("change", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.sound) return;
+			const soundPatch = { ...entry.sound, duration: Number(e.target.value) || 0 };
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { sound: soundPatch }));
+			} else if (parsed.type === "branch") {
+				this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { sound: soundPatch }));
+			}
+		});
+		root.querySelector("[data-action='change-sound-fireandforget']")?.addEventListener("change", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			const entry = this.#getEntryAtPath(this.#selectedPath);
+			if (!entry?.sound) return;
+			const soundPatch = { ...entry.sound, fireAndForget: e.target.checked };
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { sound: soundPatch }));
+			} else if (parsed.type === "branch") {
+				this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { sound: soundPatch }));
+			}
+		});
+
+		// StopSound detail
+		root.querySelector("[data-action='change-stopsound-id']")?.addEventListener("change", (e) => {
+			const parsed = this.#parseEntryPath(this.#selectedPath);
+			if (!parsed) return;
+			if (parsed.type === "timeline") {
+				this.#mutate((s) => s.updateEntry(parsed.index, { stopSound: e.target.value }));
+			} else if (parsed.type === "branch") {
+				this.#mutate((s) => s.updateBranchEntry(parsed.index, parsed.branchIndex, parsed.branchEntryIndex, { stopSound: e.target.value }));
+			}
+		});
+
 		// Parallel detail
 		root.querySelector("[data-action='change-parallel-join']")?.addEventListener("change", (e) => {
 			const parsed = this.#parseEntryPath(this.#selectedPath);
@@ -515,6 +810,22 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 				this.#mutate((s) => s.addBranchEntry(parsed.index, bi, { delay: 1000 }));
 			});
 		});
+		root.querySelectorAll("[data-action='add-branch-sound']").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const bi = Number(btn.dataset.branchIndex);
+				const parsed = this.#parseEntryPath(this.#selectedPath);
+				if (!parsed || parsed.type !== "timeline" || Number.isNaN(bi)) return;
+				this.#mutate((s) => s.addBranchEntry(parsed.index, bi, { sound: { src: "", volume: 0.8, loop: false, duration: 0, fireAndForget: false } }));
+			});
+		});
+		root.querySelectorAll("[data-action='add-branch-stopSound']").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const bi = Number(btn.dataset.branchIndex);
+				const parsed = this.#parseEntryPath(this.#selectedPath);
+				if (!parsed || parsed.type !== "timeline" || Number.isNaN(bi)) return;
+				this.#mutate((s) => s.addBranchEntry(parsed.index, bi, { stopSound: "" }));
+			});
+		});
 		root.querySelectorAll("[data-action='remove-branch-entry']").forEach((btn) => {
 			btn.addEventListener("click", () => {
 				const bi = Number(btn.dataset.branchIndex);
@@ -547,13 +858,16 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 					case "await": this.#mutate((s) => s.addAwait(insertIndex)); break;
 					case "emit": this.#mutate((s) => s.addEmit(insertIndex)); break;
 					case "parallel": this.#mutate((s) => s.addParallel(insertIndex)); break;
+					case "transitionTo": this.#mutate((s) => s.addTransitionTo(insertIndex)); break;
+					case "sound": this.#mutate((s) => s.addSound(insertIndex)); break;
+					case "stopSound": this.#mutate((s) => s.addStopSound(insertIndex)); break;
 				}
 				this.#hideInsertMenu();
 			});
 		});
 
-		// Click outside insert menu to close
-		root.addEventListener("click", (e) => {
+		// Click outside insert menu to close (listen on document since menu is reparented to body)
+		document.addEventListener("click", (e) => {
 			if (this.#insertMenuState && !e.target.closest(".cinematic-editor__insert-menu") && !e.target.closest("[data-action='show-insert-menu']")) {
 				this.#hideInsertMenu();
 			}
@@ -565,21 +879,36 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 	#showInsertMenu(el, insertIndex, lane) {
 		const menu = this.element?.querySelector(".cinematic-editor__insert-menu");
 		if (!menu) return;
-		const swimlane = this.element?.querySelector(".cinematic-editor__swimlane");
-		if (!swimlane) return;
 
 		const elRect = el.getBoundingClientRect();
-		const swimRect = swimlane.getBoundingClientRect();
 
+		// Reparent to document.body to escape all ancestor overflow clipping
+		document.body.appendChild(menu);
 		menu.style.display = "";
-		menu.style.left = `${elRect.left - swimRect.left}px`;
-		menu.style.top = `${elRect.bottom - swimRect.top + 4}px`;
+		menu.style.position = "fixed";
+		menu.style.left = `${elRect.left}px`;
+
+		// Flip upward if menu would go off-screen
+		const menuHeight = menu.offsetHeight || 200;
+		if (elRect.bottom + 4 + menuHeight > window.innerHeight) {
+			menu.style.top = `${elRect.top - menuHeight - 4}px`;
+		} else {
+			menu.style.top = `${elRect.bottom + 4}px`;
+		}
+
 		this.#insertMenuState = { insertIndex, lane };
 	}
 
 	#hideInsertMenu() {
-		const menu = this.element?.querySelector(".cinematic-editor__insert-menu");
-		if (menu) menu.style.display = "none";
+		// Menu may be on document.body — find it there or in our element
+		const menu = document.body.querySelector(".cinematic-editor__insert-menu")
+			?? this.element?.querySelector(".cinematic-editor__insert-menu");
+		if (menu) {
+			menu.style.display = "none";
+			// Move back into our element so it gets cleaned up on re-render
+			const root = this.element?.querySelector(".cinematic-editor");
+			if (root && menu.parentNode !== root) root.appendChild(menu);
+		}
 		this.#insertMenuState = null;
 	}
 
@@ -592,6 +921,9 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 		const mainBlocks = [];
 		const subLaneGroups = [];
 		const signals = { emits: [], awaits: [] };
+
+		// Shared F&F sound lanes — pack sounds into fewest lanes, only split on overlap
+		const fafLanes = []; // Array of { label, blocks, rightEdgePx }
 
 		// Setup bookend
 		mainBlocks.push({
@@ -615,30 +947,89 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 				cursorPx += w;
 			} else if (entry.await != null) {
 				const awaitEvent = entry.await.event ?? "click";
-				const awaitLabel = awaitEvent === "tile-click" ? "Tile Click" : "Await";
+				const gateIcon = awaitEvent === "tile-click" ? "fa-hand-pointer"
+					: awaitEvent === "signal" ? "fa-bolt"
+					: "fa-pause";
 				mainBlocks.push({
-					type: "await", leftPx: cursorPx, widthPx: FIXED_BLOCK_WIDTH,
-					label: awaitLabel, entryPath, selected: isSelected,
+					type: "await", leftPx: cursorPx, widthPx: GATE_WIDTH,
+					label: awaitEvent, entryPath, selected: isSelected,
+					isGate: true, gateIcon,
 				});
 				if (entry.await.event === "signal") {
 					signals.awaits.push({
 						signal: entry.await.signal,
-						centerPx: cursorPx + FIXED_BLOCK_WIDTH / 2,
+						centerPx: cursorPx + GATE_WIDTH / 2,
 						laneIndex: 0,
 					});
 				}
-				cursorPx += FIXED_BLOCK_WIDTH;
+				cursorPx += GATE_WIDTH;
 			} else if (entry.emit != null) {
 				mainBlocks.push({
-					type: "emit", leftPx: cursorPx, widthPx: FIXED_BLOCK_WIDTH,
-					label: `Emit`, entryPath, selected: isSelected,
+					type: "emit", leftPx: cursorPx, widthPx: MARKER_WIDTH,
+					label: `Emit`, entryPath, selected: isSelected, isMarker: true,
 				});
 				signals.emits.push({
 					signal: entry.emit,
-					centerPx: cursorPx + FIXED_BLOCK_WIDTH / 2,
+					centerPx: cursorPx + MARKER_WIDTH / 2,
 					laneIndex: 0,
 				});
+				// instant — don't advance cursor
+			} else if (entry.transitionTo != null) {
+				const targetName = entry.transitionTo.cinematic || "?";
+				mainBlocks.push({
+					type: "transitionTo", leftPx: cursorPx, widthPx: FIXED_BLOCK_WIDTH,
+					label: `→ ${targetName}`, entryPath, selected: isSelected,
+				});
 				cursorPx += FIXED_BLOCK_WIDTH;
+			} else if (entry.sound != null) {
+				const filename = (entry.sound.src || "").split("/").pop() || "Sound";
+				const soundDur = entry.sound.duration ?? 0;
+				const fireAndForget = entry.sound.fireAndForget ?? false;
+
+				if (fireAndForget) {
+					// No block on main lane — pack into shared F&F sub-lanes
+					const soundW = soundDur > 0 ? Math.max(FIXED_BLOCK_WIDTH, soundDur * scale) : FIXED_BLOCK_WIDTH;
+					const hasTrailingArrow = (entry.sound.loop ?? false) && soundDur <= 0;
+					const block = {
+						type: "sound", leftPx: cursorPx, widthPx: soundW,
+						label: filename, entryPath, selected: isSelected,
+						hasTrailingArrow,
+					};
+
+					// Find first F&F lane with no overlap at cursorPx
+					let packed = false;
+					for (const lane of fafLanes) {
+						if (lane.rightEdgePx <= cursorPx) {
+							lane.blocks.push(block);
+							lane.rightEdgePx = cursorPx + soundW;
+							packed = true;
+							break;
+						}
+					}
+					if (!packed) {
+						fafLanes.push({
+							label: "♫ F&F",
+							blocks: [block],
+							rightEdgePx: cursorPx + soundW,
+						});
+					}
+				} else {
+					// Block on main lane — advances cursor
+					const soundW = soundDur > 0 ? Math.max(FIXED_BLOCK_WIDTH, soundDur * scale) : FIXED_BLOCK_WIDTH;
+					const hasTrailingArrow = (entry.sound.loop ?? false) && soundDur <= 0;
+					mainBlocks.push({
+						type: "sound", leftPx: cursorPx, widthPx: soundW,
+						label: filename, entryPath, selected: isSelected,
+						hasTrailingArrow,
+					});
+					cursorPx += soundW;
+				}
+			} else if (entry.stopSound != null) {
+				mainBlocks.push({
+					type: "stopSound", leftPx: cursorPx, widthPx: MARKER_WIDTH,
+					label: `Stop`, entryPath, selected: isSelected, isMarker: true,
+				});
+				// instant — don't advance cursor
 			} else if (entry.parallel != null) {
 				const branches = entry.parallel.branches ?? [];
 				const parallelStartPx = cursorPx;
@@ -685,11 +1076,27 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 		});
 		cursorPx += LANDING_WIDTH;
 
-		// Flatten sub-lanes for rendering
+		// Flatten sub-lanes for rendering: parallel branches first, then shared F&F lanes
 		const subLanes = subLaneGroups.flatMap((g) => g.lanes);
+		const fafLaneStartIndex = subLanes.length;
+		for (const lane of fafLanes) {
+			subLanes.push({ label: lane.label, blocks: lane.blocks });
+		}
 
 		// Compute signal arcs
 		const signalArcs = this.#computeSignalArcs(signals, subLanes.length);
+
+		// Compute F&F connector lines (vertical dashed lines from main lane to sub-lane)
+		const fafConnectors = [];
+		for (let fi = 0; fi < fafLanes.length; fi++) {
+			const laneIdx = fafLaneStartIndex + fi;
+			for (const block of fafLanes[fi].blocks) {
+				const x = block.leftPx;
+				const y1 = RULER_HEIGHT + LANE_HEIGHT; // bottom of main lane
+				const y2 = RULER_HEIGHT + (1 + laneIdx) * LANE_HEIGHT + LANE_HEIGHT / 2; // center of target sub-lane
+				fafConnectors.push({ x, y1, y2 });
+			}
+		}
 
 		// Compute time markers
 		const totalDurationMs = this.#computeTotalDuration();
@@ -702,7 +1109,7 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 		const swimlaneHeightPx = RULER_HEIGHT + (1 + subLanes.length) * LANE_HEIGHT;
 
 		return {
-			mainBlocks, subLanes, signalArcs, timeMarkers, insertionPoints,
+			mainBlocks, subLanes, signalArcs, fafConnectors, timeMarkers, insertionPoints,
 			totalWidthPx: Math.max(cursorPx, 200),
 			swimlaneHeightPx,
 			totalDurationMs,
@@ -710,9 +1117,9 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 	}
 
 	#computeScale() {
-		const availableWidth = (this.position?.width ?? 1100) - 70 - 100; // minus labels and padding
+		const availableWidth = (this.position?.width ?? 1100) - 70 - 100;
 		const totalMs = this.#computeTotalDuration();
-		if (totalMs <= 0) return 0.1; // 100px per second default
+		if (totalMs <= 0) return 0.1;
 		const scale = availableWidth / totalMs;
 		return Math.max(0.03, Math.min(0.5, scale));
 	}
@@ -720,8 +1127,11 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 	#computeTotalDuration() {
 		return this.#state.timeline.reduce((sum, entry) => {
 			if (entry.delay != null) return sum + entry.delay;
-			if (entry.await != null) return sum + 500;
-			if (entry.emit != null) return sum + 500;
+			if (entry.await != null) return sum;
+			if (entry.emit != null) return sum; // instant, +0
+			if (entry.transitionTo != null) return sum; // terminal, +0
+			if (entry.sound != null) return sum + (entry.sound.fireAndForget ? 0 : (entry.sound.duration ?? 0));
+			if (entry.stopSound != null) return sum; // instant, +0
 			if (entry.parallel != null) return sum + this.#computeParallelDuration(entry);
 			return sum + this.#computeStepDurations(entry).stepDuration;
 		}, 0);
@@ -734,8 +1144,10 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			let branchDuration = 0;
 			for (const be of branch) {
 				if (be.delay != null) branchDuration += be.delay;
-				else if (be.await != null) branchDuration += 500;
-				else if (be.emit != null) branchDuration += 500;
+				else if (be.await != null) { /* gate, +0 */ }
+				else if (be.emit != null) { /* instant, +0 */ }
+				else if (be.sound != null) branchDuration += (be.sound.fireAndForget ? 0 : (be.sound.duration ?? 0));
+				else if (be.stopSound != null) { /* +0 */ }
 				else branchDuration += this.#computeStepDurations(be).stepDuration;
 			}
 			maxDuration = Math.max(maxDuration, branchDuration);
@@ -779,15 +1191,36 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 				blocks.push({ type: "delay", leftPx: cursorPx, widthPx: w, label: `${be.delay}ms`, entryPath, selected: isSelected });
 				cursorPx += w;
 			} else if (be.await != null) {
-				blocks.push({ type: "await", leftPx: cursorPx, widthPx: FIXED_BLOCK_WIDTH, label: be.await?.event ?? "click", entryPath, selected: isSelected });
+				const awaitEvent = be.await?.event ?? "click";
+				const gateIcon = awaitEvent === "tile-click" ? "fa-hand-pointer"
+					: awaitEvent === "signal" ? "fa-bolt"
+					: "fa-pause";
+				blocks.push({ type: "await", leftPx: cursorPx, widthPx: GATE_WIDTH, label: awaitEvent, entryPath, selected: isSelected, isGate: true, gateIcon });
 				if (be.await?.event === "signal") {
-					awaits.push({ signal: be.await.signal, centerPx: cursorPx + FIXED_BLOCK_WIDTH / 2 });
+					awaits.push({ signal: be.await.signal, centerPx: cursorPx + GATE_WIDTH / 2 });
 				}
-				cursorPx += FIXED_BLOCK_WIDTH;
+				cursorPx += GATE_WIDTH;
 			} else if (be.emit != null) {
-				blocks.push({ type: "emit", leftPx: cursorPx, widthPx: FIXED_BLOCK_WIDTH, label: be.emit || "emit", entryPath, selected: isSelected });
-				emits.push({ signal: be.emit, centerPx: cursorPx + FIXED_BLOCK_WIDTH / 2 });
-				cursorPx += FIXED_BLOCK_WIDTH;
+				blocks.push({ type: "emit", leftPx: cursorPx, widthPx: MARKER_WIDTH, label: "emit", entryPath, selected: isSelected, isMarker: true });
+				emits.push({ signal: be.emit, centerPx: cursorPx + MARKER_WIDTH / 2 });
+				// instant — don't advance cursor
+			} else if (be.sound != null) {
+				const filename = (be.sound.src || "").split("/").pop() || "Sound";
+				const soundDur = be.sound.duration ?? 0;
+				const fireAndForget = be.sound.fireAndForget ?? false;
+
+				if (fireAndForget) {
+					// Marker — don't advance branch cursor
+					blocks.push({ type: "sound", leftPx: cursorPx, widthPx: MARKER_WIDTH, label: filename, entryPath, selected: isSelected, isMarker: true });
+				} else {
+					const soundW = soundDur > 0 ? Math.max(FIXED_BLOCK_WIDTH, soundDur * scale) : FIXED_BLOCK_WIDTH;
+					const hasTrailingArrow = (be.sound.loop ?? false) && soundDur <= 0;
+					blocks.push({ type: "sound", leftPx: cursorPx, widthPx: soundW, label: filename, entryPath, selected: isSelected, hasTrailingArrow });
+					cursorPx += soundW;
+				}
+			} else if (be.stopSound != null) {
+				blocks.push({ type: "stopSound", leftPx: cursorPx, widthPx: MARKER_WIDTH, label: "Stop", entryPath, selected: isSelected, isMarker: true });
+				// instant — don't advance cursor
 			} else {
 				const { stepDuration } = this.#computeStepDurations(be);
 				const w = Math.max(MIN_STEP_WIDTH, stepDuration * scale);
@@ -1028,7 +1461,7 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 				}).render(true);
 			});
 			if (overwrite === "reload") {
-				this.#state = CinematicState.fromScene(this.#scene);
+				this.#state = CinematicState.fromScene(this.#scene, this.#state.activeCinematicName);
 				this.#dirty = false;
 				this.#history = [];
 				this.#historyIndex = -1;
@@ -1041,7 +1474,7 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 
 		try {
 			await this.#state.save(this.#scene);
-			this.#state = CinematicState.fromScene(this.#scene);
+			this.#state = CinematicState.fromScene(this.#scene, this.#state.activeCinematicName);
 			this.#dirty = false;
 			ui.notifications?.info?.("Cinematic saved.");
 			this.render({ force: true });
@@ -1057,13 +1490,13 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			ui.notifications?.warn?.("Cinematic API not available.");
 			return;
 		}
-		await api.play(this.#scene?.id);
+		await api.play(this.#scene?.id, this.#state.activeCinematicName);
 	}
 
 	async #onResetTracking() {
 		const api = game.modules.get(MODULE_ID)?.api?.cinematic;
 		if (!api?.reset) return;
-		await api.reset(this.#scene?.id);
+		await api.reset(this.#scene?.id, this.#state.activeCinematicName);
 		ui.notifications?.info?.("Cinematic tracking reset.");
 	}
 
@@ -1114,7 +1547,7 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			title: "Import Cinematic JSON",
 			content: `
 				<p style="font-size:0.82rem;margin-bottom:0.4rem">Paste cinematic JSON data below. This will replace the current editor state.</p>
-				<textarea id="cinematic-import-json" style="width:100%;height:250px;font-family:monospace;font-size:0.8rem" placeholder='{"version":2,"trigger":"canvasReady",...}'></textarea>
+				<textarea id="cinematic-import-json" style="width:100%;height:250px;font-family:monospace;font-size:0.8rem" placeholder='{"version":3,"cinematics":{"default":{...}}}'></textarea>
 			`,
 			buttons: {
 				import: {
@@ -1127,10 +1560,16 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 							if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
 								throw new Error("Expected a JSON object");
 							}
-							if (parsed.timeline !== undefined && !Array.isArray(parsed.timeline)) {
-								throw new Error("'timeline' must be an array");
+							// Accept either v3 full or single cinematic
+							if (parsed.cinematics) {
+								this.#mutate(() => new CinematicState(parsed));
+							} else if (parsed.timeline !== undefined) {
+								// Single cinematic data — wrap in v3
+								const wrapped = { version: 3, cinematics: { [this.#state.activeCinematicName]: parsed } };
+								this.#mutate(() => new CinematicState(wrapped, { cinematicName: this.#state.activeCinematicName }));
+							} else {
+								throw new Error("Expected v3 wrapper or single cinematic with 'timeline'");
 							}
-							this.#mutate(() => new CinematicState(parsed));
 							ui.notifications?.info?.("Cinematic JSON imported.");
 						} catch (err) {
 							ui.notifications?.error?.(`Import failed: ${err.message}`);
@@ -1308,6 +1747,50 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			return { type: "emit", isEmit: true, signal: entry.emit };
 		}
 
+		// TransitionTo
+		if (entry.transitionTo != null) {
+			const allNames = this.#state.listCinematicNames();
+			return {
+				type: "transitionTo",
+				isTransitionTo: true,
+				transitionCinematic: entry.transitionTo.cinematic ?? "",
+				transitionScene: entry.transitionTo.scene ?? "",
+				cinematicOptions: allNames.map((n) => ({
+					value: n,
+					label: n,
+					selected: n === entry.transitionTo.cinematic,
+				})),
+			};
+		}
+
+		// Sound
+		if (entry.sound != null) {
+			const filename = (entry.sound.src || "").split("/").pop() || "";
+			return {
+				type: "sound",
+				isSound: true,
+				soundSrc: entry.sound.src ?? "",
+				soundFilename: filename,
+				soundId: entry.sound.id ?? "",
+				soundVolume: entry.sound.volume ?? 0.8,
+				soundLoop: entry.sound.loop ?? false,
+				soundFadeIn: entry.sound.fadeIn ?? "",
+				soundFadeOut: entry.sound.fadeOut ?? "",
+				soundDuration: entry.sound.duration ?? 0,
+				soundFireAndForget: entry.sound.fireAndForget ?? false,
+				soundModeForever: (entry.sound.loop ?? false) && !((entry.sound.duration ?? 0) > 0),
+			};
+		}
+
+		// StopSound
+		if (entry.stopSound != null) {
+			return {
+				type: "stopSound",
+				isStopSound: true,
+				stopSoundId: entry.stopSound,
+			};
+		}
+
 		// Parallel (only for top-level timeline entries)
 		if (entry.parallel != null && parsed.type === "timeline") {
 			const par = entry.parallel;
@@ -1321,13 +1804,17 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 					const isDelay = be.delay != null;
 					const isAwait = be.await != null;
 					const isEmit = be.emit != null;
-					const isStep = !isDelay && !isAwait && !isEmit;
+					const isSound = be.sound != null;
+					const isStopSound = be.stopSound != null;
+					const isStep = !isDelay && !isAwait && !isEmit && !isSound && !isStopSound;
 					let label, sub;
 					if (isDelay) { label = `${be.delay}ms`; sub = "delay"; }
 					else if (isAwait) { label = "Await"; sub = be.await?.event ?? "click"; }
 					else if (isEmit) { label = "Emit"; sub = be.emit || "(unnamed)"; }
+					else if (isSound) { label = "Sound"; sub = (be.sound.src || "").split("/").pop() || "(none)"; }
+					else if (isStopSound) { label = "Stop Sound"; sub = be.stopSound || "(no id)"; }
 					else { label = "Step"; sub = `${be.tweens?.length ?? 0} tweens`; }
-					return { branchEntryIndex: bei, isDelay, isAwait, isEmit, isStep, label, sub };
+					return { branchEntryIndex: bei, isDelay, isAwait, isEmit, isSound, isStopSound, isStep, label, sub };
 				}),
 			}));
 
@@ -1350,19 +1837,44 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 		const tweens = (entry.tweens ?? []).map((tw, i) => {
 			const tweenKey = `${path}.tweens.${i}`;
 			const isExpanded = this.#expandedTweens.has(tweenKey);
-			const typeObj = TWEEN_TYPES.find((t) => t.value === (tw.type ?? "tile-prop"));
+			const tweenType = tw.type ?? "tile-prop";
+			const typeObj = TWEEN_TYPES.find((t) => t.value === tweenType);
+			const typeDefaults = TWEEN_TYPE_DEFAULTS[tweenType];
+			const formGroup = typeDefaults?.form ?? "prop";
+			const colorMode = tw.mode ?? "oklch";
 
 			return {
 				tweenIndex: i,
 				isExpanded,
-				type: tw.type ?? "tile-prop",
+				type: tweenType,
 				typeLabel: typeObj?.label ?? tw.type ?? "Tile Prop",
 				target: tw.target ?? "",
 				attribute: tw.attribute ?? "",
+				attributePlaceholder: typeDefaults?.placeholder ?? "",
 				value: tw.value ?? "",
 				duration: tw.duration ?? 0,
 				easing: tw.easing ?? "",
 				detach: tw.detach ?? false,
+				// Form group flags
+				formGroup,
+				formIsProp: formGroup === "prop",
+				formIsParticles: formGroup === "particles",
+				formIsCamera: formGroup === "camera",
+				formIsLightColor: formGroup === "lightColor",
+				formIsLightState: formGroup === "lightState",
+				// Camera fields
+				camX: tw.x ?? "",
+				camY: tw.y ?? "",
+				camScale: tw.scale ?? "",
+				// Light-color fields
+				toColor: tw.toColor ?? "#ffffff",
+				toAlpha: tw.toAlpha ?? "",
+				colorMode,
+				colorModeIsOklch: colorMode === "oklch",
+				colorModeIsHsl: colorMode === "hsl",
+				colorModeIsRgb: colorMode === "rgb",
+				// Light-state fields
+				enabled: tw.enabled ?? true,
 				typeOptions: TWEEN_TYPES.map((opt) => ({
 					...opt,
 					selected: opt.value === (tw.type ?? "tile-prop"),
@@ -1409,7 +1921,7 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			let count = 0;
 			for (let i = 0; i <= parsed.index; i++) {
 				const e = this.#state.timeline[i];
-				if (e && e.delay == null && e.await == null && e.emit == null && e.parallel == null) count++;
+				if (e && e.delay == null && e.await == null && e.emit == null && e.parallel == null && e.transitionTo == null && e.sound == null && e.stopSound == null) count++;
 			}
 			return count;
 		}
@@ -1419,7 +1931,7 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 			let count = 0;
 			for (let j = 0; j <= parsed.branchEntryIndex; j++) {
 				const be = branch[j];
-				if (be && be.delay == null && be.await == null && be.emit == null) count++;
+				if (be && be.delay == null && be.await == null && be.emit == null && be.sound == null && be.stopSound == null) count++;
 			}
 			return count;
 		}
@@ -1429,9 +1941,11 @@ export default class CinematicEditorApplication extends HandlebarsApplicationMix
 	#countUniqueTargets() {
 		const selectors = new Set();
 		const data = this.#state.data;
-		if (data.setup) for (const sel of Object.keys(data.setup)) selectors.add(sel);
-		if (data.landing) for (const sel of Object.keys(data.landing)) selectors.add(sel);
-		for (const entry of data.timeline ?? []) {
+		const active = data.cinematics?.[this.#state.activeCinematicName];
+		if (!active) return 0;
+		if (active.setup) for (const sel of Object.keys(active.setup)) selectors.add(sel);
+		if (active.landing) for (const sel of Object.keys(active.landing)) selectors.add(sel);
+		for (const entry of active.timeline ?? []) {
 			if (entry.tweens) {
 				for (const tw of entry.tweens) {
 					if (tw.target) selectors.add(tw.target);

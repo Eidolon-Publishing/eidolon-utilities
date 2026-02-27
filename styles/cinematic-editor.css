@@ -146,6 +146,23 @@
 	font-weight: 600;
 }
 
+/* ── Cinematic selector bar ────────────────────────────────────────────── */
+
+.cinematic-editor__cinematic-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.3rem 0.75rem;
+	border-bottom: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+	background: rgba(0, 0, 0, 0.02);
+}
+
+.cinematic-editor__cinematic-select {
+	font-size: 0.82rem;
+	padding: 0.15rem 0.4rem;
+	min-width: 120px;
+}
+
 /* ── Swimlane area ─────────────────────────────────────────────────────── */
 
 .cinematic-editor__swimlane-area {
@@ -293,6 +310,21 @@
 	color: var(--color-text-dark-primary, #191813);
 }
 
+.cinematic-editor__block--transitionTo {
+	background: #e3b8c8;
+	color: var(--color-text-dark-primary, #191813);
+}
+
+.cinematic-editor__block--sound {
+	background: #e3d4a0;
+	color: var(--color-text-dark-primary, #191813);
+}
+
+.cinematic-editor__block--stopSound {
+	background: #d9c4a0;
+	color: var(--color-text-dark-primary, #191813);
+}
+
 .cinematic-editor__block--setup,
 .cinematic-editor__block--landing {
 	background: var(--color-border-light-tertiary, rgba(0, 0, 0, 0.12));
@@ -307,6 +339,47 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	padding: 0 0.4rem;
+}
+
+/* ── Instant markers (emit, stopSound) ─────────────────────────────────── */
+
+.cinematic-editor__block--marker {
+	width: 10px !important;
+	border-radius: 2px;
+	z-index: 3;
+	overflow: visible;
+}
+
+.cinematic-editor__block--marker .cinematic-editor__block-label {
+	position: absolute;
+	top: -14px;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 0.62rem;
+	font-weight: 600;
+	white-space: nowrap;
+	padding: 0;
+	opacity: 0.7;
+}
+
+/* ── Gate blocks (await) ───────────────────────────────────────────────── */
+
+.cinematic-editor__block--gate {
+	border-radius: 0;
+	border-left: 2px solid rgba(100, 140, 170, 0.6);
+	border-right: 2px solid rgba(100, 140, 170, 0.6);
+	background: rgba(100, 140, 170, 0.15);
+	z-index: 3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: visible;
+}
+
+.cinematic-editor__block--gate i {
+	font-size: 0.55rem;
+	opacity: 0.6;
+	color: rgba(60, 100, 130, 0.9);
 }
 
 /* ── Detach tails ──────────────────────────────────────────────────────── */
@@ -329,6 +402,19 @@
 	z-index: 1;
 }
 
+/* ── Sound loop-forever arrow ──────────────────────────────────────────── */
+
+.cinematic-editor__sound-loop-arrow {
+	position: absolute;
+	top: 50%;
+	right: 0;
+	transform: translate(100%, -50%);
+	border: 5px solid transparent;
+	border-left: 6px solid currentColor;
+	opacity: 0.4;
+	pointer-events: none;
+}
+
 /* ── SVG signal arcs ───────────────────────────────────────────────────── */
 
 .cinematic-editor__arcs {
@@ -345,6 +431,13 @@
 	stroke-width: 2;
 	stroke-dasharray: 6 3;
 	opacity: 0.7;
+}
+
+.cinematic-editor__faf-connector {
+	stroke: var(--color-text-light-6, #999);
+	stroke-width: 1;
+	stroke-dasharray: 3 2;
+	opacity: 0.5;
 }
 
 /* ── Insertion points ──────────────────────────────────────────────────── */
@@ -381,16 +474,17 @@
 /* ── Insert menu (popover) ─────────────────────────────────────────────── */
 
 .cinematic-editor__insert-menu {
-	position: absolute;
-	z-index: 10;
-	background: var(--color-bg-option, #fff);
-	border: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+	position: fixed;
+	z-index: 999;
+	background: var(--color-cool-5, #0b0a13);
+	color: var(--color-text-secondary, #e7d1b1);
+	border: 1px solid var(--color-cool-3, #584a75);
 	border-radius: 6px;
 	padding: 0.25rem;
 	display: flex;
 	flex-direction: column;
 	gap: 1px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 	min-width: 100px;
 }
 
@@ -404,10 +498,12 @@
 	border-radius: 4px;
 	border: none;
 	background: transparent;
+	color: inherit;
 }
 
 .cinematic-editor__insert-menu button:hover {
-	background: var(--color-border-highlight-hover, rgba(217, 164, 65, 0.15));
+	background: var(--color-dark-1, #111);
+	color: var(--color-text-emphatic, #fff);
 }
 
 /* ── Detail panel ──────────────────────────────────────────────────────── */
@@ -528,6 +624,8 @@
 .cinematic-editor__branch-entry--delay { background: transparent; border: 1px dashed var(--color-border-light-tertiary, rgba(0, 0, 0, 0.3)); }
 .cinematic-editor__branch-entry--await { background: #b8d4e3; }
 .cinematic-editor__branch-entry--emit { background: #b8e3c0; }
+.cinematic-editor__branch-entry--sound { background: #e3d4a0; }
+.cinematic-editor__branch-entry--stopSound { background: #d9c4a0; }
 
 .cinematic-editor__branch-entry-label {
 	font-weight: 600;

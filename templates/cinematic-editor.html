@@ -24,6 +24,23 @@
     </div>
   </header>
 
+  {{!-- Cinematic selector bar --}}
+  <div class="cinematic-editor__cinematic-bar">
+    <select data-action="change-cinematic" class="cinematic-editor__cinematic-select">
+      {{#each cinematicOptions}}
+      <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+    <button type="button" class="cinematic-editor__btn cinematic-editor__btn--icon cinematic-editor__btn--small"
+            data-action="add-cinematic" title="New cinematic"><i class="fa-solid fa-plus"></i></button>
+    <button type="button" class="cinematic-editor__btn cinematic-editor__btn--icon cinematic-editor__btn--small"
+            data-action="rename-cinematic" title="Rename"><i class="fa-solid fa-pen"></i></button>
+    {{#if hasMultipleCinematics}}
+    <button type="button" class="cinematic-editor__btn cinematic-editor__btn--icon cinematic-editor__btn--small cinematic-editor__btn--danger"
+            data-action="remove-cinematic" title="Remove"><i class="fa-solid fa-trash"></i></button>
+    {{/if}}
+  </div>
+
   {{!-- Swimlane area --}}
   <div class="cinematic-editor__swimlane-area">
     {{!-- Fixed left column: lane labels --}}
@@ -46,12 +63,15 @@
         {{!-- Main lane --}}
         <div class="cinematic-editor__lane cinematic-editor__lane--main">
           {{#each mainBlocks}}
-          <div class="cinematic-editor__block cinematic-editor__block--{{type}} {{#if selected}}cinematic-editor__block--selected{{/if}}"
+          <div class="cinematic-editor__block cinematic-editor__block--{{type}} {{#if selected}}cinematic-editor__block--selected{{/if}} {{#if isMarker}}cinematic-editor__block--marker{{/if}} {{#if isGate}}cinematic-editor__block--gate{{/if}}"
                style="left: {{leftPx}}px; width: {{widthPx}}px;"
                data-action="select-block" data-entry-path="{{entryPath}}" draggable="true">
-            <span class="cinematic-editor__block-label">{{label}}</span>
+            {{#if isGate}}<i class="fa-solid {{gateIcon}}"></i>{{else}}<span class="cinematic-editor__block-label">{{label}}</span>{{/if}}
             {{#if detachTailPx}}
             <div class="cinematic-editor__detach-tail" style="width: {{detachTailPx}}px;"></div>
+            {{/if}}
+            {{#if hasTrailingArrow}}
+            <div class="cinematic-editor__sound-loop-arrow"></div>
             {{/if}}
           </div>
           {{/each}}
@@ -61,19 +81,25 @@
         {{#each subLanes}}
         <div class="cinematic-editor__lane cinematic-editor__lane--branch">
           {{#each blocks}}
-          <div class="cinematic-editor__block cinematic-editor__block--{{type}} {{#if selected}}cinematic-editor__block--selected{{/if}}"
+          <div class="cinematic-editor__block cinematic-editor__block--{{type}} {{#if selected}}cinematic-editor__block--selected{{/if}} {{#if isMarker}}cinematic-editor__block--marker{{/if}} {{#if isGate}}cinematic-editor__block--gate{{/if}}"
                style="left: {{leftPx}}px; width: {{widthPx}}px;"
                data-action="select-block" data-entry-path="{{entryPath}}">
-            <span class="cinematic-editor__block-label">{{label}}</span>
+            {{#if isGate}}<i class="fa-solid {{gateIcon}}"></i>{{else}}<span class="cinematic-editor__block-label">{{label}}</span>{{/if}}
+            {{#if hasTrailingArrow}}
+            <div class="cinematic-editor__sound-loop-arrow"></div>
+            {{/if}}
           </div>
           {{/each}}
         </div>
         {{/each}}
 
-        {{!-- SVG overlay for signal arcs --}}
+        {{!-- SVG overlay for signal arcs + F&F connectors --}}
         <svg class="cinematic-editor__arcs" style="width: {{totalWidthPx}}px; height: {{swimlaneHeightPx}}px;">
           {{#each signalArcs}}
           <path d="{{pathD}}" class="cinematic-editor__arc" />
+          {{/each}}
+          {{#each fafConnectors}}
+          <line x1="{{x}}" y1="{{y1}}" x2="{{x}}" y2="{{y2}}" class="cinematic-editor__faf-connector" />
           {{/each}}
         </svg>
 
@@ -88,16 +114,21 @@
           {{/each}}
         </div>
 
-        {{!-- Insert menu (popover, hidden by default) --}}
-        <div class="cinematic-editor__insert-menu" style="display: none;">
-          <button type="button" data-action="insert-entry" data-insert-type="step">Step</button>
-          <button type="button" data-action="insert-entry" data-insert-type="delay">Delay</button>
-          <button type="button" data-action="insert-entry" data-insert-type="await">Await</button>
-          <button type="button" data-action="insert-entry" data-insert-type="emit">Emit</button>
-          <button type="button" data-action="insert-entry" data-insert-type="parallel">Parallel</button>
-        </div>
       </div>
     </div>
+  </div>
+
+  {{!-- Insert menu (popover, positioned outside scroll container to avoid clipping) --}}
+  <div class="cinematic-editor__insert-menu" style="display: none;">
+    <button type="button" data-action="insert-entry" data-insert-type="step">Step</button>
+    <button type="button" data-action="insert-entry" data-insert-type="delay">Delay</button>
+    <button type="button" data-action="insert-entry" data-insert-type="await">Await</button>
+    <button type="button" data-action="insert-entry" data-insert-type="emit">Emit</button>
+    <button type="button" data-action="insert-entry" data-insert-type="parallel">Parallel</button>
+    <hr style="margin:0.15rem 0;border:0;border-top:1px solid rgba(0,0,0,0.1)" />
+    <button type="button" data-action="insert-entry" data-insert-type="sound">Sound</button>
+    <button type="button" data-action="insert-entry" data-insert-type="stopSound">Stop Sound</button>
+    <button type="button" data-action="insert-entry" data-insert-type="transitionTo">Transition To</button>
   </div>
 
   {{!-- Detail panel --}}
@@ -139,6 +170,28 @@
         <button type="button" class="cinematic-editor__btn cinematic-editor__btn--danger cinematic-editor__btn--small"
                 data-action="delete-entry">Delete</button>
 
+      {{!-- TransitionTo detail --}}
+      {{else if detail.isTransitionTo}}
+        <span class="cinematic-editor__detail-title">Transition To</span>
+        <span style="flex:1"></span>
+        <button type="button" class="cinematic-editor__btn cinematic-editor__btn--danger cinematic-editor__btn--small"
+                data-action="delete-entry">Delete</button>
+
+      {{!-- Sound detail --}}
+      {{else if detail.isSound}}
+        <span class="cinematic-editor__detail-title">Sound</span>
+        <span class="cinematic-editor__detail-duration">{{detail.soundFilename}}</span>
+        <span style="flex:1"></span>
+        <button type="button" class="cinematic-editor__btn cinematic-editor__btn--danger cinematic-editor__btn--small"
+                data-action="delete-entry">Delete</button>
+
+      {{!-- StopSound detail --}}
+      {{else if detail.isStopSound}}
+        <span class="cinematic-editor__detail-title">Stop Sound</span>
+        <span style="flex:1"></span>
+        <button type="button" class="cinematic-editor__btn cinematic-editor__btn--danger cinematic-editor__btn--small"
+                data-action="delete-entry">Delete</button>
+
       {{!-- Parallel detail --}}
       {{else if detail.isParallel}}
         <span class="cinematic-editor__detail-title">Parallel</span>
@@ -154,6 +207,80 @@
                 data-action="delete-entry">Delete</button>
       {{/if}}
     </div>
+
+    {{!-- TransitionTo config --}}
+    {{#if detail.isTransitionTo}}
+    <div class="cinematic-editor__entry-config">
+      <label class="cinematic-editor__config-item">
+        <span>Cinematic</span>
+        <select data-action="change-transition-cinematic">
+          <option value="">(select)</option>
+          {{#each detail.cinematicOptions}}
+          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label class="cinematic-editor__config-item">
+        <span>Scene</span>
+        <input type="text" data-action="change-transition-scene" value="{{detail.transitionScene}}" placeholder="(same scene)" />
+      </label>
+    </div>
+    {{/if}}
+
+    {{!-- Sound config --}}
+    {{#if detail.isSound}}
+    <div class="cinematic-editor__entry-config cinematic-editor__entry-config--sound">
+      <label class="cinematic-editor__config-item">
+        <span>File</span>
+        <div class="cinematic-editor__target-group">
+          <input type="text" data-action="change-sound-src" value="{{detail.soundSrc}}" placeholder="audio/path.ogg" />
+          <button type="button" class="cinematic-editor__btn--icon" data-action="pick-sound-src" title="Browse">
+            <i class="fa-solid fa-folder-open"></i>
+          </button>
+        </div>
+      </label>
+      <label class="cinematic-editor__config-item">
+        <span>ID</span>
+        <input type="text" data-action="change-sound-id" value="{{detail.soundId}}" placeholder="(auto)" style="width:80px" />
+      </label>
+      <label class="cinematic-editor__config-item">
+        <span>Volume</span>
+        <input type="range" data-action="change-sound-volume" value="{{detail.soundVolume}}" min="0" max="1" step="0.05" style="width:80px" />
+        <span style="font-size:0.75rem;width:30px">{{detail.soundVolume}}</span>
+      </label>
+      <label class="cinematic-editor__config-item">
+        <span>Loop</span>
+        <input type="checkbox" data-action="change-sound-loop" {{#if detail.soundLoop}}checked{{/if}} />
+      </label>
+      <label class="cinematic-editor__config-item">
+        <span>Fade In</span>
+        <input type="number" data-action="change-sound-fadein" value="{{detail.soundFadeIn}}" placeholder="ms" min="0" step="100" style="width:70px" />
+      </label>
+      <label class="cinematic-editor__config-item">
+        <span>Fade Out</span>
+        <input type="number" data-action="change-sound-fadeout" value="{{detail.soundFadeOut}}" placeholder="ms" min="0" step="100" style="width:70px" />
+      </label>
+      <label class="cinematic-editor__config-item">
+        <span>Duration</span>
+        <input type="number" data-action="change-sound-duration" value="{{detail.soundDuration}}" placeholder="ms" min="0" step="100" style="width:90px" />
+        {{#if detail.soundModeForever}}<span style="font-size:0.7rem;opacity:0.6;font-style:italic">loops forever</span>{{/if}}
+      </label>
+      <label class="cinematic-editor__config-item">
+        <span>Fire & Forget</span>
+        <input type="checkbox" data-action="change-sound-fireandforget" {{#if detail.soundFireAndForget}}checked{{/if}} />
+      </label>
+    </div>
+    {{/if}}
+
+    {{!-- StopSound config --}}
+    {{#if detail.isStopSound}}
+    <div class="cinematic-editor__entry-config">
+      <label class="cinematic-editor__config-item">
+        <span>Sound ID</span>
+        <input type="text" data-action="change-stopsound-id" value="{{detail.stopSoundId}}" placeholder="sound id" />
+      </label>
+    </div>
+    {{/if}}
 
     {{!-- Await config --}}
     {{#if detail.isAwait}}
@@ -246,7 +373,7 @@
         </div>
         <div class="cinematic-editor__branch-entries">
           {{#each entries}}
-          <div class="cinematic-editor__branch-entry {{#if isDelay}}cinematic-editor__branch-entry--delay{{/if}}{{#if isAwait}}cinematic-editor__branch-entry--await{{/if}}{{#if isEmit}}cinematic-editor__branch-entry--emit{{/if}}{{#if isStep}}cinematic-editor__branch-entry--step{{/if}}"
+          <div class="cinematic-editor__branch-entry {{#if isDelay}}cinematic-editor__branch-entry--delay{{/if}}{{#if isAwait}}cinematic-editor__branch-entry--await{{/if}}{{#if isEmit}}cinematic-editor__branch-entry--emit{{/if}}{{#if isSound}}cinematic-editor__branch-entry--sound{{/if}}{{#if isStopSound}}cinematic-editor__branch-entry--stopSound{{/if}}{{#if isStep}}cinematic-editor__branch-entry--step{{/if}}"
                data-branch-index="{{../branchIndex}}" data-branch-entry-index="{{branchEntryIndex}}">
             <span class="cinematic-editor__branch-entry-label">{{label}}</span>
             <span class="cinematic-editor__branch-entry-sub">{{sub}}</span>
@@ -262,6 +389,10 @@
                   data-action="add-branch-step" data-branch-index="{{branchIndex}}">+ Step</button>
           <button type="button" class="cinematic-editor__btn cinematic-editor__btn--small"
                   data-action="add-branch-delay" data-branch-index="{{branchIndex}}">+ Delay</button>
+          <button type="button" class="cinematic-editor__btn cinematic-editor__btn--small"
+                  data-action="add-branch-sound" data-branch-index="{{branchIndex}}">+ Sound</button>
+          <button type="button" class="cinematic-editor__btn cinematic-editor__btn--small"
+                  data-action="add-branch-stopSound" data-branch-index="{{branchIndex}}">+ Stop</button>
         </div>
       </div>
       {{/each}}
@@ -272,10 +403,10 @@
     {{#if detail.isStep}}
     {{!-- Before state --}}
     <div class="cinematic-editor__state-row">
-      <span class="cinematic-editor__state-label">before:</span>
+      <span class="cinematic-editor__state-label" title="Property snapshots applied to targets before tweens start">Before:</span>
       <span class="cinematic-editor__state-summary">{{detail.beforeSummary}}</span>
       <button type="button" class="cinematic-editor__btn cinematic-editor__btn--small"
-              data-action="edit-before">Edit</button>
+              data-action="edit-before" title="Edit target property overrides (JSON)">Edit Overrides</button>
     </div>
 
     {{!-- Tween cards --}}
@@ -285,7 +416,7 @@
            data-tween-index="{{tweenIndex}}">
         <div class="cinematic-editor__tween-card-summary" data-action="toggle-tween-card" data-tween-index="{{tweenIndex}}">
           <span class="cinematic-editor__tween-card-type">{{typeLabel}}</span>
-          <span class="cinematic-editor__tween-card-info">{{target}} · {{attribute}} · {{value}} · {{duration}}ms</span>
+          <span class="cinematic-editor__tween-card-info">{{#if formIsCamera}}x:{{camX}} y:{{camY}} s:{{camScale}}{{else if formIsLightColor}}{{target}} · {{toColor}} · {{toAlpha}}{{else if formIsLightState}}{{target}} · {{#if enabled}}on{{else}}off{{/if}}{{else}}{{target}} · {{attribute}} · {{value}}{{/if}} · {{duration}}ms</span>
           {{#if easing}}<span class="cinematic-editor__tween-card-easing">{{easing}}</span>{{/if}}
           {{#if detach}}<i class="fa-solid fa-link-slash" title="Detached" style="opacity:0.5;font-size:0.72rem"></i>{{/if}}
           <button type="button" class="cinematic-editor__tween-card-toggle"><i class="fa-solid fa-chevron-down"></i></button>
@@ -295,12 +426,16 @@
         </div>
         {{#if isExpanded}}
         <div class="cinematic-editor__tween-card-body" data-tween-index="{{tweenIndex}}">
+          {{!-- Type dropdown (always) --}}
           <div class="cinematic-editor__tween-field">
             <label>Type</label>
             <select data-field="type">
               {{#each typeOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
             </select>
           </div>
+
+          {{!-- prop: Target + Attribute + Value --}}
+          {{#if formIsProp}}
           <div class="cinematic-editor__tween-field">
             <label>Target</label>
             <div class="cinematic-editor__tween-target-group">
@@ -312,13 +447,90 @@
           <div class="cinematic-editor__tween-field-row">
             <div class="cinematic-editor__tween-field">
               <label>Attribute</label>
-              <input type="text" data-field="attribute" value="{{attribute}}" />
+              <input type="text" data-field="attribute" value="{{attribute}}" placeholder="{{attributePlaceholder}}" />
             </div>
             <div class="cinematic-editor__tween-field">
               <label>Value</label>
               <input type="text" data-field="value" value="{{value}}" />
             </div>
           </div>
+
+          {{!-- particles: Attribute + Value (no target) --}}
+          {{else if formIsParticles}}
+          <div class="cinematic-editor__tween-field-row">
+            <div class="cinematic-editor__tween-field">
+              <label>Attribute</label>
+              <input type="text" data-field="attribute" value="{{attribute}}" placeholder="{{attributePlaceholder}}" />
+            </div>
+            <div class="cinematic-editor__tween-field">
+              <label>Value</label>
+              <input type="text" data-field="value" value="{{value}}" />
+            </div>
+          </div>
+
+          {{!-- camera: X + Y + Scale --}}
+          {{else if formIsCamera}}
+          <div class="cinematic-editor__tween-field-row">
+            <div class="cinematic-editor__tween-field">
+              <label>X</label>
+              <input type="number" data-field="x" value="{{camX}}" step="1" />
+            </div>
+            <div class="cinematic-editor__tween-field">
+              <label>Y</label>
+              <input type="number" data-field="y" value="{{camY}}" step="1" />
+            </div>
+            <div class="cinematic-editor__tween-field">
+              <label>Scale</label>
+              <input type="number" data-field="scale" value="{{camScale}}" min="0.1" step="0.1" />
+            </div>
+          </div>
+
+          {{!-- lightColor: Target + Color + Alpha + Mode --}}
+          {{else if formIsLightColor}}
+          <div class="cinematic-editor__tween-field">
+            <label>Target</label>
+            <div class="cinematic-editor__tween-target-group">
+              <input type="text" data-field="target" value="{{target}}" placeholder="(none)" readonly />
+              <button type="button" data-action="pick-target" data-tween-index="{{tweenIndex}}"
+                      title="Pick target"><i class="fa-solid fa-crosshairs"></i></button>
+            </div>
+          </div>
+          <div class="cinematic-editor__tween-field-row">
+            <div class="cinematic-editor__tween-field">
+              <label>Color</label>
+              <input type="color" data-field="toColor" value="{{toColor}}" />
+            </div>
+            <div class="cinematic-editor__tween-field">
+              <label>Alpha</label>
+              <input type="number" data-field="toAlpha" value="{{toAlpha}}" min="0" max="1" step="0.05" placeholder="(unchanged)" />
+            </div>
+            <div class="cinematic-editor__tween-field">
+              <label>Mode</label>
+              <select data-field="mode">
+                <option value="oklch" {{#if colorModeIsOklch}}selected{{/if}}>OKLCH</option>
+                <option value="hsl" {{#if colorModeIsHsl}}selected{{/if}}>HSL</option>
+                <option value="rgb" {{#if colorModeIsRgb}}selected{{/if}}>RGB</option>
+              </select>
+            </div>
+          </div>
+
+          {{!-- lightState: Target + Enabled --}}
+          {{else if formIsLightState}}
+          <div class="cinematic-editor__tween-field">
+            <label>Target</label>
+            <div class="cinematic-editor__tween-target-group">
+              <input type="text" data-field="target" value="{{target}}" placeholder="(none)" readonly />
+              <button type="button" data-action="pick-target" data-tween-index="{{tweenIndex}}"
+                      title="Pick target"><i class="fa-solid fa-crosshairs"></i></button>
+            </div>
+          </div>
+          <label class="cinematic-editor__tween-detach" style="margin-top:0.25rem">
+            <input type="checkbox" data-field="enabled" {{#if enabled}}checked{{/if}} />
+            Enabled
+          </label>
+          {{/if}}
+
+          {{!-- Duration + Easing (always) --}}
           <div class="cinematic-editor__tween-field-row">
             <div class="cinematic-editor__tween-field">
               <label>Duration (ms)</label>
@@ -331,6 +543,7 @@
               </select>
             </div>
           </div>
+          {{!-- Detach (always) --}}
           <label class="cinematic-editor__tween-detach">
             <input type="checkbox" data-field="detach" {{#if detach}}checked{{/if}} />
             Detach (fire-and-forget)
@@ -339,15 +552,15 @@
         {{/if}}
       </div>
       {{/each}}
-      <button type="button" class="cinematic-editor__btn cinematic-editor__btn--small" data-action="add-tween">+ Add Tween</button>
+      <button type="button" class="cinematic-editor__btn cinematic-editor__btn--small" data-action="add-tween">+ Add Effect</button>
     </div>
 
     {{!-- After state --}}
     <div class="cinematic-editor__state-row">
-      <span class="cinematic-editor__state-label">after:</span>
+      <span class="cinematic-editor__state-label" title="Property snapshots applied to targets after tweens complete">After:</span>
       <span class="cinematic-editor__state-summary">{{detail.afterSummary}}</span>
       <button type="button" class="cinematic-editor__btn cinematic-editor__btn--small"
-              data-action="edit-after">Edit</button>
+              data-action="edit-after" title="Edit target property overrides (JSON)">Edit Overrides</button>
     </div>
     {{/if}}
   </div>
