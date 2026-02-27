@@ -1,92 +1,39 @@
 import { MODULE_ID } from "../time-triggers/core/constants.js";
 import { getTweenType } from "../tween/core/registry.js";
+import { resolveSelector } from "../placeable-picker/core/resolver.js";
 
 // ── Target Resolution ────────────────────────────────────────────────────
 
 /**
- * Normalize a Tagger/UUID result into a { placeable, doc } pair.
- * Tagger v13 returns TileDocument objects; older versions return Tile placeables.
- * We need both: the document for updateSource/uuid, the placeable for refresh.
+ * Adapt the shared resolver's result into the shape expected by the cinematic runtime.
  *
- * @param {object} result  A placeable or document object
- * @returns {{ placeable: object, doc: object } | null}
+ * Shared resolver returns: { kind, documents, placeables: [{ placeable, doc }], target? }
+ * Runtime expects:
+ *   - { kind: "placeable", placeable, doc }
+ *   - { kind: "multi-placeable", placeables: [{ placeable, doc }] }
+ *   - { kind: "particles", target }
+ *
+ * @param {object|null} resolved  Result from resolveSelector()
+ * @returns {object|null}
  */
-function normalizePlaceable(result) {
-	if (!result) return null;
+function adaptResolved(resolved) {
+	if (!resolved) return null;
 
-	// If it's a document (has updateSource but no refresh), get its placeable
-	if (result.documentName || result._source !== undefined) {
-		const placeable = result.object;
-		if (!placeable) return null;
-		return { placeable, doc: result };
+	if (resolved.kind === "particles") {
+		return { kind: "particles", target: resolved.target };
 	}
 
-	// It's a placeable (has document property)
-	if (result.document) {
-		return { placeable: result, doc: result.document };
+	if (resolved.kind === "multi-placeable") {
+		return { kind: "multi-placeable", placeables: resolved.placeables };
+	}
+
+	// Single placeable
+	if (resolved.placeables?.length) {
+		const first = resolved.placeables[0];
+		return { kind: "placeable", placeable: first.placeable, doc: first.doc };
 	}
 
 	return null;
-}
-
-/**
- * Resolve a target selector string to a normalized target.
- *
- * Supported selectors:
- *   - "tag:<name>"      → First tile matching Tagger tag on current scene
- *   - "$particles"      → canvas.particleeffects (FXMaster)
- *   - "Scene.x.Tile.y"  → Direct UUID lookup via fromUuid
- *
- * @param {string} selector
- * @returns {{ kind: "placeable", placeable: object, doc: object } | { kind: "particles", target: object } | null}
- */
-function resolveTarget(selector) {
-	if (selector === "$particles") {
-		if (!game.modules.get("fxmaster")?.active) {
-			console.warn(`[${MODULE_ID}] Cinematic: FXMaster module is not active — cannot resolve "$particles" target. Install and enable the FXMaster module to use particle effects.`);
-			return null;
-		}
-		const target = canvas.particleeffects;
-		return target ? { kind: "particles", target } : null;
-	}
-
-	if (selector.startsWith("tag-all:")) {
-		const tagName = selector.slice(8);
-		const TaggerAPI = window.Tagger ?? game.modules.get("tagger")?.api;
-		if (!TaggerAPI) {
-			console.warn(`[${MODULE_ID}] Cinematic: Tagger module not available, cannot resolve "${selector}".`);
-			return null;
-		}
-		const matches = TaggerAPI.getByTag(tagName, { sceneId: canvas.scene.id });
-		if (!matches?.length) return null;
-		const placeables = [];
-		for (const result of matches) {
-			const normalized = normalizePlaceable(result);
-			if (normalized) placeables.push(normalized);
-		}
-		if (placeables.length === 0) return null;
-		return { kind: "multi-placeable", placeables };
-	}
-
-	if (selector.startsWith("tag:")) {
-		const tagName = selector.slice(4);
-		const TaggerAPI = window.Tagger ?? game.modules.get("tagger")?.api;
-		if (!TaggerAPI) {
-			console.warn(`[${MODULE_ID}] Cinematic: Tagger module not available, cannot resolve "${selector}".`);
-			return null;
-		}
-		const matches = TaggerAPI.getByTag(tagName, { sceneId: canvas.scene.id });
-		const result = matches?.[0] ?? null;
-		if (!result) return null;
-		const normalized = normalizePlaceable(result);
-		return normalized ? { kind: "placeable", ...normalized } : null;
-	}
-
-	// Direct UUID — synchronous lookup via canvas collections
-	const doc = fromUuidSync(selector);
-	if (!doc) return null;
-	const normalized = normalizePlaceable(doc);
-	return normalized ? { kind: "placeable", ...normalized } : null;
 }
 
 /**
@@ -117,9 +64,10 @@ export function resolveAllTargets(cinematicData) {
 	const targets = new Map();
 	const unresolved = [];
 	for (const sel of selectors) {
-		const target = resolveTarget(sel);
-		if (target) {
-			targets.set(sel, target);
+		const resolved = resolveSelector(sel);
+		const adapted = adaptResolved(resolved);
+		if (adapted) {
+			targets.set(sel, adapted);
 		} else {
 			unresolved.push(sel);
 		}
