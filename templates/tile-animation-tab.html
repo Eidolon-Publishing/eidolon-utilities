@@ -1,0 +1,53 @@
+<section class="eidolon-idle-animation">
+  <div class="form-group">
+    <label>
+      <input type="checkbox" class="idle-anim__enable" {{#if enabled}}checked{{/if}} />
+      Enable Idle Animation
+    </label>
+  </div>
+
+  <fieldset class="idle-anim__fields" {{#unless enabled}}disabled{{/unless}}>
+    <div class="form-group">
+      <label>Attribute</label>
+      <select class="idle-anim__attribute">
+        {{#each attributes}}
+          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    <div class="idle-anim__range-row">
+      <div class="form-group">
+        <label>From</label>
+        <input type="number" class="idle-anim__from" value="{{from}}" step="0.01" />
+      </div>
+      <div class="form-group">
+        <label>To</label>
+        <input type="number" class="idle-anim__to" value="{{to}}" step="0.01" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Period (ms)</label>
+      <input type="number" class="idle-anim__period" value="{{period}}" min="100" step="100" />
+    </div>
+
+    <div class="form-group">
+      <label>Easing</label>
+      <select class="idle-anim__easing">
+        {{#each easings}}
+          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+  </fieldset>
+
+  <div class="idle-anim__actions">
+    <button type="button" class="idle-anim__preview">
+      <i class="fa-solid fa-play"></i> Preview
+    </button>
+    <button type="button" class="idle-anim__save">
+      <i class="fa-solid fa-save"></i> Save
+    </button>
+  </div>
+</section>

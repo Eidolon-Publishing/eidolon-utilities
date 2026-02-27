@@ -77,7 +77,7 @@ export function bindTweenFieldEvents(root, ctx) {
 				let value;
 				if (input.type === "checkbox") {
 					value = input.checked;
-				} else if (field === "duration" || field === "x" || field === "y" || field === "scale" || field === "toAlpha") {
+				} else if (field === "x" || field === "y" || field === "scale" || field === "toAlpha") {
 					value = input.value.trim() === "" ? "" : Number(input.value) || 0;
 				} else if (field === "value" && !Number.isNaN(Number(input.value)) && input.value.trim() !== "") {
 					value = Number(input.value);

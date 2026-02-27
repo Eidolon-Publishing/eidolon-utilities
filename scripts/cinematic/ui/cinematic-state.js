@@ -1,6 +1,6 @@
 import { MODULE_ID } from "../../time-triggers/core/constants.js";
 
-const CURRENT_VERSION = 4;
+const CURRENT_VERSION = 5;
 
 /** Interaction gate event types that trigger segment splits during migration. */
 const INTERACTION_GATES = new Set(["click", "tile-click", "keypress"]);
@@ -175,6 +175,108 @@ export class CinematicState {
 		};
 	}
 
+	/**
+	 * Migrate a v4 cinematic to v5 step-level duration model.
+	 * Lifts per-tween duration to the step, removes detach field.
+	 * Steps with detached tweens become parallel entries.
+	 *
+	 * @param {object} v4Data  A single v4 cinematic
+	 * @returns {object}  v5 cinematic (same shape, timeline entries transformed)
+	 */
+	static migrateV4toV5(v4Data) {
+		if (!v4Data.segments) return v4Data;
+
+		const migrated = foundry.utils.deepClone(v4Data);
+		for (const seg of Object.values(migrated.segments)) {
+			if (seg.timeline?.length) {
+				seg.timeline = CinematicState.#migrateTimelineV5(seg.timeline);
+			}
+		}
+		return migrated;
+	}
+
+	/**
+	 * Strip duration/detach from a tween, returning a clean v5 tween.
+	 */
+	static #stripTween(tw) {
+		const { duration, detach, ...rest } = tw;
+		return rest;
+	}
+
+	/**
+	 * Migrate a timeline entry array from v4 to v5.
+	 * Recursively handles parallel branches.
+	 */
+	static #migrateTimelineV5(entries) {
+		const result = [];
+		for (const entry of entries) {
+			// Non-step entries pass through unchanged (except parallel which recurses)
+			if (entry.delay != null || entry.await != null || entry.emit != null
+				|| entry.transitionTo != null || entry.sound != null || entry.stopSound != null) {
+				result.push(entry);
+				continue;
+			}
+
+			if (entry.parallel?.branches) {
+				const migratedBranches = entry.parallel.branches.map(
+					(branch) => CinematicState.#migrateTimelineV5(branch),
+				);
+				result.push({ ...entry, parallel: { ...entry.parallel, branches: migratedBranches } });
+				continue;
+			}
+
+			// Step entry — has tweens
+			if (!entry.tweens?.length) {
+				result.push({ duration: 500, ...entry });
+				continue;
+			}
+
+			const attached = [];
+			const detached = [];
+			for (const tw of entry.tweens) {
+				if (tw.detach) detached.push(tw);
+				else attached.push(tw);
+			}
+
+			if (detached.length === 0) {
+				// No detach — lift max duration to step level
+				const maxDur = Math.max(500, ...entry.tweens.map((t) => t.duration ?? 0));
+				const { tweens, ...rest } = entry;
+				result.push({
+					...rest,
+					duration: maxDur,
+					tweens: tweens.map(CinematicState.#stripTween),
+				});
+			} else if (attached.length === 0) {
+				// All detached — still becomes a regular step (fire-and-forget semantics lost,
+				// but this is an edge case; wrap in parallel to preserve intent)
+				const maxDur = Math.max(500, ...detached.map((t) => t.duration ?? 0));
+				const { tweens, ...rest } = entry;
+				result.push({
+					...rest,
+					duration: maxDur,
+					tweens: detached.map(CinematicState.#stripTween),
+				});
+			} else {
+				// Mixed: convert to parallel with two branches
+				const maxAttached = Math.max(500, ...attached.map((t) => t.duration ?? 0));
+				const maxDetached = Math.max(500, ...detached.map((t) => t.duration ?? 0));
+				const { tweens, ...rest } = entry;
+				result.push({
+					parallel: {
+						branches: [
+							[{ ...rest, duration: maxAttached, tweens: attached.map(CinematicState.#stripTween) }],
+							[{ duration: maxDetached, tweens: detached.map(CinematicState.#stripTween) }],
+						],
+						join: "all",
+						overflow: "detach",
+					},
+				});
+			}
+		}
+		return result;
+	}
+
 	static fromScene(scene, cinematicName = "default") {
 		const flag = scene?.getFlag(MODULE_ID, "cinematic");
 		let cloned = flag ? foundry.utils.deepClone(flag) : null;
@@ -190,6 +292,14 @@ export class CinematicState {
 		if (cloned && cloned.version === 3) {
 			for (const [name, data] of Object.entries(cloned.cinematics ?? {})) {
 				cloned.cinematics[name] = CinematicState.migrateV3toV4(data);
+			}
+			cloned.version = 4;
+		}
+
+		// v4→v5 migration
+		if (cloned && cloned.version === 4) {
+			for (const [name, data] of Object.entries(cloned.cinematics ?? {})) {
+				cloned.cinematics[name] = CinematicState.migrateV4toV5(data);
 			}
 			cloned.version = CURRENT_VERSION;
 		}
@@ -449,7 +559,7 @@ export class CinematicState {
 
 	addStep(index = -1) {
 		const timeline = [...this.activeSegment.timeline];
-		const entry = { tweens: [] };
+		const entry = { duration: 1000, tweens: [] };
 		if (index < 0 || index >= timeline.length) {
 			timeline.push(entry);
 		} else {
@@ -551,7 +661,7 @@ export class CinematicState {
 	// ── Tween mutations ──────────────────────────────────────────────────
 
 	addTween(entryIndex, tween = null) {
-		const defaultTween = { type: "tile-prop", target: "", attribute: "alpha", value: 1, duration: 1000 };
+		const defaultTween = { type: "tile-prop", target: "", attribute: "alpha", value: 1 };
 		return this.#mutateEntry(entryIndex, (entry) => {
 			const tweens = [...(entry.tweens ?? []), tween ?? defaultTween];
 			return { ...entry, tweens };
@@ -575,6 +685,10 @@ export class CinematicState {
 		});
 	}
 
+	updateStepDuration(entryIndex, duration) {
+		return this.#mutateEntry(entryIndex, (entry) => ({ ...entry, duration: Math.max(0, duration) }));
+	}
+
 	// ── Parallel branch mutations ────────────────────────────────────────
 
 	addBranch(entryIndex) {
@@ -595,7 +709,7 @@ export class CinematicState {
 	}
 
 	addBranchEntry(entryIndex, branchIndex, branchEntry = null) {
-		const defaultEntry = { tweens: [] };
+		const defaultEntry = { duration: 1000, tweens: [] };
 		return this.#mutateEntry(entryIndex, (entry) => {
 			if (!entry.parallel) return entry;
 			const branches = entry.parallel.branches.map((branch, i) => {

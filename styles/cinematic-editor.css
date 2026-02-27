@@ -530,26 +530,6 @@
 	color: rgba(60, 100, 130, 0.9);
 }
 
-/* ── Detach tails ──────────────────────────────────────────────────────── */
-
-.cinematic-editor__detach-tail {
-	position: absolute;
-	top: 0;
-	right: 0;
-	transform: translateX(100%);
-	height: 100%;
-	background: repeating-linear-gradient(
-		90deg,
-		var(--color-warm-2, #e8d5b5) 0px,
-		transparent 2px,
-		transparent 6px
-	);
-	opacity: 0.4;
-	border-radius: 0 4px 4px 0;
-	pointer-events: none;
-	z-index: 1;
-}
-
 /* ── Sound loop-forever arrow ──────────────────────────────────────────── */
 
 .cinematic-editor__sound-loop-arrow {
@@ -974,17 +954,26 @@
 	color: #00CED1;
 }
 
-.cinematic-editor__tween-detach {
+/* ── Step duration field ───────────────────────────────────────────────── */
+
+.cinematic-editor__step-duration-field {
 	display: flex;
 	align-items: center;
 	gap: 0.35rem;
-	font-size: 0.8rem;
-	cursor: pointer;
-	padding-top: 0.15rem;
+	font-size: 0.82rem;
 }
 
-.cinematic-editor__tween-detach input[type="checkbox"] {
-	margin: 0;
+.cinematic-editor__step-duration-field label {
+	font-weight: 600;
+	color: var(--color-text-secondary, #888);
+	font-size: 0.75rem;
+	white-space: nowrap;
+}
+
+.cinematic-editor__step-duration-field input {
+	width: 80px;
+	font-size: 0.82rem;
+	padding: 0.1rem 0.3rem;
 }
 
 /* ── Buttons ───────────────────────────────────────────────────────────── */

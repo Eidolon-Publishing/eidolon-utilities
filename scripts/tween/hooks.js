@@ -8,6 +8,8 @@ import { registerTilePropTween } from "./core/executors/tile-prop.js";
 import { registerParticlesPropTween } from "./core/executors/particles-prop.js";
 import { registerSequenceTween } from "./core/executors/sequence.js";
 import { registerCameraPanTween } from "./core/executors/camera-pan.js";
+import { registerTileTintTween } from "./core/executors/tile-tint.js";
+import { registerTileScaleTween } from "./core/executors/tile-scale.js";
 import { dispatchTween, handleTweenSocketMessage } from "./core/dispatcher.js";
 import { listTweenTypes, registerTweenType } from "./core/registry.js";
 import { TweenTimeline, cancelTimeline, getTimeline } from "./core/timeline/TweenTimeline.js";
@@ -21,6 +23,8 @@ registerTilePropTween();
 registerParticlesPropTween();
 registerSequenceTween();
 registerCameraPanTween();
+registerTileTintTween();
+registerTileScaleTween();
 
 // Register aliases that reuse tile-prop executor for other placeable types
 registerTweenType({ type: "token-prop", execute: tilePropExecute, validate: tilePropValidate });

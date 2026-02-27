@@ -7,7 +7,7 @@ import { TileAnimator, registerBehaviour, getBehaviour } from "./tile-animator.j
 import { computeTotalDuration } from "./ui/swimlane-layout.js";
 
 const CINEMATIC_FLAG = "cinematic";
-const CURRENT_VERSION = 4;
+const CURRENT_VERSION = 5;
 
 // ── Playback Progress Event Bus ──────────────────────────────────────────
 
@@ -202,6 +202,14 @@ function getCinematicData(sceneId) {
 	if (raw.version === 3) {
 		for (const [name, data] of Object.entries(raw.cinematics ?? {})) {
 			raw.cinematics[name] = CinematicState.migrateV3toV4(data);
+		}
+		raw.version = 4;
+	}
+
+	// v4→v5 migration
+	if (raw.version === 4) {
+		for (const [name, data] of Object.entries(raw.cinematics ?? {})) {
+			raw.cinematics[name] = CinematicState.migrateV4toV5(data);
 		}
 		raw.version = CURRENT_VERSION;
 	}
@@ -968,6 +976,6 @@ export function registerCinematicHooks() {
 			},
 		};
 
-		console.log(`[${MODULE_ID}] Cinematic API registered (v4).`);
+		console.log(`[${MODULE_ID}] Cinematic API registered (v5).`);
 	});
 }

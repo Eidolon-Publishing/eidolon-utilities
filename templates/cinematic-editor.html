@@ -147,9 +147,6 @@
                style="left: {{leftPx}}px; width: {{widthPx}}px;"
                data-action="select-block" data-entry-path="{{entryPath}}" draggable="true">
             {{#if isGate}}<i class="fa-solid {{gateIcon}}"></i>{{else}}<span class="cinematic-editor__block-label">{{label}}</span>{{/if}}
-            {{#if detachTailPx}}
-            <div class="cinematic-editor__detach-tail" style="width: {{detachTailPx}}px;"></div>
-            {{/if}}
             {{#if hasTrailingArrow}}
             <div class="cinematic-editor__sound-loop-arrow"></div>
             {{/if}}
@@ -269,7 +266,10 @@
       {{!-- Step detail --}}
       {{else}}
         <span class="cinematic-editor__detail-title">Step {{detail.stepNumber}}</span>
-        <span class="cinematic-editor__detail-duration">{{detail.maxDuration}}ms</span>
+        <div class="cinematic-editor__step-duration-field">
+          <label>Duration (ms)</label>
+          <input type="number" data-action="step-duration" value="{{detail.stepDuration}}" min="0" step="100" />
+        </div>
         <button type="button" class="cinematic-editor__btn cinematic-editor__btn--danger cinematic-editor__btn--small"
                 data-action="delete-entry">Delete</button>
       {{/if}}
@@ -420,9 +420,8 @@
            data-tween-index="{{tweenIndex}}">
         <div class="cinematic-editor__tween-card-summary" data-action="toggle-tween-card" data-tween-index="{{tweenIndex}}">
           <span class="cinematic-editor__tween-card-type">{{typeLabel}}</span>
-          <span class="cinematic-editor__tween-card-info">{{#if formIsCamera}}x:{{camX}} y:{{camY}} s:{{camScale}}{{else if formIsLightColor}}{{target}} · {{toColor}} · {{toAlpha}}{{else if formIsLightState}}{{target}} · {{#if enabled}}on{{else}}off{{/if}}{{else}}{{target}} · {{attribute}} · {{value}}{{/if}} · {{duration}}ms</span>
+          <span class="cinematic-editor__tween-card-info">{{#if formIsCamera}}x:{{camX}} y:{{camY}} s:{{camScale}}{{else if formIsLightColor}}{{target}} · {{toColor}} · {{toAlpha}}{{else if formIsLightState}}{{target}} · {{#if enabled}}on{{else}}off{{/if}}{{else}}{{target}} · {{attribute}} · {{value}}{{/if}}</span>
           {{#if easing}}<span class="cinematic-editor__tween-card-easing">{{easing}}</span>{{/if}}
-          {{#if detach}}<i class="fa-solid fa-link-slash" title="Detached" style="opacity:0.5;font-size:0.72rem"></i>{{/if}}
           <button type="button" class="cinematic-editor__tween-card-toggle"><i class="fa-solid fa-chevron-down"></i></button>
           <button type="button" class="cinematic-editor__btn--icon cinematic-editor__btn--danger"
                   data-action="delete-tween" data-tween-index="{{tweenIndex}}"
@@ -528,30 +527,19 @@
                       title="Pick target"><i class="fa-solid fa-crosshairs"></i></button>
             </div>
           </div>
-          <label class="cinematic-editor__tween-detach" style="margin-top:0.25rem">
+          <label class="cinematic-editor__config-item" style="margin-top:0.25rem">
             <input type="checkbox" data-field="enabled" {{#if enabled}}checked{{/if}} />
-            Enabled
+            <span>Enabled</span>
           </label>
           {{/if}}
 
-          {{!-- Duration + Easing (always) --}}
-          <div class="cinematic-editor__tween-field-row">
-            <div class="cinematic-editor__tween-field">
-              <label>Duration (ms)</label>
-              <input type="number" data-field="duration" value="{{duration}}" min="0" step="100" />
-            </div>
-            <div class="cinematic-editor__tween-field">
-              <label>Easing</label>
-              <select data-field="easing">
-                {{#each easingOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
-              </select>
-            </div>
+          {{!-- Easing (always) --}}
+          <div class="cinematic-editor__tween-field">
+            <label>Easing</label>
+            <select data-field="easing">
+              {{#each easingOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+            </select>
           </div>
-          {{!-- Detach (always) --}}
-          <label class="cinematic-editor__tween-detach">
-            <input type="checkbox" data-field="detach" {{#if detach}}checked{{/if}} />
-            Detach (fire-and-forget)
-          </label>
         </div>
         {{/if}}
       </div>
