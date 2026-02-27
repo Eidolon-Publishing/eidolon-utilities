@@ -11254,11 +11254,11 @@ Oi("pulse", (n, e = {}) => {
   }, detach() {
   } };
   const i = e.minAlpha ?? 0.6, r = e.maxAlpha ?? 1, a = e.speed ?? 0.05, o = t.alpha;
-  let s = 0;
+  let s = Math.PI / 2;
   return {
     update(l) {
-      s += l;
-      const u = (Math.sin(s * a) + 1) / 2;
+      s += l * a;
+      const u = (Math.sin(s) + 1) / 2;
       t.alpha = i + (r - i) * u;
     },
     detach() {
@@ -11320,7 +11320,7 @@ const Dr = {
 };
 function vp(n) {
   if (!n) return { ...Dr };
-  const e = /* @__PURE__ */ c((t, i) => t === void 0 ? i : typeof t == "string" ? [t] : Array.isArray(t) ? t : i, "normalize");
+  const e = /* @__PURE__ */ c((t, i) => t === void 0 ? i : typeof t == "string" ? [t] : typeof t == "object" && !Array.isArray(t) && t.name ? [t] : Array.isArray(t) ? t : i, "normalize");
   return {
     idle: e(n.idle, Dr.idle),
     hover: e(n.hover, Dr.hover),
@@ -11377,12 +11377,12 @@ Zs = /* @__PURE__ */ c(function(e) {
   S(this, Ei, e);
   const t = f(this, vi)[e] ?? f(this, vi).idle ?? ["none"];
   for (const i of t) {
-    const r = Pd(i);
-    if (!r) {
-      console.warn(`TileAnimator: unknown behaviour "${i}"`);
+    const r = typeof i == "string" ? i : i.name, a = typeof i == "string" ? void 0 : i, o = Pd(r);
+    if (!o) {
+      console.warn(`TileAnimator: unknown behaviour "${r}"`);
       continue;
     }
-    f(this, Bn).push(r(f(this, fr)));
+    f(this, Bn).push(o(f(this, fr), a));
   }
 }, "#attachBehaviours"), el = /* @__PURE__ */ c(function() {
   for (const e of f(this, Bn)) e.detach();
