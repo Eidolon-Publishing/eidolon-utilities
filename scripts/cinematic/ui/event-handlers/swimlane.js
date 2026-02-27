@@ -80,10 +80,8 @@ export function bindSwimlaneEvents(root, ctx) {
 			switch (type) {
 				case "step": ctx.mutate((s) => s.addStep(insertIndex)); break;
 				case "delay": ctx.mutate((s) => s.addDelay(insertIndex)); break;
-				case "await": ctx.mutate((s) => s.addAwait(insertIndex)); break;
 				case "emit": ctx.mutate((s) => s.addEmit(insertIndex)); break;
 				case "parallel": ctx.mutate((s) => s.addParallel(insertIndex)); break;
-				case "transitionTo": ctx.mutate((s) => s.addTransitionTo(insertIndex)); break;
 				case "sound": ctx.mutate((s) => s.addSound(insertIndex)); break;
 				case "stopSound": ctx.mutate((s) => s.addStopSound(insertIndex)); break;
 			}

@@ -52,27 +52,35 @@ export function countUniqueTargets(state) {
 	const data = state.data;
 	const active = data.cinematics?.[state.activeCinematicName];
 	if (!active) return 0;
-	if (active.setup) for (const sel of Object.keys(active.setup)) selectors.add(sel);
-	if (active.landing) for (const sel of Object.keys(active.landing)) selectors.add(sel);
-	for (const entry of active.timeline ?? []) {
-		if (entry.tweens) {
-			for (const tw of entry.tweens) {
-				if (tw.target) selectors.add(tw.target);
-			}
-		}
-		if (entry.before) for (const sel of Object.keys(entry.before)) selectors.add(sel);
-		if (entry.after) for (const sel of Object.keys(entry.after)) selectors.add(sel);
-		if (entry.parallel?.branches) {
-			for (const branch of entry.parallel.branches) {
-				for (const be of branch) {
-					if (be.tweens) {
-						for (const tw of be.tweens) {
-							if (tw.target) selectors.add(tw.target);
-						}
-					}
+
+	function collectFromTimeline(timeline) {
+		for (const entry of timeline ?? []) {
+			if (entry.tweens) {
+				for (const tw of entry.tweens) {
+					if (tw.target) selectors.add(tw.target);
 				}
 			}
+			if (entry.before) for (const sel of Object.keys(entry.before)) selectors.add(sel);
+			if (entry.after) for (const sel of Object.keys(entry.after)) selectors.add(sel);
+			if (entry.parallel?.branches) {
+				for (const branch of entry.parallel.branches) collectFromTimeline(branch);
+			}
 		}
+	}
+
+	if (active.segments) {
+		// v4: walk all segments
+		for (const seg of Object.values(active.segments)) {
+			if (seg.setup) for (const sel of Object.keys(seg.setup)) selectors.add(sel);
+			if (seg.landing) for (const sel of Object.keys(seg.landing)) selectors.add(sel);
+			if (seg.gate?.target) selectors.add(seg.gate.target);
+			collectFromTimeline(seg.timeline);
+		}
+	} else {
+		// v3 flat
+		if (active.setup) for (const sel of Object.keys(active.setup)) selectors.add(sel);
+		if (active.landing) for (const sel of Object.keys(active.landing)) selectors.add(sel);
+		collectFromTimeline(active.timeline);
 	}
 	return selectors.size;
 }
@@ -92,7 +100,7 @@ function stepNumberForPath(path, state) {
 		let count = 0;
 		for (let i = 0; i <= parsed.index; i++) {
 			const e = state.timeline[i];
-			if (e && e.delay == null && e.await == null && e.emit == null && e.parallel == null && e.transitionTo == null && e.sound == null && e.stopSound == null) count++;
+			if (e && e.delay == null && e.emit == null && e.parallel == null && e.sound == null && e.stopSound == null) count++;
 		}
 		return count;
 	}
@@ -102,7 +110,7 @@ function stepNumberForPath(path, state) {
 		let count = 0;
 		for (let j = 0; j <= parsed.branchEntryIndex; j++) {
 			const be = branch[j];
-			if (be && be.delay == null && be.await == null && be.emit == null && be.sound == null && be.stopSound == null) count++;
+			if (be && be.delay == null && be.emit == null && be.sound == null && be.stopSound == null) count++;
 		}
 		return count;
 	}
@@ -127,43 +135,8 @@ function buildDelayDetail(entry) {
 	return { type: "delay", isDelay: true, delay: entry.delay };
 }
 
-function buildAwaitDetail(entry) {
-	const event = entry.await?.event ?? "click";
-	const anim = entry.await?.animation;
-	const toStr = (v) => Array.isArray(v) ? v.join(", ") : (v ?? "");
-	return {
-		type: "await",
-		isAwait: true,
-		event,
-		signal: entry.await?.signal ?? "",
-		target: entry.await?.target ?? "",
-		eventIsClick: event === "click",
-		eventIsKeypress: event === "keypress",
-		eventIsSignal: event === "signal",
-		eventIsTileClick: event === "tile-click",
-		animIdle: toStr(anim?.idle),
-		animHover: toStr(anim?.hover),
-		animDim: toStr(anim?.dim),
-	};
-}
-
 function buildEmitDetail(entry) {
 	return { type: "emit", isEmit: true, signal: entry.emit };
-}
-
-function buildTransitionToDetail(entry, state) {
-	const allNames = state.listCinematicNames();
-	return {
-		type: "transitionTo",
-		isTransitionTo: true,
-		transitionCinematic: entry.transitionTo.cinematic ?? "",
-		transitionScene: entry.transitionTo.scene ?? "",
-		cinematicOptions: allNames.map((n) => ({
-			value: n,
-			label: n,
-			selected: n === entry.transitionTo.cinematic,
-		})),
-	};
 }
 
 function buildSoundDetail(entry) {
@@ -324,9 +297,7 @@ export function buildDetail(path, { state, expandedTweens }) {
 	if (!entry) return null;
 
 	if (entry.delay != null) return buildDelayDetail(entry);
-	if (entry.await != null) return buildAwaitDetail(entry);
 	if (entry.emit != null) return buildEmitDetail(entry);
-	if (entry.transitionTo != null) return buildTransitionToDetail(entry, state);
 	if (entry.sound != null) return buildSoundDetail(entry);
 	if (entry.stopSound != null) return buildStopSoundDetail(entry);
 	if (entry.parallel != null && parsed.type === "timeline") return buildParallelDetail(entry, state);

@@ -41,6 +41,86 @@
     {{/if}}
   </div>
 
+  {{!-- Segment graph --}}
+  <div class="cinematic-editor__segment-graph-area">
+    <div class="cinematic-editor__segment-graph" style="width: {{segmentGraph.totalWidthPx}}px;">
+      {{#each segmentGraph.nodes}}
+      <div class="cinematic-editor__segment-node {{#if isActive}}cinematic-editor__segment-node--active{{/if}} {{#if isEntry}}cinematic-editor__segment-node--entry{{/if}} {{#if isOrphan}}cinematic-editor__segment-node--orphan{{/if}}"
+           style="left: {{leftPx}}px; width: {{widthPx}}px;"
+           data-action="select-segment" data-segment-name="{{name}}">
+        <span class="cinematic-editor__segment-node-name">{{name}}</span>
+        <span class="cinematic-editor__segment-node-duration">{{durationLabel}}</span>
+        {{#if hasGate}}<i class="fa-solid fa-lock cinematic-editor__segment-node-gate" title="Gate: {{gateEvent}}"></i>{{/if}}
+      </div>
+      {{/each}}
+
+      {{#each segmentGraph.edges}}
+      <div class="cinematic-editor__segment-edge {{#if isCrossScene}}cinematic-editor__segment-edge--cross-scene{{/if}}"
+           style="left: {{fromRightPx}}px; width: {{toLeftPx}}px;">
+        <div class="cinematic-editor__segment-edge-line"></div>
+        {{#if gateLabel}}<span class="cinematic-editor__segment-edge-label">{{gateLabel}}</span>{{/if}}
+      </div>
+      {{/each}}
+    </div>
+    <button type="button" class="cinematic-editor__btn cinematic-editor__btn--icon cinematic-editor__btn--small cinematic-editor__segment-add-btn"
+            data-action="add-segment" title="Add segment"><i class="fa-solid fa-plus"></i></button>
+  </div>
+
+  {{!-- Segment detail bar --}}
+  <div class="cinematic-editor__segment-detail-bar">
+    <span class="cinematic-editor__segment-detail-name">{{activeSegmentName}}</span>
+    <button type="button" class="cinematic-editor__btn cinematic-editor__btn--icon cinematic-editor__btn--small"
+            data-action="rename-segment" data-segment-name="{{activeSegmentName}}" title="Rename segment"><i class="fa-solid fa-pen"></i></button>
+    {{#if hasMultipleSegments}}
+    <button type="button" class="cinematic-editor__btn cinematic-editor__btn--icon cinematic-editor__btn--small cinematic-editor__btn--danger"
+            data-action="remove-segment" data-segment-name="{{activeSegmentName}}" title="Remove segment"><i class="fa-solid fa-trash"></i></button>
+    {{/if}}
+    <span style="flex:1"></span>
+
+    {{!-- Gate config --}}
+    <label class="cinematic-editor__config-item">
+      <span>Gate</span>
+      <select data-action="change-gate-event">
+        <option value="" {{#unless activeSegmentGate}}selected{{/unless}}>(none)</option>
+        <option value="click" {{#if (eq activeSegmentGate.event "click")}}selected{{/if}}>Click</option>
+        <option value="tile-click" {{#if (eq activeSegmentGate.event "tile-click")}}selected{{/if}}>Tile Click</option>
+        <option value="keypress" {{#if (eq activeSegmentGate.event "keypress")}}selected{{/if}}>Keypress</option>
+      </select>
+    </label>
+    {{#if activeSegmentGate}}
+    {{#if (eq activeSegmentGate.event "tile-click")}}
+    <label class="cinematic-editor__config-item">
+      <span>Target</span>
+      <div class="cinematic-editor__target-group">
+        <input type="text" data-action="change-gate-target" value="{{activeSegmentGate.target}}" placeholder="tag:my-button" style="width:120px" />
+        <button type="button" class="cinematic-editor__btn--icon" data-action="pick-gate-target" title="Pick from canvas">
+          <i class="fa-solid fa-crosshairs"></i>
+        </button>
+      </div>
+    </label>
+    {{/if}}
+    {{/if}}
+
+    {{!-- Segment setup/landing --}}
+    <button type="button" class="cinematic-editor__btn cinematic-editor__btn--small"
+            data-action="edit-segment-setup">Setup ({{activeSegmentSetupCount}})</button>
+    <button type="button" class="cinematic-editor__btn cinematic-editor__btn--small"
+            data-action="edit-segment-landing">Landing ({{activeSegmentLandingCount}})</button>
+
+    {{!-- Segment next --}}
+    <label class="cinematic-editor__config-item">
+      <span>Next</span>
+      <select data-action="change-segment-next" style="min-width:80px">
+        <option value="">(end)</option>
+        {{#each segmentGraph.nodes}}
+        {{#unless isActive}}
+        <option value="{{name}}" {{#if (eq name ../activeSegmentNext)}}selected{{/if}}>{{name}}</option>
+        {{/unless}}
+        {{/each}}
+      </select>
+    </label>
+  </div>
+
   {{!-- Swimlane area --}}
   <div class="cinematic-editor__swimlane-area">
     {{!-- Fixed left column: lane labels --}}
@@ -114,6 +194,9 @@
           {{/each}}
         </div>
 
+        {{!-- Playback cursor (animated via RAF, not Handlebars) --}}
+        <div class="cinematic-editor__playback-cursor" style="display:none;"></div>
+
       </div>
     </div>
   </div>
@@ -122,13 +205,11 @@
   <div class="cinematic-editor__insert-menu" style="display: none;">
     <button type="button" data-action="insert-entry" data-insert-type="step">Step</button>
     <button type="button" data-action="insert-entry" data-insert-type="delay">Delay</button>
-    <button type="button" data-action="insert-entry" data-insert-type="await">Await</button>
     <button type="button" data-action="insert-entry" data-insert-type="emit">Emit</button>
     <button type="button" data-action="insert-entry" data-insert-type="parallel">Parallel</button>
     <hr style="margin:0.15rem 0;border:0;border-top:1px solid rgba(0,0,0,0.1)" />
     <button type="button" data-action="insert-entry" data-insert-type="sound">Sound</button>
     <button type="button" data-action="insert-entry" data-insert-type="stopSound">Stop Sound</button>
-    <button type="button" data-action="insert-entry" data-insert-type="transitionTo">Transition To</button>
   </div>
 
   {{!-- Detail panel --}}
@@ -156,23 +237,9 @@
         <button type="button" class="cinematic-editor__btn cinematic-editor__btn--danger cinematic-editor__btn--small"
                 data-action="delete-entry">Delete</button>
 
-      {{!-- Await detail --}}
-      {{else if detail.isAwait}}
-        <span class="cinematic-editor__detail-title">Await</span>
-        <span style="flex:1"></span>
-        <button type="button" class="cinematic-editor__btn cinematic-editor__btn--danger cinematic-editor__btn--small"
-                data-action="delete-entry">Delete</button>
-
       {{!-- Emit detail --}}
       {{else if detail.isEmit}}
         <span class="cinematic-editor__detail-title">Emit</span>
-        <span style="flex:1"></span>
-        <button type="button" class="cinematic-editor__btn cinematic-editor__btn--danger cinematic-editor__btn--small"
-                data-action="delete-entry">Delete</button>
-
-      {{!-- TransitionTo detail --}}
-      {{else if detail.isTransitionTo}}
-        <span class="cinematic-editor__detail-title">Transition To</span>
         <span style="flex:1"></span>
         <button type="button" class="cinematic-editor__btn cinematic-editor__btn--danger cinematic-editor__btn--small"
                 data-action="delete-entry">Delete</button>
@@ -207,25 +274,6 @@
                 data-action="delete-entry">Delete</button>
       {{/if}}
     </div>
-
-    {{!-- TransitionTo config --}}
-    {{#if detail.isTransitionTo}}
-    <div class="cinematic-editor__entry-config">
-      <label class="cinematic-editor__config-item">
-        <span>Cinematic</span>
-        <select data-action="change-transition-cinematic">
-          <option value="">(select)</option>
-          {{#each detail.cinematicOptions}}
-          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
-          {{/each}}
-        </select>
-      </label>
-      <label class="cinematic-editor__config-item">
-        <span>Scene</span>
-        <input type="text" data-action="change-transition-scene" value="{{detail.transitionScene}}" placeholder="(same scene)" />
-      </label>
-    </div>
-    {{/if}}
 
     {{!-- Sound config --}}
     {{#if detail.isSound}}
@@ -279,50 +327,6 @@
         <span>Sound ID</span>
         <input type="text" data-action="change-stopsound-id" value="{{detail.stopSoundId}}" placeholder="sound id" />
       </label>
-    </div>
-    {{/if}}
-
-    {{!-- Await config --}}
-    {{#if detail.isAwait}}
-    <div class="cinematic-editor__entry-config">
-      <label class="cinematic-editor__config-item">
-        <span>Event</span>
-        <select data-action="change-await-event">
-          <option value="click" {{#if detail.eventIsClick}}selected{{/if}}>Click</option>
-          <option value="keypress" {{#if detail.eventIsKeypress}}selected{{/if}}>Keypress</option>
-          <option value="signal" {{#if detail.eventIsSignal}}selected{{/if}}>Signal</option>
-          <option value="tile-click" {{#if detail.eventIsTileClick}}selected{{/if}}>Tile Click</option>
-        </select>
-      </label>
-      {{#if detail.eventIsSignal}}
-      <label class="cinematic-editor__config-item">
-        <span>Signal</span>
-        <input type="text" data-action="change-await-signal" value="{{detail.signal}}" placeholder="signal name" />
-      </label>
-      {{/if}}
-      {{#if detail.eventIsTileClick}}
-      <label class="cinematic-editor__config-item">
-        <span>Target</span>
-        <div class="cinematic-editor__target-group">
-          <input type="text" data-action="change-await-target" value="{{detail.target}}" placeholder="tag:my-button" />
-          <button type="button" class="cinematic-editor__btn--icon" data-action="pick-await-target" title="Pick from canvas">
-            <i class="fa-solid fa-crosshairs"></i>
-          </button>
-        </div>
-      </label>
-      <label class="cinematic-editor__config-item">
-        <span>Idle</span>
-        <input type="text" data-action="change-anim-idle" value="{{detail.animIdle}}" placeholder="float, glow" title="Behaviours: float, glow, pulse, scale, none" />
-      </label>
-      <label class="cinematic-editor__config-item">
-        <span>Hover</span>
-        <input type="text" data-action="change-anim-hover" value="{{detail.animHover}}" placeholder="scale" title="Behaviours: float, glow, pulse, scale, none" />
-      </label>
-      <label class="cinematic-editor__config-item">
-        <span>Dim</span>
-        <input type="text" data-action="change-anim-dim" value="{{detail.animDim}}" placeholder="none" title="Behaviours: float, glow, pulse, scale, none" />
-      </label>
-      {{/if}}
     </div>
     {{/if}}
 

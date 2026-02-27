@@ -14,8 +14,8 @@ export function showImportDialog({ state, mutate }) {
 	new Dialog({
 		title: "Import Cinematic JSON",
 		content: `
-			<p style="font-size:0.82rem;margin-bottom:0.4rem">Paste cinematic JSON data below. This will replace the current editor state.</p>
-			<textarea id="cinematic-import-json" style="width:100%;height:250px;font-family:monospace;font-size:0.8rem" placeholder='{"version":3,"cinematics":{"default":{...}}}'></textarea>
+			<p style="font-size:0.82rem;margin-bottom:0.4rem">Paste cinematic JSON data below. This will replace the current editor state. Accepts v3 or v4 format (v3 auto-migrates).</p>
+			<textarea id="cinematic-import-json" style="width:100%;height:250px;font-family:monospace;font-size:0.8rem" placeholder='{"version":4,"cinematics":{"default":{...}}}'></textarea>
 		`,
 		buttons: {
 			import: {
@@ -28,15 +28,20 @@ export function showImportDialog({ state, mutate }) {
 						if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
 							throw new Error("Expected a JSON object");
 						}
-						// Accept either v3 full or single cinematic
+						// Accept v3/v4 wrapper, single v4 cinematic (with segments), or single v3 cinematic (with timeline)
 						if (parsed.cinematics) {
+							// Full wrapper — v3 will be auto-migrated by CinematicState constructor
 							mutate(() => new CinematicState(parsed));
+						} else if (parsed.segments !== undefined) {
+							// Single v4 cinematic data — wrap
+							const wrapped = { version: 4, cinematics: { [state.activeCinematicName]: parsed } };
+							mutate(() => new CinematicState(wrapped, { cinematicName: state.activeCinematicName }));
 						} else if (parsed.timeline !== undefined) {
-							// Single cinematic data — wrap in v3
+							// Single v3 cinematic data — wrap in v3 (auto-migrates to v4)
 							const wrapped = { version: 3, cinematics: { [state.activeCinematicName]: parsed } };
 							mutate(() => new CinematicState(wrapped, { cinematicName: state.activeCinematicName }));
 						} else {
-							throw new Error("Expected v3 wrapper or single cinematic with 'timeline'");
+							throw new Error("Expected v3/v4 wrapper or single cinematic with 'segments' or 'timeline'");
 						}
 						ui.notifications?.info?.("Cinematic JSON imported.");
 					} catch (err) {

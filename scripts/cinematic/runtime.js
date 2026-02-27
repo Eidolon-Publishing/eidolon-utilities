@@ -38,27 +38,28 @@ function adaptResolved(resolved) {
 
 /**
  * Resolve all unique target selectors found in the cinematic data.
+ * Walks all segments (v4) or falls back to flat structure (legacy).
  * Returns a Map of selector → resolved target plus a list of unresolved selectors.
  *
- * @param {object} cinematicData  The full cinematic flag data
+ * @param {object} cinematicData  The cinematic data (single cinematic, not wrapper)
  * @returns {{ targets: Map<string, object>, unresolved: string[] }}
  */
 export function resolveAllTargets(cinematicData) {
 	const selectors = new Set();
 
-	// Collect from setup
-	if (cinematicData.setup) {
-		for (const sel of Object.keys(cinematicData.setup)) selectors.add(sel);
-	}
-
-	// Collect from landing
-	if (cinematicData.landing) {
-		for (const sel of Object.keys(cinematicData.landing)) selectors.add(sel);
-	}
-
-	// Collect from timeline
-	if (cinematicData.timeline) {
-		collectSelectorsFromEntries(cinematicData.timeline, selectors);
+	if (cinematicData.segments) {
+		// v4: walk all segments
+		for (const seg of Object.values(cinematicData.segments)) {
+			if (seg.setup) for (const sel of Object.keys(seg.setup)) selectors.add(sel);
+			if (seg.landing) for (const sel of Object.keys(seg.landing)) selectors.add(sel);
+			if (seg.timeline) collectSelectorsFromEntries(seg.timeline, selectors);
+			if (seg.gate?.target) selectors.add(seg.gate.target);
+		}
+	} else {
+		// Legacy v3 flat structure
+		if (cinematicData.setup) for (const sel of Object.keys(cinematicData.setup)) selectors.add(sel);
+		if (cinematicData.landing) for (const sel of Object.keys(cinematicData.landing)) selectors.add(sel);
+		if (cinematicData.timeline) collectSelectorsFromEntries(cinematicData.timeline, selectors);
 	}
 
 	const targets = new Map();
@@ -130,6 +131,7 @@ export function captureSnapshot(stateMap, targets) {
 
 /**
  * Gather all state maps from cinematic data (setup + landing + all before/after from timeline).
+ * Walks all segments (v4) or falls back to flat structure.
  * Merges them into a single map keyed by selector.
  *
  * @param {object} cinematicData
@@ -146,11 +148,18 @@ export function gatherAllStateMaps(cinematicData) {
 		}
 	}
 
-	mergeMap(cinematicData.setup);
-	mergeMap(cinematicData.landing);
-
-	if (cinematicData.timeline) {
-		gatherFromEntries(cinematicData.timeline, merged, mergeMap);
+	if (cinematicData.segments) {
+		// v4: walk all segments
+		for (const seg of Object.values(cinematicData.segments)) {
+			mergeMap(seg.setup);
+			mergeMap(seg.landing);
+			if (seg.timeline) gatherFromEntries(seg.timeline, merged, mergeMap);
+		}
+	} else {
+		// Legacy v3
+		mergeMap(cinematicData.setup);
+		mergeMap(cinematicData.landing);
+		if (cinematicData.timeline) gatherFromEntries(cinematicData.timeline, merged, mergeMap);
 	}
 
 	return merged;
@@ -564,7 +573,7 @@ export function stopAllCinematicSounds() {
  * @param {number} [opts.skipToStep]  Resume from this step index (apply prior states instantly)
  * @param {(stepIndex: number) => void} [opts.onStepComplete]  Callback after each step completes
  * @param {string} [opts.timelineName]  Custom timeline name (default: cinematic-{sceneId})
- * @returns {{ tl: import("../tween/core/timeline/TweenTimeline.js").TweenTimeline, transitionTo: { cinematic: string, scene?: string } | null }}
+ * @returns {{ tl: import("../tween/core/timeline/TweenTimeline.js").TweenTimeline }}
  */
 export function buildTimeline(cinematicData, targets, Timeline, opts = {}) {
 	const { skipToStep, onStepComplete, timelineName } = opts;
@@ -581,10 +590,9 @@ export function buildTimeline(cinematicData, targets, Timeline, opts = {}) {
 		}
 	});
 
-	const meta = { transitionTo: null };
-	compileCinematicEntries(cinematicData.timeline, tl, targets, { skipToStep, onStepComplete, meta });
+	compileCinematicEntries(cinematicData.timeline, tl, targets, { skipToStep, onStepComplete });
 
-	return { tl, transitionTo: meta.transitionTo };
+	return { tl };
 }
 
 /**
@@ -615,8 +623,8 @@ function applyParallelStatesForSkip(branches, targets) {
 
 /**
  * Compile cinematic timeline entries into a TweenTimeline.
- * Handles steps, delays, awaits, emits, sound, stopSound, transitionTo,
- * and parallel branches recursively.
+ * Handles steps, delays, awaits (signal-await in branches), emits, sound,
+ * stopSound, and parallel branches recursively.
  *
  * @param {Array} entries  Cinematic timeline entries
  * @param {import("../tween/core/timeline/TweenTimeline.js").TweenTimeline} tl  Target timeline
@@ -624,22 +632,12 @@ function applyParallelStatesForSkip(branches, targets) {
  * @param {object} [opts]
  * @param {number} [opts.skipToStep]  Skip entries before this step index (apply states instantly)
  * @param {(stepIndex: number) => void} [opts.onStepComplete]  Callback after each step
- * @param {object} [opts.meta]  Mutable metadata object for collecting transitionTo info
  */
 function compileCinematicEntries(entries, tl, targets, opts = {}) {
-	const { skipToStep, onStepComplete, meta } = opts;
+	const { skipToStep, onStepComplete } = opts;
 	let stepIndex = -1;
 
 	for (const entry of entries) {
-		// TransitionTo entry — terminal, no further entries processed
-		if (entry.transitionTo != null) {
-			if (skipToStep != null && stepIndex < skipToStep) continue;
-			if (meta) meta.transitionTo = entry.transitionTo;
-			// Add a zero-duration step as a marker (for timeline completeness)
-			tl.step();
-			break; // terminal — stop processing
-		}
-
 		// Sound entry — play audio locally (duration-aware)
 		if (entry.sound != null) {
 			if (skipToStep != null && stepIndex < skipToStep) continue;
@@ -894,7 +892,7 @@ function validateEntries(entries, pathPrefix, targets, diagnostics) {
 /**
  * Deep-validate cinematic data without throwing. Returns an array of diagnostics.
  * Checks tween types against the registry, validates state map structure,
- * and optionally checks target resolution.
+ * and optionally checks target resolution. Supports both v3 (flat) and v4 (segments).
  *
  * @param {object} data  The cinematic flag data
  * @param {Map<string, object>} [targets]  Resolved targets map (optional — skips target checks if not provided)
@@ -908,11 +906,45 @@ export function validateCinematicDeep(data, targets = null) {
 		return diagnostics;
 	}
 
-	validateStateMap(data.setup, "setup", diagnostics);
-	validateStateMap(data.landing, "landing", diagnostics);
+	if (data.segments) {
+		// v4: validate all segments
+		if (!data.entry) {
+			diagnostics.push({ path: "entry", level: "error", message: "Missing 'entry' field" });
+		} else if (!data.segments[data.entry]) {
+			diagnostics.push({ path: "entry", level: "error", message: `Entry segment "${data.entry}" not found in segments` });
+		}
 
-	if (data.timeline && Array.isArray(data.timeline)) {
-		validateEntries(data.timeline, "timeline", targets, diagnostics);
+		// Check for cycles in next edges
+		const visited = new Set();
+		let current = data.entry;
+		while (current && typeof current === "string") {
+			if (visited.has(current)) {
+				diagnostics.push({ path: `segments.${current}.next`, level: "error", message: `Cycle detected in segment graph at "${current}"` });
+				break;
+			}
+			visited.add(current);
+			current = data.segments[current]?.next;
+		}
+
+		for (const [name, seg] of Object.entries(data.segments)) {
+			const prefix = `segments.${name}`;
+			validateStateMap(seg.setup, `${prefix}.setup`, diagnostics);
+			validateStateMap(seg.landing, `${prefix}.landing`, diagnostics);
+			if (seg.timeline && Array.isArray(seg.timeline)) {
+				validateEntries(seg.timeline, `${prefix}.timeline`, targets, diagnostics);
+			}
+			// Validate next edge references
+			if (seg.next && typeof seg.next === "string" && !data.segments[seg.next]) {
+				diagnostics.push({ path: `${prefix}.next`, level: "error", message: `Next segment "${seg.next}" not found` });
+			}
+		}
+	} else {
+		// Legacy v3 flat structure
+		validateStateMap(data.setup, "setup", diagnostics);
+		validateStateMap(data.landing, "landing", diagnostics);
+		if (data.timeline && Array.isArray(data.timeline)) {
+			validateEntries(data.timeline, "timeline", targets, diagnostics);
+		}
 	}
 
 	return diagnostics;

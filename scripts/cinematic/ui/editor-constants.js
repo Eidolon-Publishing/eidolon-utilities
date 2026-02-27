@@ -59,3 +59,11 @@ export const MARKER_WIDTH = 10;
 export const GATE_WIDTH = 16;
 export const MIN_STEP_WIDTH = 40;
 export const MIN_DELAY_WIDTH = 20;
+
+// ── Segment graph layout ──────────────────────────────────────────────────────
+
+export const SEGMENT_NODE_HEIGHT = 44;
+export const SEGMENT_NODE_MIN_WIDTH = 90;
+export const SEGMENT_EDGE_WIDTH = 70;
+export const SEGMENT_GRAPH_HEIGHT = 60;
+export const SEGMENT_GRAPH_PADDING = 8;
