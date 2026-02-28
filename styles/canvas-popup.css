@@ -1,0 +1,102 @@
+/* ── CanvasPopup — canvas-anchored popup primitive ───────────────────────── */
+/* All sizes in px are canvas pixels — the popup root gets transform:scale(zoom) */
+/* so these values must be large enough to be readable after zoom scaling.      */
+/* Reference: scene UI labels use fontSize 128 on a 204px grid.                 */
+
+.canvas-popup {
+	pointer-events: auto;
+	opacity: 0;
+	transition: opacity 0.12s ease-out;
+}
+
+.canvas-popup--visible {
+	opacity: 1;
+}
+
+.canvas-popup__content {
+	background: color-mix(in srgb, var(--color-cool-5, #1a1a2e) 92%, transparent);
+	border: 3px solid var(--color-border-light-tertiary, #555);
+	border-radius: 16px;
+	padding: 12px 0;
+	box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+	font-family: var(--font-primary, "Signika", sans-serif);
+	color: var(--color-text-light-highlight, #f0f0e0);
+	font-size: 80px;
+	min-width: 400px;
+}
+
+/* ── OptionList content factory ──────────────────────────────────────────── */
+
+.canvas-popup-options {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Section */
+
+.canvas-popup-options__section {
+	display: flex;
+	flex-direction: column;
+}
+
+.canvas-popup-options__section + .canvas-popup-options__section {
+	border-top: 3px solid var(--color-border-light-tertiary, #555);
+	margin-top: 8px;
+	padding-top: 8px;
+}
+
+/* Section header */
+
+.canvas-popup-options__header {
+	padding: 6px 24px;
+	font-size: 48px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	opacity: 0.5;
+	user-select: none;
+}
+
+/* Item row */
+
+.canvas-popup-options__item {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 10px 24px;
+	cursor: pointer;
+	user-select: none;
+	transition: background 0.08s ease;
+}
+
+.canvas-popup-options__item:hover {
+	background: color-mix(in srgb, var(--color-warm-1, #cf9f4a) 18%, transparent);
+}
+
+.canvas-popup-options__item--active {
+	background: color-mix(in srgb, var(--color-warm-1, #cf9f4a) 12%, transparent);
+}
+
+/* Active dot indicator */
+
+.canvas-popup-options__dot {
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	flex: none;
+	background: transparent;
+	transition: background 0.1s ease;
+}
+
+.canvas-popup-options__item--active .canvas-popup-options__dot {
+	background: var(--color-warm-1, #cf9f4a);
+}
+
+/* Label */
+
+.canvas-popup-options__label {
+	flex: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

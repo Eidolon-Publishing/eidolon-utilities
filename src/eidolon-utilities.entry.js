@@ -6,6 +6,7 @@ import "../styles/criteria-switcher.css";
 import "../styles/tile-criteria.css";
 import "../styles/cinematic-editor.css";
 import "../styles/placeable-picker.css";
+import "../styles/canvas-popup.css";
 import "../styles/idle-animations.css";
 import "../styles/tile-interactions.css";
 
@@ -17,6 +18,8 @@ import "../scripts/light-criteria/index.js";
 import "../scripts/tween/index.js";
 import "../scripts/cinematic/index.js";
 import "../scripts/placeable-picker/index.js";
+// Canvas popup - standalone, no feature dependencies
+import "../scripts/canvas-popup/index.js";
 // Idle animations - must come after tween (needs executor registry populated)
 import "../scripts/idle-animations/index.js";
 // Tile interactions - must come after tween and cinematic (needs TileAnimator + executors)
