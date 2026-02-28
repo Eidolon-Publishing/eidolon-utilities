@@ -11884,7 +11884,7 @@ dt("glow", (e, t = {}) => {
     update(v) {
       y += v;
       const b = (Math.sin(y * s) + 1) / 2;
-      d.alpha = a * (0.5 + 0.5 * b);
+      d.visible = n.visible !== !1, d.alpha = a * (0.5 + 0.5 * b) * (n.alpha ?? 1);
     },
     detach() {
       d.parent && d.parent.removeChild(d), d.destroy({ children: !0 });
@@ -11957,7 +11957,8 @@ dt("bounce", (e, t = {}) => {
   };
 });
 dt("borderTrace", (e, t = {}) => {
-  if (!e.mesh) return { update() {
+  const n = e.mesh;
+  if (!n) return { update() {
   }, detach() {
   } };
   const i = e.document, r = Math.abs(i.width), a = Math.abs(i.height), o = 2 * (r + a), s = t.speed ?? 1.5, l = t.length ?? 60, u = t.color ?? 4513279, d = t.alpha ?? 0.8, m = t.lineWidth ?? 2, h = new PIXI.Graphics();
@@ -11968,7 +11969,7 @@ dt("borderTrace", (e, t = {}) => {
   }
   return c(p, "perimeterPoint"), {
     update(g) {
-      y = (y + g * s) % o, h.clear(), h.lineStyle(m, u, 1);
+      y = (y + g * s) % o, h.visible = n.visible !== !1, h.alpha = d * (n.alpha ?? 1), h.clear(), h.lineStyle(m, u, 1);
       const v = 16, b = l / v, w = p(y);
       h.moveTo(w.x, w.y);
       for (let S = 1; S <= v; S++) {
@@ -11982,7 +11983,8 @@ dt("borderTrace", (e, t = {}) => {
   };
 });
 dt("shimmer", (e, t = {}) => {
-  if (!e.mesh) return { update() {
+  const n = e.mesh;
+  if (!n) return { update() {
   }, detach() {
   } };
   const i = e.document, r = Math.abs(i.width), a = Math.abs(i.height), o = t.speed ?? 1, s = t.bandWidth ?? 40, l = t.alpha ?? 0.15, u = t.pause ?? 120, d = r + a + s, m = d + u * o, h = new PIXI.Graphics();
@@ -11992,7 +11994,7 @@ dt("shimmer", (e, t = {}) => {
   let p = 0;
   return {
     update(g) {
-      if (p = (p + g * o) % m, h.clear(), p < d) {
+      if (p = (p + g * o) % m, h.visible = n.visible !== !1, h.alpha = l * (n.alpha ?? 1), h.clear(), p < d) {
         const v = p - s;
         h.beginFill(16777215, 1), h.moveTo(v, 0), h.lineTo(v + s, 0), h.lineTo(v + s - a, a), h.lineTo(v - a, a), h.closePath(), h.endFill();
       }
