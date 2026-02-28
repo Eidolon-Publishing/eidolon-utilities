@@ -1,20 +1,20 @@
 /**
- * Tile Interaction Manager (singleton)
+ * Placeable Interaction Manager (singleton)
  *
- * Watches tiles flagged with hover effects and/or click animations.
- * - Hover: persistent TileAnimator per tile, starts in "idle" state on canvasReady,
- *   transitions to "hover" on pointer enter, back to "idle" on leave.
- *   If only idle is configured → behaviours play by default, stop on hover.
- *   If only enter is configured → nothing by default, behaviours on hover.
- *   If both → idle behaviours default, enter behaviours on hover.
+ * Watches tiles AND drawings flagged with hover effects, click animations,
+ * and/or click-to-macro.
+ * - Hover: persistent TileAnimator per placeable, starts in "idle" state on
+ *   canvasReady, transitions to "hover" on pointer enter, back to "idle" on leave.
  * - Click bounce: plays forward + reverse tween, both commit:false.
  * - Click toggle: plays forward or reverse tween, commit:true, persists toggle state.
+ * - Click macro: executes a Foundry macro UUID after click animations finish.
  *
  * Listeners are bubble-phase on #board so cinematic capture-phase listeners
  * take priority.
  */
 
 import { pointWithinTile } from "../common/geometry/point-within-tile.js";
+import { pointWithinDrawing } from "../common/geometry/point-within-drawing.js";
 import { TileAnimator } from "../cinematic/tile-animator.js";
 import { getTweenType } from "../tween/core/registry.js";
 
@@ -43,17 +43,17 @@ function migrateIdleTweenToAlways(config) {
 }
 
 /**
- * Read the unified tile-animations config from a tile document,
+ * Read the unified tile-animations config from a tile or drawing document,
  * with migration fallback for old idle-animation and tile-interactions flags.
  *
- * Returns: { always: [], idle: [], hover: [], click: [] } or null if no config.
+ * Returns: { always: [], idle: [], hover: [], click: [], macro?: string } or null if no config.
  */
 export function readUnifiedConfig(doc) {
 	// Prefer new unified flag
 	const unified = doc?.getFlag?.(MODULE_ID, NEW_FLAG_KEY);
 	if (unified) return unified;
 
-	// Migration: read old flags
+	// Migration: read old flags (tiles only — drawings never had old flags)
 	const oldIdleRaw = doc?.getFlag?.(MODULE_ID, OLD_IDLE_FLAG);
 	const oldInteractions = doc?.getFlag?.(MODULE_ID, FLAG_KEY);
 
@@ -101,20 +101,30 @@ export function readUnifiedConfig(doc) {
 
 // ── State ──────────────────────────────────────────────────────────────
 
-/** @type {Map<string, { doc: TileDocument, placeable: PlaceableObject, hoverConfig: object|null, clickConfig: Array|null }>} */
-const watchedTiles = new Map();
+/**
+ * @typedef {object} WatchedEntry
+ * @property {Document} doc  Tile or Drawing document
+ * @property {PlaceableObject} placeable  The PIXI placeable
+ * @property {object|null} animConfig  Unified animation config
+ * @property {Array|null} clickConfig  Click tween configs
+ * @property {string|null} macroUuid  Click-to-macro UUID
+ * @property {"tile"|"drawing"} placeableType
+ */
+
+/** @type {Map<string, WatchedEntry>} */
+const watchedPlaceables = new Map();
 
 /** @type {Map<string, TileAnimator>} */
 const activeHoverAnimators = new Map();
 
-/** @type {WeakMap<TileDocument, boolean>} */
+/** @type {WeakMap<Document, boolean>} */
 const toggleStates = new WeakMap();
 
 /** @type {Set<string>} */
-const clickingTiles = new Set();
+const clickingPlaceables = new Set();
 
-/** Track which tile the pointer is currently hovering over. */
-let hoveredTileId = null;
+/** Track which placeable the pointer is currently hovering over. */
+let hoveredPlaceableId = null;
 
 /** Saved cursor style for restoration on hover leave. */
 let savedCursor = null;
@@ -135,19 +145,24 @@ function canvasToLocal(event) {
 }
 
 /**
- * Hit-test all watched tiles against a canvas-space point.
- * Returns the topmost hit (highest sort) or null.
+ * Hit-test all watched placeables against a canvas-space point.
+ * Returns the topmost hit or null.
+ * Drawings render above tiles, so they get a layer bonus in z-ordering.
  */
 function hitTest(pt) {
 	let best = null;
-	let bestSort = -Infinity;
-	for (const [id, entry] of watchedTiles) {
-		if (pointWithinTile(entry.doc, pt)) {
-			const sort = entry.doc.sort ?? 0;
-			if (sort > bestSort) {
-				best = entry;
-				bestSort = sort;
-			}
+	let bestScore = -Infinity;
+	for (const [id, entry] of watchedPlaceables) {
+		const isHit = entry.placeableType === "drawing"
+			? pointWithinDrawing(entry.doc, pt)
+			: pointWithinTile(entry.doc, pt);
+		if (!isHit) continue;
+
+		// Drawings layer renders above tiles — give them a z-bonus
+		const sort = (entry.doc.sort ?? 0) + (entry.placeableType === "drawing" ? 1e9 : 0);
+		if (sort > bestScore) {
+			best = entry;
+			bestScore = sort;
 		}
 	}
 	return best;
@@ -168,26 +183,26 @@ function buildAnimatorConfig(unifiedConfig) {
 }
 
 /**
- * Start a persistent animator for a tile.
+ * Start a persistent animator for a placeable.
  * Begins in "idle" state.
  */
-function startHoverAnimator(tileId, placeable, unifiedConfig) {
-	stopHoverAnimator(tileId);
+function startHoverAnimator(placeableId, placeable, unifiedConfig) {
+	stopHoverAnimator(placeableId);
 
 	const animConfig = buildAnimatorConfig(unifiedConfig);
 	const animator = new TileAnimator(placeable, animConfig);
 	animator.start("idle");
-	activeHoverAnimators.set(tileId, animator);
+	activeHoverAnimators.set(placeableId, animator);
 }
 
 /**
  * Fully detach and remove a hover animator.
  */
-function stopHoverAnimator(tileId) {
-	const animator = activeHoverAnimators.get(tileId);
+function stopHoverAnimator(placeableId) {
+	const animator = activeHoverAnimators.get(placeableId);
 	if (!animator) return;
 	animator.detach();
-	activeHoverAnimators.delete(tileId);
+	activeHoverAnimators.delete(placeableId);
 }
 
 // ── Click lifecycle ────────────────────────────────────────────────────
@@ -271,31 +286,44 @@ async function playClickAnimation(doc, config) {
 }
 
 /**
- * Handle a click on a watched tile: pause hover animator, play click tweens, resume.
+ * Handle a click on a watched placeable: pause hover animator, play click tweens,
+ * execute macro, resume.
  */
 async function handleClick(entry) {
-	const tileId = entry.doc.id;
-	if (clickingTiles.has(tileId)) return; // debounce
-	clickingTiles.add(tileId);
+	const placeableId = entry.doc.id;
+	if (clickingPlaceables.has(placeableId)) return; // debounce
+	clickingPlaceables.add(placeableId);
 
 	try {
 		// Stop hover animator temporarily so click tween has clean state
-		stopHoverAnimator(tileId);
+		stopHoverAnimator(placeableId);
 
 		// Play all click animations in parallel
-		const promises = entry.clickConfig.map((config) => playClickAnimation(entry.doc, config));
-		await Promise.all(promises);
-	} finally {
-		clickingTiles.delete(tileId);
+		if (entry.clickConfig?.length) {
+			const promises = entry.clickConfig.map((config) => playClickAnimation(entry.doc, config));
+			await Promise.all(promises);
+		}
 
-		// Restart animator if tile still has animation config
+		// Execute macro if configured
+		if (entry.macroUuid) {
+			const macro = await fromUuid(entry.macroUuid);
+			if (macro) {
+				macro.execute({ placeable: entry.placeable });
+			} else {
+				console.warn(`[${MODULE_ID}] tile-interactions: macro not found: ${entry.macroUuid}`);
+			}
+		}
+	} finally {
+		clickingPlaceables.delete(placeableId);
+
+		// Restart animator if placeable still has animation config
 		const hasAnimations = entry.animConfig && ((entry.animConfig.always?.length > 0) || (entry.animConfig.idle?.length > 0) || (entry.animConfig.hover?.length > 0));
 		if (hasAnimations) {
-			startHoverAnimator(tileId, entry.placeable, entry.animConfig);
+			startHoverAnimator(placeableId, entry.placeable, entry.animConfig);
 
-			// If pointer is still over the tile, switch to hover state
-			if (hoveredTileId === tileId) {
-				activeHoverAnimators.get(tileId)?.setState("hover");
+			// If pointer is still over the placeable, switch to hover state
+			if (hoveredPlaceableId === placeableId) {
+				activeHoverAnimators.get(placeableId)?.setState("hover");
 			}
 		}
 	}
@@ -311,11 +339,11 @@ function onPointerMove(event) {
 	const hitId = hit?.doc.id ?? null;
 
 	// No change
-	if (hitId === hoveredTileId) return;
+	if (hitId === hoveredPlaceableId) return;
 
 	// Leave previous → switch back to idle
-	if (hoveredTileId) {
-		const prevAnimator = activeHoverAnimators.get(hoveredTileId);
+	if (hoveredPlaceableId) {
+		const prevAnimator = activeHoverAnimators.get(hoveredPlaceableId);
 		if (prevAnimator) prevAnimator.setState("idle");
 	}
 
@@ -325,10 +353,10 @@ function onPointerMove(event) {
 		if (animator) animator.setState("hover");
 	}
 
-	hoveredTileId = hitId;
+	hoveredPlaceableId = hitId;
 
 	// Cursor management
-	if (hitId && (hit.animConfig || hit.clickConfig?.length)) {
+	if (hitId && (hit.animConfig || hit.clickConfig?.length || hit.macroUuid)) {
 		if (savedCursor === null) {
 			savedCursor = document.body.style.cursor;
 		}
@@ -346,7 +374,8 @@ function onPointerDown(event) {
 	if (!pt) return;
 
 	const hit = hitTest(pt);
-	if (!hit || !hit.clickConfig?.length) return;
+	if (!hit) return;
+	if (!hit.clickConfig?.length && !hit.macroUuid) return;
 
 	// Don't consume the event — let it propagate (bubble phase, not capture)
 	handleClick(hit);
@@ -355,13 +384,13 @@ function onPointerDown(event) {
 /**
  * Reset hover state when the pointer leaves the board element.
  * This handles cases where another window (e.g. MATT journal) opens on top
- * and pointermove events stop reaching #board, leaving the tile stuck in hover.
+ * and pointermove events stop reaching #board, leaving a placeable stuck in hover.
  */
 function onPointerLeave() {
-	if (hoveredTileId) {
-		const prevAnimator = activeHoverAnimators.get(hoveredTileId);
+	if (hoveredPlaceableId) {
+		const prevAnimator = activeHoverAnimators.get(hoveredPlaceableId);
 		if (prevAnimator) prevAnimator.setState("idle");
-		hoveredTileId = null;
+		hoveredPlaceableId = null;
 	}
 	if (savedCursor !== null) {
 		document.body.style.cursor = savedCursor;
@@ -369,20 +398,46 @@ function onPointerLeave() {
 	}
 }
 
+// ── Internal: register a placeable into the watched set ────────────────
+
+/**
+ * Parse a document's config and add to watched set if it has interactions.
+ * @param {Document} doc
+ * @param {PlaceableObject} placeable
+ * @param {"tile"|"drawing"} placeableType
+ */
+function registerPlaceable(doc, placeable, placeableType) {
+	const config = readUnifiedConfig(doc);
+	if (!config) return;
+
+	const hasAnimations = (config.always?.length > 0) || (config.idle?.length > 0) || (config.hover?.length > 0);
+	const clickConfig = Array.isArray(config.click) && config.click.length ? config.click : null;
+	const macroUuid = config.macro || null;
+
+	if (!hasAnimations && !clickConfig && !macroUuid) return;
+
+	watchedPlaceables.set(doc.id, { doc, placeable, animConfig: config, clickConfig, macroUuid, placeableType });
+
+	// Start persistent animator (always + idle/hover states)
+	if (hasAnimations) {
+		startHoverAnimator(doc.id, placeable, config);
+	}
+}
+
 // ── Public API ─────────────────────────────────────────────────────────
 
 /**
- * Rebuild the watched tiles map from the current scene.
+ * Rebuild the watched placeables map from the current scene.
  * Called on canvasReady.
  */
 export function rebuild() {
 	// Cleanup existing state
-	for (const tileId of activeHoverAnimators.keys()) {
-		stopHoverAnimator(tileId);
+	for (const placeableId of activeHoverAnimators.keys()) {
+		stopHoverAnimator(placeableId);
 	}
-	watchedTiles.clear();
-	clickingTiles.clear();
-	hoveredTileId = null;
+	watchedPlaceables.clear();
+	clickingPlaceables.clear();
+	hoveredPlaceableId = null;
 	if (savedCursor !== null) {
 		document.body.style.cursor = savedCursor;
 		savedCursor = null;
@@ -405,28 +460,22 @@ export function rebuild() {
 
 	// Scan tiles
 	const tiles = canvas.tiles?.placeables;
-	if (!Array.isArray(tiles)) return;
-
-	for (const tile of tiles) {
-		const doc = tile.document;
-		const config = readUnifiedConfig(doc);
-		if (!config) continue;
-
-		const hasAnimations = (config.always?.length > 0) || (config.idle?.length > 0) || (config.hover?.length > 0);
-		const clickConfig = Array.isArray(config.click) && config.click.length ? config.click : null;
-
-		if (!hasAnimations && !clickConfig) continue;
-
-		watchedTiles.set(doc.id, { doc, placeable: tile, animConfig: config, clickConfig });
-
-		// Start persistent animator (always + idle/hover states)
-		if (hasAnimations) {
-			startHoverAnimator(doc.id, tile, config);
+	if (Array.isArray(tiles)) {
+		for (const tile of tiles) {
+			registerPlaceable(tile.document, tile, "tile");
 		}
 	}
 
-	// Install listeners only if there are watched tiles
-	if (watchedTiles.size === 0) return;
+	// Scan drawings
+	const drawings = canvas.drawings?.placeables;
+	if (Array.isArray(drawings)) {
+		for (const drawing of drawings) {
+			registerPlaceable(drawing.document, drawing, "drawing");
+		}
+	}
+
+	// Install listeners only if there are watched placeables
+	if (watchedPlaceables.size === 0) return;
 
 	boundPointerMove = onPointerMove;
 	boundPointerDown = onPointerDown;
@@ -441,35 +490,7 @@ export function rebuild() {
  * Called on updateTile.
  */
 export function updateTile(doc) {
-	const tileId = doc.id;
-	const config = readUnifiedConfig(doc);
-
-	const hasAnimations = config && ((config.always?.length > 0) || (config.idle?.length > 0) || (config.hover?.length > 0));
-	const clickConfig = config && Array.isArray(config.click) && config.click.length ? config.click : null;
-
-	if (!hasAnimations && !clickConfig) {
-		removeTile(doc);
-		return;
-	}
-
-	// Stop existing animator
-	stopHoverAnimator(tileId);
-
-	const placeable = doc.object;
-	if (!placeable) {
-		watchedTiles.delete(tileId);
-		return;
-	}
-
-	watchedTiles.set(tileId, { doc, placeable, animConfig: config, clickConfig });
-
-	// Restart animator with new config
-	if (hasAnimations) {
-		startHoverAnimator(tileId, placeable, config);
-	}
-
-	// Re-install listeners if this is the first watched tile
-	ensureListeners();
+	updatePlaceable(doc, "tile");
 }
 
 /**
@@ -477,21 +498,76 @@ export function updateTile(doc) {
  * Called on deleteTile.
  */
 export function removeTile(doc) {
-	const tileId = doc.id;
-	stopHoverAnimator(tileId);
-	watchedTiles.delete(tileId);
-	clickingTiles.delete(tileId);
+	removePlaceable(doc);
+}
 
-	if (hoveredTileId === tileId) {
-		hoveredTileId = null;
+/**
+ * Re-read a drawing's flag and update/remove from watched set.
+ * Called on updateDrawing.
+ */
+export function updateDrawing(doc) {
+	updatePlaceable(doc, "drawing");
+}
+
+/**
+ * Remove a drawing from watched set and clean up.
+ * Called on deleteDrawing.
+ */
+export function removeDrawing(doc) {
+	removePlaceable(doc);
+}
+
+// ── Internal update/remove ─────────────────────────────────────────────
+
+function updatePlaceable(doc, placeableType) {
+	const placeableId = doc.id;
+	const config = readUnifiedConfig(doc);
+
+	const hasAnimations = config && ((config.always?.length > 0) || (config.idle?.length > 0) || (config.hover?.length > 0));
+	const clickConfig = config && Array.isArray(config.click) && config.click.length ? config.click : null;
+	const macroUuid = config?.macro || null;
+
+	if (!hasAnimations && !clickConfig && !macroUuid) {
+		removePlaceable(doc);
+		return;
+	}
+
+	// Stop existing animator
+	stopHoverAnimator(placeableId);
+
+	const placeable = doc.object;
+	if (!placeable) {
+		watchedPlaceables.delete(placeableId);
+		return;
+	}
+
+	watchedPlaceables.set(placeableId, { doc, placeable, animConfig: config, clickConfig, macroUuid, placeableType });
+
+	// Restart animator with new config
+	if (hasAnimations) {
+		startHoverAnimator(placeableId, placeable, config);
+	}
+
+	// Re-install listeners if this is the first watched placeable
+	ensureListeners();
+}
+
+function removePlaceable(doc) {
+	const placeableId = doc.id;
+	stopHoverAnimator(placeableId);
+	watchedPlaceables.delete(placeableId);
+	clickingPlaceables.delete(placeableId);
+
+	if (hoveredPlaceableId === placeableId) {
+		hoveredPlaceableId = null;
 		if (savedCursor !== null) {
 			document.body.style.cursor = savedCursor;
 			savedCursor = null;
 		}
 	}
 
-	// Remove listeners if no more watched tiles
-	if (watchedTiles.size === 0) {
+	// Remove listeners if no more watched placeables
+	if (watchedPlaceables.size === 0) {
 		const board = document.getElementById("board");
 		if (boundPointerMove) {
 			board?.removeEventListener("pointermove", boundPointerMove);
@@ -509,10 +585,10 @@ export function removeTile(doc) {
 }
 
 /**
- * Ensure listeners are attached if there are watched tiles.
+ * Ensure listeners are attached if there are watched placeables.
  */
 function ensureListeners() {
-	if (watchedTiles.size === 0) return;
+	if (watchedPlaceables.size === 0) return;
 	if (boundPointerMove) return; // already attached
 
 	const board = document.getElementById("board");

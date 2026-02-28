@@ -1,4 +1,4 @@
-import { rebuild, updateTile, removeTile } from "./interaction-manager.js";
+import { rebuild, updateTile, removeTile, updateDrawing, removeDrawing } from "./interaction-manager.js";
 import { renderAnimationSection } from "./ui/tile-interaction-section.js";
 import { stopAllLoops, stopLoopsForTile } from "../idle-animations/loop-runner.js";
 
@@ -45,10 +45,35 @@ function onRenderTileConfig(app, html) {
 	renderAnimationSection(app, html);
 }
 
+// ── Drawing hooks ──────────────────────────────────────────────────────
+
+function onUpdateDrawing(doc, changes) {
+	const flagChange = changes?.flags?.[MODULE_ID];
+	if (!flagChange) return;
+
+	const relevant = FLAG_KEYS.some(key => key in flagChange || `-=${key}` in flagChange);
+	if (!relevant) return;
+
+	updateDrawing(doc);
+}
+
+function onDeleteDrawing(doc) {
+	removeDrawing(doc);
+}
+
+function onRenderDrawingConfig(app, html) {
+	renderAnimationSection(app, html);
+}
+
+// ── Registration ───────────────────────────────────────────────────────
+
 export function registerTileInteractionHooks() {
 	Hooks.on("canvasTearDown", onCanvasTearDown);
 	Hooks.on("canvasReady", onCanvasReady);
 	Hooks.on("updateTile", onUpdateTile);
 	Hooks.on("deleteTile", onDeleteTile);
 	Hooks.on("renderTileConfig", onRenderTileConfig);
+	Hooks.on("updateDrawing", onUpdateDrawing);
+	Hooks.on("deleteDrawing", onDeleteDrawing);
+	Hooks.on("renderDrawingConfig", onRenderDrawingConfig);
 }

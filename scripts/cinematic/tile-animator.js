@@ -45,6 +45,21 @@ export function listBehaviourNames() {
 	return [...behaviourRegistry.keys()];
 }
 
+// ── Animation Target ─────────────────────────────────────────────────────
+
+/**
+ * Return the PIXI display object to animate for a given placeable.
+ * Tiles have a dedicated `.mesh` on the primary canvas; other placeables
+ * (Drawings, etc.) are animated via the placeable container itself.
+ * @param {PlaceableObject} placeable
+ * @returns {PIXI.DisplayObject|null}
+ */
+export function getAnimationTarget(placeable) {
+	if (placeable.mesh) return placeable.mesh;
+	if (placeable.destroyed || !placeable.transform) return null;
+	return placeable;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────
 
 /**
@@ -79,7 +94,7 @@ function hslToInt(h, s, l) {
  * Params: speed (default 0.04), amplitude (default 3px)
  */
 registerBehaviour("float", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const speed = opts.speed ?? 0.04;
@@ -103,7 +118,7 @@ registerBehaviour("float", (placeable, opts = {}) => {
  * Params: minAlpha (0.6), maxAlpha (1.0), speed (0.05)
  */
 registerBehaviour("pulse", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const minAlpha = opts.minAlpha ?? 0.6;
@@ -129,7 +144,7 @@ registerBehaviour("pulse", (placeable, opts = {}) => {
  * Params: factor (1.12), durationFrames (15), easing ("easeOutCubic")
  */
 registerBehaviour("scale", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const factor = opts.factor ?? 1.12;
@@ -166,7 +181,7 @@ registerBehaviour("scale", (placeable, opts = {}) => {
  * Params: color (0x44DDFF), alpha (0.5), blur (8), pulseSpeed (0.03)
  */
 registerBehaviour("glow", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh?.texture?.baseTexture) return { update() {}, detach() {} };
 
 	const doc = placeable.document;
@@ -224,7 +239,7 @@ registerBehaviour("glow", (placeable, opts = {}) => {
  * Params: speed (0.15), angle (2.5°)
  */
 registerBehaviour("wobble", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const speed = opts.speed ?? 0.15;
@@ -248,7 +263,7 @@ registerBehaviour("wobble", (placeable, opts = {}) => {
  * Params: speed (0.005), saturation (0.6), lightness (0.6)
  */
 registerBehaviour("colorCycle", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const speed = opts.speed ?? 0.005;
@@ -273,7 +288,7 @@ registerBehaviour("colorCycle", (placeable, opts = {}) => {
  * Params: speed (0.5 deg/frame-tick)
  */
 registerBehaviour("spin", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const speed = opts.speed ?? 0.5;
@@ -296,7 +311,7 @@ registerBehaviour("spin", (placeable, opts = {}) => {
  * Params: speed (0.02), amplitude (6px)
  */
 registerBehaviour("bounce", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const speed = opts.speed ?? 0.02;
@@ -323,7 +338,7 @@ registerBehaviour("bounce", (placeable, opts = {}) => {
  * Params: speed (1.5 px/frame), length (60px), color (0x44DDFF), alpha (0.8), lineWidth (2)
  */
 registerBehaviour("borderTrace", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const doc = placeable.document;
@@ -390,7 +405,7 @@ registerBehaviour("borderTrace", (placeable, opts = {}) => {
  * Params: speed (1.0), bandWidth (40px), alpha (0.15), pause (120 frame-ticks)
  */
 registerBehaviour("shimmer", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const doc = placeable.document;
@@ -462,7 +477,7 @@ registerBehaviour("shimmer", (placeable, opts = {}) => {
  * Params: factor (1.03), speed (0.02)
  */
 registerBehaviour("breathe", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const factor = opts.factor ?? 1.03;
@@ -491,7 +506,7 @@ registerBehaviour("breathe", (placeable, opts = {}) => {
  * Params: maxAngle (3°), smoothing (0.15)
  */
 registerBehaviour("tiltFollow", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const maxAngle = opts.maxAngle ?? 3;
@@ -523,7 +538,7 @@ registerBehaviour("tiltFollow", (placeable, opts = {}) => {
  * Use `delay` for stagger: [{ name: "slideReveal", delay: 0 }, { name: "slideReveal", delay: 5 }]
  */
 registerBehaviour("slideReveal", (placeable, opts = {}, canonical) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	// During state transitions, skip entrance — tile is already visible
@@ -578,7 +593,7 @@ registerBehaviour("slideReveal", (placeable, opts = {}, canonical) => {
  * Params: count (12), speed (0.5), color (0xFF6600), alpha (0.6), size (2)
  */
 registerBehaviour("embers", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const doc = placeable.document;
@@ -661,7 +676,7 @@ registerBehaviour("embers", (placeable, opts = {}) => {
  * Params: dots (3), speed (1.2), color (0x44DDFF), color2 (0x8844FF), radius (3), alpha (0.7)
  */
 registerBehaviour("runeGlow", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const doc = placeable.document;
@@ -736,7 +751,7 @@ registerBehaviour("runeGlow", (placeable, opts = {}) => {
  *         color (0x44DDFF), alpha (0.4), lineWidth (1.5)
  */
 registerBehaviour("ripple", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const doc = placeable.document;
@@ -805,7 +820,7 @@ registerBehaviour("ripple", (placeable, opts = {}) => {
  * Params: segments (20), maxLength (15), color (0xAADDFF), alpha (0.5), growSpeed (0.02)
  */
 registerBehaviour("frostEdge", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const doc = placeable.document;
@@ -897,7 +912,7 @@ registerBehaviour("frostEdge", (placeable, opts = {}) => {
  * Params: offsetY (6), blur (6), alpha (0.35), color (0x000000), durationFrames (12), easing ("easeOutCubic")
  */
 registerBehaviour("shadowLift", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const DropShadowFilter = PIXI.DropShadowFilter ?? PIXI.filters?.DropShadowFilter ?? globalThis.PIXI?.filters?.DropShadowFilter;
@@ -962,7 +977,7 @@ registerBehaviour("none", () => {
  * Params: attribute ("alpha"|"rotation"), from, to, period (ms), easing
  */
 registerBehaviour("tween-prop", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const attribute = opts.attribute ?? "alpha";
@@ -998,7 +1013,7 @@ registerBehaviour("tween-prop", (placeable, opts = {}) => {
  * Params: fromColor, toColor, mode (oklch/hsl/rgb), period (ms), easing
  */
 registerBehaviour("tween-tint", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const fromHex = opts.fromColor ?? "#ffffff";
@@ -1034,7 +1049,7 @@ registerBehaviour("tween-tint", (placeable, opts = {}) => {
  * Params: fromScale, toScale, period (ms), easing
  */
 registerBehaviour("tween-scale", (placeable, opts = {}) => {
-	const mesh = placeable.mesh;
+	const mesh = getAnimationTarget(placeable);
 	if (!mesh) return { update() {}, detach() {} };
 
 	const fromScale = opts.fromScale ?? 0.95;
@@ -1143,15 +1158,10 @@ export class TileAnimator {
 	 * @param {string} [state="idle"]
 	 */
 	start(state = "idle") {
-		this.#captureCanonical();
-		const tileId = this.#placeable.document?.id ?? "?";
-		const c = this.#canonicalState;
-		if (c) console.log(`%c[TileAnimator ${tileId}] start("${state}") canonical: pos=(${c.x.toFixed(2)}, ${c.y.toFixed(2)}) scale=(${c.scaleX.toFixed(4)}, ${c.scaleY.toFixed(4)}) alpha=${c.alpha.toFixed(4)} angle=${c.angle.toFixed(2)}`, "color: #FFAA44; font-weight: bold");
+		// Record desired state immediately so setState() can update it
+		// before the deferred init runs.
+		this.#currentState = state;
 
-		// Start always behaviours (persist across state transitions)
-		this.#attachAlwaysBehaviours();
-
-		this.#attachBehaviours(state);
 		this.#tickerFn = (dt) => {
 			// Guard: if the PIXI object has been destroyed (scene teardown),
 			// bail out and self-remove to prevent accessing null transform.
@@ -1159,6 +1169,19 @@ export class TileAnimator {
 				this.detach();
 				return;
 			}
+
+			// Deferred init: capture canonical and attach behaviours on the
+			// first tick, after Foundry's render pipeline has positioned the
+			// mesh. Capturing at canvasReady time is too early — mesh.position
+			// is still (0,0) before the first render pass.
+			if (!this.#canonicalState) {
+				this.#captureCanonical();
+				if (!this.#canonicalState) return; // target not available yet
+				this.#attachAlwaysBehaviours();
+				this.#attachBehaviours(this.#currentState);
+				return;
+			}
+
 			// During blend: restore canonical before updates so behaviours
 			// compute on a clean slate (prevents blend feedback loop)
 			if (this.#blendFrom) this.#restoreCanonical();
@@ -1182,8 +1205,15 @@ export class TileAnimator {
 	setState(state) {
 		if (state === this.#currentState) return;
 
+		// If deferred init hasn't run yet, just update the target state
+		// so the first-tick init uses the latest desired state.
+		if (!this.#canonicalState) {
+			this.#currentState = state;
+			return;
+		}
+
 		const tileId = this.#placeable.document?.id ?? "?";
-		const mesh = this.#placeable.mesh;
+		const mesh = getAnimationTarget(this.#placeable);
 		const oldEntries = this.#config[this.#currentState] ?? this.#config.idle ?? ["none"];
 		const newEntries = this.#config[state] ?? this.#config.idle ?? ["none"];
 
@@ -1290,7 +1320,7 @@ export class TileAnimator {
 	// ── Private ──────────────────────────────────────────────────────────
 
 	#captureCanonical() {
-		const mesh = this.#placeable.mesh;
+		const mesh = getAnimationTarget(this.#placeable);
 		if (!mesh) return;
 		this.#canonicalState = {
 			x: mesh.position.x,
@@ -1304,7 +1334,7 @@ export class TileAnimator {
 	}
 
 	#restoreCanonical() {
-		const mesh = this.#placeable.mesh;
+		const mesh = getAnimationTarget(this.#placeable);
 		if (!mesh || !this.#canonicalState) return;
 		const c = this.#canonicalState;
 		mesh.position.x = c.x;
@@ -1321,7 +1351,7 @@ export class TileAnimator {
 	 * can lerp FROM here toward the new state's computed values.
 	 */
 	#captureBlendStart() {
-		const mesh = this.#placeable.mesh;
+		const mesh = getAnimationTarget(this.#placeable);
 		if (!mesh) return;
 		this.#blendFrom = {
 			x: mesh.position.x,
@@ -1350,7 +1380,7 @@ export class TileAnimator {
 			return;
 		}
 		const eased = 1 - (1 - t) ** 3; // easeOutCubic
-		const mesh = this.#placeable.mesh;
+		const mesh = getAnimationTarget(this.#placeable);
 		if (!mesh) return;
 		const f = this.#blendFrom;
 

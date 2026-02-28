@@ -219,7 +219,7 @@ let previewAnimator = null;
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
-function getTileDocument(app) {
+function getPlaceableDocument(app) {
 	return app?.document ?? app?.object?.document ?? app?.object ?? null;
 }
 
@@ -767,6 +767,59 @@ function buildSectionContent(doc) {
 	});
 	section.appendChild(addClickBtn);
 
+	// ── Click Macro ────────────────────────────────────────────────
+	const macroHeading = document.createElement("h3");
+	macroHeading.classList.add("ti-section-heading");
+	macroHeading.textContent = "Click Macro";
+	section.appendChild(macroHeading);
+
+	const macroHint = document.createElement("p");
+	macroHint.classList.add("idle-anim__hint");
+	macroHint.textContent = "Execute a macro when clicked. Drag a macro here or paste its UUID.";
+	section.appendChild(macroHint);
+
+	const macroRow = document.createElement("div");
+	macroRow.classList.add("form-group", "ti-macro");
+
+	const macroLabel = document.createElement("label");
+	macroLabel.textContent = "Macro";
+	macroRow.appendChild(macroLabel);
+
+	const macroInput = document.createElement("input");
+	macroInput.type = "text";
+	macroInput.classList.add("ti-macro__uuid");
+	macroInput.placeholder = "Drag a macro here or paste UUID";
+	macroInput.value = config.macro ?? "";
+	macroRow.appendChild(macroInput);
+
+	const macroClearBtn = document.createElement("button");
+	macroClearBtn.type = "button";
+	macroClearBtn.classList.add("ti-macro__clear");
+	macroClearBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+	macroClearBtn.title = "Clear macro";
+	macroClearBtn.addEventListener("click", () => { macroInput.value = ""; });
+	macroRow.appendChild(macroClearBtn);
+
+	// Drag-and-drop: accept Foundry macro drops
+	macroRow.addEventListener("dragover", (e) => {
+		e.preventDefault();
+		e.dataTransfer.dropEffect = "link";
+	});
+	macroRow.addEventListener("drop", (e) => {
+		e.preventDefault();
+		try {
+			const raw = e.dataTransfer.getData("text/plain");
+			const data = JSON.parse(raw);
+			if (data.type === "Macro" && data.uuid) {
+				macroInput.value = data.uuid;
+			}
+		} catch {
+			// Not valid JSON — ignore
+		}
+	});
+
+	section.appendChild(macroRow);
+
 	// ── Preview ────────────────────────────────────────────────────
 	const actions = document.createElement("div");
 	actions.classList.add("idle-anim__actions");
@@ -804,12 +857,15 @@ function readAllClickConfigs(section) {
  * Read the full unified config from all four category sections.
  */
 function readFormConfig(section) {
-	return {
+	const macroValue = section.querySelector(".ti-macro__uuid")?.value?.trim() || null;
+	const config = {
 		always: readAllEffectSlots(section, "ti-always-slot"),
 		idle: readAllEffectSlots(section, "ti-idle-slot"),
 		hover: readAllEffectSlots(section, "ti-hover-slot"),
 		click: readAllClickConfigs(section),
 	};
+	if (macroValue) config.macro = macroValue;
+	return config;
 }
 
 // ── Public API ─────────────────────────────────────────────────────────
@@ -821,7 +877,7 @@ export function renderAnimationSection(app, html) {
 	const root = asHTMLElement(html);
 	if (!root) return;
 
-	const doc = getTileDocument(app);
+	const doc = getPlaceableDocument(app);
 	if (!doc) return;
 
 	const tabPanel = ensureTileConfigTab(app, root, TAB_ID, "Animations", TAB_ICON);
@@ -842,8 +898,8 @@ export function renderAnimationSection(app, html) {
 	// Wire preview button
 	const previewBtn = tabPanel.querySelector(".idle-anim__preview");
 	previewBtn?.addEventListener("click", () => {
-		const tile = doc.object;
-		if (!tile) return;
+		const placeable = doc.object;
+		if (!placeable) return;
 
 		if (previewAnimator) {
 			previewAnimator.detach();
@@ -857,7 +913,7 @@ export function renderAnimationSection(app, html) {
 		const hasEffects = formConfig.always.length > 0 || formConfig.idle.length > 0 || formConfig.hover.length > 0;
 		if (!hasEffects) return;
 
-		previewAnimator = new TileAnimator(tile, formConfig);
+		previewAnimator = new TileAnimator(placeable, formConfig);
 		previewAnimator.start("idle");
 		previewBtn.classList.add("is-active");
 		previewBtn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop';
@@ -873,7 +929,7 @@ export function renderAnimationSection(app, html) {
 			}
 
 			const formConfig = readFormConfig(section);
-			const hasData = formConfig.always.length > 0 || formConfig.idle.length > 0 || formConfig.hover.length > 0 || formConfig.click.length > 0;
+			const hasData = formConfig.always.length > 0 || formConfig.idle.length > 0 || formConfig.hover.length > 0 || formConfig.click.length > 0 || !!formConfig.macro;
 
 			// Clear all three flags, then write new unified flag
 			const clearOps = {
