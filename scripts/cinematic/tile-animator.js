@@ -1153,6 +1153,12 @@ export class TileAnimator {
 
 		this.#attachBehaviours(state);
 		this.#tickerFn = (dt) => {
+			// Guard: if the PIXI object has been destroyed (scene teardown),
+			// bail out and self-remove to prevent accessing null transform.
+			if (this.#placeable.destroyed || !this.#placeable.transform) {
+				this.detach();
+				return;
+			}
 			// During blend: restore canonical before updates so behaviours
 			// compute on a clean slate (prevents blend feedback loop)
 			if (this.#blendFrom) this.#restoreCanonical();
@@ -1262,10 +1268,19 @@ export class TileAnimator {
 	 * Full cleanup — detach all behaviours, restore canonical, and remove ticker.
 	 */
 	detach() {
-		this.#detachBehaviours();
-		this.#detachAlwaysBehaviours();
-		this.#restoreCanonical();
+		const isDestroyed = this.#placeable.destroyed || !this.#placeable.transform;
+		if (!isDestroyed) {
+			this.#detachBehaviours();
+			this.#detachAlwaysBehaviours();
+			this.#restoreCanonical();
+		} else {
+			// Placeable is destroyed — PIXI children are already gone.
+			// Just clear references without touching any PIXI objects.
+			this.#activeBehaviours = [];
+			this.#alwaysBehaviours = [];
+		}
 		this.#blendFrom = null;
+		this.#currentState = null;
 		if (this.#tickerFn) {
 			canvas.app?.ticker?.remove(this.#tickerFn);
 			this.#tickerFn = null;

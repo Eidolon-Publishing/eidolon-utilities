@@ -7,6 +7,14 @@ const MODULE_ID = "eidolon-utilities";
 // All three flag keys we watch for changes
 const FLAG_KEYS = ["tile-animations", "tile-interactions", "idle-animation"];
 
+function onCanvasTearDown() {
+	// Stop all animations BEFORE Foundry destroys PIXI objects.
+	// Without this, the ticker fires during scene teardown and
+	// accesses mesh.scale on a destroyed DisplayObject (transform = null).
+	stopAllLoops();
+	rebuild(); // rebuild with no scene clears all state + removes ticker
+}
+
 function onCanvasReady() {
 	// Stop any lingering legacy idle-animation loops
 	stopAllLoops();
@@ -38,6 +46,7 @@ function onRenderTileConfig(app, html) {
 }
 
 export function registerTileInteractionHooks() {
+	Hooks.on("canvasTearDown", onCanvasTearDown);
 	Hooks.on("canvasReady", onCanvasReady);
 	Hooks.on("updateTile", onUpdateTile);
 	Hooks.on("deleteTile", onDeleteTile);
