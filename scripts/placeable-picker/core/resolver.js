@@ -111,10 +111,9 @@ function resolveTag(tagName, scene, all) {
 	const matches = Tagger.getByTag(tagName, { sceneId: scene.id });
 	if (!matches?.length) return null;
 
-	const items = all ? matches : [matches[0]];
 	const placeables = [];
 
-	for (const result of items) {
+	for (const result of matches) {
 		const normalized = normalizePlaceable(result);
 		if (normalized) placeables.push(normalized);
 	}
@@ -122,7 +121,7 @@ function resolveTag(tagName, scene, all) {
 	if (placeables.length === 0) return null;
 
 	return {
-		kind: all ? "multi-placeable" : "placeable",
+		kind: placeables.length === 1 ? "placeable" : "multi-placeable",
 		documents: placeables.map((p) => p.doc),
 		placeables,
 	};

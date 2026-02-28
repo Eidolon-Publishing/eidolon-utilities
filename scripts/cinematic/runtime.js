@@ -48,7 +48,10 @@ export function resolveAllTargets(cinematicData) {
 	const selectors = new Set();
 
 	if (cinematicData.segments) {
-		// v4: walk all segments
+		// v4+: cinematic-level setup/landing selectors first
+		if (cinematicData.setup) for (const sel of Object.keys(cinematicData.setup)) selectors.add(sel);
+		if (cinematicData.landing) for (const sel of Object.keys(cinematicData.landing)) selectors.add(sel);
+		// Then walk all segments
 		for (const seg of Object.values(cinematicData.segments)) {
 			if (seg.setup) for (const sel of Object.keys(seg.setup)) selectors.add(sel);
 			if (seg.landing) for (const sel of Object.keys(seg.landing)) selectors.add(sel);
@@ -149,7 +152,9 @@ export function gatherAllStateMaps(cinematicData) {
 	}
 
 	if (cinematicData.segments) {
-		// v4: walk all segments
+		// v4+: cinematic-level setup/landing first, then walk all segments
+		mergeMap(cinematicData.setup);
+		mergeMap(cinematicData.landing);
 		for (const seg of Object.values(cinematicData.segments)) {
 			mergeMap(seg.setup);
 			mergeMap(seg.landing);

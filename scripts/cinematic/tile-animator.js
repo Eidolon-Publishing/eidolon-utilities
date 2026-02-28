@@ -36,6 +36,14 @@ export function getBehaviour(name) {
 	return behaviourRegistry.get(name);
 }
 
+/**
+ * List all registered behaviour names.
+ * @returns {string[]}
+ */
+export function listBehaviourNames() {
+	return [...behaviourRegistry.keys()];
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────
 
 /**
@@ -189,6 +197,9 @@ registerBehaviour("glow", (placeable, opts = {}) => {
 
 	placeable.addChildAt(glow, 0);
 
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	const originalAngle = mesh.angle;
 	let elapsed = 0;
 
 	return {
@@ -197,6 +208,8 @@ registerBehaviour("glow", (placeable, opts = {}) => {
 			const t = (Math.sin(elapsed * pulseSpeed) + 1) / 2;
 			glow.visible = mesh.visible !== false;
 			glow.alpha = alpha * (0.5 + 0.5 * t) * (mesh.alpha ?? 1);
+			glow.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
+			glow.angle = (doc.rotation ?? 0) + (mesh.angle - originalAngle);
 		},
 		detach() {
 			if (glow.parent) glow.parent.removeChild(glow);
@@ -323,8 +336,13 @@ registerBehaviour("borderTrace", (placeable, opts = {}) => {
 
 	const gfx = new PIXI.Graphics();
 	gfx.alpha = alpha;
+	gfx.pivot.set(w / 2, h / 2);
+	gfx.position.set(w / 2, h / 2);
 	placeable.addChildAt(gfx, 0);
 
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	const originalAngle = mesh.angle;
 	let offset = 0;
 
 	function perimeterPoint(d) {
@@ -343,6 +361,8 @@ registerBehaviour("borderTrace", (placeable, opts = {}) => {
 			offset = (offset + dt * speed) % perimeter;
 			gfx.visible = mesh.visible !== false;
 			gfx.alpha = alpha * (mesh.alpha ?? 1);
+			gfx.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
+			gfx.angle = mesh.angle - originalAngle;
 			gfx.clear();
 			gfx.lineStyle(lineWidth, color, 1);
 
@@ -382,6 +402,10 @@ registerBehaviour("shimmer", (placeable, opts = {}) => {
 	const diagonal = w + h + bandWidth;
 	const cycleLength = diagonal + pause * speed;
 
+	const wrapper = new PIXI.Container();
+	wrapper.pivot.set(w / 2, h / 2);
+	wrapper.position.set(w / 2, h / 2);
+
 	const gfx = new PIXI.Graphics();
 	gfx.alpha = alpha;
 
@@ -389,16 +413,22 @@ registerBehaviour("shimmer", (placeable, opts = {}) => {
 	mask.beginFill(0xffffff);
 	mask.drawRect(0, 0, w, h);
 	mask.endFill();
-	placeable.addChild(mask);
+	wrapper.addChild(mask);
 	gfx.mask = mask;
-	placeable.addChild(gfx);
+	wrapper.addChild(gfx);
+	placeable.addChild(wrapper);
 
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	const originalAngle = mesh.angle;
 	let offset = 0;
 
 	return {
 		update(dt) {
 			offset = (offset + dt * speed) % cycleLength;
-			gfx.visible = mesh.visible !== false;
+			wrapper.visible = mesh.visible !== false;
+			wrapper.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
+			wrapper.angle = mesh.angle - originalAngle;
 			gfx.alpha = alpha * (mesh.alpha ?? 1);
 			gfx.clear();
 
@@ -415,10 +445,498 @@ registerBehaviour("shimmer", (placeable, opts = {}) => {
 		},
 		detach() {
 			gfx.mask = null;
-			if (mask.parent) mask.parent.removeChild(mask);
-			mask.destroy({ children: true });
+			if (wrapper.parent) wrapper.parent.removeChild(wrapper);
+			wrapper.destroy({ children: true });
+		},
+	};
+});
+
+// ── Mesh-based Behaviours (game-UI) ─────────────────────────────────────
+
+/**
+ * breathe — slow, subtle scale oscillation so tiles feel "alive" at rest.
+ * Gentler than `scale` (which targets a factor and stops).
+ * Params: factor (1.03), speed (0.02)
+ */
+registerBehaviour("breathe", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const factor = opts.factor ?? 1.03;
+	const speed = opts.speed ?? 0.02;
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	let elapsed = 0;
+
+	return {
+		update(dt) {
+			elapsed += dt;
+			const t = Math.sin(elapsed * speed);
+			mesh.scale.x = originalScaleX * (1 + (factor - 1) * t);
+			mesh.scale.y = originalScaleY * (1 + (factor - 1) * t);
+		},
+		detach() {
+			mesh.scale.x = originalScaleX;
+			mesh.scale.y = originalScaleY;
+		},
+	};
+});
+
+/**
+ * tiltFollow — slight rotation toward cursor on hover for a 3D parallax feel.
+ * Reads canvas.mousePosition each frame.
+ * Params: maxAngle (3°), smoothing (0.15)
+ */
+registerBehaviour("tiltFollow", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const maxAngle = opts.maxAngle ?? 3;
+	const smoothing = opts.smoothing ?? 0.15;
+	const doc = placeable.document;
+	const originalAngle = mesh.angle;
+	let currentAngle = 0;
+
+	return {
+		update() {
+			const mouse = canvas.mousePosition;
+			if (!mouse) return;
+			const w = Math.abs(doc.width);
+			const centerX = doc.x + w / 2;
+			const dx = mouse.x - centerX;
+			const targetAngle = Math.max(-maxAngle, Math.min(maxAngle, (dx / (w / 2)) * maxAngle));
+			currentAngle += (targetAngle - currentAngle) * smoothing;
+			mesh.angle = originalAngle + currentAngle;
+		},
+		detach() {
+			mesh.angle = originalAngle;
+		},
+	};
+});
+
+/**
+ * slideReveal — tiles ease into position from an offset (cascading entrance).
+ * Params: offsetX (0), offsetY (20), durationFrames (20), easing ("easeOutCubic"), delay (0)
+ * Use `delay` for stagger: [{ name: "slideReveal", delay: 0 }, { name: "slideReveal", delay: 5 }]
+ */
+registerBehaviour("slideReveal", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const offsetX = opts.offsetX ?? 0;
+	const offsetY = opts.offsetY ?? 20;
+	const durationFrames = opts.durationFrames ?? 20;
+	const easingFn = resolveEasing(opts.easing ?? "easeOutCubic");
+	const delay = opts.delay ?? 0;
+
+	const originalX = mesh.position.x;
+	const originalY = mesh.position.y;
+	const originalAlpha = mesh.alpha;
+
+	// Immediately offset
+	mesh.position.x = originalX + offsetX;
+	mesh.position.y = originalY + offsetY;
+	mesh.alpha = 0;
+
+	let frame = -delay; // negative = waiting for delay
+
+	return {
+		update(dt) {
+			frame += dt;
+			if (frame < 0) return; // still in delay
+			if (frame >= durationFrames) {
+				mesh.position.x = originalX;
+				mesh.position.y = originalY;
+				mesh.alpha = originalAlpha;
+				return;
+			}
+			const progress = Math.min(frame / durationFrames, 1);
+			const eased = easingFn(progress);
+			mesh.position.x = originalX + offsetX * (1 - eased);
+			mesh.position.y = originalY + offsetY * (1 - eased);
+			mesh.alpha = originalAlpha * eased;
+		},
+		detach() {
+			mesh.position.x = originalX;
+			mesh.position.y = originalY;
+			mesh.alpha = originalAlpha;
+		},
+	};
+});
+
+// ── Overlay Behaviours (game-UI) ────────────────────────────────────────
+
+/**
+ * embers — tiny particles drifting up from the tile (gothic/firelit feel).
+ * Uses a PIXI.Graphics child redrawn each frame (same pattern as borderTrace).
+ * Params: count (12), speed (0.5), color (0xFF6600), alpha (0.6), size (2)
+ */
+registerBehaviour("embers", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const doc = placeable.document;
+	const w = Math.abs(doc.width);
+	const h = Math.abs(doc.height);
+	const count = opts.count ?? 12;
+	const speed = opts.speed ?? 0.5;
+	const color = opts.color ?? 0xFF6600;
+	const alpha = opts.alpha ?? 0.6;
+	const size = opts.size ?? 2;
+
+	const wrapper = new PIXI.Container();
+	wrapper.pivot.set(w / 2, h / 2);
+	wrapper.position.set(w / 2, h / 2);
+	const gfx = new PIXI.Graphics();
+	wrapper.addChild(gfx);
+	placeable.addChild(wrapper);
+
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	const originalAngle = mesh.angle;
+	const particles = [];
+
+	function spawnParticle() {
+		const edge = Math.random();
+		let x, y;
+		if (edge < 0.7) {
+			x = Math.random() * w; y = h;
+		} else if (edge < 0.85) {
+			x = 0; y = h * 0.5 + Math.random() * h * 0.5;
+		} else {
+			x = w; y = h * 0.5 + Math.random() * h * 0.5;
+		}
+		return {
+			x, y,
+			vx: (Math.random() - 0.5) * 0.3,
+			vy: -speed * (0.5 + Math.random() * 0.5),
+			life: 0,
+			maxLife: 40 + Math.random() * 60,
+			size: size * (0.5 + Math.random() * 0.5),
+		};
+	}
+
+	return {
+		update(dt) {
+			wrapper.visible = mesh.visible !== false;
+			wrapper.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
+			wrapper.angle = mesh.angle - originalAngle;
+
+			// Spawn gradually (1 per tick) to avoid burst on attach
+			if (particles.length < count) particles.push(spawnParticle());
+
+			for (let i = particles.length - 1; i >= 0; i--) {
+				const p = particles[i];
+				p.life += dt;
+				if (p.life >= p.maxLife) { particles.splice(i, 1); continue; }
+				p.x += p.vx * dt;
+				p.y += p.vy * dt;
+				p.vx += (Math.random() - 0.5) * 0.05 * dt;
+			}
+
+			gfx.clear();
+			for (const p of particles) {
+				const lifeRatio = 1 - p.life / p.maxLife;
+				gfx.beginFill(color, alpha * lifeRatio * (mesh.alpha ?? 1));
+				gfx.drawCircle(p.x, p.y, p.size);
+				gfx.endFill();
+			}
+		},
+		detach() {
+			if (wrapper.parent) wrapper.parent.removeChild(wrapper);
+			wrapper.destroy({ children: true });
+		},
+	};
+});
+
+/**
+ * runeGlow — multiple glowing dots tracing the perimeter at different speeds.
+ * Reuses the perimeterPoint() approach from borderTrace.
+ * Params: dots (3), speed (1.2), color (0x44DDFF), color2 (0x8844FF), radius (3), alpha (0.7)
+ */
+registerBehaviour("runeGlow", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const doc = placeable.document;
+	const w = Math.abs(doc.width);
+	const h = Math.abs(doc.height);
+	const perimeter = 2 * (w + h);
+
+	const dotCount = opts.dots ?? 3;
+	const speed = opts.speed ?? 1.2;
+	const color = opts.color ?? 0x44DDFF;
+	const color2 = opts.color2 ?? 0x8844FF;
+	const radius = opts.radius ?? 3;
+	const alpha = opts.alpha ?? 0.7;
+
+	const gfx = new PIXI.Graphics();
+	gfx.pivot.set(w / 2, h / 2);
+	gfx.position.set(w / 2, h / 2);
+	placeable.addChildAt(gfx, 0);
+
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	const originalAngle = mesh.angle;
+
+	const dotConfigs = [];
+	for (let i = 0; i < dotCount; i++) {
+		dotConfigs.push({
+			phase: (i / dotCount) * perimeter,
+			speedMul: 0.7 + Math.random() * 0.6,
+			color: i % 2 === 0 ? color : color2,
+		});
+	}
+
+	function perimeterPoint(d) {
+		d = ((d % perimeter) + perimeter) % perimeter;
+		if (d < w) return { x: d, y: 0 };
+		d -= w;
+		if (d < h) return { x: w, y: d };
+		d -= h;
+		if (d < w) return { x: w - d, y: h };
+		d -= w;
+		return { x: 0, y: h - d };
+	}
+
+	let elapsed = 0;
+
+	return {
+		update(dt) {
+			elapsed += dt;
+			gfx.visible = mesh.visible !== false;
+			gfx.alpha = alpha * (mesh.alpha ?? 1);
+			gfx.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
+			gfx.angle = mesh.angle - originalAngle;
+			gfx.clear();
+
+			for (const dc of dotConfigs) {
+				const pt = perimeterPoint(dc.phase + elapsed * speed * dc.speedMul);
+				gfx.beginFill(dc.color, 1);
+				gfx.drawCircle(pt.x, pt.y, radius);
+				gfx.endFill();
+			}
+		},
+		detach() {
 			if (gfx.parent) gfx.parent.removeChild(gfx);
 			gfx.destroy({ children: true });
+		},
+	};
+});
+
+/**
+ * ripple — expanding concentric rings from center on attach.
+ * Params: maxRadius (tile diagonal/2), rings (3), interval (30), speed (1.5),
+ *         color (0x44DDFF), alpha (0.4), lineWidth (1.5)
+ */
+registerBehaviour("ripple", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const doc = placeable.document;
+	const w = Math.abs(doc.width);
+	const h = Math.abs(doc.height);
+	const maxRadius = opts.maxRadius ?? Math.sqrt(w * w + h * h) / 2;
+	const maxRings = opts.rings ?? 3;
+	const interval = opts.interval ?? 30;
+	const speed = opts.speed ?? 1.5;
+	const color = opts.color ?? 0x44DDFF;
+	const alpha = opts.alpha ?? 0.4;
+	const lineWidth = opts.lineWidth ?? 1.5;
+
+	const wrapper = new PIXI.Container();
+	wrapper.pivot.set(w / 2, h / 2);
+	wrapper.position.set(w / 2, h / 2);
+	const gfx = new PIXI.Graphics();
+	wrapper.addChild(gfx);
+	placeable.addChild(wrapper);
+
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	const originalAngle = mesh.angle;
+	const activeRings = [];
+	let elapsed = 0;
+	let nextSpawn = 0;
+
+	return {
+		update(dt) {
+			elapsed += dt;
+			wrapper.visible = mesh.visible !== false;
+			wrapper.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
+			wrapper.angle = mesh.angle - originalAngle;
+
+			if (elapsed >= nextSpawn && activeRings.length < maxRings) {
+				activeRings.push({ radius: 0, alpha: alpha });
+				nextSpawn = elapsed + interval;
+			}
+
+			for (let i = activeRings.length - 1; i >= 0; i--) {
+				const ring = activeRings[i];
+				ring.radius += speed * dt;
+				ring.alpha = alpha * (1 - ring.radius / maxRadius);
+				if (ring.radius >= maxRadius) activeRings.splice(i, 1);
+			}
+
+			gfx.clear();
+			const cx = w / 2;
+			const cy = h / 2;
+			for (const ring of activeRings) {
+				gfx.lineStyle(lineWidth, color, ring.alpha * (mesh.alpha ?? 1));
+				gfx.drawCircle(cx, cy, ring.radius);
+			}
+		},
+		detach() {
+			if (wrapper.parent) wrapper.parent.removeChild(wrapper);
+			wrapper.destroy({ children: true });
+		},
+	};
+});
+
+/**
+ * frostEdge — crystalline border growing inward from edges (Barovian cold theme).
+ * Generates random crystal segments anchored to tile edges that grow toward targets,
+ * then gently pulse alpha once fully grown.
+ * Params: segments (20), maxLength (15), color (0xAADDFF), alpha (0.5), growSpeed (0.02)
+ */
+registerBehaviour("frostEdge", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const doc = placeable.document;
+	const w = Math.abs(doc.width);
+	const h = Math.abs(doc.height);
+	const segmentCount = opts.segments ?? 20;
+	const maxLength = opts.maxLength ?? 15;
+	const color = opts.color ?? 0xAADDFF;
+	const alpha = opts.alpha ?? 0.5;
+	const growSpeed = opts.growSpeed ?? 0.02;
+
+	const wrapper = new PIXI.Container();
+	wrapper.pivot.set(w / 2, h / 2);
+	wrapper.position.set(w / 2, h / 2);
+
+	const gfx = new PIXI.Graphics();
+	const mask = new PIXI.Graphics();
+	mask.beginFill(0xffffff);
+	mask.drawRect(0, 0, w, h);
+	mask.endFill();
+	wrapper.addChild(mask);
+	gfx.mask = mask;
+	wrapper.addChild(gfx);
+	placeable.addChild(wrapper);
+
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	const originalAngle = mesh.angle;
+
+	const segments = [];
+	for (let i = 0; i < segmentCount; i++) {
+		const edge = Math.floor(Math.random() * 4);
+		let sx, sy, angle;
+		switch (edge) {
+			case 0: sx = Math.random() * w; sy = 0; angle = Math.PI / 2 + (Math.random() - 0.5) * 0.6; break;
+			case 1: sx = w; sy = Math.random() * h; angle = Math.PI + (Math.random() - 0.5) * 0.6; break;
+			case 2: sx = Math.random() * w; sy = h; angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.6; break;
+			default: sx = 0; sy = Math.random() * h; angle = (Math.random() - 0.5) * 0.6; break;
+		}
+		segments.push({ sx, sy, angle, targetLength: maxLength * (0.4 + Math.random() * 0.6), currentLength: 0, grown: false });
+	}
+
+	let allGrown = false;
+	let pulsePhase = 0;
+
+	return {
+		update(dt) {
+			wrapper.visible = mesh.visible !== false;
+			wrapper.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
+			wrapper.angle = mesh.angle - originalAngle;
+
+			if (!allGrown) {
+				allGrown = true;
+				for (const seg of segments) {
+					if (!seg.grown) {
+						seg.currentLength += (seg.targetLength - seg.currentLength) * growSpeed * dt;
+						if (seg.currentLength >= seg.targetLength * 0.99) {
+							seg.currentLength = seg.targetLength;
+							seg.grown = true;
+						} else {
+							allGrown = false;
+						}
+					}
+				}
+			} else {
+				pulsePhase += dt * 0.03;
+			}
+
+			const pulseAlpha = allGrown ? alpha * (0.7 + 0.3 * Math.sin(pulsePhase)) : alpha;
+			gfx.clear();
+			gfx.lineStyle(1.5, color, pulseAlpha * (mesh.alpha ?? 1));
+			for (const seg of segments) {
+				if (seg.currentLength <= 0) continue;
+				gfx.moveTo(seg.sx, seg.sy);
+				gfx.lineTo(seg.sx + Math.cos(seg.angle) * seg.currentLength, seg.sy + Math.sin(seg.angle) * seg.currentLength);
+			}
+		},
+		detach() {
+			gfx.mask = null;
+			if (wrapper.parent) wrapper.parent.removeChild(wrapper);
+			wrapper.destroy({ children: true });
+		},
+	};
+});
+
+/**
+ * shadowLift — drop shadow that deepens + offsets on attach (button lifts off the page).
+ * Params: offsetY (6), blur (6), alpha (0.35), color (0x000000), durationFrames (12), easing ("easeOutCubic")
+ */
+registerBehaviour("shadowLift", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const doc = placeable.document;
+	const w = Math.abs(doc.width);
+	const h = Math.abs(doc.height);
+	const targetOffsetY = opts.offsetY ?? 6;
+	const blurStrength = opts.blur ?? 6;
+	const targetAlpha = opts.alpha ?? 0.35;
+	const color = opts.color ?? 0x000000;
+	const durationFrames = opts.durationFrames ?? 12;
+	const easingFn = resolveEasing(opts.easing ?? "easeOutCubic");
+
+	const shadow = new PIXI.Graphics();
+	const padding = 4;
+	shadow.beginFill(color, 1);
+	shadow.drawRoundedRect(-padding, -padding, w + padding * 2, h + padding * 2, 4);
+	shadow.endFill();
+	shadow.alpha = 0;
+
+	const BlurFilter = PIXI.BlurFilter ?? PIXI.filters?.BlurFilter;
+	if (BlurFilter) shadow.filters = [new BlurFilter(blurStrength)];
+
+	placeable.addChildAt(shadow, 0);
+
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	const originalAngle = mesh.angle;
+	let frame = 0;
+
+	return {
+		update(dt) {
+			shadow.visible = mesh.visible !== false;
+			shadow.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
+			shadow.angle = (doc.rotation ?? 0) + (mesh.angle - originalAngle);
+
+			if (frame < durationFrames) {
+				frame += dt;
+				const progress = Math.min(frame / durationFrames, 1);
+				const eased = easingFn(progress);
+				shadow.position.y = targetOffsetY * eased;
+				shadow.alpha = targetAlpha * eased * (mesh.alpha ?? 1);
+			}
+		},
+		detach() {
+			if (shadow.parent) shadow.parent.removeChild(shadow);
+			shadow.destroy({ children: true });
 		},
 	};
 });
@@ -483,6 +1001,7 @@ export class TileAnimator {
 	#currentState = null;
 	#activeBehaviours = [];
 	#tickerFn = null;
+	#canonicalState = null;
 
 	/**
 	 * @param {PlaceableObject} placeable
@@ -503,6 +1022,7 @@ export class TileAnimator {
 	 * @param {string} [state="idle"]
 	 */
 	start(state = "idle") {
+		this.#captureCanonical();
 		this.#attachBehaviours(state);
 		this.#tickerFn = (dt) => {
 			for (const b of this.#activeBehaviours) b.update(dt);
@@ -511,21 +1031,74 @@ export class TileAnimator {
 	}
 
 	/**
-	 * Transition to a new state. Detaches current behaviours, attaches new ones.
+	 * Transition to a new state. Behaviours shared between old and new state
+	 * (matched by name) are kept alive — only the diff is detached/attached.
+	 * Mesh is restored to canonical before constructing new behaviours so they
+	 * always capture clean "original" values (no drift).
 	 * No-op if already in the requested state.
 	 * @param {string} state
 	 */
 	setState(state) {
 		if (state === this.#currentState) return;
-		this.#detachBehaviours();
-		this.#attachBehaviours(state);
+
+		const oldEntries = this.#config[this.#currentState] ?? this.#config.idle ?? ["none"];
+		const newEntries = this.#config[state] ?? this.#config.idle ?? ["none"];
+
+		// Map old behaviour names → running instances
+		const oldByName = new Map();
+		for (let i = 0; i < this.#activeBehaviours.length; i++) {
+			const entry = oldEntries[i];
+			const name = typeof entry === "string" ? entry : entry?.name;
+			if (name) oldByName.set(name, this.#activeBehaviours[i]);
+		}
+
+		// Build new active list, reusing instances where names match
+		const newActive = [];
+		const reused = new Set();
+
+		// First pass: identify which behaviours to reuse
+		for (const entry of newEntries) {
+			const name = typeof entry === "string" ? entry : entry.name;
+			if (oldByName.has(name) && !reused.has(name)) {
+				reused.add(name);
+			}
+		}
+
+		// Detach non-reused old behaviours (overlay cleanup, etc.)
+		for (const [name, instance] of oldByName) {
+			if (!reused.has(name)) instance.detach();
+		}
+
+		// Restore mesh to canonical state before creating new behaviours
+		this.#restoreCanonical();
+
+		// Second pass: build new active list
+		for (const entry of newEntries) {
+			const name = typeof entry === "string" ? entry : entry.name;
+			if (oldByName.has(name) && reused.has(name)) {
+				newActive.push(oldByName.get(name));
+				reused.delete(name); // consume to prevent duplicate reuse
+			} else {
+				const opts = typeof entry === "string" ? undefined : entry;
+				const factory = getBehaviour(name);
+				if (!factory) {
+					console.warn(`TileAnimator: unknown behaviour "${name}"`);
+					continue;
+				}
+				newActive.push(factory(this.#placeable, opts));
+			}
+		}
+
+		this.#currentState = state;
+		this.#activeBehaviours = newActive;
 	}
 
 	/**
-	 * Full cleanup — detach all behaviours and remove ticker.
+	 * Full cleanup — detach all behaviours, restore canonical, and remove ticker.
 	 */
 	detach() {
 		this.#detachBehaviours();
+		this.#restoreCanonical();
 		if (this.#tickerFn) {
 			canvas.app?.ticker?.remove(this.#tickerFn);
 			this.#tickerFn = null;
@@ -533,6 +1106,33 @@ export class TileAnimator {
 	}
 
 	// ── Private ──────────────────────────────────────────────────────────
+
+	#captureCanonical() {
+		const mesh = this.#placeable.mesh;
+		if (!mesh) return;
+		this.#canonicalState = {
+			x: mesh.position.x,
+			y: mesh.position.y,
+			scaleX: mesh.scale.x,
+			scaleY: mesh.scale.y,
+			angle: mesh.angle,
+			alpha: mesh.alpha,
+			tint: mesh.tint,
+		};
+	}
+
+	#restoreCanonical() {
+		const mesh = this.#placeable.mesh;
+		if (!mesh || !this.#canonicalState) return;
+		const c = this.#canonicalState;
+		mesh.position.x = c.x;
+		mesh.position.y = c.y;
+		mesh.scale.x = c.scaleX;
+		mesh.scale.y = c.scaleY;
+		mesh.angle = c.angle;
+		mesh.alpha = c.alpha;
+		mesh.tint = c.tint;
+	}
 
 	#attachBehaviours(state) {
 		this.#currentState = state;

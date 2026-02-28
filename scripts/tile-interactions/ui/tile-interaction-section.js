@@ -27,6 +27,14 @@ const HOVER_BEHAVIOURS = [
 	{ value: "bounce", label: "Bounce" },
 	{ value: "borderTrace", label: "Border Trace" },
 	{ value: "shimmer", label: "Shimmer" },
+	{ value: "breathe", label: "Breathe" },
+	{ value: "tiltFollow", label: "Tilt Follow" },
+	{ value: "slideReveal", label: "Slide Reveal" },
+	{ value: "embers", label: "Embers" },
+	{ value: "runeGlow", label: "Rune Glow" },
+	{ value: "ripple", label: "Ripple" },
+	{ value: "frostEdge", label: "Frost Edge" },
+	{ value: "shadowLift", label: "Shadow Lift" },
 ];
 
 const HOVER_PARAM_DEFS = {
@@ -78,6 +86,59 @@ const HOVER_PARAM_DEFS = {
 		{ key: "bandWidth", label: "Band Width (px)", type: "number", default: 40, attrs: { step: "5", min: "5" } },
 		{ key: "alpha", label: "Alpha", type: "number", default: 0.15, attrs: { step: "0.05", min: "0", max: "1" } },
 		{ key: "pause", label: "Pause (frames)", type: "number", default: 120, attrs: { step: "10", min: "0" } },
+	],
+	breathe: [
+		{ key: "factor", label: "Factor", type: "number", default: 1.03, attrs: { step: "0.01", min: "1.001", max: "1.2" } },
+		{ key: "speed", label: "Speed", type: "number", default: 0.02, attrs: { step: "0.005", min: "0.001" } },
+	],
+	tiltFollow: [
+		{ key: "maxAngle", label: "Max Angle (\u00B0)", type: "number", default: 3, attrs: { step: "0.5", min: "0.5", max: "15" } },
+		{ key: "smoothing", label: "Smoothing", type: "number", default: 0.15, attrs: { step: "0.05", min: "0.01", max: "1" } },
+	],
+	slideReveal: [
+		{ key: "offsetX", label: "Offset X (px)", type: "number", default: 0, attrs: { step: "5" } },
+		{ key: "offsetY", label: "Offset Y (px)", type: "number", default: 20, attrs: { step: "5" } },
+		{ key: "durationFrames", label: "Duration (frames)", type: "number", default: 20, attrs: { step: "1", min: "1" } },
+		{ key: "easing", label: "Easing", type: "select", default: "easeOutCubic" },
+		{ key: "delay", label: "Delay (frames)", type: "number", default: 0, attrs: { step: "1", min: "0" } },
+	],
+	embers: [
+		{ key: "count", label: "Count", type: "number", default: 12, attrs: { step: "1", min: "1", max: "50" } },
+		{ key: "speed", label: "Speed", type: "number", default: 0.5, attrs: { step: "0.1", min: "0.1" } },
+		{ key: "color", label: "Color", type: "color", default: "#FF6600" },
+		{ key: "alpha", label: "Alpha", type: "number", default: 0.6, attrs: { step: "0.05", min: "0", max: "1" } },
+		{ key: "size", label: "Size (px)", type: "number", default: 2, attrs: { step: "0.5", min: "0.5", max: "10" } },
+	],
+	runeGlow: [
+		{ key: "dots", label: "Dots", type: "number", default: 3, attrs: { step: "1", min: "1", max: "12" } },
+		{ key: "speed", label: "Speed", type: "number", default: 1.2, attrs: { step: "0.1", min: "0.1" } },
+		{ key: "color", label: "Color 1", type: "color", default: "#44DDFF" },
+		{ key: "color2", label: "Color 2", type: "color", default: "#8844FF" },
+		{ key: "radius", label: "Dot Radius (px)", type: "number", default: 3, attrs: { step: "0.5", min: "0.5", max: "10" } },
+		{ key: "alpha", label: "Alpha", type: "number", default: 0.7, attrs: { step: "0.05", min: "0", max: "1" } },
+	],
+	ripple: [
+		{ key: "rings", label: "Max Rings", type: "number", default: 3, attrs: { step: "1", min: "1", max: "10" } },
+		{ key: "interval", label: "Spawn Interval (frames)", type: "number", default: 30, attrs: { step: "5", min: "5" } },
+		{ key: "speed", label: "Speed", type: "number", default: 1.5, attrs: { step: "0.1", min: "0.1" } },
+		{ key: "color", label: "Color", type: "color", default: "#44DDFF" },
+		{ key: "alpha", label: "Alpha", type: "number", default: 0.4, attrs: { step: "0.05", min: "0", max: "1" } },
+		{ key: "lineWidth", label: "Line Width", type: "number", default: 1.5, attrs: { step: "0.5", min: "0.5", max: "5" } },
+	],
+	frostEdge: [
+		{ key: "segments", label: "Segments", type: "number", default: 20, attrs: { step: "1", min: "5", max: "60" } },
+		{ key: "maxLength", label: "Max Length (px)", type: "number", default: 15, attrs: { step: "1", min: "3", max: "50" } },
+		{ key: "color", label: "Color", type: "color", default: "#AADDFF" },
+		{ key: "alpha", label: "Alpha", type: "number", default: 0.5, attrs: { step: "0.05", min: "0", max: "1" } },
+		{ key: "growSpeed", label: "Grow Speed", type: "number", default: 0.02, attrs: { step: "0.005", min: "0.001" } },
+	],
+	shadowLift: [
+		{ key: "offsetY", label: "Offset Y (px)", type: "number", default: 6, attrs: { step: "1", min: "1", max: "20" } },
+		{ key: "blur", label: "Blur", type: "number", default: 6, attrs: { step: "1", min: "1", max: "20" } },
+		{ key: "alpha", label: "Alpha", type: "number", default: 0.35, attrs: { step: "0.05", min: "0", max: "1" } },
+		{ key: "color", label: "Color", type: "color", default: "#000000" },
+		{ key: "durationFrames", label: "Duration (frames)", type: "number", default: 12, attrs: { step: "1", min: "1" } },
+		{ key: "easing", label: "Easing", type: "select", default: "easeOutCubic" },
 	],
 };
 
