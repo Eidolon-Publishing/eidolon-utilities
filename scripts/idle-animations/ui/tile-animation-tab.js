@@ -1,5 +1,6 @@
 import { asHTMLElement } from "../../common/ui/foundry-compat.js";
 import { buildSelectGroup, buildNumberGroup, buildColorGroup } from "../../common/ui/form-builders.js";
+import { makeDraggable, makeDropContainer } from "../../common/ui/drag-reorder.js";
 import { ensureTileConfigTab } from "../../common/ui/tile-config-tab.js";
 import { listEasingNames } from "../../tween/core/easing.js";
 import { listInterpolationModes } from "../../tween/core/color-interpolation.js";
@@ -234,6 +235,9 @@ function buildSlot(doc, config, index) {
 		if (container) renumberSlots(container);
 	});
 
+	// Drag & drop reorder
+	makeDraggable(card, { dropGroup: "idle-anim" });
+
 	return card;
 }
 
@@ -267,6 +271,14 @@ function buildTabContent(doc) {
 
 	section.appendChild(slotsContainer);
 
+	// Drop container for reorder
+	makeDropContainer(slotsContainer, {
+		dropGroup: "idle-anim",
+		onDrop() {
+			renumberSlots(slotsContainer);
+		},
+	});
+
 	// Add Animation button
 	const addBtn = document.createElement("button");
 	addBtn.type = "button";
@@ -289,12 +301,7 @@ function buildTabContent(doc) {
 	previewBtn.classList.add("idle-anim__preview");
 	previewBtn.innerHTML = '<i class="fa-solid fa-play"></i> Preview All';
 
-	const saveBtn = document.createElement("button");
-	saveBtn.type = "button";
-	saveBtn.classList.add("idle-anim__save");
-	saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> Save';
-
-	actions.append(previewBtn, saveBtn);
+	actions.append(previewBtn);
 	section.appendChild(actions);
 
 	return section;
@@ -370,6 +377,12 @@ export function renderAnimationTab(app, html) {
 	// Only build the tab content once — don't destroy unsaved user edits on re-render
 	if (tabPanel.querySelector(".eidolon-idle-animation")) return;
 
+	// Prevent "An invalid form control is not focusable" errors:
+	// Our number inputs have min/max constraints and may be hidden inside
+	// collapsed slots or inactive tabs when the native form submits.
+	const parentForm = tabPanel.closest("form");
+	if (parentForm) parentForm.noValidate = true;
+
 	tabPanel.appendChild(buildTabContent(doc));
 	app.setPosition?.({ height: "auto" });
 
@@ -394,25 +407,20 @@ export function renderAnimationTab(app, html) {
 		previewBtn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop';
 	});
 
-	// Wire save button
-	const saveBtn = tabPanel.querySelector(".idle-anim__save");
-	saveBtn?.addEventListener("click", async () => {
-		if (isLooping(doc.id)) {
-			stopLoopsForTile(doc.id);
-			if (previewBtn) {
-				previewBtn.classList.remove("is-active");
-				previewBtn.innerHTML = '<i class="fa-solid fa-play"></i> Preview All';
+	// Save idle animation data when the native form submits ("Update Tile")
+	if (parentForm) {
+		parentForm.addEventListener("submit", () => {
+			if (isLooping(doc.id)) {
+				stopLoopsForTile(doc.id);
 			}
-		}
 
-		const configs = readAllFormValues(tabPanel);
-		if (configs.length > 0) {
-			await doc.update({ [`flags.${MODULE_ID}.-=${FLAG_KEY}`]: null });
-			await doc.update({ [`flags.${MODULE_ID}.${FLAG_KEY}`]: configs });
-		} else {
-			await doc.update({ [`flags.${MODULE_ID}.-=${FLAG_KEY}`]: null });
-		}
-
-		ui.notifications?.info("Idle animations saved.");
-	});
+			const configs = readAllFormValues(tabPanel);
+			// Clear existing flag, then set new data
+			doc.update({ [`flags.${MODULE_ID}.-=${FLAG_KEY}`]: null }).then(() => {
+				if (configs.length > 0) {
+					return doc.update({ [`flags.${MODULE_ID}.${FLAG_KEY}`]: configs });
+				}
+			});
+		});
+	}
 }
