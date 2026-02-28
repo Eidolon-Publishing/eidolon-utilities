@@ -12,13 +12,9 @@ import {
 } from "./constants.js";
 import { debugLog } from "../../time-triggers/core/debug.js";
 import { requireCriteriaAccess } from "./permissions.js";
-import { updateTiles } from "./tiles.js";
-import { updatePlaceables } from "./placeables.js";
-
-function nowMs() {
-  if (typeof performance?.now === "function") return performance.now();
-  return Date.now();
-}
+import { updateTiles } from "./update-tiles.js";
+import { updatePlaceables } from "./update-placeables.js";
+import { nowMs } from "./utils.js";
 
 const applyQueuesBySceneId = new Map();
 
