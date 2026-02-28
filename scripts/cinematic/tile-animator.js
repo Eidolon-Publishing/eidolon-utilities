@@ -133,18 +133,25 @@ registerBehaviour("glow", (placeable, opts = {}) => {
 	const mesh = placeable.mesh;
 	if (!mesh?.texture?.baseTexture) return { update() {}, detach() {} };
 
+	const doc = placeable.document;
 	const color = opts.color ?? 0x44DDFF;
 	const alpha = opts.alpha ?? 0.5;
 	const blurStrength = opts.blur ?? 8;
 	const pulseSpeed = opts.pulseSpeed ?? 0.03;
 
-	// Create glow sprite from mesh texture
+	// The mesh lives on canvas.primary (special render pipeline), not on the
+	// placeable container. We add the glow to the placeable (canvas.tiles layer,
+	// rendered above primary) as a highlight overlay. Position in placeable-local
+	// coords: the placeable origin is the tile's (x, y), so (0,0) is tile top-left.
+	const w = Math.abs(doc.width);
+	const h = Math.abs(doc.height);
+
 	const glow = PIXI.Sprite.from(mesh.texture);
-	glow.anchor.set(mesh.anchor.x, mesh.anchor.y);
-	glow.width = mesh.width;
-	glow.height = mesh.height;
-	glow.position.copyFrom(mesh.position);
-	glow.angle = mesh.angle;
+	glow.anchor.set(0.5, 0.5);
+	glow.width = w;
+	glow.height = h;
+	glow.position.set(w / 2, h / 2);
+	glow.angle = doc.rotation ?? 0;
 	glow.alpha = alpha;
 	glow.tint = color;
 
@@ -153,13 +160,7 @@ registerBehaviour("glow", (placeable, opts = {}) => {
 	const blurFilter = new BlurFilter(blurStrength);
 	glow.filters = [blurFilter];
 
-	// Insert behind the mesh in the placeable's child list
-	const meshIndex = placeable.children.indexOf(mesh);
-	if (meshIndex > 0) {
-		placeable.addChildAt(glow, meshIndex);
-	} else {
-		placeable.addChildAt(glow, 0);
-	}
+	placeable.addChildAt(glow, 0);
 
 	let elapsed = 0;
 
