@@ -1,4 +1,5 @@
 import { asHTMLElement } from "../../common/ui/foundry-compat.js";
+import { buildSelectGroup, buildNumberGroup, buildColorGroup } from "../../common/ui/form-builders.js";
 import { ensureTileConfigTab } from "../../common/ui/tile-config-tab.js";
 import { listEasingNames } from "../../tween/core/easing.js";
 import { listInterpolationModes } from "../../tween/core/color-interpolation.js";
@@ -57,66 +58,6 @@ function getAttributeDefaults(attribute, doc) {
 
 function getTileDocument(app) {
 	return app?.document ?? app?.object?.document ?? app?.object ?? null;
-}
-
-// ── DOM builders ──────────────────────────────────────────────────────
-
-function buildSelectGroup(label, className, options) {
-	const group = document.createElement("div");
-	group.classList.add("form-group");
-	const lbl = document.createElement("label");
-	lbl.textContent = label;
-	const select = document.createElement("select");
-	select.classList.add(className);
-	for (const opt of options) {
-		const el = document.createElement("option");
-		el.value = opt.value;
-		el.textContent = opt.label;
-		if (opt.selected) el.selected = true;
-		select.appendChild(el);
-	}
-	group.append(lbl, select);
-	return group;
-}
-
-function buildNumberGroup(label, className, value, attrs = {}) {
-	const group = document.createElement("div");
-	group.classList.add("form-group");
-	const lbl = document.createElement("label");
-	lbl.textContent = label;
-	const input = document.createElement("input");
-	input.type = "number";
-	input.classList.add(className);
-	input.value = String(value);
-	for (const [k, v] of Object.entries(attrs)) input.setAttribute(k, v);
-	group.append(lbl, input);
-	return group;
-}
-
-function buildColorGroup(label, className, value) {
-	const group = document.createElement("div");
-	group.classList.add("form-group");
-	const lbl = document.createElement("label");
-	lbl.textContent = label;
-	const wrapper = document.createElement("div");
-	wrapper.classList.add("idle-anim__color-wrapper");
-	const colorInput = document.createElement("input");
-	colorInput.type = "color";
-	colorInput.classList.add(className);
-	colorInput.value = value;
-	const textInput = document.createElement("input");
-	textInput.type = "text";
-	textInput.classList.add(`${className}-text`);
-	textInput.value = value;
-	textInput.maxLength = 7;
-	// Sync color ↔ text
-	colorInput.addEventListener("input", () => { textInput.value = colorInput.value; });
-	textInput.addEventListener("change", () => {
-		if (/^#[0-9a-f]{6}$/i.test(textInput.value)) colorInput.value = textInput.value;
-	});
-	wrapper.append(colorInput, textInput);
-	group.append(lbl, wrapper);
-	return group;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────
@@ -429,7 +370,7 @@ export function renderAnimationTab(app, html) {
 	// Only build the tab content once — don't destroy unsaved user edits on re-render
 	if (tabPanel.querySelector(".eidolon-idle-animation")) return;
 
-	tabPanel.replaceChildren(buildTabContent(doc));
+	tabPanel.appendChild(buildTabContent(doc));
 	app.setPosition?.({ height: "auto" });
 
 	// Wire preview button
