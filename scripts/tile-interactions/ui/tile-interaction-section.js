@@ -21,6 +21,12 @@ const HOVER_BEHAVIOURS = [
 	{ value: "pulse", label: "Pulse" },
 	{ value: "scale", label: "Scale" },
 	{ value: "glow", label: "Glow" },
+	{ value: "wobble", label: "Wobble" },
+	{ value: "colorCycle", label: "Color Cycle" },
+	{ value: "spin", label: "Spin" },
+	{ value: "bounce", label: "Bounce" },
+	{ value: "borderTrace", label: "Border Trace" },
+	{ value: "shimmer", label: "Shimmer" },
 ];
 
 const HOVER_PARAM_DEFS = {
@@ -43,6 +49,35 @@ const HOVER_PARAM_DEFS = {
 		{ key: "alpha", label: "Alpha", type: "number", default: 0.5, attrs: { step: "0.05", min: "0", max: "1" } },
 		{ key: "blur", label: "Blur", type: "number", default: 8, attrs: { step: "1", min: "1", max: "32" } },
 		{ key: "pulseSpeed", label: "Pulse Speed", type: "number", default: 0.03, attrs: { step: "0.01", min: "0" } },
+	],
+	wobble: [
+		{ key: "speed", label: "Speed", type: "number", default: 0.15, attrs: { step: "0.01", min: "0.001" } },
+		{ key: "angle", label: "Angle (°)", type: "number", default: 2.5, attrs: { step: "0.5", min: "0.1", max: "45" } },
+	],
+	colorCycle: [
+		{ key: "speed", label: "Speed", type: "number", default: 0.005, attrs: { step: "0.001", min: "0.001" } },
+		{ key: "saturation", label: "Saturation", type: "number", default: 0.6, attrs: { step: "0.05", min: "0", max: "1" } },
+		{ key: "lightness", label: "Lightness", type: "number", default: 0.6, attrs: { step: "0.05", min: "0", max: "1" } },
+	],
+	spin: [
+		{ key: "speed", label: "Speed (°/frame)", type: "number", default: 0.5, attrs: { step: "0.1", min: "-10", max: "10" } },
+	],
+	bounce: [
+		{ key: "speed", label: "Speed", type: "number", default: 0.02, attrs: { step: "0.005", min: "0.001" } },
+		{ key: "amplitude", label: "Amplitude (px)", type: "number", default: 6, attrs: { step: "1", min: "1" } },
+	],
+	borderTrace: [
+		{ key: "speed", label: "Speed (px/frame)", type: "number", default: 1.5, attrs: { step: "0.1", min: "0.1" } },
+		{ key: "length", label: "Trail Length (px)", type: "number", default: 60, attrs: { step: "5", min: "5" } },
+		{ key: "color", label: "Color", type: "color", default: "#44DDFF" },
+		{ key: "alpha", label: "Alpha", type: "number", default: 0.8, attrs: { step: "0.05", min: "0", max: "1" } },
+		{ key: "lineWidth", label: "Line Width", type: "number", default: 2, attrs: { step: "1", min: "1", max: "10" } },
+	],
+	shimmer: [
+		{ key: "speed", label: "Speed", type: "number", default: 1.0, attrs: { step: "0.1", min: "0.1" } },
+		{ key: "bandWidth", label: "Band Width (px)", type: "number", default: 40, attrs: { step: "5", min: "5" } },
+		{ key: "alpha", label: "Alpha", type: "number", default: 0.15, attrs: { step: "0.05", min: "0", max: "1" } },
+		{ key: "pause", label: "Pause (frames)", type: "number", default: 120, attrs: { step: "10", min: "0" } },
 	],
 };
 
