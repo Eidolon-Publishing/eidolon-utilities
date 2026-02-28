@@ -5,6 +5,8 @@ import { invalidateTileCriteriaCaches } from "./core/tiles.js";
 import { invalidatePlaceableCriteriaCaches } from "./core/placeables.js";
 import { getCriteriaSwitcher, toggleCriteriaSwitcher } from "./ui/switcher-service.js";
 import { registerTileCriteriaConfigControls } from "./ui/TileCriteriaConfigControls.js";
+import { registerCheckboxLightProvider } from "./conventions/light-controls.js";
+import { registerDefaultConventions } from "./conventions/bracket-indexer.js";
 
 function toList(value) {
   if (Array.isArray(value)) return value;
@@ -150,6 +152,8 @@ function registerCriteriaCacheInvalidationHooks() {
 }
 
 export function registerCriteriaEngineHooks() {
+  registerDefaultConventions();
+  registerCheckboxLightProvider();
   registerSceneControlButton();
   registerTileCriteriaConfigControls();
   registerCriteriaCacheInvalidationHooks();
