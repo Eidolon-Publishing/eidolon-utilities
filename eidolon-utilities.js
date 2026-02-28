@@ -1,42 +1,42 @@
 var kc = Object.defineProperty;
-var pm = Object.getPrototypeOf;
-var ym = Reflect.get;
+var bm = Object.getPrototypeOf;
+var vm = Reflect.get;
 var Mc = (t) => {
   throw TypeError(t);
 };
-var bm = (t, e, n) => e in t ? kc(t, e, { enumerable: !0, configurable: !0, writable: !0, value: n }) : t[e] = n;
+var wm = (t, e, n) => e in t ? kc(t, e, { enumerable: !0, configurable: !0, writable: !0, value: n }) : t[e] = n;
 var c = (t, e) => kc(t, "name", { value: e, configurable: !0 });
-var ye = (t, e, n) => bm(t, typeof e != "symbol" ? e + "" : e, n), as = (t, e, n) => e.has(t) || Mc("Cannot " + n);
-var m = (t, e, n) => (as(t, e, "read from private field"), n ? n.call(t) : e.get(t)), k = (t, e, n) => e.has(t) ? Mc("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, n), I = (t, e, n, i) => (as(t, e, "write to private field"), i ? i.call(t, n) : e.set(t, n), n), S = (t, e, n) => (as(t, e, "access private method"), n);
+var ye = (t, e, n) => wm(t, typeof e != "symbol" ? e + "" : e, n), as = (t, e, n) => e.has(t) || Mc("Cannot " + n);
+var m = (t, e, n) => (as(t, e, "read from private field"), n ? n.call(t) : e.get(t)), k = (t, e, n) => e.has(t) ? Mc("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, n), L = (t, e, n, i) => (as(t, e, "write to private field"), i ? i.call(t, n) : e.set(t, n), n), S = (t, e, n) => (as(t, e, "access private method"), n);
 var os = (t, e, n, i) => ({
   set _(r) {
-    I(t, e, r, n);
+    L(t, e, r, n);
   },
   get _() {
     return m(t, e, i);
   }
-}), Re = (t, e, n) => ym(pm(t), n, e);
+}), Re = (t, e, n) => vm(bm(t), n, e);
 const T = "eidolon-utilities", Fa = "timeTriggerActive", ks = "timeTriggerHideWindow", Ms = "timeTriggerShowPlayerWindow", Ns = "timeTriggerAllowRealTime", Fu = "timeTriggers", ha = "timeTriggerHistory", $s = "debug", xs = "timeFormat", _s = "manageTime", Fs = "secondsPerRound";
-const vm = [-30, -15, -5, 5, 15, 30], Hi = 1440 * 60, ga = "playSound", Yr = 6;
+const Em = [-30, -15, -5, 5, 15, 30], Hi = 1440 * 60, ga = "playSound", Yr = 6;
 function E(t, e) {
   var n, i;
   return (i = (n = game.i18n) == null ? void 0 : n.has) != null && i.call(n, t) ? game.i18n.localize(t) : e;
 }
 c(E, "localize");
-function $t(t) {
+function xt(t) {
   return typeof t != "string" ? "" : t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
-c($t, "escapeHtml");
-function Wt(t) {
+c(xt, "escapeHtml");
+function Yt(t) {
   var e;
   return t == null ? t : (e = foundry == null ? void 0 : foundry.utils) != null && e.duplicate ? foundry.utils.duplicate(t) : JSON.parse(JSON.stringify(t));
 }
-c(Wt, "duplicateData");
-function wm() {
+c(Yt, "duplicateData");
+function Sm() {
   var t;
   return (t = foundry == null ? void 0 : foundry.utils) != null && t.randomID ? foundry.utils.randomID() : typeof (crypto == null ? void 0 : crypto.randomUUID) == "function" ? crypto.randomUUID() : Math.random().toString(36).slice(2, 10);
 }
-c(wm, "generateTriggerId");
+c(Sm, "generateTriggerId");
 function Du(t) {
   if (typeof t != "string") return null;
   const e = t.trim();
@@ -52,10 +52,10 @@ function cr() {
   return ((t = game.scenes) == null ? void 0 : t.current) ?? ((e = game.scenes) == null ? void 0 : e.active) ?? null;
 }
 c(cr, "getActiveScene");
-function Kt(t) {
+function Jt(t) {
   return (t == null ? void 0 : t.object) ?? (t == null ? void 0 : t.document) ?? null;
 }
-c(Kt, "getSceneFromApplication");
+c(Jt, "getSceneFromApplication");
 function Ke(t) {
   return t && typeof t.getFlag == "function" && typeof t.setFlag == "function";
 }
@@ -113,7 +113,7 @@ function us(t) {
     }
 }
 c(us, "notifyTimeFormatChange");
-function Em() {
+function Cm() {
   var e;
   if (Nc) return;
   if (Nc = !0, !((e = game == null ? void 0 : game.settings) != null && e.register)) {
@@ -145,7 +145,7 @@ function Em() {
     type: Boolean,
     default: !1,
     onChange: t ? void 0 : ls
-  }), t && game.settings.registerChange(T, _s, ls), Tr = Cm(), ls(Tr), game.settings.register(T, Fs, {
+  }), t && game.settings.registerChange(T, _s, ls), Tr = Lm(), ls(Tr), game.settings.register(T, Fs, {
     name: E(
       "EIDOLON.TimeTrigger.SecondsPerRoundSettingName",
       "Seconds Per Combat Round"
@@ -164,7 +164,7 @@ function Em() {
     T,
     Fs,
     cs
-  ), Da = Ql(Tm()), cs(Da), game.settings.register(T, xs, {
+  ), Da = Ql(Im()), cs(Da), game.settings.register(T, xs, {
     name: E("EIDOLON.TimeTrigger.TimeFormatSettingName", "Trigger Time Format"),
     hint: E(
       "EIDOLON.TimeTrigger.TimeFormatSettingHint",
@@ -187,7 +187,7 @@ function Em() {
     onChange: t ? void 0 : us
   }), t && game.settings.registerChange(T, xs, us), Pa = Pu(Ru()), us(Pa);
 }
-c(Em, "registerTimeTriggerSettings");
+c(Cm, "registerTimeTriggerSettings");
 function Zl() {
   var t;
   try {
@@ -199,11 +199,11 @@ function Zl() {
   return !1;
 }
 c(Zl, "getDebugSetting");
-function Sm() {
+function Tm() {
   return vi = Zl(), vi;
 }
-c(Sm, "refreshDebugSettingCache");
-function Cm() {
+c(Tm, "refreshDebugSettingCache");
+function Lm() {
   var t;
   try {
     if ((t = game == null ? void 0 : game.settings) != null && t.get)
@@ -213,7 +213,7 @@ function Cm() {
   }
   return !1;
 }
-c(Cm, "getManageTimeSetting");
+c(Lm, "getManageTimeSetting");
 function Ru() {
   var t;
   try {
@@ -225,7 +225,7 @@ function Ru() {
   return "12h";
 }
 c(Ru, "getTimeFormatSetting");
-function Tm() {
+function Im() {
   var t;
   try {
     if ((t = game == null ? void 0 : game.settings) != null && t.get) {
@@ -237,8 +237,8 @@ function Tm() {
   }
   return Yr;
 }
-c(Tm, "getSecondsPerRoundSetting");
-function Lm(t) {
+c(Im, "getSecondsPerRoundSetting");
+function Om(t) {
   if (typeof t != "function")
     return () => {
     };
@@ -252,7 +252,7 @@ function Lm(t) {
     Ds.delete(t);
   };
 }
-c(Lm, "onDebugSettingChange");
+c(Om, "onDebugSettingChange");
 function Hu(t) {
   if (typeof t != "function")
     return () => {
@@ -283,7 +283,7 @@ function ec(t) {
   };
 }
 c(ec, "onTimeFormatSettingChange");
-function Im(t) {
+function Am(t) {
   if (typeof t != "function")
     return () => {
     };
@@ -297,14 +297,14 @@ function Im(t) {
     Rs.delete(t);
   };
 }
-c(Im, "onSecondsPerRoundSettingChange");
+c(Am, "onSecondsPerRoundSettingChange");
 let qo = !1, qs = !1;
 function js(t) {
   qo = !!t;
 }
 c(js, "updateDebugState");
 function qu() {
-  qs || (qs = !0, js(Zl()), Lm((t) => {
+  qs || (qs = !0, js(Zl()), Om((t) => {
     js(t), console.info(`${T} | Debug ${qo ? "enabled" : "disabled"}`);
   }));
 }
@@ -320,14 +320,14 @@ function ju(t) {
   return typeof e == "string" ? [`${T} | ${e}`, ...n] : [`${T} |`, e, ...n];
 }
 c(ju, "formatArgs");
-function Om() {
+function km() {
   qu();
 }
-c(Om, "initializeDebug");
-function Am() {
-  return js(Sm()), qo;
+c(km, "initializeDebug");
+function Mm() {
+  return js(Tm()), qo;
 }
-c(Am, "syncDebugState");
+c(Mm, "syncDebugState");
 function N(...t) {
   tc() && console.debug(...ju(t));
 }
@@ -336,15 +336,15 @@ function Ki(...t) {
   tc() && console.group(...ju(t));
 }
 c(Ki, "debugGroup");
-function _n() {
+function Fn() {
   tc() && console.groupEnd();
 }
-c(_n, "debugGroupEnd");
+c(Fn, "debugGroupEnd");
 function qi(t) {
   var r;
   const e = (r = t == null ? void 0 : t.getFlag) == null ? void 0 : r.call(t, T, Fu);
   if (!e) return [];
-  const n = Wt(e), i = Array.isArray(n) ? n : [];
+  const n = Yt(e), i = Array.isArray(n) ? n : [];
   return N("Loaded time triggers", {
     sceneId: (t == null ? void 0 : t.id) ?? null,
     count: i.length
@@ -358,11 +358,11 @@ async function Bu(t, e) {
   }), await t.setFlag(T, Fu, e));
 }
 c(Bu, "setTimeTriggers");
-function km(t) {
+function Nm(t) {
   var r;
   const e = (r = t == null ? void 0 : t.getFlag) == null ? void 0 : r.call(t, T, ha);
   if (!e) return {};
-  const n = Wt(e);
+  const n = Yt(e);
   if (!n || typeof n != "object") return {};
   const i = {};
   for (const [a, o] of Object.entries(n))
@@ -372,7 +372,7 @@ function km(t) {
     keys: Object.keys(i)
   }), i;
 }
-c(km, "getTimeTriggerHistory");
+c(Nm, "getTimeTriggerHistory");
 async function ds(t, e) {
   var l, u, d, h;
   if (!t) return;
@@ -410,7 +410,7 @@ async function ds(t, e) {
 }
 c(ds, "updateTimeTriggerHistory");
 const Ra = /* @__PURE__ */ new Map(), $c = /* @__PURE__ */ new Set();
-function Mm(t) {
+function $m(t) {
   if (!(t != null && t.id))
     throw new Error(`${T} | Action definitions require an id.`);
   if (Ra.has(t.id))
@@ -419,16 +419,16 @@ function Mm(t) {
     ...t
   }), N("Registered time trigger action", { actionId: t.id });
 }
-c(Mm, "registerAction");
+c($m, "registerAction");
 function Kr(t) {
   return Ra.get(t) ?? null;
 }
 c(Kr, "getAction");
-function Nm(t) {
+function xm(t) {
   const e = Kr(t);
   return e ? typeof e.label == "function" ? e.label() : e.label : t;
 }
-c(Nm, "getActionLabel");
+c(xm, "getActionLabel");
 function xc() {
   return Array.from(Ra.values());
 }
@@ -454,22 +454,22 @@ async function Uu(t, e) {
   }), await n.execute({ scene: t, trigger: e });
 }
 c(Uu, "executeTriggerAction");
-function $m(t) {
+function _m(t) {
   const e = Kr(t == null ? void 0 : t.action);
-  return !e || typeof e.buildSummaryParts != "function" ? [] : e.buildSummaryParts({ trigger: t, escapeHtml: $t, localize: E }) ?? [];
+  return !e || typeof e.buildSummaryParts != "function" ? [] : e.buildSummaryParts({ trigger: t, escapeHtml: xt, localize: E }) ?? [];
 }
-c($m, "buildActionSummaryParts");
-function xm(t) {
+c(_m, "buildActionSummaryParts");
+function Fm(t) {
   const e = Kr(t == null ? void 0 : t.action);
-  return !e || typeof e.buildFormContent != "function" ? "" : e.buildFormContent({ trigger: t, escapeHtml: $t, localize: E }) ?? "";
+  return !e || typeof e.buildFormContent != "function" ? "" : e.buildFormContent({ trigger: t, escapeHtml: xt, localize: E }) ?? "";
 }
-c(xm, "buildActionFormSection");
-function _m(t, e) {
+c(Fm, "buildActionFormSection");
+function Dm(t, e) {
   const n = Kr(t == null ? void 0 : t.action);
   !n || typeof n.prepareFormData != "function" || n.prepareFormData({ trigger: t, formData: e });
 }
-c(_m, "applyActionFormData");
-function Fm(t, e, n) {
+c(Dm, "applyActionFormData");
+function Pm(t, e, n) {
   var a, o;
   const i = `${(t == null ? void 0 : t.id) ?? "unknown"}:${(e == null ? void 0 : e.id) ?? (e == null ? void 0 : e.action) ?? "unknown"}:${n}`;
   if ($c.has(i)) return;
@@ -480,12 +480,12 @@ function Fm(t, e, n) {
   );
   (o = (a = ui.notifications) == null ? void 0 : a.warn) == null || o.call(a, r), console.warn(`${T} | Missing trigger data (${n})`, { scene: t == null ? void 0 : t.id, trigger: e });
 }
-c(Fm, "warnMissingTriggerData");
-async function Dm({ scene: t, trigger: e }) {
+c(Pm, "warnMissingTriggerData");
+async function Rm({ scene: t, trigger: e }) {
   var a, o, s, l, u;
   const n = (s = (o = (a = e == null ? void 0 : e.data) == null ? void 0 : a.path) == null ? void 0 : o.trim) == null ? void 0 : s.call(o);
   if (!n) {
-    Fm(t, e, "missing-audio-path");
+    Pm(t, e, "missing-audio-path");
     return;
   }
   const i = {
@@ -508,11 +508,11 @@ async function Dm({ scene: t, trigger: e }) {
   }
   await r;
 }
-c(Dm, "executePlaySoundAction");
-Mm({
+c(Rm, "executePlaySoundAction");
+$m({
   id: ga,
   label: /* @__PURE__ */ c(() => E("EIDOLON.TimeTrigger.ActionPlaySound", "Play Sound"), "label"),
-  execute: Dm,
+  execute: Rm,
   buildSummaryParts: /* @__PURE__ */ c(({ trigger: t, escapeHtml: e, localize: n }) => {
     var r;
     return (r = t == null ? void 0 : t.data) != null && r.path ? [`${e(n("EIDOLON.TimeTrigger.TriggerSound", "Sound File"))}: ${e(t.data.path)}`] : [];
@@ -552,16 +552,16 @@ Mm({
   }, "prepareFormData")
 });
 var Au;
-const { ApplicationV2: Vn, HandlebarsApplicationMixin: Gn } = ((Au = foundry.applications) == null ? void 0 : Au.api) ?? {};
-if (!Vn || !Gn)
+const { ApplicationV2: Gn, HandlebarsApplicationMixin: zn } = ((Au = foundry.applications) == null ? void 0 : Au.api) ?? {};
+if (!Gn || !zn)
   throw new Error(
     `${T} | ApplicationV2 API unavailable. Update Foundry VTT to v13 or newer.`
   );
-const Pn = "AM", wi = "PM";
-function Fn() {
+const Rn = "AM", wi = "PM";
+function Dn() {
   return Ru();
 }
-c(Fn, "getConfiguredTimeFormat");
+c(Dn, "getConfiguredTimeFormat");
 function jo(t) {
   if (typeof t != "string") return null;
   const e = t.trim();
@@ -576,7 +576,7 @@ function jo(t) {
   };
 }
 c(jo, "parseCanonicalTimeString");
-function Ut({ hours: t, minutes: e, seconds: n }) {
+function Vt({ hours: t, minutes: e, seconds: n }) {
   if (!Number.isInteger(t) || !Number.isInteger(e) || t < 0 || t > 23 || e < 0 || e > 59) return null;
   const i = String(t).padStart(2, "0"), r = String(e).padStart(2, "0");
   if (Number.isInteger(n)) {
@@ -586,12 +586,12 @@ function Ut({ hours: t, minutes: e, seconds: n }) {
   }
   return `${i}:${r}`;
 }
-c(Ut, "formatCanonicalTime");
-function Pm(t, { format: e } = {}) {
+c(Vt, "formatCanonicalTime");
+function Hm(t, { format: e } = {}) {
   if (!t || typeof t != "object") return null;
   const n = Number(t.hour), i = Number(t.minute), r = t.second !== void 0 && t.second !== null, a = r ? Number(t.second) : null, o = r && Number.isFinite(a) ? Math.floor(Math.max(0, Math.min(59, a))) : null;
   if (!Number.isFinite(n) || !Number.isFinite(i)) return null;
-  const s = e ?? Fn();
+  const s = e ?? Dn();
   return Ha(
     {
       hours: n,
@@ -601,14 +601,14 @@ function Pm(t, { format: e } = {}) {
     s
   );
 }
-c(Pm, "formatTimeComponentsForDisplay");
-function Rm(t, { format: e } = {}) {
+c(Hm, "formatTimeComponentsForDisplay");
+function qm(t, { format: e } = {}) {
   const n = jo(t);
   if (!n) return "";
-  const i = e ?? Fn();
+  const i = e ?? Dn();
   return Ha(n, i);
 }
-c(Rm, "formatTriggerTimeForDisplay");
+c(qm, "formatTriggerTimeForDisplay");
 function Ha(t, e = "12h") {
   if (!t) return "";
   const { hours: n, minutes: i, seconds: r = null } = t;
@@ -618,7 +618,7 @@ function Ha(t, e = "12h") {
     const f = `${String(n).padStart(2, "0")}:${String(i).padStart(2, "0")}`;
     return a ? `${f}:${String(r).padStart(2, "0")}` : f;
   }
-  const o = n >= 12 ? wi : Pn, s = n % 12 === 0 ? 12 : n % 12, l = String(s), u = String(i).padStart(2, "0"), d = `${l}:${u}`, h = o === Pn ? E("EIDOLON.TimeTrigger.TimePeriodAM", Pn) : E("EIDOLON.TimeTrigger.TimePeriodPM", wi);
+  const o = n >= 12 ? wi : Rn, s = n % 12 === 0 ? 12 : n % 12, l = String(s), u = String(i).padStart(2, "0"), d = `${l}:${u}`, h = o === Rn ? E("EIDOLON.TimeTrigger.TimePeriodAM", Rn) : E("EIDOLON.TimeTrigger.TimePeriodPM", wi);
   if (a) {
     const f = String(r).padStart(2, "0");
     return `${d}:${f} ${h}`;
@@ -626,12 +626,12 @@ function Ha(t, e = "12h") {
   return `${d} ${h}`;
 }
 c(Ha, "formatTimeParts");
-function _c(t, e = Fn()) {
+function _c(t, e = Dn()) {
   const n = jo(t);
   if (e === "24h")
     return {
       format: e,
-      canonical: n ? Ut(n) ?? "" : "",
+      canonical: n ? Vt(n) ?? "" : "",
       hour: n ? String(n.hours).padStart(2, "0") : "",
       minute: n ? String(n.minutes).padStart(2, "0") : ""
     };
@@ -641,24 +641,24 @@ function _c(t, e = Fn()) {
       canonical: "",
       hour: "",
       minute: "",
-      period: Pn
+      period: Rn
     };
-  const i = n.hours >= 12 ? wi : Pn, r = n.hours % 12 === 0 ? 12 : n.hours % 12;
+  const i = n.hours >= 12 ? wi : Rn, r = n.hours % 12 === 0 ? 12 : n.hours % 12;
   return {
     format: e,
-    canonical: Ut(n) ?? "",
+    canonical: Vt(n) ?? "",
     hour: String(r),
     minute: String(n.minutes).padStart(2, "0"),
     period: i
   };
 }
 c(_c, "getTimeFormValues");
-function Hm({ hour: t, minute: e, period: n, time: i }, r = Fn()) {
+function jm({ hour: t, minute: e, period: n, time: i }, r = Dn()) {
   if (r === "24h") {
     const g = typeof t == "string" ? t.trim() : "", p = typeof e == "string" ? e.trim() : "", y = typeof i == "string" ? i.trim() : "";
     if (!g && !p && y) {
       const C = jo(y);
-      return C ? { canonical: Ut(C) ?? "", error: null } : {
+      return C ? { canonical: Vt(C) ?? "", error: null } : {
         canonical: "",
         error: E(
           "EIDOLON.TimeTrigger.TimeFormatInvalid24",
@@ -684,7 +684,7 @@ function Hm({ hour: t, minute: e, period: n, time: i }, r = Fn()) {
         "EIDOLON.TimeTrigger.TimeFormatInvalid24",
         "Enter a valid time in HH:MM format."
       )
-    } : { canonical: Ut({
+    } : { canonical: Vt({
       hours: v,
       minutes: b
     }) ?? "", error: null };
@@ -692,7 +692,7 @@ function Hm({ hour: t, minute: e, period: n, time: i }, r = Fn()) {
   const a = typeof t == "string" ? t.trim() : "", o = typeof e == "string" ? e.trim() : "", s = typeof n == "string" ? n.trim().toUpperCase() : "";
   if (!a || !o || !s)
     return { canonical: "", error: E("EIDOLON.TimeTrigger.TimeFormatMissing", "Enter a complete time.") };
-  if (s !== Pn && s !== wi)
+  if (s !== Rn && s !== wi)
     return { canonical: "", error: E("EIDOLON.TimeTrigger.TimeFormatInvalidPeriod", "Select AM or PM.") };
   const l = Number(a), u = Number(o);
   if (!Number.isInteger(l) || l < 1 || l > 12)
@@ -710,16 +710,16 @@ function Hm({ hour: t, minute: e, period: n, time: i }, r = Fn()) {
     minutes: u
   };
   return {
-    canonical: Ut(f) ?? "",
+    canonical: Vt(f) ?? "",
     error: null
   };
 }
-c(Hm, "normalizeFormTimeInput");
-function qm() {
+c(jm, "normalizeFormTimeInput");
+function Bm() {
   return [
     {
-      value: Pn,
-      label: E("EIDOLON.TimeTrigger.TimePeriodAM", Pn)
+      value: Rn,
+      label: E("EIDOLON.TimeTrigger.TimePeriodAM", Rn)
     },
     {
       value: wi,
@@ -727,16 +727,16 @@ function qm() {
     }
   ];
 }
-c(qm, "getPeriodOptions");
-var ni, ii, re, Vu, uo, fo, Gu, Us, Vs, mo, ho, zu, Wu, Yu, Gs, zs, Ws, go, po, Ys, yo, Ku, Ju;
-const ei = class ei extends Gn(Vn) {
+c(Bm, "getPeriodOptions");
+var ii, ri, re, Vu, uo, fo, Gu, Us, Vs, mo, ho, zu, Wu, Yu, Gs, zs, Ws, go, po, Ys, yo, Ku, Ju;
+const ti = class ti extends zn(Gn) {
   constructor(n = {}) {
     var o;
     const { scene: i, showControls: r, ...a } = n ?? {};
     super(a);
     k(this, re);
-    k(this, ni, null);
     k(this, ii, null);
+    k(this, ri, null);
     k(this, uo, /* @__PURE__ */ c((n) => {
       var r, a;
       n.preventDefault();
@@ -815,17 +815,17 @@ const ei = class ei extends Gn(Vn) {
     k(this, yo, /* @__PURE__ */ c(() => {
       (this.rendered ?? this.isRendered ?? !1) && (this.isEditingTime && (this.editValue = S(this, re, Gs).call(this)), this.render({ force: !0 }));
     }, "#handleTimeFormatChange"));
-    this.scene = i ?? null, this.showControls = typeof r == "boolean" ? r : !!((o = game.user) != null && o.isGM), this.isEditingTime = !1, this.editValue = "", this._commitTimeInProgress = !1, this._suppressBlurCommit = !1, this.manageTimeEnabled = !1, this.sceneAllowsRealTime = S(this, re, Ys).call(this), I(this, ni, ec(m(this, yo))), I(this, ii, Hu(m(this, go)));
+    this.scene = i ?? null, this.showControls = typeof r == "boolean" ? r : !!((o = game.user) != null && o.isGM), this.isEditingTime = !1, this.editValue = "", this._commitTimeInProgress = !1, this._suppressBlurCommit = !1, this.manageTimeEnabled = !1, this.sceneAllowsRealTime = S(this, re, Ys).call(this), L(this, ii, ec(m(this, yo))), L(this, ri, Hu(m(this, go)));
   }
   async _prepareContext() {
     var b, w;
-    const n = ((b = game.time) == null ? void 0 : b.components) ?? {}, r = ((n == null ? void 0 : n.second) !== void 0 && (n == null ? void 0 : n.second) !== null ? Pm(n) : null) ?? S(this, re, Vu).call(this), a = Fn(), o = a === "24h", s = o ? E("EIDOLON.TimeTrigger.EditTimePlaceholder24", "HH:MM") : E("EIDOLON.TimeTrigger.EditTimePlaceholder12", "HH:MM AM/PM"), l = this.showControls ? E(
+    const n = ((b = game.time) == null ? void 0 : b.components) ?? {}, r = ((n == null ? void 0 : n.second) !== void 0 && (n == null ? void 0 : n.second) !== null ? Hm(n) : null) ?? S(this, re, Vu).call(this), a = Dn(), o = a === "24h", s = o ? E("EIDOLON.TimeTrigger.EditTimePlaceholder24", "HH:MM") : E("EIDOLON.TimeTrigger.EditTimePlaceholder12", "HH:MM AM/PM"), l = this.showControls ? E(
       "EIDOLON.TimeTrigger.EditTimeHint",
       "Double-click to set a specific time."
     ) : "", u = this.showControls ? E(
       "EIDOLON.TimeTrigger.EditTimeLabel",
       "New time (HH:MM or HH:MM AM/PM)"
-    ) : "", d = vm.map((C) => ({
+    ) : "", d = Em.map((C) => ({
       minutes: C,
       label: C > 0 ? `+${C}` : `${C}`
     })), h = !!this.manageTimeEnabled, f = S(this, re, Ys).call(this);
@@ -910,12 +910,12 @@ const ei = class ei extends Gn(Vn) {
     }
   }
 };
-ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */ c(function() {
+ii = new WeakMap(), ri = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */ c(function() {
   var l;
   const n = (l = game.time) == null ? void 0 : l.worldTime;
   if (typeof n != "number" || !Number.isFinite(n)) return "";
   const i = 1440 * 60, r = (Math.floor(n) % i + i) % i, a = Math.floor(r / 3600), o = Math.floor(r % 3600 / 60), s = r % 60;
-  return Ha({ hours: a, minutes: o, seconds: s }, Fn());
+  return Ha({ hours: a, minutes: o, seconds: s }, Dn());
 }, "#formatFallbackTime"), uo = new WeakMap(), fo = new WeakMap(), Gu = /* @__PURE__ */ c(function() {
   var n;
   (n = game.user) != null && n.isGM && (this.isEditingTime = !0, this._suppressBlurCommit = !1, this.editValue = S(this, re, Gs).call(this), this.render({ force: !0 }));
@@ -946,13 +946,13 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
   if (typeof n != "number" || !Number.isFinite(n))
     return "";
   const i = ((d = game.time) == null ? void 0 : d.components) ?? {}, r = Number(i.hour), a = Number(i.minute), o = i.second !== void 0 ? Number(i.second) : null, s = Number.isInteger(o);
-  return (Number.isFinite(r) && Number.isFinite(a) ? Ut({
+  return (Number.isFinite(r) && Number.isFinite(a) ? Vt({
     hours: Math.max(0, Math.min(23, Number(r))),
     minutes: Math.max(0, Math.min(59, Number(a))),
     seconds: s && Number.isFinite(o) ? Math.max(0, Math.min(59, Number(o))) : void 0
   }) ?? "" : "") ?? "";
 }, "#getCurrentCanonicalTime"), Wu = /* @__PURE__ */ c(async function(n, i) {
-  var f, g, p, y, v, b, w, C, L, A;
+  var f, g, p, y, v, b, w, C, I, A;
   const r = (f = game.time) == null ? void 0 : f.worldTime;
   if (typeof r != "number" || !Number.isFinite(r))
     return (p = (g = ui.notifications) == null ? void 0 : g.error) == null || p.call(
@@ -973,7 +973,7 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
   const s = Math.floor(r / Hi) * Hi + n - r;
   if (!Number.isFinite(s) || s === 0)
     return !0;
-  const l = Math.floor(n / 3600), u = Math.floor(n % 3600 / 60), d = n % 60, h = Ut({
+  const l = Math.floor(n / 3600), u = Math.floor(n % 3600 / 60), d = n % 60, h = Vt({
     hours: l,
     minutes: u,
     seconds: i ? d : void 0
@@ -990,7 +990,7 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
         minutes: u,
         seconds: i ? d : null
       },
-      Fn()
+      Dn()
     );
     (C = (w = ui.notifications) == null ? void 0 : w.info) == null || C.call(
       w,
@@ -1000,8 +1000,8 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
       ) + (O ? ` ${O}` : "")
     );
   } catch (O) {
-    return console.error(`${T} | Failed to set world time`, O), (A = (L = ui.notifications) == null ? void 0 : L.error) == null || A.call(
-      L,
+    return console.error(`${T} | Failed to set world time`, O), (A = (I = ui.notifications) == null ? void 0 : I.error) == null || A.call(
+      I,
       E(
         "EIDOLON.TimeTrigger.EditTimeError",
         "Failed to update the world time."
@@ -1026,7 +1026,7 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
     if (Number.isInteger(f) && f >= 0 && f <= 23 && Number.isInteger(g) && g >= 0 && g <= 59 && (p === void 0 || Number.isInteger(p) && p >= 0 && p <= 59)) {
       const y = f * 3600 + g * 60 + (p ?? 0);
       return {
-        canonical: Ut({ hours: f, minutes: g, seconds: p }),
+        canonical: Vt({ hours: f, minutes: g, seconds: p }),
         seconds: y,
         includeSeconds: p !== void 0,
         error: null
@@ -1047,7 +1047,7 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
       f = f % 12, (v === s || v === "pm") && (f += 12);
       const w = f * 3600 + g * 60 + (p ?? 0);
       return {
-        canonical: Ut({ hours: f, minutes: g, seconds: p }),
+        canonical: Vt({ hours: f, minutes: g, seconds: p }),
         seconds: w,
         includeSeconds: p !== void 0,
         error: null
@@ -1059,7 +1059,7 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
   if (d !== null) {
     const f = Math.floor(d / 3600), g = Math.floor(d % 3600 / 60), p = d % 60, y = p !== 0;
     return {
-      canonical: Ut({
+      canonical: Vt({
         hours: f,
         minutes: g,
         seconds: y ? p : void 0
@@ -1073,7 +1073,7 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
 }, "#parseInputTime"), Gs = /* @__PURE__ */ c(function() {
   const n = S(this, re, zu).call(this);
   if (!n) return "";
-  if (Fn() === "24h")
+  if (Dn() === "24h")
     return n;
   const r = jo(n);
   if (!r) return n;
@@ -1106,23 +1106,23 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
   }
   return !1;
 }, "#readSceneRealTimeFlag"), yo = new WeakMap(), Ku = /* @__PURE__ */ c(function() {
-  if (typeof m(this, ni) == "function")
-    try {
-      m(this, ni).call(this);
-    } catch (n) {
-      console.error(`${T} | Failed to dispose time format subscription`, n);
-    }
-  I(this, ni, null);
-}, "#disposeTimeFormatSubscription"), Ju = /* @__PURE__ */ c(function() {
   if (typeof m(this, ii) == "function")
     try {
       m(this, ii).call(this);
     } catch (n) {
+      console.error(`${T} | Failed to dispose time format subscription`, n);
+    }
+  L(this, ii, null);
+}, "#disposeTimeFormatSubscription"), Ju = /* @__PURE__ */ c(function() {
+  if (typeof m(this, ri) == "function")
+    try {
+      m(this, ri).call(this);
+    } catch (n) {
       console.error(`${T} | Failed to dispose manage time subscription`, n);
     }
-  I(this, ii, null);
-}, "#disposeManageTimeSubscription"), c(ei, "TimeTriggerWindow"), ye(ei, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
-  Re(ei, ei, "DEFAULT_OPTIONS"),
+  L(this, ri, null);
+}, "#disposeManageTimeSubscription"), c(ti, "TimeTriggerWindow"), ye(ti, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
+  Re(ti, ti, "DEFAULT_OPTIONS"),
   {
     id: `${T}-time-trigger`,
     window: {
@@ -1135,12 +1135,12 @@ ni = new WeakMap(), ii = new WeakMap(), re = new WeakSet(), Vu = /* @__PURE__ */
     }
   },
   { inplace: !1 }
-)), ye(ei, "PARTS", {
+)), ye(ti, "PARTS", {
   content: {
     template: `modules/${T}/templates/time-trigger.html`
   }
 });
-let Bs = ei;
+let Bs = ti;
 function Bo(t, e = {}) {
   if (typeof t != "function")
     throw new TypeError("createApplicationFactory requires a constructor function.");
@@ -1156,20 +1156,20 @@ function Bo(t, e = {}) {
 }
 c(Bo, "createApplicationFactory");
 const Fc = /* @__PURE__ */ new Set();
-var Ee, Qe, ri, Zi, Xu, Qu;
+var Se, Qe, ai, Zi, Xu, Qu;
 const Ec = class Ec {
   constructor({ windowFactory: e } = {}) {
     k(this, Zi);
-    k(this, Ee, null);
+    k(this, Se, null);
     k(this, Qe, null);
-    k(this, ri);
+    k(this, ai);
     const n = Bo(Bs);
-    typeof e == "function" ? e.__eidolonFactorySignature === "options" ? I(this, ri, (r, a = {}) => e({ scene: r, ...a ?? {} })) : I(this, ri, e) : I(this, ri, /* @__PURE__ */ c((r, a = {}) => n({ scene: r, ...a ?? {} }), "fallbackFactory"));
+    typeof e == "function" ? e.__eidolonFactorySignature === "options" ? L(this, ai, (r, a = {}) => e({ scene: r, ...a ?? {} })) : L(this, ai, e) : L(this, ai, /* @__PURE__ */ c((r, a = {}) => n({ scene: r, ...a ?? {} }), "fallbackFactory"));
   }
   onReady() {
     var n;
     const e = typeof ((n = game.time) == null ? void 0 : n.worldTime) == "number" && Number.isFinite(game.time.worldTime) ? game.time.worldTime : null;
-    N("TimeTriggerManager#onReady", { worldTime: e }), e !== null && I(this, Qe, e);
+    N("TimeTriggerManager#onReady", { worldTime: e }), e !== null && L(this, Qe, e);
   }
   onCanvasReady(e) {
     const n = (e == null ? void 0 : e.scene) ?? cr();
@@ -1186,8 +1186,8 @@ const Ec = class Ec {
     N("TimeTriggerManager#onUpdateWorldTime", {
       worldTime: e,
       diff: n,
-      hasWindow: !!m(this, Ee)
-    }), m(this, Ee) && m(this, Ee).render();
+      hasWindow: !!m(this, Se)
+    }), m(this, Se) && m(this, Se).render();
     const i = cr(), r = S(this, Zi, Xu).call(this, e, n);
     this.handleTimeTriggerEvaluation(i, e, r);
   }
@@ -1202,17 +1202,17 @@ const Ec = class Ec {
       hideWindow: r,
       showPlayerWindow: a
     }), !(i && !r && (n || a))) {
-      m(this, Ee) && (N("Closing time trigger window", { reason: "not-visible" }), m(this, Ee).close({ force: !0 }), I(this, Ee, null));
+      m(this, Se) && (N("Closing time trigger window", { reason: "not-visible" }), m(this, Se).close({ force: !0 }), L(this, Se, null));
       return;
     }
     const s = !!n;
-    if (m(this, Ee) && ((u = m(this, Ee).scene) == null ? void 0 : u.id) === e.id) {
-      N("Refreshing existing time trigger window", { sceneId: e.id }), m(this, Ee).showControls = s, m(this, Ee).render();
+    if (m(this, Se) && ((u = m(this, Se).scene) == null ? void 0 : u.id) === e.id) {
+      N("Refreshing existing time trigger window", { sceneId: e.id }), m(this, Se).showControls = s, m(this, Se).render();
       return;
     }
-    m(this, Ee) && (N("Closing existing window before creating new instance", {
-      previousSceneId: ((d = m(this, Ee).scene) == null ? void 0 : d.id) ?? null
-    }), m(this, Ee).close({ force: !0 })), I(this, Ee, m(this, ri).call(this, e, { showControls: s })), N("Rendering new time trigger window", { sceneId: e.id }), m(this, Ee).render({ force: !0 });
+    m(this, Se) && (N("Closing existing window before creating new instance", {
+      previousSceneId: ((d = m(this, Se).scene) == null ? void 0 : d.id) ?? null
+    }), m(this, Se).close({ force: !0 })), L(this, Se, m(this, ai).call(this, e, { showControls: s })), N("Rendering new time trigger window", { sceneId: e.id }), m(this, Se).render({ force: !0 });
   }
   async handleTimeTriggerEvaluation(e, n, i) {
     var l;
@@ -1222,7 +1222,7 @@ const Ec = class Ec {
         reason: "no-active-scene",
         providedSceneId: (e == null ? void 0 : e.id) ?? null,
         currentWorldTime: n
-      }), typeof n == "number" && Number.isFinite(n) && I(this, Qe, n);
+      }), typeof n == "number" && Number.isFinite(n) && L(this, Qe, n);
       return;
     }
     const a = typeof n == "number" && Number.isFinite(n) ? n : typeof ((l = game.time) == null ? void 0 : l.worldTime) == "number" ? game.time.worldTime : null;
@@ -1239,11 +1239,11 @@ const Ec = class Ec {
     } catch (u) {
       console.error(`${T} | Unexpected error while evaluating time triggers`, u), N("handleTimeTriggerEvaluation error", { message: (u == null ? void 0 : u.message) ?? String(u) });
     } finally {
-      I(this, Qe, a), _n();
+      L(this, Qe, a), Fn();
     }
   }
 };
-Ee = new WeakMap(), Qe = new WeakMap(), ri = new WeakMap(), Zi = new WeakSet(), Xu = /* @__PURE__ */ c(function(e, n) {
+Se = new WeakMap(), Qe = new WeakMap(), ai = new WeakMap(), Zi = new WeakSet(), Xu = /* @__PURE__ */ c(function(e, n) {
   return typeof m(this, Qe) == "number" && Number.isFinite(m(this, Qe)) ? (N("Resolved previous world time from cache", {
     previousWorldTime: m(this, Qe)
   }), m(this, Qe)) : typeof e == "number" && Number.isFinite(e) && typeof n == "number" && Number.isFinite(n) ? (N("Resolved previous world time using diff", {
@@ -1272,7 +1272,7 @@ Ee = new WeakMap(), Qe = new WeakMap(), ri = new WeakMap(), Zi = new WeakSet(), 
     N("No time triggers configured for scene", { sceneId: e.id });
     return;
   }
-  const o = km(e), s = /* @__PURE__ */ new Set();
+  const o = Nm(e), s = /* @__PURE__ */ new Set();
   for (const b of a)
     b != null && b.id && s.add(b.id);
   let l = !1;
@@ -1305,7 +1305,7 @@ Ee = new WeakMap(), Qe = new WeakMap(), ri = new WeakMap(), Zi = new WeakSet(), 
     }
     l && (N("Persisting history cleanup after rewind", {
       sceneId: e.id
-    }), await ds(e, o)), _n();
+    }), await ds(e, o)), Fn();
     return;
   }
   const u = n, d = i, h = [], f = Math.floor(u / Hi), g = Math.floor(d / Hi);
@@ -1313,31 +1313,31 @@ Ee = new WeakMap(), Qe = new WeakMap(), ri = new WeakMap(), Zi = new WeakSet(), 
     if (!(b != null && b.id)) continue;
     const w = Du(b.time);
     if (w === null) {
-      jm(e, b), N("Skipping trigger with invalid time", {
+      Um(e, b), N("Skipping trigger with invalid time", {
         triggerId: b.id,
         time: b.time
       });
       continue;
     }
     for (let C = f; C <= g; C++) {
-      const L = C * Hi + w;
-      if (L < u || L > d) continue;
+      const I = C * Hi + w;
+      if (I < u || I > d) continue;
       const O = o[b.id];
-      if (typeof O == "number" && O >= L) {
+      if (typeof O == "number" && O >= I) {
         N("Skipping trigger because it already fired within window", {
           triggerId: b.id,
           lastFired: O,
-          absoluteTime: L
+          absoluteTime: I
         });
         continue;
       }
-      h.push({ trigger: b, absoluteTime: L });
+      h.push({ trigger: b, absoluteTime: I });
     }
   }
   if (!h.length) {
     l && await ds(e, o), N("No triggers scheduled to fire within evaluation window", {
       sceneId: e.id
-    }), _n();
+    }), Fn();
     return;
   }
   h.sort((b, w) => b.absoluteTime - w.absoluteTime), N("Queued triggers for execution", {
@@ -1369,10 +1369,10 @@ Ee = new WeakMap(), Qe = new WeakMap(), ri = new WeakMap(), Zi = new WeakSet(), 
         absoluteTime: b.absoluteTime
       });
     }
-  l && (N("Persisting trigger history updates", { sceneId: e.id }), await ds(e, o)), _n();
+  l && (N("Persisting trigger history updates", { sceneId: e.id }), await ds(e, o)), Fn();
 }, "#evaluateSceneTimeTriggers"), c(Ec, "TimeTriggerManager");
 let Ks = Ec;
-function jm(t, e) {
+function Um(t, e) {
   var r, a;
   const n = `${(t == null ? void 0 : t.id) ?? "unknown"}:${(e == null ? void 0 : e.id) ?? (e == null ? void 0 : e.time) ?? "unknown"}`;
   if (Fc.has(n)) return;
@@ -1383,8 +1383,8 @@ function jm(t, e) {
   );
   (a = (r = ui.notifications) == null ? void 0 : r.warn) == null || a.call(r, i), console.warn(`${T} | Invalid time for trigger`, { scene: t == null ? void 0 : t.id, trigger: e });
 }
-c(jm, "warnInvalidTriggerTime");
-var Tt, kr, Lt, Sn, ai, Rt, Gi, bo, vo, Mr, Nr, oi, Ht, V, Xs, ki, pa, Qs, ya, Zs, Dt, Zu, el, ed, tl, td, wo, Eo, So, Co, To, Lo, nl, nd, ba, Io, Oo;
+c(Um, "warnInvalidTriggerTime");
+var Tt, kr, Lt, Sn, oi, Ht, Gi, bo, vo, Mr, Nr, si, qt, V, Xs, ki, pa, Qs, ya, Zs, Pt, Zu, el, ed, tl, td, wo, Eo, So, Co, To, Lo, nl, nd, ba, Io, Oo;
 const Sc = class Sc {
   constructor() {
     k(this, V);
@@ -1392,24 +1392,24 @@ const Sc = class Sc {
     k(this, kr, Yr);
     k(this, Lt, /* @__PURE__ */ new Map());
     k(this, Sn, null);
-    k(this, ai, null);
-    k(this, Rt, 0);
+    k(this, oi, null);
+    k(this, Ht, 0);
     k(this, Gi, null);
     k(this, bo, null);
     k(this, vo, null);
     k(this, Mr, !1);
     k(this, Nr, !1);
-    k(this, oi, !1);
-    k(this, Ht, !1);
+    k(this, si, !1);
+    k(this, qt, !1);
     k(this, wo, /* @__PURE__ */ c((e, n = {}) => {
       N("GameTimeAutomation | Pause state changed", {
         paused: e,
         userId: (n == null ? void 0 : n.userId) ?? null,
         broadcast: (n == null ? void 0 : n.broadcast) ?? null
-      }), S(this, V, Dt).call(this, { pausedOverride: e });
+      }), S(this, V, Pt).call(this, { pausedOverride: e });
     }, "#handlePause"));
     k(this, Eo, /* @__PURE__ */ c((e) => {
-      e != null && e.id && (m(this, Lt).set(e.id, Math.max(e.round ?? 0, 1)), N("GameTimeAutomation | Combat started", { combatId: e.id, round: e.round ?? 0 }), S(this, V, Dt).call(this));
+      e != null && e.id && (m(this, Lt).set(e.id, Math.max(e.round ?? 0, 1)), N("GameTimeAutomation | Combat started", { combatId: e.id, round: e.round ?? 0 }), S(this, V, Pt).call(this));
     }, "#handleCombatStart"));
     k(this, So, /* @__PURE__ */ c((e, n) => {
       if (!(e != null && e.id)) return;
@@ -1420,7 +1420,7 @@ const Sc = class Sc {
         completedRounds: s,
         enabled: m(this, Tt),
         paused: (game == null ? void 0 : game.paused) ?? null
-      }), s > 0 && m(this, Tt) && m(this, Ht) && !(game != null && game.paused) && S(this, V, ki).call(this) && S(this, V, pa).call(this, e)) {
+      }), s > 0 && m(this, Tt) && m(this, qt) && !(game != null && game.paused) && S(this, V, ki).call(this) && S(this, V, pa).call(this, e)) {
         const l = s * m(this, kr);
         l > 0 && (N("GameTimeAutomation | Advancing time for completed combat rounds", {
           combatId: e.id,
@@ -1431,10 +1431,10 @@ const Sc = class Sc {
       m(this, Lt).set(e.id, Math.max(r, 1));
     }, "#handleCombatRound"));
     k(this, Co, /* @__PURE__ */ c((e) => {
-      e != null && e.id && (m(this, Lt).delete(e.id), N("GameTimeAutomation | Combat ended", { combatId: e.id }), S(this, V, Dt).call(this));
+      e != null && e.id && (m(this, Lt).delete(e.id), N("GameTimeAutomation | Combat ended", { combatId: e.id }), S(this, V, Pt).call(this));
     }, "#handleCombatEnd"));
     k(this, To, /* @__PURE__ */ c((e) => {
-      e != null && e.id && (m(this, Lt).delete(e.id), N("GameTimeAutomation | Combat deleted", { combatId: e.id }), S(this, V, Dt).call(this));
+      e != null && e.id && (m(this, Lt).delete(e.id), N("GameTimeAutomation | Combat deleted", { combatId: e.id }), S(this, V, Pt).call(this));
     }, "#handleCombatDelete"));
     k(this, Lo, /* @__PURE__ */ c((e, n) => {
       if (e != null && e.id) {
@@ -1445,32 +1445,32 @@ const Sc = class Sc {
             round: i
           });
         }
-        (Object.prototype.hasOwnProperty.call(n ?? {}, "active") || (n == null ? void 0 : n.round) !== void 0) && S(this, V, Dt).call(this);
+        (Object.prototype.hasOwnProperty.call(n ?? {}, "active") || (n == null ? void 0 : n.round) !== void 0) && S(this, V, Pt).call(this);
       }
     }, "#handleCombatUpdate"));
     k(this, Io, /* @__PURE__ */ c((e) => {
-      S(this, V, ba).call(this, e == null ? void 0 : e.scene), S(this, V, Dt).call(this);
+      S(this, V, ba).call(this, e == null ? void 0 : e.scene), S(this, V, Pt).call(this);
     }, "#handleCanvasReady"));
     k(this, Oo, /* @__PURE__ */ c((e) => {
       if (!Ke(e)) return;
       const n = S(this, V, nl).call(this);
       if (!n || n.id !== e.id) return;
-      S(this, V, ba).call(this, e) && S(this, V, Dt).call(this);
+      S(this, V, ba).call(this, e) && S(this, V, Pt).call(this);
     }, "#handleSceneUpdate"));
   }
   registerHooks() {
-    m(this, Mr) || (I(this, Mr, !0), Hooks.on("pauseGame", m(this, wo)), Hooks.on("combatStart", m(this, Eo)), Hooks.on("combatRound", m(this, So)), Hooks.on("combatEnd", m(this, Co)), Hooks.on("deleteCombat", m(this, To)), Hooks.on("updateCombat", m(this, Lo)), Hooks.on("canvasReady", m(this, Io)), Hooks.on("updateScene", m(this, Oo)));
+    m(this, Mr) || (L(this, Mr, !0), Hooks.on("pauseGame", m(this, wo)), Hooks.on("combatStart", m(this, Eo)), Hooks.on("combatRound", m(this, So)), Hooks.on("combatEnd", m(this, Co)), Hooks.on("deleteCombat", m(this, To)), Hooks.on("updateCombat", m(this, Lo)), Hooks.on("canvasReady", m(this, Io)), Hooks.on("updateScene", m(this, Oo)));
   }
   initialize() {
-    m(this, Nr) || (I(this, Nr, !0), I(this, bo, Hu((e) => {
+    m(this, Nr) || (L(this, Nr, !0), L(this, bo, Hu((e) => {
       const n = !!e, i = n !== m(this, Tt);
-      I(this, Tt, n), N("GameTimeAutomation | Manage time toggled", { enabled: n }), i && n && S(this, V, Zs).call(this), S(this, V, Dt).call(this);
-    })), I(this, vo, Im((e) => {
-      I(this, kr, e), N("GameTimeAutomation | Seconds per round updated", { value: e });
-    })), S(this, V, Zs).call(this), S(this, V, ba).call(this), S(this, V, Dt).call(this));
+      L(this, Tt, n), N("GameTimeAutomation | Manage time toggled", { enabled: n }), i && n && S(this, V, Zs).call(this), S(this, V, Pt).call(this);
+    })), L(this, vo, Am((e) => {
+      L(this, kr, e), N("GameTimeAutomation | Seconds per round updated", { value: e });
+    })), S(this, V, Zs).call(this), S(this, V, ba).call(this), S(this, V, Pt).call(this));
   }
 };
-Tt = new WeakMap(), kr = new WeakMap(), Lt = new WeakMap(), Sn = new WeakMap(), ai = new WeakMap(), Rt = new WeakMap(), Gi = new WeakMap(), bo = new WeakMap(), vo = new WeakMap(), Mr = new WeakMap(), Nr = new WeakMap(), oi = new WeakMap(), Ht = new WeakMap(), V = new WeakSet(), Xs = /* @__PURE__ */ c(function() {
+Tt = new WeakMap(), kr = new WeakMap(), Lt = new WeakMap(), Sn = new WeakMap(), oi = new WeakMap(), Ht = new WeakMap(), Gi = new WeakMap(), bo = new WeakMap(), vo = new WeakMap(), Mr = new WeakMap(), Nr = new WeakMap(), si = new WeakMap(), qt = new WeakMap(), V = new WeakSet(), Xs = /* @__PURE__ */ c(function() {
   var e;
   try {
     if (typeof ((e = globalThis.performance) == null ? void 0 : e.now) == "function")
@@ -1507,8 +1507,8 @@ Tt = new WeakMap(), kr = new WeakMap(), Lt = new WeakMap(), Sn = new WeakMap(), 
   const e = Array.isArray((n = game == null ? void 0 : game.combats) == null ? void 0 : n.contents) ? game.combats.contents : [];
   for (const i of e)
     i != null && i.id && m(this, Lt).set(i.id, Math.max(i.round ?? 0, 1));
-}, "#hydrateRoundTracking"), Dt = /* @__PURE__ */ c(function({ pausedOverride: e } = {}) {
-  const n = typeof e == "boolean" ? e : !!(game != null && game.paused), i = m(this, Tt), r = m(this, Ht), a = i && r, o = {
+}, "#hydrateRoundTracking"), Pt = /* @__PURE__ */ c(function({ pausedOverride: e } = {}) {
+  const n = typeof e == "boolean" ? e : !!(game != null && game.paused), i = m(this, Tt), r = m(this, qt), a = i && r, o = {
     manageTimeEnabled: i,
     sceneAllowsRealTime: r,
     effectiveEnabled: a,
@@ -1523,37 +1523,37 @@ Tt = new WeakMap(), kr = new WeakMap(), Lt = new WeakMap(), Sn = new WeakMap(), 
   }
   S(this, V, Zu).call(this);
 }, "#syncRunningState"), Zu = /* @__PURE__ */ c(function() {
-  m(this, Sn) === null && (I(this, ai, S(this, V, Xs).call(this)), I(this, Sn, globalThis.setInterval(() => S(this, V, ed).call(this), 1e3)), N("GameTimeAutomation | Started real-time ticker"));
+  m(this, Sn) === null && (L(this, oi, S(this, V, Xs).call(this)), L(this, Sn, globalThis.setInterval(() => S(this, V, ed).call(this), 1e3)), N("GameTimeAutomation | Started real-time ticker"));
 }, "#startRealTimeTicker"), el = /* @__PURE__ */ c(function() {
-  m(this, Sn) !== null && (globalThis.clearInterval(m(this, Sn)), I(this, Sn, null), N("GameTimeAutomation | Stopped real-time ticker")), I(this, ai, null), I(this, Rt, 0), I(this, oi, !1);
+  m(this, Sn) !== null && (globalThis.clearInterval(m(this, Sn)), L(this, Sn, null), N("GameTimeAutomation | Stopped real-time ticker")), L(this, oi, null), L(this, Ht, 0), L(this, si, !1);
 }, "#stopRealTimeTicker"), ed = /* @__PURE__ */ c(function() {
-  if (!m(this, Tt) || !m(this, Ht) || !S(this, V, ki).call(this)) {
+  if (!m(this, Tt) || !m(this, qt) || !S(this, V, ki).call(this)) {
     S(this, V, el).call(this);
     return;
   }
   const e = S(this, V, Xs).call(this);
   if (typeof e != "number" || !Number.isFinite(e)) return;
-  const n = m(this, ai) ?? e, i = (e - n) / 1e3;
-  if (I(this, ai, e), !Number.isFinite(i) || i <= 0) return;
+  const n = m(this, oi) ?? e, i = (e - n) / 1e3;
+  if (L(this, oi, e), !Number.isFinite(i) || i <= 0) return;
   const r = !!(game != null && game.paused), a = S(this, V, ya).call(this);
   if (r || a) {
-    m(this, oi) || N("GameTimeAutomation | Tick skipped", { paused: r, combatRunning: a }), I(this, oi, !0), I(this, Rt, 0);
+    m(this, si) || N("GameTimeAutomation | Tick skipped", { paused: r, combatRunning: a }), L(this, si, !0), L(this, Ht, 0);
     return;
   }
-  I(this, oi, !1), N("GameTimeAutomation | Real-time tick", { deltaSeconds: i }), S(this, V, tl).call(this, i);
+  L(this, si, !1), N("GameTimeAutomation | Real-time tick", { deltaSeconds: i }), S(this, V, tl).call(this, i);
 }, "#tickRealTime"), tl = /* @__PURE__ */ c(function(e) {
-  if (!m(this, Tt) || !m(this, Ht)) return;
+  if (!m(this, Tt) || !m(this, qt)) return;
   const n = Number(e);
-  !Number.isFinite(n) || n <= 0 || (I(this, Rt, m(this, Rt) + n), !m(this, Gi) && I(this, Gi, S(this, V, td).call(this)));
+  !Number.isFinite(n) || n <= 0 || (L(this, Ht, m(this, Ht) + n), !m(this, Gi) && L(this, Gi, S(this, V, td).call(this)));
 }, "#queueAdvance"), td = /* @__PURE__ */ c(async function() {
   var e, n;
-  for (; m(this, Rt) > 0; ) {
-    if (!m(this, Tt) || !m(this, Ht) || game != null && game.paused || !S(this, V, ki).call(this) || S(this, V, ya).call(this)) {
-      I(this, Rt, 0);
+  for (; m(this, Ht) > 0; ) {
+    if (!m(this, Tt) || !m(this, qt) || game != null && game.paused || !S(this, V, ki).call(this) || S(this, V, ya).call(this)) {
+      L(this, Ht, 0);
       break;
     }
-    const i = m(this, Rt);
-    I(this, Rt, 0);
+    const i = m(this, Ht);
+    L(this, Ht, 0);
     try {
       if (typeof ((e = game == null ? void 0 : game.time) == null ? void 0 : e.advance) == "function")
         N("GameTimeAutomation | Advancing world time", { delta: i }), await game.time.advance(i), N("GameTimeAutomation | World time advanced", {
@@ -1568,7 +1568,7 @@ Tt = new WeakMap(), kr = new WeakMap(), Lt = new WeakMap(), Sn = new WeakMap(), 
       break;
     }
   }
-  I(this, Gi, null);
+  L(this, Gi, null);
 }, "#flushAdvanceQueue"), wo = new WeakMap(), Eo = new WeakMap(), So = new WeakMap(), Co = new WeakMap(), To = new WeakMap(), Lo = new WeakMap(), nl = /* @__PURE__ */ c(function() {
   const e = cr();
   return Ke(e) ? e : null;
@@ -1583,25 +1583,25 @@ Tt = new WeakMap(), kr = new WeakMap(), Lt = new WeakMap(), Sn = new WeakMap(), 
     }), !1;
   }
 }, "#isSceneRealTimeAllowed"), ba = /* @__PURE__ */ c(function(e) {
-  const n = Ke(e) ? e : S(this, V, nl).call(this), i = S(this, V, nd).call(this, n), r = m(this, Ht);
-  return I(this, Ht, i), r !== i ? (N("GameTimeAutomation | Scene real-time allowance changed", {
+  const n = Ke(e) ? e : S(this, V, nl).call(this), i = S(this, V, nd).call(this, n), r = m(this, qt);
+  return L(this, qt, i), r !== i ? (N("GameTimeAutomation | Scene real-time allowance changed", {
     sceneId: (n == null ? void 0 : n.id) ?? null,
     allows: i
   }), !0) : !1;
 }, "#refreshSceneAutomationState"), Io = new WeakMap(), Oo = new WeakMap(), c(Sc, "GameTimeAutomation");
 let Js = Sc;
-var ku, Cn, He, si, sn, Ao, we, id, rd, ad, od, ko, rl, Mo, sd, No, ld, cd;
-const nn = class nn extends Gn(Vn) {
+var ku, Cn, He, li, ln, Ao, Ee, id, rd, ad, od, ko, rl, Mo, sd, No, ld, cd;
+const rn = class rn extends zn(Gn) {
   constructor(n = {}) {
     const { scene: i, trigger: r, triggerIndex: a, onSave: o, ...s } = n ?? {};
     super(s);
-    k(this, we);
+    k(this, Ee);
     k(this, Cn, null);
     k(this, He, null);
-    k(this, si, null);
-    k(this, sn, null);
+    k(this, li, null);
+    k(this, ln, null);
     k(this, Ao, /* @__PURE__ */ c(() => {
-      (this.rendered ?? this.isRendered ?? !1) && (I(this, sn, S(this, we, id).call(this)), this.render({ force: !0 }));
+      (this.rendered ?? this.isRendered ?? !1) && (L(this, ln, S(this, Ee, id).call(this)), this.render({ force: !0 }));
     }, "#handleTimeFormatChange"));
     k(this, ko, /* @__PURE__ */ c((n) => {
       var a, o;
@@ -1610,7 +1610,7 @@ const nn = class nn extends Gn(Vn) {
         sceneId: ((a = this.scene) == null ? void 0 : a.id) ?? null,
         triggerId: ((o = this.trigger) == null ? void 0 : o.id) ?? null,
         actionId: (i == null ? void 0 : i.value) ?? null
-      }), S(this, we, rl).call(this, i.value, r));
+      }), S(this, Ee, rl).call(this, i.value, r));
     }, "#onActionSelectChange"));
     k(this, Mo, /* @__PURE__ */ c((n) => {
       var u, d, h, f;
@@ -1646,9 +1646,9 @@ const nn = class nn extends Gn(Vn) {
       i instanceof HTMLFormElement && (N("Trigger form submitted", {
         sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null,
         triggerId: ((a = this.trigger) == null ? void 0 : a.id) ?? null
-      }), await S(this, we, ld).call(this, i));
+      }), await S(this, Ee, ld).call(this, i));
     }, "#onSubmit"));
-    this.scene = i ?? null, this.trigger = r ?? null, this.triggerIndex = Number.isInteger(a) ? Number(a) : null, this.onSave = typeof o == "function" ? o : null, I(this, si, ec(m(this, Ao)));
+    this.scene = i ?? null, this.trigger = r ?? null, this.triggerIndex = Number.isInteger(a) ? Number(a) : null, this.onSave = typeof o == "function" ? o : null, L(this, li, ec(m(this, Ao)));
   }
   async _prepareContext() {
     var n, i;
@@ -1658,7 +1658,7 @@ const nn = class nn extends Gn(Vn) {
       triggerIndex: this.triggerIndex
     });
     try {
-      const r = this.trigger ?? { action: ga, data: {} }, a = r.action ?? ga, o = _c(r.time), s = o.format ?? "12h", l = s === "12h" ? qm() : [], u = o.period ?? (l.length > 0 ? l[0].value : null), d = s === "12h" ? l.map((g) => ({
+      const r = this.trigger ?? { action: ga, data: {} }, a = r.action ?? ga, o = _c(r.time), s = o.format ?? "12h", l = s === "12h" ? Bm() : [], u = o.period ?? (l.length > 0 ? l[0].value : null), d = s === "12h" ? l.map((g) => ({
         ...g,
         selected: g.value === u
       })) : [], h = xc().map((g) => ({
@@ -1666,7 +1666,7 @@ const nn = class nn extends Gn(Vn) {
         label: typeof g.label == "function" ? g.label() : g.label,
         selected: g.id === a
       })), f = xc().map((g) => {
-        const p = g.id === r.action ? r : { ...r, action: g.id }, y = xm(p);
+        const p = g.id === r.action ? r : { ...r, action: g.id }, y = Fm(p);
         return y ? {
           id: g.id,
           visible: g.id === a,
@@ -1703,7 +1703,7 @@ const nn = class nn extends Gn(Vn) {
         }
       };
     } finally {
-      _n();
+      Fn();
     }
   }
   _onRender(n, i) {
@@ -1721,24 +1721,24 @@ const nn = class nn extends Gn(Vn) {
     a && r.classList.add(a);
     const o = r.querySelector("form");
     if (!o) return;
-    S(this, we, sd).call(this, o), S(this, we, rd).call(this, o), o.addEventListener("submit", m(this, No));
+    S(this, Ee, sd).call(this, o), S(this, Ee, rd).call(this, o), o.addEventListener("submit", m(this, No));
     const s = o.querySelector("[data-action-select]");
-    s && (s.addEventListener("change", m(this, ko)), S(this, we, rl).call(this, s.value, o)), o.querySelectorAll("[data-action-file-picker]").forEach((h) => {
+    s && (s.addEventListener("change", m(this, ko)), S(this, Ee, rl).call(this, s.value, o)), o.querySelectorAll("[data-action-file-picker]").forEach((h) => {
       h.addEventListener("click", m(this, Mo));
     });
   }
   async close(n = {}) {
     var i;
-    if ((i = m(this, Cn)) == null || i.call(this), I(this, Cn, null), I(this, He, null), I(this, sn, null), typeof m(this, si) == "function")
+    if ((i = m(this, Cn)) == null || i.call(this), L(this, Cn, null), L(this, He, null), L(this, ln, null), typeof m(this, li) == "function")
       try {
-        m(this, si).call(this);
+        m(this, li).call(this);
       } catch (r) {
         console.error(`${T} | Failed to dispose trigger form time format subscription`, r);
       }
-    return I(this, si, null), super.close(n);
+    return L(this, li, null), super.close(n);
   }
 };
-Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), Ao = new WeakMap(), we = new WeakSet(), id = /* @__PURE__ */ c(function() {
+Cn = new WeakMap(), He = new WeakMap(), li = new WeakMap(), ln = new WeakMap(), Ao = new WeakMap(), Ee = new WeakSet(), id = /* @__PURE__ */ c(function() {
   var s, l, u, d, h, f, g;
   const n = (l = (s = this.element) == null ? void 0 : s.querySelector) == null ? void 0 : l.call(s, "form");
   if (!(n instanceof HTMLFormElement)) return null;
@@ -1797,13 +1797,13 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
     time: o
   };
 }, "#captureFormState"), rd = /* @__PURE__ */ c(function(n) {
-  if (!m(this, sn)) return;
+  if (!m(this, ln)) return;
   if (!(n instanceof HTMLFormElement)) {
-    I(this, sn, null);
+    L(this, ln, null);
     return;
   }
-  const { fields: i = [], time: r = null } = m(this, sn) ?? {};
-  I(this, sn, null), S(this, we, ad).call(this, n, i), S(this, we, od).call(this, n, r);
+  const { fields: i = [], time: r = null } = m(this, ln) ?? {};
+  L(this, ln, null), S(this, Ee, ad).call(this, n, i), S(this, Ee, od).call(this, n, r);
 }, "#restorePendingFormState"), ad = /* @__PURE__ */ c(function(n, i) {
   if (!Array.isArray(i) || i.length === 0) return;
   const r = typeof (CSS == null ? void 0 : CSS.escape) == "function" ? CSS.escape : (a) => a;
@@ -1830,7 +1830,7 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
     (s instanceof HTMLInputElement || s instanceof HTMLSelectElement || s instanceof HTMLTextAreaElement) && (s.value = a.value ?? "");
   }
 }, "#restoreFieldValues"), od = /* @__PURE__ */ c(function(n, i) {
-  var w, C, L;
+  var w, C, I;
   const r = n.querySelector("[data-time-format]");
   if (!(r instanceof HTMLElement)) {
     typeof m(this, He) == "function" && m(this, He).call(this);
@@ -1839,7 +1839,7 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
   const a = ((w = r.dataset) == null ? void 0 : w.timeFormat) === "24h" ? "24h" : "12h", o = r.querySelector("[data-time-hour]"), s = r.querySelector("[data-time-minute]"), l = r.querySelector("[data-time-period]"), u = r.querySelector("[data-time-hidden]");
   if (!i) {
     if (o instanceof HTMLInputElement && (o.value = ""), s instanceof HTMLInputElement && (s.value = ""), l instanceof HTMLSelectElement) {
-      const A = ((L = (C = l.options) == null ? void 0 : C[0]) == null ? void 0 : L.value) ?? "";
+      const A = ((I = (C = l.options) == null ? void 0 : C[0]) == null ? void 0 : I.value) ?? "";
       l.value = A;
     }
     u instanceof HTMLInputElement && (u.value = ""), typeof m(this, He) == "function" && m(this, He).call(this);
@@ -1866,7 +1866,7 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
   });
 }, "#updateActionSections"), Mo = new WeakMap(), sd = /* @__PURE__ */ c(function(n) {
   var h, f, g, p;
-  if ((h = m(this, Cn)) == null || h.call(this), I(this, Cn, null), I(this, He, null), !(n instanceof HTMLFormElement)) return;
+  if ((h = m(this, Cn)) == null || h.call(this), L(this, Cn, null), L(this, He, null), !(n instanceof HTMLFormElement)) return;
   const i = n.querySelector("[data-time-format]"), r = ((f = i == null ? void 0 : i.dataset) == null ? void 0 : f.timeFormat) ?? null;
   if (r !== "12h" && r !== "24h")
     return;
@@ -1882,7 +1882,7 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
     return;
   }
   const u = [o, s, ...l ? [l] : []], d = /* @__PURE__ */ c(() => {
-    const { canonical: y, error: v } = Hm(
+    const { canonical: y, error: v } = jm(
       {
         hour: o.value,
         minute: s.value,
@@ -1899,11 +1899,11 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
   }, "update");
   u.forEach((y) => {
     y.addEventListener("input", d), y.addEventListener("change", d);
-  }), d(), I(this, Cn, () => {
+  }), d(), L(this, Cn, () => {
     u.forEach((y) => {
       y.removeEventListener("input", d), y.removeEventListener("change", d);
     });
-  }), I(this, He, d), N("Trigger form configured for time input", {
+  }), L(this, He, d), N("Trigger form configured for time input", {
     format: r,
     sceneId: ((g = this.scene) == null ? void 0 : g.id) ?? null,
     triggerId: ((p = this.trigger) == null ? void 0 : p.id) ?? null
@@ -1922,11 +1922,11 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
     sceneId: ((l = this.scene) == null ? void 0 : l.id) ?? null,
     triggerId: ((u = this.trigger) == null ? void 0 : u.id) ?? null,
     allowReplayOnRewind: r.allowReplayOnRewind
-  }), await S(this, we, cd).call(this, r), await this.close();
+  }), await S(this, Ee, cd).call(this, r), await this.close();
 }, "#handleSubmit"), cd = /* @__PURE__ */ c(async function(n) {
   var a, o, s, l, u, d;
   const i = {
-    id: ((a = this.trigger) == null ? void 0 : a.id) ?? wm(),
+    id: ((a = this.trigger) == null ? void 0 : a.id) ?? Sm(),
     time: n.time ?? "",
     action: n.action ?? ga,
     allowReplayOnRewind: !!n.allowReplayOnRewind,
@@ -1936,7 +1936,7 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
     sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null,
     triggerId: i.id,
     existingIndex: this.triggerIndex
-  }), _m(i, n);
+  }), Dm(i, n);
   const r = qi(this.scene);
   this.triggerIndex !== null && r[this.triggerIndex] ? r[this.triggerIndex] = i : r.push(i);
   try {
@@ -1962,12 +1962,12 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
         message: (h == null ? void 0 : h.message) ?? String(h)
       });
     }
-}, "#persistTrigger"), c(nn, "TriggerFormApplication"), ye(nn, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
-  Re(nn, nn, "DEFAULT_OPTIONS"),
+}, "#persistTrigger"), c(rn, "TriggerFormApplication"), ye(rn, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
+  Re(rn, rn, "DEFAULT_OPTIONS"),
   {
     id: `${T}-trigger-form`,
     classes: Array.from(
-      /* @__PURE__ */ new Set([...((ku = Re(nn, nn, "DEFAULT_OPTIONS")) == null ? void 0 : ku.classes) ?? [], "standard-form", "themed"])
+      /* @__PURE__ */ new Set([...((ku = Re(rn, rn, "DEFAULT_OPTIONS")) == null ? void 0 : ku.classes) ?? [], "standard-form", "themed"])
     ),
     window: {
       title: E("EIDOLON.TimeTrigger.TriggerFormTitle", "Configure Time Trigger"),
@@ -1979,16 +1979,16 @@ Cn = new WeakMap(), He = new WeakMap(), si = new WeakMap(), sn = new WeakMap(), 
     }
   },
   { inplace: !1 }
-)), ye(nn, "PARTS", {
+)), ye(rn, "PARTS", {
   content: {
     template: `modules/${T}/templates/time-trigger-form.html`
   }
 });
-let il = nn;
-function Yt(t) {
+let il = rn;
+function Kt(t) {
   return t instanceof HTMLElement ? t : (t == null ? void 0 : t[0]) instanceof HTMLElement ? t[0] : null;
 }
-c(Yt, "asHTMLElement");
+c(Kt, "asHTMLElement");
 function va(t) {
   return typeof (t == null ? void 0 : t.changeTab) == "function";
 }
@@ -2004,7 +2004,7 @@ function ud(t, e, n, i = {}) {
   }
 }
 c(ud, "setActiveTab");
-function Bm(t) {
+function Vm(t) {
   var n, i;
   if (!(t instanceof HTMLFormElement)) return {};
   const e = ((i = (n = foundry == null ? void 0 : foundry.applications) == null ? void 0 : n.ux) == null ? void 0 : i.FormDataExtended) ?? globalThis.FormDataExtended ?? null;
@@ -2016,7 +2016,7 @@ function Bm(t) {
     return {};
   }
 }
-c(Bm, "readFormData");
+c(Vm, "readFormData");
 const Dc = Symbol.for("eidolon.sceneConfig.v13PatchedTabs");
 function dd(t = {}) {
   const {
@@ -2047,7 +2047,7 @@ function dd(t = {}) {
     var $;
     return ($ = console.groupEnd) == null ? void 0 : $.call(console);
   }, v = Symbol(`EIDOLON_SCENE_CONFIG_TAB_CLEANUP_${e}`), b = typeof i == "function" ? i : () => null, w = typeof r == "function" ? r : () => !0, C = typeof n == "function" ? n : () => typeof n == "string" ? n : e;
-  function L() {
+  function I() {
     var W, H, U, K, ae;
     const $ = ((H = (W = foundry == null ? void 0 : foundry.applications) == null ? void 0 : W.sheets) == null ? void 0 : H.SceneConfig) ?? ((U = CONFIG == null ? void 0 : CONFIG.Scene) == null ? void 0 : U.sheetClass);
     if (!$ || !va({ changeTab: (K = $.prototype) == null ? void 0 : K.changeTab })) return;
@@ -2068,7 +2068,7 @@ function dd(t = {}) {
       scrollable: [`.tab[data-tab="${e}"]`]
     }), g("Patched v13 SceneConfig TABS/PARTS", { tabId: e });
   }
-  c(L, "patchV13SceneConfig");
+  c(I, "patchV13SceneConfig");
   function A($, R) {
     var W, H;
     const B = b($);
@@ -2086,7 +2086,7 @@ function dd(t = {}) {
       constructor: ((H = $ == null ? void 0 : $.constructor) == null ? void 0 : H.name) ?? null
     });
     try {
-      const U = Yt(R) ?? Yt($.element);
+      const U = Kt(R) ?? Kt($.element);
       if (!U) {
         g("Missing root element", { tabId: e });
         return;
@@ -2114,7 +2114,7 @@ function dd(t = {}) {
   }
   c(O, "setButtonContent");
   function M($, R, B) {
-    var ot, Xt, Je, Oe, Li, Qt, zn, st, Zt, F, ea, X, bt, $e, nr, ta;
+    var ot, Qt, Je, Ae, Li, Zt, Wn, st, en, F, ea, X, bt, $e, nr, ta;
     const H = [
       "nav.sheet-tabs[data-group]",
       "nav.tabs[data-group]",
@@ -2123,9 +2123,9 @@ function dd(t = {}) {
     ].map((xe) => R.querySelector(xe)).find((xe) => xe instanceof HTMLElement), K = [
       (ot = R.querySelector(".tab[data-tab]")) == null ? void 0 : ot.parentElement,
       R.querySelector(".sheet-body"),
-      (Je = (Xt = H == null ? void 0 : H.parentElement) == null ? void 0 : Xt.querySelector) == null ? void 0 : Je.call(Xt, ":scope > .sheet-body"),
+      (Je = (Qt = H == null ? void 0 : H.parentElement) == null ? void 0 : Qt.querySelector) == null ? void 0 : Je.call(Qt, ":scope > .sheet-body"),
       H == null ? void 0 : H.parentElement
-    ].find((xe) => xe instanceof HTMLElement), ae = ((Oe = H == null ? void 0 : H.dataset) == null ? void 0 : Oe.group) ?? ((zn = (Qt = (Li = H == null ? void 0 : H.querySelector) == null ? void 0 : Li.call(H, "a[data-group]")) == null ? void 0 : Qt.dataset) == null ? void 0 : zn.group) ?? ((F = (Zt = (st = H == null ? void 0 : H.querySelector) == null ? void 0 : st.call(H, "[data-group]")) == null ? void 0 : Zt.dataset) == null ? void 0 : F.group) ?? ((bt = (X = (ea = K == null ? void 0 : K.querySelector) == null ? void 0 : ea.call(K, ".tab[data-group]")) == null ? void 0 : X.dataset) == null ? void 0 : bt.group) ?? "main";
+    ].find((xe) => xe instanceof HTMLElement), ae = ((Ae = H == null ? void 0 : H.dataset) == null ? void 0 : Ae.group) ?? ((Wn = (Zt = (Li = H == null ? void 0 : H.querySelector) == null ? void 0 : Li.call(H, "a[data-group]")) == null ? void 0 : Zt.dataset) == null ? void 0 : Wn.group) ?? ((F = (en = (st = H == null ? void 0 : H.querySelector) == null ? void 0 : st.call(H, "[data-group]")) == null ? void 0 : en.dataset) == null ? void 0 : F.group) ?? ((bt = (X = (ea = K == null ? void 0 : K.querySelector) == null ? void 0 : ea.call(K, ".tab[data-group]")) == null ? void 0 : X.dataset) == null ? void 0 : bt.group) ?? "main";
     if (!H || !K) {
       g("Missing navigation elements", {
         tabId: e,
@@ -2149,8 +2149,8 @@ function dd(t = {}) {
     }
     ((nr = Q.classList) == null ? void 0 : nr.contains("active")) || te.classList.contains("active") ? (Q.classList.add("active"), te.classList.add("active"), te.removeAttribute("hidden")) : (Q.classList.remove("active"), te.classList.remove("active"), te.setAttribute("hidden", "true"));
     const yt = /* @__PURE__ */ c(() => {
-      var Wn, ir;
-      ((Wn = Q.classList) != null && Wn.contains("active") || te.classList.contains("active")) && ((ir = Q.classList) == null || ir.add("active"), te.classList.add("active"), te.removeAttribute("hidden"), te.removeAttribute("aria-hidden"), te.style.display === "none" && (te.style.display = ""));
+      var Yn, ir;
+      ((Yn = Q.classList) != null && Yn.contains("active") || te.classList.contains("active")) && ((ir = Q.classList) == null || ir.add("active"), te.classList.add("active"), te.removeAttribute("hidden"), te.removeAttribute("aria-hidden"), te.style.display === "none" && (te.style.display = ""));
     }, "ensureTabVisible"), Pe = /* @__PURE__ */ c(() => {
       yt(), requestAnimationFrame(yt);
     }, "scheduleEnsureTabVisible");
@@ -2213,7 +2213,7 @@ function dd(t = {}) {
   c(j, "handleClose");
   function D() {
     return Hooks.once("init", () => {
-      L();
+      I();
     }), Hooks.on("renderSceneConfig", A), Hooks.on("closeSceneConfig", j), () => P();
   }
   c(D, "register");
@@ -2260,25 +2260,25 @@ function fd(t) {
   return null;
 }
 c(fd, "findFooterElement");
-const Um = Bo(il), Vm = `modules/${T}/templates/time-trigger-scene-tab.html`, Gm = dd({
+const Gm = Bo(il), zm = `modules/${T}/templates/time-trigger-scene-tab.html`, Wm = dd({
   tabId: "time-triggers",
   tabLabel: /* @__PURE__ */ c(() => E("EIDOLON.TimeTrigger.Tab", "Time Triggers"), "tabLabel"),
-  getScene: Kt,
-  isApplicable: Km,
-  renderContent: /* @__PURE__ */ c(({ app: t, scene: e, tab: n }) => Wm(t, n, e), "renderContent"),
+  getScene: Jt,
+  isApplicable: Xm,
+  renderContent: /* @__PURE__ */ c(({ app: t, scene: e, tab: n }) => Km(t, n, e), "renderContent"),
   logger: {
     log: N,
     group: Ki,
-    groupEnd: _n
+    groupEnd: Fn
   }
 });
-function zm() {
-  return N("Registering SceneConfig render hook"), Gm.register();
+function Ym() {
+  return N("Registering SceneConfig render hook"), Wm.register();
 }
-c(zm, "registerSceneConfigHook");
-function Wm(t, e, n) {
+c(Ym, "registerSceneConfigHook");
+function Km(t, e, n) {
   if (!(e instanceof HTMLElement)) return;
-  const i = Ke(n) ? n : Kt(t);
+  const i = Ke(n) ? n : Jt(t);
   qa(t, e, i);
   const r = ec(() => {
     qa(t, e, i);
@@ -2295,10 +2295,10 @@ function Wm(t, e, n) {
       }
   };
 }
-c(Wm, "renderTimeTriggerTab");
+c(Km, "renderTimeTriggerTab");
 async function qa(t, e, n) {
   var r, a;
-  const i = n ?? Kt(t);
+  const i = n ?? Jt(t);
   Ki("renderTimeTriggersTabContent", { sceneId: (i == null ? void 0 : i.id) ?? null });
   try {
     if (!Ke(i)) {
@@ -2335,14 +2335,14 @@ async function qa(t, e, n) {
     ), C = E(
       "EIDOLON.TimeTrigger.TriggerListLabel",
       "Scene Time Triggers"
-    ), L = E(
+    ), I = E(
       "EIDOLON.TimeTrigger.TriggerListEmpty",
       "No time triggers configured for this scene."
     ), A = E("EIDOLON.TimeTrigger.AddTrigger", "Add Trigger"), O = E("EIDOLON.TimeTrigger.EditTrigger", "Edit"), M = E("EIDOLON.TimeTrigger.DeleteTrigger", "Remove"), _ = E("EIDOLON.TimeTrigger.TriggerNow", "Trigger Now"), j = E("EIDOLON.TimeTrigger.AtLabel", "At"), D = E("EIDOLON.TimeTrigger.DoLabel", "Do"), P = E("EIDOLON.TimeTrigger.MissingTime", "(No time set)"), $ = f.map((W, H) => {
-      const ae = (W.time ? Rm(W.time) : "") || W.time || "" || P, Q = Nm(W.action), te = [
+      const ae = (W.time ? qm(W.time) : "") || W.time || "" || P, Q = xm(W.action), te = [
         `${j} ${ae}`,
         `${D} ${Q}`,
-        ...$m(W)
+        ..._m(W)
       ];
       return {
         index: H,
@@ -2355,12 +2355,12 @@ async function qa(t, e, n) {
       };
     }), R = ((a = (r = foundry == null ? void 0 : foundry.applications) == null ? void 0 : r.handlebars) == null ? void 0 : a.renderTemplate) ?? (typeof renderTemplate == "function" ? renderTemplate : globalThis == null ? void 0 : globalThis.renderTemplate);
     if (typeof R != "function") {
-      console.error(`${T} | renderTemplate is unavailable; cannot render scene tab.`), e.innerHTML = `<p class="notes">${L}</p>`;
+      console.error(`${T} | renderTemplate is unavailable; cannot render scene tab.`), e.innerHTML = `<p class="notes">${I}</p>`;
       return;
     }
     let B = "";
     try {
-      B = await R(Vm, {
+      B = await R(zm, {
         flags: {
           active: o,
           hideWindow: s,
@@ -2376,7 +2376,7 @@ async function qa(t, e, n) {
           hideWindow: y,
           showPlayerWindow: b,
           triggerList: C,
-          empty: L,
+          empty: I,
           add: A
         },
         hints: {
@@ -2388,17 +2388,17 @@ async function qa(t, e, n) {
         hasTriggers: $.length > 0
       });
     } catch (W) {
-      console.error(`${T} | Failed to render time trigger scene tab template`, W), e.innerHTML = `<p class="notes">${L}</p>`;
+      console.error(`${T} | Failed to render time trigger scene tab template`, W), e.innerHTML = `<p class="notes">${I}</p>`;
       return;
     }
-    e.innerHTML = B, Ym(t, e, i);
+    e.innerHTML = B, Jm(t, e, i);
   } finally {
-    _n();
+    Fn();
   }
 }
 c(qa, "renderTimeTriggersTabContent");
-function Ym(t, e, n) {
-  const i = n ?? Kt(t);
+function Jm(t, e, n) {
+  const i = n ?? Jt(t);
   if (!Ke(i)) return;
   const r = e.querySelector('[data-action="add-trigger"]');
   r && r.addEventListener("click", () => {
@@ -2475,10 +2475,10 @@ function Ym(t, e, n) {
     });
   });
 }
-c(Ym, "bindTimeTriggerTabEvents");
+c(Jm, "bindTimeTriggerTabEvents");
 function Rc(t, e = {}) {
   var o;
-  const n = e.scene ?? null, i = n && Ke(n) ? n : Kt(t);
+  const n = e.scene ?? null, i = n && Ke(n) ? n : Jt(t);
   if (!Ke(i)) {
     console.warn(`${T} | Unable to open trigger form because no scene document is available.`);
     return;
@@ -2487,7 +2487,7 @@ function Rc(t, e = {}) {
     sceneId: i.id,
     triggerId: ((o = e.trigger) == null ? void 0 : o.id) ?? null,
     index: Number.isInteger(e.triggerIndex) ? Number(e.triggerIndex) : null
-  }), Um({
+  }), Gm({
     scene: i,
     trigger: e.trigger ?? null,
     triggerIndex: e.triggerIndex ?? null,
@@ -2499,7 +2499,7 @@ function Rc(t, e = {}) {
   }).render({ force: !0 });
 }
 c(Rc, "openTriggerForm");
-function Km(t, e) {
+function Xm(t, e) {
   var a, o, s, l, u;
   if (!t) return !1;
   const n = ((o = (a = foundry == null ? void 0 : foundry.applications) == null ? void 0 : a.sheets) == null ? void 0 : o.SceneConfig) ?? (globalThis == null ? void 0 : globalThis.SceneConfig);
@@ -2513,13 +2513,13 @@ function Km(t, e) {
   const r = ((l = t == null ? void 0 : t.options) == null ? void 0 : l.baseApplication) ?? ((u = t == null ? void 0 : t.options) == null ? void 0 : u.id);
   return !!(typeof r == "string" && r.includes("SceneConfig"));
 }
-c(Km, "isRecognizedSceneConfig");
+c(Xm, "isRecognizedSceneConfig");
 const aa = new Ks(), Hc = new Js();
-function Jm() {
+function Qm() {
   N("Registering time trigger hooks"), Hooks.once("init", () => {
-    Em(), Om(), N("Time trigger settings registered during init");
-  }), zm(), N("Scene config hook registered"), Hc.registerHooks(), N("Time automation hooks registered"), Hooks.once("ready", () => {
-    Am(), N("Ready hook fired"), aa.onReady(), Hc.initialize();
+    Cm(), km(), N("Time trigger settings registered during init");
+  }), Ym(), N("Scene config hook registered"), Hc.registerHooks(), N("Time automation hooks registered"), Hooks.once("ready", () => {
+    Mm(), N("Ready hook fired"), aa.onReady(), Hc.initialize();
   }), Hooks.on("canvasReady", (t) => {
     var e;
     N("canvasReady hook received", { scene: ((e = t == null ? void 0 : t.scene) == null ? void 0 : e.id) ?? null }), aa.onCanvasReady(t);
@@ -2529,18 +2529,18 @@ function Jm() {
     N("updateWorldTime hook received", { worldTime: t, diff: e }), aa.onUpdateWorldTime(t, e);
   });
 }
-c(Jm, "registerTimeTriggerHooks");
-Jm();
-const Ce = T, md = "criteria", nc = "state", Xm = "criteriaVersion", Qm = 1, hd = "enableCriteriaSurfaces";
+c(Qm, "registerTimeTriggerHooks");
+Qm();
+const Te = T, md = "criteria", nc = "state", Zm = "criteriaVersion", eh = 1, hd = "enableCriteriaSurfaces";
 let qc = !1;
-function Zm() {
+function th() {
   var t;
   if (!qc) {
     if (qc = !0, !((t = game == null ? void 0 : game.settings) != null && t.register)) {
-      console.warn(`${Ce} | game.settings.register unavailable; scene criteria setting skipped.`);
+      console.warn(`${Te} | game.settings.register unavailable; scene criteria setting skipped.`);
       return;
     }
-    game.settings.register(Ce, hd, {
+    game.settings.register(Te, hd, {
       name: E("EIDOLON.SceneCriteria.EnableSurfacesSettingName", "Enable Criteria Editor Surfaces"),
       hint: E(
         "EIDOLON.SceneCriteria.EnableSurfacesSettingHint",
@@ -2551,24 +2551,24 @@ function Zm() {
       type: Boolean,
       default: !0,
       onChange: /* @__PURE__ */ c(() => {
-        eh();
+        nh();
       }, "onChange")
     });
   }
 }
-c(Zm, "registerSceneCriteriaSettings");
+c(th, "registerSceneCriteriaSettings");
 function Uo() {
   var t;
   try {
     if ((t = game == null ? void 0 : game.settings) != null && t.get)
-      return !!game.settings.get(Ce, hd);
+      return !!game.settings.get(Te, hd);
   } catch (e) {
-    console.error(`${Ce} | Failed to read criteria surfaces setting`, e);
+    console.error(`${Te} | Failed to read criteria surfaces setting`, e);
   }
   return !0;
 }
 c(Uo, "getCriteriaSurfacesEnabled");
-function eh() {
+function nh() {
   var a, o, s, l, u;
   const t = E("EIDOLON.SceneCriteria.ReloadPromptTitle", "Reload Required"), e = `<p>${E(
     "EIDOLON.SceneCriteria.ReloadPromptBody",
@@ -2603,34 +2603,34 @@ function eh() {
     )
   );
 }
-c(eh, "promptReloadForCriteriaSurfaces");
+c(nh, "promptReloadForCriteriaSurfaces");
 const ja = "Standard";
 function pt(t) {
   var n;
-  const e = (n = t == null ? void 0 : t.getFlag) == null ? void 0 : n.call(t, Ce, md);
+  const e = (n = t == null ? void 0 : t.getFlag) == null ? void 0 : n.call(t, Te, md);
   return e ? gd(e) : [];
 }
 c(pt, "getSceneCriteria");
 async function Vo(t, e) {
   if (!(t != null && t.setFlag)) return;
   const n = gd(e);
-  await t.setFlag(Ce, md, n), await t.setFlag(Ce, Xm, Qm);
+  await t.setFlag(Te, md, n), await t.setFlag(Te, Zm, eh);
   const i = Jr(t, n);
-  await t.setFlag(Ce, nc, i);
+  await t.setFlag(Te, nc, i);
 }
 c(Vo, "setSceneCriteria");
 function Jr(t, e = null) {
   var r;
-  const n = Array.isArray(e) ? e : pt(t), i = Wt(((r = t == null ? void 0 : t.getFlag) == null ? void 0 : r.call(t, Ce, nc)) ?? {});
+  const n = Array.isArray(e) ? e : pt(t), i = Yt(((r = t == null ? void 0 : t.getFlag) == null ? void 0 : r.call(t, Te, nc)) ?? {});
   return rc(i, n);
 }
 c(Jr, "getSceneCriteriaState");
-async function th(t, e, n = null) {
+async function ih(t, e, n = null) {
   if (!(t != null && t.setFlag)) return;
   const i = Array.isArray(n) ? n : pt(t), r = rc(e, i);
-  await t.setFlag(Ce, nc, r);
+  await t.setFlag(Te, nc, r);
 }
-c(th, "setSceneCriteriaState");
+c(ih, "setSceneCriteriaState");
 function ic(t = "") {
   const e = typeof t == "string" ? t.trim() : "", n = pd(ol(e || "criterion"), /* @__PURE__ */ new Set());
   return {
@@ -2644,7 +2644,7 @@ function ic(t = "") {
 }
 c(ic, "createSceneCriterion");
 function gd(t) {
-  const e = Array.isArray(t) ? Wt(t) : [], n = [], i = /* @__PURE__ */ new Set();
+  const e = Array.isArray(t) ? Yt(t) : [], n = [], i = /* @__PURE__ */ new Set();
   return e.forEach((r, a) => {
     const o = al(r, a, i);
     o && (n.push(o), i.add(o.key));
@@ -2653,7 +2653,7 @@ function gd(t) {
 c(gd, "sanitizeCriteria$1");
 function al(t, e = 0, n = /* @__PURE__ */ new Set()) {
   if (!t || typeof t != "object") return null;
-  const i = typeof t.id == "string" && t.id.trim() ? t.id.trim() : yd(), a = (typeof t.label == "string" ? t.label : typeof t.name == "string" ? t.name : "").trim(), o = typeof t.key == "string" && t.key.trim() ? ol(t.key) : ol(a || `criterion-${Number(e) + 1}`), s = pd(o, n), l = ih(t.values);
+  const i = typeof t.id == "string" && t.id.trim() ? t.id.trim() : yd(), a = (typeof t.label == "string" ? t.label : typeof t.name == "string" ? t.name : "").trim(), o = typeof t.key == "string" && t.key.trim() ? ol(t.key) : ol(a || `criterion-${Number(e) + 1}`), s = pd(o, n), l = ah(t.values);
   let u = typeof t.default == "string" ? t.default.trim() : "";
   u || (u = l[0] ?? ja), l.includes(u) || l.unshift(u);
   const d = Number.isFinite(t.order) ? Number(t.order) : Number(e);
@@ -2668,7 +2668,7 @@ function al(t, e = 0, n = /* @__PURE__ */ new Set()) {
 }
 c(al, "sanitizeCriterion");
 function rc(t, e = []) {
-  const n = t && typeof t == "object" ? Wt(t) : {}, i = {};
+  const n = t && typeof t == "object" ? Yt(t) : {}, i = {};
   for (const r of e) {
     const a = n == null ? void 0 : n[r.key], o = typeof a == "string" ? a.trim() : "";
     o && r.values.includes(o) ? i[r.key] = o : i[r.key] = r.default;
@@ -2676,7 +2676,7 @@ function rc(t, e = []) {
   return i;
 }
 c(rc, "sanitizeSceneCriteriaState");
-function nh(t) {
+function rh(t) {
   return pt(t).map((n) => ({
     id: n.key,
     key: n.key,
@@ -2684,8 +2684,8 @@ function nh(t) {
     values: [...n.values]
   }));
 }
-c(nh, "getSceneCriteriaCategories");
-function ih(t) {
+c(rh, "getSceneCriteriaCategories");
+function ah(t) {
   const e = Array.isArray(t) ? t : [], n = [];
   for (const i of e) {
     if (typeof i != "string") continue;
@@ -2694,7 +2694,7 @@ function ih(t) {
   }
   return n.length || n.push(ja), n;
 }
-c(ih, "sanitizeCriterionValues");
+c(ah, "sanitizeCriterionValues");
 function ol(t) {
   return String(t ?? "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "criterion";
 }
@@ -2714,7 +2714,7 @@ function yd() {
 c(yd, "generateCriterionId");
 function bd(t) {
   var e, n;
-  console.error(`${Ce} | Failed to persist scene criteria`, t), (n = (e = ui.notifications) == null ? void 0 : e.error) == null || n.call(
+  console.error(`${Te} | Failed to persist scene criteria`, t), (n = (e = ui.notifications) == null ? void 0 : e.error) == null || n.call(
     e,
     E(
       "EIDOLON.SceneCriteria.PersistError",
@@ -2723,14 +2723,14 @@ function bd(t) {
   );
 }
 c(bd, "notifyPersistError");
-var Mu, ge, ln, De, vd, $o, xo, _o, Fo, wa, Do, $r, xr, ur, wd;
-const rn = class rn extends Gn(Vn) {
+var Mu, ge, cn, De, vd, $o, xo, _o, Fo, wa, Do, $r, xr, ur, wd;
+const an = class an extends zn(Gn) {
   constructor(n = {}) {
     const { scene: i, criterion: r, isNew: a, onSave: o, ...s } = n ?? {};
     super(s);
     k(this, De);
     k(this, ge, null);
-    k(this, ln, !1);
+    k(this, cn, !1);
     k(this, $o, /* @__PURE__ */ c(async (n) => {
       n.preventDefault();
       const i = n.currentTarget;
@@ -2747,11 +2747,11 @@ const rn = class rn extends Gn(Vn) {
         0,
         /* @__PURE__ */ new Set()
       );
-      d && (I(this, ge, d), await S(this, De, wd).call(this), this.close());
+      d && (L(this, ge, d), await S(this, De, wd).call(this), this.close());
     }, "#onSubmit"));
     k(this, xo, /* @__PURE__ */ c((n) => {
       var o;
-      if (m(this, ln)) return;
+      if (m(this, cn)) return;
       const i = n.currentTarget, r = (i == null ? void 0 : i.form) ?? ((o = this.element) == null ? void 0 : o.querySelector("form"));
       if (!(r instanceof HTMLFormElement)) return;
       const a = r.querySelector('input[name="criterionKey"]');
@@ -2762,7 +2762,7 @@ const rn = class rn extends Gn(Vn) {
       const i = n.currentTarget, r = (i == null ? void 0 : i.form) ?? ((l = this.element) == null ? void 0 : l.querySelector("form"));
       if (!(r instanceof HTMLFormElement) || !(i instanceof HTMLInputElement)) return;
       const a = r.querySelector('input[name="criterionLabel"]'), o = or(a instanceof HTMLInputElement ? a.value : ""), s = or(i.value);
-      I(this, ln, s !== o), i.value = s, S(this, De, wa).call(this, r);
+      L(this, cn, s !== o), i.value = s, S(this, De, wa).call(this, r);
     }, "#onKeyInput"));
     k(this, Fo, /* @__PURE__ */ c((n) => {
       var o, s;
@@ -2770,7 +2770,7 @@ const rn = class rn extends Gn(Vn) {
       const i = ((o = n.currentTarget) == null ? void 0 : o.form) ?? ((s = this.element) == null ? void 0 : s.querySelector("form"));
       if (!(i instanceof HTMLFormElement)) return;
       const r = i.querySelector('input[name="criterionLabel"]'), a = i.querySelector('input[name="criterionKey"]');
-      a instanceof HTMLInputElement && (a.value = or(r instanceof HTMLInputElement ? r.value : ""), I(this, ln, !1), S(this, De, wa).call(this, i));
+      a instanceof HTMLInputElement && (a.value = or(r instanceof HTMLInputElement ? r.value : ""), L(this, cn, !1), S(this, De, wa).call(this, i));
     }, "#onResetAutoKey"));
     k(this, Do, /* @__PURE__ */ c((n) => {
       var l, u, d, h, f, g;
@@ -2782,7 +2782,7 @@ const rn = class rn extends Gn(Vn) {
       (d = r.querySelector(".scene-criterion-editor__empty")) == null || d.remove();
       const a = document.createElement("div");
       a.classList.add("scene-criterion-editor__value");
-      const o = $t(E("EIDOLON.SceneCriteria.ValuePlaceholder", "Allowed value")), s = $t(E("EIDOLON.SceneCriteria.RemoveValue", "Remove Value"));
+      const o = xt(E("EIDOLON.SceneCriteria.ValuePlaceholder", "Allowed value")), s = xt(E("EIDOLON.SceneCriteria.RemoveValue", "Remove Value"));
       a.innerHTML = `
       <input type="text" name="criterionValues" value="" placeholder="${o}" class="form-control">
       <button type="button" class="icon" data-action="remove-value" aria-label="${s}" title="${s}">
@@ -2812,7 +2812,7 @@ const rn = class rn extends Gn(Vn) {
       const i = ((r = n.currentTarget) == null ? void 0 : r.form) ?? ((a = this.element) == null ? void 0 : a.querySelector("form"));
       i instanceof HTMLFormElement && S(this, De, ur).call(this, i);
     }, "#onValuesChanged"));
-    this.scene = i ?? null, this.criterion = r ?? null, this.onSave = typeof o == "function" ? o : null, this.isNew = !!a, I(this, ge, S(this, De, vd).call(this)), I(this, ln, m(this, ge).key !== or(m(this, ge).label));
+    this.scene = i ?? null, this.criterion = r ?? null, this.onSave = typeof o == "function" ? o : null, this.isNew = !!a, L(this, ge, S(this, De, vd).call(this)), L(this, cn, m(this, ge).key !== or(m(this, ge).label));
   }
   async _prepareContext() {
     var i, r, a, o;
@@ -2847,7 +2847,7 @@ const rn = class rn extends Gn(Vn) {
         save: this.isNew ? E("EIDOLON.SceneCriteria.CreateCategory", "Add Criterion") : E("EIDOLON.SceneCriteria.SaveCategory", "Save Criterion"),
         cancel: E("EIDOLON.SceneCriteria.CancelEdit", "Cancel")
       },
-      keyIsCustom: m(this, ln)
+      keyIsCustom: m(this, cn)
     };
   }
   _onRender(n, i) {
@@ -2863,7 +2863,7 @@ const rn = class rn extends Gn(Vn) {
     }), S(this, De, wa).call(this, r), S(this, De, ur).call(this, r));
   }
 };
-ge = new WeakMap(), ln = new WeakMap(), De = new WeakSet(), vd = /* @__PURE__ */ c(function() {
+ge = new WeakMap(), cn = new WeakMap(), De = new WeakSet(), vd = /* @__PURE__ */ c(function() {
   const n = al(this.criterion, 0, /* @__PURE__ */ new Set()) ?? ic(E("EIDOLON.SceneCriteria.DefaultCategoryName", "New Criterion"));
   return {
     id: n.id,
@@ -2874,7 +2874,7 @@ ge = new WeakMap(), ln = new WeakMap(), De = new WeakSet(), vd = /* @__PURE__ */
   };
 }, "#initializeState"), $o = new WeakMap(), xo = new WeakMap(), _o = new WeakMap(), Fo = new WeakMap(), wa = /* @__PURE__ */ c(function(n) {
   const i = n.querySelector('[data-action="reset-auto-key"]');
-  i instanceof HTMLButtonElement && (i.disabled = !m(this, ln));
+  i instanceof HTMLButtonElement && (i.disabled = !m(this, cn));
 }, "#syncAutoKeyButton"), Do = new WeakMap(), $r = new WeakMap(), xr = new WeakMap(), ur = /* @__PURE__ */ c(function(n) {
   var l, u;
   const i = n.querySelector('select[name="criterionDefault"]');
@@ -2899,12 +2899,12 @@ ge = new WeakMap(), ln = new WeakMap(), De = new WeakSet(), vd = /* @__PURE__ */
   } catch (r) {
     bd(r);
   }
-}, "#persist"), c(rn, "CategoryEditorApplication"), ye(rn, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
-  Re(rn, rn, "DEFAULT_OPTIONS"),
+}, "#persist"), c(an, "CategoryEditorApplication"), ye(an, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
+  Re(an, an, "DEFAULT_OPTIONS"),
   {
-    id: `${Ce}-criterion-editor`,
+    id: `${Te}-criterion-editor`,
     classes: Array.from(
-      /* @__PURE__ */ new Set([...((Mu = Re(rn, rn, "DEFAULT_OPTIONS")) == null ? void 0 : Mu.classes) ?? [], "standard-form", "themed"])
+      /* @__PURE__ */ new Set([...((Mu = Re(an, an, "DEFAULT_OPTIONS")) == null ? void 0 : Mu.classes) ?? [], "standard-form", "themed"])
     ),
     window: {
       title: E("EIDOLON.SceneCriteria.EditCategory", "Edit Criterion"),
@@ -2916,50 +2916,50 @@ ge = new WeakMap(), ln = new WeakMap(), De = new WeakSet(), vd = /* @__PURE__ */
     }
   },
   { inplace: !1 }
-)), ye(rn, "PARTS", {
+)), ye(an, "PARTS", {
   content: {
-    template: `modules/${Ce}/templates/scene-criteria-editor.html`
+    template: `modules/${Te}/templates/scene-criteria-editor.html`
   }
 });
-let sl = rn;
+let sl = an;
 function or(t) {
   return String(t ?? "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "criterion";
 }
 c(or, "slugifyKey");
-const rh = `modules/${Ce}/templates/scene-criteria-tab.html`, ll = {
+const oh = `modules/${Te}/templates/scene-criteria-tab.html`, ll = {
   log: /* @__PURE__ */ c((...t) => {
     var e;
-    return (e = console.debug) == null ? void 0 : e.call(console, `${Ce} | Criteria`, ...t);
+    return (e = console.debug) == null ? void 0 : e.call(console, `${Te} | Criteria`, ...t);
   }, "log"),
   group: /* @__PURE__ */ c((...t) => {
     var e;
-    return (e = console.groupCollapsed) == null ? void 0 : e.call(console, `${Ce} | Criteria`, ...t);
+    return (e = console.groupCollapsed) == null ? void 0 : e.call(console, `${Te} | Criteria`, ...t);
   }, "group"),
   groupEnd: /* @__PURE__ */ c(() => {
     var t;
     return (t = console.groupEnd) == null ? void 0 : t.call(console);
   }, "groupEnd")
-}, ah = Bo(sl), oh = dd({
+}, sh = Bo(sl), lh = dd({
   tabId: "criteria",
   tabLabel: /* @__PURE__ */ c(() => E("EIDOLON.SceneCriteria.TabLabel", "Criteria"), "tabLabel"),
-  getScene: Kt,
+  getScene: Jt,
   isApplicable: /* @__PURE__ */ c(() => Uo(), "isApplicable"),
-  renderContent: /* @__PURE__ */ c(({ app: t, tab: e, scene: n }) => lh(t, e, n), "renderContent"),
+  renderContent: /* @__PURE__ */ c(({ app: t, tab: e, scene: n }) => uh(t, e, n), "renderContent"),
   logger: ll
 });
-function sh() {
-  return oh.register();
+function ch() {
+  return lh.register();
 }
-c(sh, "registerSceneCriteriaConfigHook");
-function lh(t, e, n) {
+c(ch, "registerSceneCriteriaConfigHook");
+function uh(t, e, n) {
   if (!(e instanceof HTMLElement)) return;
-  const i = Ke(n) ? n : Kt(t);
+  const i = Ke(n) ? n : Jt(t);
   Mi(t, e, i);
 }
-c(lh, "renderCriteriaTab");
+c(uh, "renderCriteriaTab");
 async function Mi(t, e, n) {
   var r, a;
-  const i = n ?? Kt(t);
+  const i = n ?? Jt(t);
   ll.group("renderCriteriaTabContent", { sceneId: (i == null ? void 0 : i.id) ?? null });
   try {
     if (!Ke(i)) {
@@ -2975,7 +2975,7 @@ async function Mi(t, e, n) {
       e.innerHTML = `<p class="notes">${E("EIDOLON.SceneCriteria.CategoryListEmpty", "No criteria configured for this scene.")}</p>`;
       return;
     }
-    const u = await l(rh, {
+    const u = await l(oh, {
       description: E(
         "EIDOLON.SceneCriteria.Description",
         "Define scene criteria dimensions and allowed values used by matching rules."
@@ -3009,23 +3009,23 @@ async function Mi(t, e, n) {
             value: p,
             isCurrent: (s[d.key] ?? d.default) === p
           })),
-          valueCountLabel: uh(d.values.length),
+          valueCountLabel: fh(d.values.length),
           canMoveUp: h > 0,
           canMoveDown: h < o.length - 1
         };
       }),
       hasCriteria: o.length > 0
     });
-    e.innerHTML = u, ch(t, e, i);
+    e.innerHTML = u, dh(t, e, i);
   } catch (o) {
-    console.error(`${Ce} | Failed to render criteria tab`, o), e.innerHTML = `<p class="notes">${E("EIDOLON.SceneCriteria.CategoryListEmpty", "No criteria configured for this scene.")}</p>`;
+    console.error(`${Te} | Failed to render criteria tab`, o), e.innerHTML = `<p class="notes">${E("EIDOLON.SceneCriteria.CategoryListEmpty", "No criteria configured for this scene.")}</p>`;
   } finally {
     ll.groupEnd();
   }
 }
 c(Mi, "renderCriteriaTabContent");
-function ch(t, e, n) {
-  const i = n ?? Kt(t);
+function dh(t, e, n) {
+  const i = n ?? Jt(t);
   if (!Ke(i)) return;
   const r = e.querySelector('[data-criteria-action="add"]');
   r && r.addEventListener("click", () => {
@@ -3077,7 +3077,7 @@ function ch(t, e, n) {
     });
   });
 }
-c(ch, "bindCriteriaTabEvents");
+c(dh, "bindCriteriaTabEvents");
 async function ms(t, e) {
   const n = pt(t).sort((r, a) => r.order - a.order);
   if (e(n) === !1) return !1;
@@ -3089,10 +3089,10 @@ async function ms(t, e) {
 }
 c(ms, "mutateCriteria");
 function jc(t, e = {}) {
-  const n = e.scene ?? null, i = n && Ke(n) ? n : Kt(t);
+  const n = e.scene ?? null, i = n && Ke(n) ? n : Jt(t);
   if (!Ke(i))
     return;
-  ah({
+  sh({
     scene: i,
     criterion: e.criterion ?? null,
     isNew: !!e.isNew,
@@ -3106,27 +3106,27 @@ function hs(t) {
   });
 }
 c(hs, "reindexCriteriaOrder");
-function uh(t) {
+function fh(t) {
   var e, n;
   if ((n = (e = game.i18n) == null ? void 0 : e.has) != null && n.call(e, "EIDOLON.SceneCriteria.ValueCountLabel"))
     try {
       return game.i18n.format("EIDOLON.SceneCriteria.ValueCountLabel", { count: t });
     } catch (i) {
-      console.error(`${Ce} | Failed to format value count label`, i);
+      console.error(`${Te} | Failed to format value count label`, i);
     }
   return t === 0 ? "No values configured" : t === 1 ? "1 value" : `${t} values`;
 }
-c(uh, "formatValueCount");
+c(fh, "formatValueCount");
 let Bc = !1;
-function dh() {
+function mh() {
   Hooks.once("init", () => {
-    Zm();
+    th();
   }), Hooks.once("ready", () => {
-    Uo() && (Bc || (sh(), Bc = !0));
+    Uo() && (Bc || (ch(), Bc = !0));
   });
 }
-c(dh, "registerSceneCriteriaHooks");
-dh();
+c(mh, "registerSceneCriteriaHooks");
+mh();
 const ie = T, Ed = "criteriaEngineVersion", gi = "fileIndex", pi = "tileCriteria", ac = {
   LEGACY: 1,
   CRITERIA: 2
@@ -3136,7 +3136,7 @@ function Cd(t) {
   return ((e = t == null ? void 0 : t.getFlag) == null ? void 0 : e.call(t, ie, Ed)) ?? ac.LEGACY;
 }
 c(Cd, "getSceneEngineVersion");
-function fh(t, e, n, i, r) {
+function hh(t, e, n, i, r) {
   if (!(t != null && t.length) || !(n != null && n.length)) return -1;
   const a = {};
   for (const s of n)
@@ -3154,7 +3154,7 @@ function fh(t, e, n, i, r) {
   }
   return -1;
 }
-c(fh, "findBestMatch");
+c(hh, "findBestMatch");
 function Uc(t, e, n) {
   return t.findIndex((i) => {
     for (const r of n)
@@ -3163,7 +3163,7 @@ function Uc(t, e, n) {
   });
 }
 c(Uc, "findExactMatch");
-function mh(t, e) {
+function gh(t, e) {
   if (!(t != null && t.length)) return -1;
   let n = -1, i = -1;
   for (let r = 0; r < t.length; r += 1) {
@@ -3182,7 +3182,7 @@ function mh(t, e) {
   }
   return n;
 }
-c(mh, "findFileIndex");
+c(gh, "findFileIndex");
 function Ea(t) {
   return t && typeof t == "object" && !Array.isArray(t);
 }
@@ -3191,7 +3191,7 @@ function Vc(t) {
   return t == null ? t : typeof structuredClone == "function" ? structuredClone(t) : JSON.parse(JSON.stringify(t));
 }
 c(Vc, "deepClone");
-function hh(t, e) {
+function ph(t, e) {
   if (!e) return;
   const n = e.split(".").filter(Boolean);
   if (!n.length) return;
@@ -3202,13 +3202,13 @@ function hh(t, e) {
   }
   delete i[n.at(-1)];
 }
-c(hh, "deletePath");
+c(ph, "deletePath");
 function Td(t, e) {
   const n = Vc(t ?? {});
   if (!Ea(e)) return n;
   for (const [i, r] of Object.entries(e)) {
     if (i.startsWith("-=") && r === !0) {
-      hh(n, i.slice(2));
+      ph(n, i.slice(2));
       continue;
     }
     Ea(r) && Ea(n[i]) ? n[i] = Td(n[i], r) : n[i] = Vc(r);
@@ -3216,28 +3216,28 @@ function Td(t, e) {
   return n;
 }
 c(Td, "fallbackMerge");
-function gh(t, e) {
+function yh(t, e) {
   var n, i;
   return (n = foundry == null ? void 0 : foundry.utils) != null && n.mergeObject && ((i = foundry == null ? void 0 : foundry.utils) != null && i.deepClone) ? foundry.utils.mergeObject(t, foundry.utils.deepClone(e), {
     inplace: !1
   }) : Td(t, e);
 }
-c(gh, "defaultMerge");
-function ph(t, e) {
+c(yh, "defaultMerge");
+function bh(t, e) {
   if (!t) return !0;
   for (const n of Object.keys(t))
     if (t[n] !== e[n]) return !1;
   return !0;
 }
-c(ph, "criteriaMatch");
+c(bh, "criteriaMatch");
 function Ld(t, e, n, i) {
-  const r = i ?? gh;
+  const r = i ?? yh;
   let a = r({}, t ?? {});
   if (!(e != null && e.length)) return a;
   const o = [];
   for (let s = 0; s < e.length; s += 1) {
     const l = e[s];
-    if (ph(l == null ? void 0 : l.criteria, n)) {
+    if (bh(l == null ? void 0 : l.criteria, n)) {
       const u = l != null && l.criteria ? Object.keys(l.criteria).length : 0;
       o.push({ specificity: u, index: s, delta: l == null ? void 0 : l.delta });
     }
@@ -3268,23 +3268,23 @@ function Go(t = null) {
   return !!n.isOwner;
 }
 c(Go, "canManageCriteria");
-function yh(t = null) {
+function vh(t = null) {
   if (!Go(t))
     throw new Error(`${ie} | You do not have permission to manage scene criteria.`);
 }
-c(yh, "requireCriteriaAccess");
-const bh = /* @__PURE__ */ c((...t) => console.log(`${ie} | criteria tiles:`, ...t), "log$1");
+c(vh, "requireCriteriaAccess");
+const wh = /* @__PURE__ */ c((...t) => console.log(`${ie} | criteria tiles:`, ...t), "log$1");
 let Ba = /* @__PURE__ */ new WeakMap(), Ua = /* @__PURE__ */ new WeakMap();
 const Gc = 200;
-function vh(t) {
+function Eh(t) {
   return t ? Number.isInteger(t.size) ? t.size : Array.isArray(t) || typeof t.length == "number" ? t.length : Array.from(t).length : 0;
 }
-c(vh, "getCollectionSize$1");
+c(Eh, "getCollectionSize$1");
 function oa() {
   return typeof (performance == null ? void 0 : performance.now) == "function" ? performance.now() : Date.now();
 }
 c(oa, "nowMs$2");
-function wh(t) {
+function Sh(t) {
   if (!Array.isArray(t)) return [];
   const e = /* @__PURE__ */ new Set();
   for (const n of t) {
@@ -3294,23 +3294,23 @@ function wh(t) {
   }
   return Array.from(e);
 }
-c(wh, "uniqueStringKeys$1");
-function Eh(t, e = Gc) {
+c(Sh, "uniqueStringKeys$1");
+function Ch(t, e = Gc) {
   if (!Array.isArray(t) || t.length === 0) return [];
   const n = Number.isInteger(e) && e > 0 ? e : Gc, i = [];
   for (let r = 0; r < t.length; r += n)
     i.push(t.slice(r, r + n));
   return i;
 }
-c(Eh, "chunkArray$1");
-async function Sh(t, e, n) {
-  const i = Eh(e, n);
+c(Ch, "chunkArray$1");
+async function Th(t, e, n) {
+  const i = Ch(e, n);
   for (const r of i)
     await t.updateEmbeddedDocuments("Tile", r), i.length > 1 && await Promise.resolve();
   return i.length;
 }
-c(Sh, "updateTilesInChunks");
-function Ch(t) {
+c(Th, "updateTilesInChunks");
+function Lh(t) {
   var i;
   const e = Ei(t, { files: null });
   if (!((i = e == null ? void 0 : e.variants) != null && i.length)) return [];
@@ -3320,14 +3320,14 @@ function Ch(t) {
       a && n.add(a);
   return Array.from(n);
 }
-c(Ch, "getTileCriteriaDependencyKeys");
-function Th(t, e) {
+c(Lh, "getTileCriteriaDependencyKeys");
+function Ih(t, e) {
   const n = /* @__PURE__ */ new Map(), i = /* @__PURE__ */ new Set();
   for (const r of e) {
     const a = r.getFlag(ie, pi) ?? r.getFlag(ie, gi);
     if (a) {
       i.add(r.id);
-      for (const o of Ch(a))
+      for (const o of Lh(a))
         n.has(o) || n.set(o, /* @__PURE__ */ new Set()), n.get(o).add(r.id);
     }
   }
@@ -3337,19 +3337,19 @@ function Th(t, e) {
     allTileIds: i
   };
 }
-c(Th, "buildTileDependencyIndex");
-function Lh(t, e) {
+c(Ih, "buildTileDependencyIndex");
+function Oh(t, e) {
   const n = Ua.get(t);
   if ((n == null ? void 0 : n.collection) === e) return n;
-  const i = Th(t, e);
+  const i = Ih(t, e);
   return Ua.set(t, i), i;
 }
-c(Lh, "getTileDependencyIndex");
-function Ih(t, e, n) {
-  const i = wh(n);
+c(Oh, "getTileDependencyIndex");
+function Ah(t, e, n) {
+  const i = Sh(n);
   if (!i.length)
     return Array.from(e ?? []);
-  const r = Lh(t, e), a = /* @__PURE__ */ new Set();
+  const r = Oh(t, e), a = /* @__PURE__ */ new Set();
   for (const o of i) {
     const s = r.keyToTileIds.get(o);
     if (s)
@@ -3358,7 +3358,7 @@ function Ih(t, e, n) {
   }
   return a.size ? typeof (e == null ? void 0 : e.get) == "function" ? Array.from(a).map((o) => e.get(o)).filter(Boolean) : Array.from(e ?? []).filter((o) => a.has(o.id)) : [];
 }
-c(Ih, "getTilesForChangedKeys");
+c(Ah, "getTilesForChangedKeys");
 function Id(t) {
   return typeof (t == null ? void 0 : t.name) == "string" ? t.name : typeof (t == null ? void 0 : t.src) == "string" ? t.src : "";
 }
@@ -3394,12 +3394,12 @@ function oc(t) {
   });
 }
 c(oc, "buildTileFileEntries");
-function Hn(t, e) {
+function qn(t, e) {
   if (!Number.isInteger(e) || e < 0) return null;
   const i = oc(t).find((r) => r.index === e);
   return i ? { ...i.target } : { indexHint: e };
 }
-c(Hn, "createTileTargetFromIndex");
+c(qn, "createTileTargetFromIndex");
 function zo(t) {
   if (!t || typeof t != "object") return null;
   const e = Va(t.path), n = Number(t.indexHint ?? t.fileIndex), i = Number(t.occurrence), r = {};
@@ -3426,31 +3426,31 @@ function Lr(t, e) {
   return Number.isInteger(n.indexHint) && n.indexHint < i.length ? n.indexHint : -1;
 }
 c(Lr, "resolveTileTargetIndex");
-function qn(t) {
+function jn(t) {
   if (!t || typeof t != "object" || Array.isArray(t)) return {};
   const e = {};
   for (const [n, i] of Object.entries(t))
     typeof n != "string" || !n || typeof i != "string" || !i.trim() || (e[n] = i.trim());
   return e;
 }
-c(qn, "sanitizeCriteria");
-function Oh(t) {
-  return Object.entries(qn(t)).sort(([n], [i]) => n.localeCompare(i)).map(([n, i]) => `${n}=${i}`).join("");
+c(jn, "sanitizeCriteria");
+function kh(t) {
+  return Object.entries(jn(t)).sort(([n], [i]) => n.localeCompare(i)).map(([n, i]) => `${n}=${i}`).join("");
 }
-c(Oh, "serializeCriteria");
-function Ah(t) {
-  return Object.keys(qn(t)).length;
+c(kh, "serializeCriteria");
+function Mh(t) {
+  return Object.keys(jn(t)).length;
 }
-c(Ah, "getCriteriaSpecificity");
-function kh(t, e) {
-  const n = qn(t), i = qn(e);
+c(Mh, "getCriteriaSpecificity");
+function Nh(t, e) {
+  const n = jn(t), i = jn(e);
   for (const [r, a] of Object.entries(n))
     if (r in i && i[r] !== a)
       return !1;
   return !0;
 }
-c(kh, "areCriteriaCompatible");
-function Mh(t, e) {
+c(Nh, "areCriteriaCompatible");
+function $h(t, e) {
   const n = Lr(t, e);
   if (Number.isInteger(n) && n >= 0)
     return `index:${n}`;
@@ -3462,7 +3462,7 @@ function Mh(t, e) {
   }
   return Number.isInteger(i.indexHint) ? `hint:${i.indexHint}` : "";
 }
-c(Mh, "getTargetIdentity");
+c($h, "getTargetIdentity");
 function Od(t, e = {}) {
   var s;
   const n = Array.isArray(e.files) ? e.files : [], i = Ei(t, { files: n });
@@ -3473,16 +3473,16 @@ function Od(t, e = {}) {
     };
   const r = i.variants.map((l, u) => ({
     index: u,
-    criteria: qn(l.criteria),
-    specificity: Ah(l.criteria),
-    criteriaSignature: Oh(l.criteria),
-    targetIdentity: Mh(l.target, n)
+    criteria: jn(l.criteria),
+    specificity: Mh(l.criteria),
+    criteriaSignature: kh(l.criteria),
+    targetIdentity: $h(l.target, n)
   })), a = [], o = [];
   for (let l = 0; l < r.length; l += 1) {
     const u = r[l];
     for (let d = l + 1; d < r.length; d += 1) {
       const h = r[d];
-      if (u.specificity !== h.specificity || !kh(u.criteria, h.criteria)) continue;
+      if (u.specificity !== h.specificity || !Nh(u.criteria, h.criteria)) continue;
       if (!(!!u.targetIdentity && u.targetIdentity === h.targetIdentity)) {
         a.push({
           leftIndex: u.index,
@@ -3505,30 +3505,30 @@ function Od(t, e = {}) {
   };
 }
 c(Od, "detectTileCriteriaConflicts");
-function Nh(t, e) {
+function xh(t, e) {
   if (!t || typeof t != "object") return null;
   let n = zo(t.target);
   if (!n) {
     const i = Number(t.fileIndex);
-    Number.isInteger(i) && i >= 0 && (n = Hn(e, i));
+    Number.isInteger(i) && i >= 0 && (n = qn(e, i));
   }
   return n ? {
-    criteria: qn(t.criteria),
+    criteria: jn(t.criteria),
     target: n
   } : null;
 }
-c(Nh, "normalizeTileVariant");
+c(xh, "normalizeTileVariant");
 function Ad(t, e = {}) {
   if (!Array.isArray(t) || t.length === 0) return null;
   const n = Array.isArray(e.files) ? e.files : null, i = t.map((l, u) => ({
-    criteria: qn(l),
-    target: Hn(n, u)
+    criteria: jn(l),
+    target: qn(n, u)
   })).filter((l) => l.target);
   if (!i.length) return null;
   const r = i.find((l) => Object.keys(l.criteria).length === 0), a = (r == null ? void 0 : r.target) ?? i[0].target;
   let o = null;
   const s = Number(e.defaultFileIndex);
-  return Number.isInteger(s) && s >= 0 && (o = Hn(n, s)), o || (o = a), {
+  return Number.isInteger(s) && s >= 0 && (o = qn(n, s)), o || (o = a), {
     strategy: "select-one",
     variants: i,
     defaultTarget: o
@@ -3540,12 +3540,12 @@ function Ei(t, e = {}) {
   if (Array.isArray(t))
     return Ad(t, { files: n });
   if (!t || typeof t != "object") return null;
-  const i = Array.isArray(t.variants) ? t.variants.map((a) => Nh(a, n)).filter(Boolean) : [];
+  const i = Array.isArray(t.variants) ? t.variants.map((a) => xh(a, n)).filter(Boolean) : [];
   if (!i.length) return null;
   let r = zo(t.defaultTarget);
   if (!r) {
     const a = Number(t.defaultFileIndex);
-    Number.isInteger(a) && a >= 0 && (r = Hn(n, a));
+    Number.isInteger(a) && a >= 0 && (r = qn(n, a));
   }
   if (!r) {
     const a = i.find((o) => Object.keys(o.criteria).length === 0);
@@ -3558,7 +3558,7 @@ function Ei(t, e = {}) {
   };
 }
 c(Ei, "normalizeTileCriteria");
-function $h(t, e) {
+function _h(t, e) {
   if (!t) return -1;
   let n = -1, i = -1;
   for (const r of t.variants) {
@@ -3573,12 +3573,12 @@ function $h(t, e) {
   }
   return n >= 0 ? n : t.defaultIndex;
 }
-c($h, "selectTileFileIndexFromCompiled");
-function xh(t, e) {
+c(_h, "selectTileFileIndexFromCompiled");
+function Fh(t, e) {
   const n = Ei(t, { files: e });
   if (!n) return null;
   const i = n.variants.map((a) => {
-    const o = qn(a.criteria), s = Lr(a.target, e);
+    const o = jn(a.criteria), s = Lr(a.target, e);
     return !Number.isInteger(s) || s < 0 ? null : {
       criteria: o,
       keys: Object.keys(o),
@@ -3590,23 +3590,23 @@ function xh(t, e) {
     defaultIndex: r
   };
 }
-c(xh, "compileTileMatcher");
-function _h(t, e, n) {
+c(Fh, "compileTileMatcher");
+function Dh(t, e, n) {
   const i = Ba.get(t);
   if (i && i.tileCriteria === e && i.files === n)
     return i.compiled;
-  const r = xh(e, n);
+  const r = Fh(e, n);
   return Ba.set(t, {
     tileCriteria: e,
     files: n,
     compiled: r
   }), r;
 }
-c(_h, "getCompiledTileMatcher");
-function Fh(t = null, e = null) {
+c(Dh, "getCompiledTileMatcher");
+function Ph(t = null, e = null) {
   t ? Ua.delete(t) : Ua = /* @__PURE__ */ new WeakMap(), e ? Ba.delete(e) : t || (Ba = /* @__PURE__ */ new WeakMap());
 }
-c(Fh, "invalidateTileCriteriaCaches");
+c(Ph, "invalidateTileCriteriaCaches");
 async function kd(t, e, n = {}) {
   var l, u, d, h;
   const i = oa(), r = {
@@ -3626,8 +3626,8 @@ async function kd(t, e, n = {}) {
   if (e = e ?? ((l = game.scenes) == null ? void 0 : l.viewed), !e)
     return r.durationMs = oa() - i, r;
   const a = e.getEmbeddedCollection("Tile") ?? [];
-  r.total = vh(a);
-  const o = Ih(e, a, n.changedKeys);
+  r.total = Eh(a);
+  const o = Ah(e, a, n.changedKeys);
   if (r.scanned = o.length, !o.length)
     return r.skipped.unaffected = r.total, r.durationMs = oa() - i, r;
   const s = [];
@@ -3642,28 +3642,28 @@ async function kd(t, e, n = {}) {
       r.skipped.noFiles += 1;
       continue;
     }
-    const y = _h(f, g, p), v = $h(y, t);
+    const y = Dh(f, g, p), v = _h(y, t);
     if (!Number.isInteger(v) || v < 0 || v >= p.length) {
       console.warn(`${ie} | Tile ${f.id} has no valid file match for state`, t), r.skipped.noMatch += 1;
       continue;
     }
-    const b = v + 1, C = Number(f.getFlag("monks-active-tiles", "fileindex")) !== b, L = p.some((D, P) => !!(D != null && D.selected) != (P === v)), A = Va(((u = f.texture) == null ? void 0 : u.src) ?? ((h = (d = f._source) == null ? void 0 : d.texture) == null ? void 0 : h.src) ?? ""), O = Id(p[v]), M = Va(O), _ = !!M && M !== A;
-    if (!L && !C && !_) {
+    const b = v + 1, C = Number(f.getFlag("monks-active-tiles", "fileindex")) !== b, I = p.some((D, P) => !!(D != null && D.selected) != (P === v)), A = Va(((u = f.texture) == null ? void 0 : u.src) ?? ((h = (d = f._source) == null ? void 0 : d.texture) == null ? void 0 : h.src) ?? ""), O = Id(p[v]), M = Va(O), _ = !!M && M !== A;
+    if (!I && !C && !_) {
       r.skipped.unchanged += 1;
       continue;
     }
     const j = {
       _id: f._id
     };
-    L && (j["flags.monks-active-tiles.files"] = p.map((D, P) => ({
+    I && (j["flags.monks-active-tiles.files"] = p.map((D, P) => ({
       ...D,
       selected: P === v
-    }))), C && (j["flags.monks-active-tiles.fileindex"] = b), _ && (j.texture = { src: O }), s.push(j), bh(`Tile ${f.id} -> ${O}`);
+    }))), C && (j["flags.monks-active-tiles.fileindex"] = b), _ && (j.texture = { src: O }), s.push(j), wh(`Tile ${f.id} -> ${O}`);
   }
-  return s.length > 0 && (r.chunks = await Sh(e, s, n.chunkSize), r.updated = s.length), r.durationMs = oa() - i, r;
+  return s.length > 0 && (r.chunks = await Th(e, s, n.chunkSize), r.updated = s.length), r.durationMs = oa() - i, r;
 }
 c(kd, "updateTiles");
-function Dh() {
+function Rh() {
   if (!globalThis.Tagger) return [];
   const t = ["Checkbox", "Tile", "Settings", "Toggleable Lights"], e = [
     "Checkbox",
@@ -3682,7 +3682,7 @@ function Dh() {
   }
   return i;
 }
-c(Dh, "buildLightControlsMap");
+c(Rh, "buildLightControlsMap");
 const yi = T, ji = "lightCriteria", sc = Object.freeze({
   base: null,
   mappings: [],
@@ -3700,7 +3700,7 @@ function Md(t, e) {
     if (gs(r) && gs(a)) {
       const o = Md(a, r);
       Object.keys(o).length > 0 && (n[i] = o);
-    } else r !== a && (n[i] = Wt(r));
+    } else r !== a && (n[i] = Yt(r));
   }
   return n;
 }
@@ -3722,7 +3722,7 @@ c($d, "setLightCriteriaState");
 async function Xr(t, e) {
   if (typeof e != "function")
     throw new TypeError("updateLightCriteriaState requires an updater function.");
-  const n = Wt(Nd(t)), i = await e(n);
+  const n = Yt(Nd(t)), i = await e(n);
   return $d(t, i);
 }
 c(Xr, "updateLightCriteriaState");
@@ -3760,7 +3760,7 @@ async function Wc(t, e, n, { label: i } = {}) {
   });
 }
 c(Wc, "upsertLightCriteriaMapping");
-async function Ph(t, e, n, i, { replaceExisting: r = !1 } = {}) {
+async function Hh(t, e, n, i, { replaceExisting: r = !1 } = {}) {
   const a = typeof e == "string" ? e.trim() : "";
   if (!a)
     throw new Error("A mapping id is required to retarget criteria.");
@@ -3812,8 +3812,8 @@ async function Ph(t, e, n, i, { replaceExisting: r = !1 } = {}) {
     };
   });
 }
-c(Ph, "retargetLightCriteriaMapping");
-async function Rh(t, e) {
+c(Hh, "retargetLightCriteriaMapping");
+async function qh(t, e) {
   const n = typeof e == "string" ? e.trim() : "";
   if (!n)
     throw new Error("A mapping id is required to remove a mapping.");
@@ -3829,7 +3829,7 @@ async function Rh(t, e) {
     };
   });
 }
-c(Rh, "removeLightCriteriaMapping");
+c(qh, "removeLightCriteriaMapping");
 async function pr(t, e) {
   const n = xd(e);
   return Xr(t, (i) => ({
@@ -3838,7 +3838,7 @@ async function pr(t, e) {
   }));
 }
 c(pr, "storeCurrentCriteriaSelection");
-function Hh(t) {
+function jh(t) {
   const e = Ir(t), n = e.base ?? {}, i = [];
   for (const r of e.mappings) {
     const a = Qr(r == null ? void 0 : r.categories);
@@ -3854,8 +3854,8 @@ function Hh(t) {
     rules: i
   };
 }
-c(Hh, "convertLightCriteriaStateToPresets");
-function qh(t, e = []) {
+c(jh, "convertLightCriteriaStateToPresets");
+function Bh(t, e = []) {
   const n = /* @__PURE__ */ new Map(), i = /* @__PURE__ */ new Set();
   for (const l of e)
     typeof (l == null ? void 0 : l.key) == "string" && l.key.trim() && i.add(l.key.trim()), typeof (l == null ? void 0 : l.id) == "string" && l.id.trim() && typeof (l == null ? void 0 : l.key) == "string" && n.set(l.id.trim(), l.key.trim());
@@ -3894,12 +3894,12 @@ function qh(t, e = []) {
     current: s
   });
 }
-c(qh, "migrateLightCriteriaCategoriesToKeys");
+c(Bh, "migrateLightCriteriaCategoriesToKeys");
 function Ir(t) {
   var l;
-  const e = Wt(t);
+  const e = Yt(t);
   if (!e || typeof e != "object")
-    return Wt(sc);
+    return Yt(sc);
   const n = Si(e.base), i = Array.isArray(e.mappings) ? e.mappings : [], r = /* @__PURE__ */ new Map();
   for (const u of i) {
     const d = Wo(u);
@@ -3929,7 +3929,7 @@ function Ir(t) {
 }
 c(Ir, "sanitizeLightCriteriaState");
 function Si(t) {
-  const e = Wt(t);
+  const e = Yt(t);
   if (!e || typeof e != "object") return null;
   "_id" in e && delete e._id, "id" in e && delete e.id;
   const n = e.flags;
@@ -4007,15 +4007,15 @@ c(Kc, "normalizeCategoryValue");
 const Ga = ["AmbientLight", "Wall", "AmbientSound"];
 let za = /* @__PURE__ */ new WeakMap(), Wa = /* @__PURE__ */ new WeakMap();
 const Jc = 200;
-function jh(t) {
+function Uh(t) {
   return t ? Number.isInteger(t.size) ? t.size : Array.isArray(t) || typeof t.length == "number" ? t.length : Array.from(t).length : 0;
 }
-c(jh, "getCollectionSize");
+c(Uh, "getCollectionSize");
 function ps() {
   return typeof (performance == null ? void 0 : performance.now) == "function" ? performance.now() : Date.now();
 }
 c(ps, "nowMs$1");
-function Bh(t) {
+function Vh(t) {
   if (!Array.isArray(t)) return [];
   const e = /* @__PURE__ */ new Set();
   for (const n of t) {
@@ -4025,31 +4025,31 @@ function Bh(t) {
   }
   return Array.from(e);
 }
-c(Bh, "uniqueStringKeys");
-function Uh(t, e = Jc) {
+c(Vh, "uniqueStringKeys");
+function Gh(t, e = Jc) {
   if (!Array.isArray(t) || t.length === 0) return [];
   const n = Number.isInteger(e) && e > 0 ? e : Jc, i = [];
   for (let r = 0; r < t.length; r += n)
     i.push(t.slice(r, r + n));
   return i;
 }
-c(Uh, "chunkArray");
-async function Vh(t, e, n, i) {
-  const r = Uh(n, i);
+c(Gh, "chunkArray");
+async function zh(t, e, n, i) {
+  const r = Gh(n, i);
   for (const a of r)
     await t.updateEmbeddedDocuments(e, a), r.length > 1 && await Promise.resolve();
   return r.length;
 }
-c(Vh, "updatePlaceablesInChunks");
-function Gh(t) {
+c(zh, "updatePlaceablesInChunks");
+function Wh(t) {
   const e = /* @__PURE__ */ new Set();
   for (const n of (t == null ? void 0 : t.rules) ?? [])
     for (const i of Object.keys((n == null ? void 0 : n.criteria) ?? {}))
       i && e.add(i);
   return Array.from(e);
 }
-c(Gh, "getPresetDependencyKeys");
-function zh(t, e) {
+c(Wh, "getPresetDependencyKeys");
+function Yh(t, e) {
   const n = /* @__PURE__ */ new Map();
   for (const i of Ga) {
     const r = e.get(i) ?? [], a = /* @__PURE__ */ new Set(), o = /* @__PURE__ */ new Map();
@@ -4057,7 +4057,7 @@ function zh(t, e) {
       const l = Dd(s, i);
       if (l != null && l.base) {
         a.add(s.id);
-        for (const u of Gh(l))
+        for (const u of Wh(l))
           o.has(u) || o.set(u, /* @__PURE__ */ new Set()), o.get(u).add(s.id);
       }
     }
@@ -4071,18 +4071,18 @@ function zh(t, e) {
     byType: n
   };
 }
-c(zh, "buildPlaceableDependencyIndex");
-function Wh(t, e) {
+c(Yh, "buildPlaceableDependencyIndex");
+function Kh(t, e) {
   const n = Wa.get(t);
   if (n && Ga.every((r) => n.collectionsByType.get(r) === e.get(r)))
     return n;
-  const i = zh(t, e);
+  const i = Yh(t, e);
   return Wa.set(t, i), i;
 }
-c(Wh, "getPlaceableDependencyIndex");
-function Yh(t, e, n) {
+c(Kh, "getPlaceableDependencyIndex");
+function Jh(t, e, n) {
   if (!e || !t) return [];
-  const i = Bh(n);
+  const i = Vh(n);
   if (!i.length)
     return typeof t.get == "function" ? Array.from(e.allDocIds).map((a) => t.get(a)).filter(Boolean) : Array.from(t).filter((a) => e.allDocIds.has(a.id));
   const r = /* @__PURE__ */ new Set();
@@ -4093,7 +4093,7 @@ function Yh(t, e, n) {
   }
   return r.size ? typeof t.get == "function" ? Array.from(r).map((a) => t.get(a)).filter(Boolean) : Array.from(t).filter((a) => r.has(a.id)) : [];
 }
-c(Yh, "getDocsForChangedKeys");
+c(Jh, "getDocsForChangedKeys");
 function _i(t) {
   return !!t && typeof t == "object" && !Array.isArray(t);
 }
@@ -4151,7 +4151,7 @@ function Dd(t, e) {
     });
   }
   if (!o && e === "AmbientLight" && (n != null && n.lightCriteria)) {
-    const l = Hh(n.lightCriteria);
+    const l = jh(n.lightCriteria);
     (l.base && Object.keys(l.base).length > 0 || l.rules.length > 0) && (o = {
       base: l.base,
       rules: l.rules
@@ -4165,10 +4165,10 @@ function Dd(t, e) {
   }), o;
 }
 c(Dd, "getPresetsForDocument");
-function Kh(t = null, e = null) {
+function Xh(t = null, e = null) {
   t ? Wa.delete(t) : Wa = /* @__PURE__ */ new WeakMap(), e ? za.delete(e) : t || (za = /* @__PURE__ */ new WeakMap());
 }
-c(Kh, "invalidatePlaceableCriteriaCaches");
+c(Xh, "invalidatePlaceableCriteriaCaches");
 async function Pd(t, e, n = {}) {
   var l, u;
   const i = ps(), r = {
@@ -4181,16 +4181,16 @@ async function Pd(t, e, n = {}) {
   };
   if (e = e ?? ((l = game.scenes) == null ? void 0 : l.viewed), !e)
     return r.durationMs = ps() - i, r;
-  const a = new Set(Dh()), o = new Map(
+  const a = new Set(Rh()), o = new Map(
     Ga.map((d) => [d, e.getEmbeddedCollection(d) ?? []])
-  ), s = Wh(e, o);
+  ), s = Kh(e, o);
   for (const d of Ga) {
     const h = o.get(d) ?? [], f = {
-      total: jh(h),
+      total: Uh(h),
       scanned: 0,
       updated: 0,
       chunks: 0
-    }, g = s.byType.get(d) ?? null, p = Yh(h, g, n.changedKeys);
+    }, g = s.byType.get(d) ?? null, p = Jh(h, g, n.changedKeys);
     if (f.scanned = p.length, r.total += f.total, r.scanned += f.scanned, r.byType[d] = f, !p.length) continue;
     const y = [];
     for (const v of p) {
@@ -4198,10 +4198,10 @@ async function Pd(t, e, n = {}) {
       if (!(b != null && b.base)) continue;
       const w = Ld(b.base, b.rules ?? [], t);
       w._id = v._id, d === "AmbientLight" && a.has(v._id) && (w.hidden = !0);
-      const C = (v == null ? void 0 : v._source) ?? ((u = v == null ? void 0 : v.toObject) == null ? void 0 : u.call(v)) ?? {}, L = Fd(C, w);
-      L && y.push(L);
+      const C = (v == null ? void 0 : v._source) ?? ((u = v == null ? void 0 : v.toObject) == null ? void 0 : u.call(v)) ?? {}, I = Fd(C, w);
+      I && y.push(I);
     }
-    y.length > 0 && (f.chunks = await Vh(e, d, y, n.chunkSize), f.updated = y.length, r.updated += y.length, r.chunks += f.chunks, console.log(`${ie} | Updated ${y.length} ${d}(s)`));
+    y.length > 0 && (f.chunks = await zh(e, d, y, n.chunkSize), f.updated = y.length, r.updated += y.length, r.chunks += f.chunks, console.log(`${ie} | Updated ${y.length} ${d}(s)`));
   }
   return r.durationMs = ps() - i, r;
 }
@@ -4211,21 +4211,21 @@ function Ya() {
 }
 c(Ya, "nowMs");
 const sa = /* @__PURE__ */ new Map();
-function Jh(t) {
+function Qh(t) {
   var e;
   return t = t ?? ((e = game.scenes) == null ? void 0 : e.viewed), t ? Jr(t) : null;
 }
-c(Jh, "getState");
-async function Xh(t, e, n = 0) {
+c(Qh, "getState");
+async function Zh(t, e, n = 0) {
   var g;
   const i = Ya();
   if (e = e ?? ((g = game.scenes) == null ? void 0 : g.viewed), !e) return null;
-  yh(e);
+  vh(e);
   const r = pt(e);
   if (!r.length)
     return console.warn(`${ie} | applyState skipped: scene has no criteria.`), null;
   const a = Jr(e, r), o = rc({ ...a, ...t ?? {} }, r), s = r.filter((p) => (a == null ? void 0 : a[p.key]) !== (o == null ? void 0 : o[p.key])).map((p) => p.key), l = s.length > 0;
-  l && await th(e, o, r);
+  l && await ih(e, o, r);
   const u = l ? o : a, [d, h] = await Promise.all([
     kd(u, e, { changedKeys: s }),
     Pd(u, e, { changedKeys: s })
@@ -4240,7 +4240,7 @@ async function Xh(t, e, n = 0) {
     placeables: h
   }), Hooks.callAll("eidolon-utilities.criteriaStateApplied", e, u), u;
 }
-c(Xh, "applyStateInternal");
+c(Zh, "applyStateInternal");
 async function Rd(t, e) {
   var l;
   if (e = e ?? ((l = game.scenes) == null ? void 0 : l.viewed), !e) return null;
@@ -4248,7 +4248,7 @@ async function Rd(t, e) {
   let a = null;
   const o = r.catch(() => null).then(async () => {
     const u = Ya() - i;
-    return Xh(t, e, u);
+    return Zh(t, e, u);
   });
   a = o;
   const s = o.finally(() => {
@@ -4257,21 +4257,21 @@ async function Rd(t, e) {
   return sa.set(n, s), a;
 }
 c(Rd, "applyState$1");
-function Qh(t) {
+function eg(t) {
   var e;
   return t = t ?? ((e = game.scenes) == null ? void 0 : e.viewed), t ? Cd(t) : null;
 }
-c(Qh, "getVersion");
+c(eg, "getVersion");
 async function Hd(t, e) {
   var n;
   e = e ?? ((n = game.scenes) == null ? void 0 : n.viewed), e != null && e.setFlag && await e.setFlag(ie, Ed, Number(t));
 }
 c(Hd, "setVersion");
-async function Zh(t) {
+async function tg(t) {
   return Hd(Sd, t);
 }
-c(Zh, "markCurrentVersion");
-const dr = "Standard", eg = /* @__PURE__ */ c((...t) => console.log(`${ie} | criteria indexer:`, ...t), "log");
+c(tg, "markCurrentVersion");
+const dr = "Standard", ng = /* @__PURE__ */ c((...t) => console.log(`${ie} | criteria indexer:`, ...t), "log");
 function lc(t) {
   if (typeof t != "string") return null;
   let e = t;
@@ -4285,7 +4285,7 @@ function lc(t) {
   return i.length ? i : null;
 }
 c(lc, "parseFileTags");
-function tg(t, e, n = dr) {
+function ig(t, e, n = dr) {
   return t != null && t.length ? t.map((i) => {
     const r = lc(i == null ? void 0 : i.name);
     if (!r) return {};
@@ -4297,18 +4297,18 @@ function tg(t, e, n = dr) {
     return a;
   }) : [];
 }
-c(tg, "buildFileIndex");
-function ng(t, e) {
+c(ig, "buildFileIndex");
+function rg(t, e) {
   return t.map((n, i) => {
     const r = [...e[n] ?? /* @__PURE__ */ new Set()].sort(), o = r.includes(dr) ? dr : r[0] ?? dr, s = ic(n);
     return s.key = n, s.label = n.charAt(0).toUpperCase() + n.slice(1), s.values = r.length ? r : [dr], s.default = s.values.includes(o) ? o : s.values[0], s.order = i, s;
   });
 }
-c(ng, "buildCriteriaDefinitions");
+c(rg, "buildCriteriaDefinitions");
 async function la(t, e, n, { dryRun: i = !1 } = {}) {
   const r = t.getFlag("monks-active-tiles", "files");
   if (!(r != null && r.length)) return null;
-  const a = tg(r, e), o = Ad(a, { files: r });
+  const a = ig(r, e), o = Ad(a, { files: r });
   for (const s of r) {
     const l = lc(s == null ? void 0 : s.name);
     if (l)
@@ -4320,8 +4320,8 @@ async function la(t, e, n, { dryRun: i = !1 } = {}) {
   return i || (await t.setFlag(ie, pi, o), typeof t.unsetFlag == "function" && await t.unsetFlag(ie, gi)), { files: r.length };
 }
 c(la, "indexTile");
-async function ig(t, e = {}) {
-  var w, C, L, A;
+async function ag(t, e = {}) {
+  var w, C, I, A;
   const {
     dryRun: n = !1,
     force: i = !1
@@ -4339,7 +4339,7 @@ async function ig(t, e = {}) {
   if (!(s != null && s.length)) throw new Error("Map tile has no MATT files.");
   const l = lc((C = s[0]) == null ? void 0 : C.name);
   if (!(l != null && l.length))
-    throw new Error(`Cannot parse bracket tags from: ${((L = s[0]) == null ? void 0 : L.name) ?? "<unknown>"}`);
+    throw new Error(`Cannot parse bracket tags from: ${((I = s[0]) == null ? void 0 : I.name) ?? "<unknown>"}`);
   if (l.length < 3)
     throw new Error(`Expected 3+ bracket tags, found ${l.length}.`);
   const u = Tagger.getByTag("Floor", r) ?? [], d = Tagger.getByTag("Roof", r) ?? [], h = Tagger.getByTag("Weather", r) ?? [];
@@ -4368,8 +4368,8 @@ async function ig(t, e = {}) {
     const M = await la(O, p, y, { dryRun: n });
     M && v.weather.push(M);
   }
-  const b = ng(g, y);
-  return n || (await Vo(t, b), await Zh(t)), eg(
+  const b = rg(g, y);
+  return n || (await Vo(t, b), await tg(t)), ng(
     n ? "Dry run complete" : "Indexing complete",
     `- ${b.length} criteria,`,
     `${((A = v.map) == null ? void 0 : A.files) ?? 0} map files`
@@ -4380,9 +4380,9 @@ async function ig(t, e = {}) {
     overlayMode: h.length > 0
   };
 }
-c(ig, "indexScene");
-var Nu, qe, ft, mt, li, Ze, qt, Tn, Po, ce, qd, jd, Bd, dl, Ud, fl, Vd, fr, ml;
-const Et = class Et extends Gn(Vn) {
+c(ag, "indexScene");
+var Nu, qe, ft, mt, ci, Ze, jt, Tn, Po, ce, qd, jd, Bd, dl, Ud, fl, Vd, fr, ml;
+const Et = class Et extends zn(Gn) {
   constructor(n = {}) {
     var i;
     super(n);
@@ -4390,16 +4390,16 @@ const Et = class Et extends Gn(Vn) {
     k(this, qe, null);
     k(this, ft, []);
     k(this, mt, {});
-    k(this, li, !1);
+    k(this, ci, !1);
     k(this, Ze, null);
-    k(this, qt, null);
+    k(this, jt, null);
     k(this, Tn, null);
     k(this, Po, 120);
     this.setScene(n.scene ?? ((i = game.scenes) == null ? void 0 : i.viewed) ?? null);
   }
   setScene(n) {
     var i;
-    I(this, qe, n ?? ((i = game.scenes) == null ? void 0 : i.viewed) ?? null), S(this, ce, qd).call(this);
+    L(this, qe, n ?? ((i = game.scenes) == null ? void 0 : i.viewed) ?? null), S(this, ce, qd).call(this);
   }
   get scene() {
     return m(this, qe);
@@ -4444,15 +4444,15 @@ const Et = class Et extends Gn(Vn) {
     super._onRender(n, i), S(this, ce, jd).call(this), S(this, ce, Bd).call(this);
   }
   async _onClose(n) {
-    return m(this, Ze) !== null && (clearTimeout(m(this, Ze)), I(this, Ze, null)), m(this, Tn) !== null && (Hooks.off("eidolon-utilities.criteriaStateApplied", m(this, Tn)), I(this, Tn, null)), super._onClose(n);
+    return m(this, Ze) !== null && (clearTimeout(m(this, Ze)), L(this, Ze, null)), m(this, Tn) !== null && (Hooks.off("eidolon-utilities.criteriaStateApplied", m(this, Tn)), L(this, Tn, null)), super._onClose(n);
   }
 };
-qe = new WeakMap(), ft = new WeakMap(), mt = new WeakMap(), li = new WeakMap(), Ze = new WeakMap(), qt = new WeakMap(), Tn = new WeakMap(), Po = new WeakMap(), ce = new WeakSet(), qd = /* @__PURE__ */ c(function() {
+qe = new WeakMap(), ft = new WeakMap(), mt = new WeakMap(), ci = new WeakMap(), Ze = new WeakMap(), jt = new WeakMap(), Tn = new WeakMap(), Po = new WeakMap(), ce = new WeakSet(), qd = /* @__PURE__ */ c(function() {
   if (!m(this, qe)) {
-    I(this, ft, []), I(this, mt, {});
+    L(this, ft, []), L(this, mt, {});
     return;
   }
-  I(this, ft, pt(m(this, qe)).sort((n, i) => n.order - i.order)), I(this, mt, Jr(m(this, qe), m(this, ft)));
+  L(this, ft, pt(m(this, qe)).sort((n, i) => n.order - i.order)), L(this, mt, Jr(m(this, qe), m(this, ft)));
 }, "#hydrateFromScene"), jd = /* @__PURE__ */ c(function() {
   var i, r;
   const n = this.element;
@@ -4461,7 +4461,7 @@ qe = new WeakMap(), ft = new WeakMap(), mt = new WeakMap(), li = new WeakMap(), 
       const s = o.currentTarget;
       if (!(s instanceof HTMLSelectElement)) return;
       const l = s.dataset.criteriaKey;
-      l && (I(this, mt, {
+      l && (L(this, mt, {
         ...m(this, mt),
         [l]: s.value
       }), S(this, ce, Ud).call(this, { [l]: s.value }));
@@ -4472,16 +4472,16 @@ qe = new WeakMap(), ft = new WeakMap(), mt = new WeakMap(), li = new WeakMap(), 
     this.close();
   }));
 }, "#bindEvents"), Bd = /* @__PURE__ */ c(function() {
-  m(this, Tn) === null && I(this, Tn, Hooks.on("eidolon-utilities.criteriaStateApplied", (n, i) => {
-    !m(this, qe) || (n == null ? void 0 : n.id) !== m(this, qe).id || m(this, li) || (I(this, mt, { ...i ?? {} }), this.render({ force: !0 }));
+  m(this, Tn) === null && L(this, Tn, Hooks.on("eidolon-utilities.criteriaStateApplied", (n, i) => {
+    !m(this, qe) || (n == null ? void 0 : n.id) !== m(this, qe).id || m(this, ci) || (L(this, mt, { ...i ?? {} }), this.render({ force: !0 }));
   }));
 }, "#ensureSyncHook"), dl = /* @__PURE__ */ c(async function(n) {
   var i, r;
   if (m(this, qe)) {
-    S(this, ce, fr).call(this, "applying"), I(this, li, !0);
+    S(this, ce, fr).call(this, "applying"), L(this, ci, !0);
     try {
       const a = await Rd(n, m(this, qe));
-      a && I(this, mt, a), S(this, ce, fr).call(this, "ready"), this.render({ force: !0 });
+      a && L(this, mt, a), S(this, ce, fr).call(this, "ready"), this.render({ force: !0 });
     } catch (a) {
       console.error(`${ie} | Failed to apply criteria state`, a), (r = (i = ui.notifications) == null ? void 0 : i.error) == null || r.call(
         i,
@@ -4491,24 +4491,24 @@ qe = new WeakMap(), ft = new WeakMap(), mt = new WeakMap(), li = new WeakMap(), 
         )
       ), S(this, ce, fr).call(this, "error", (a == null ? void 0 : a.message) ?? "Unknown error");
     } finally {
-      I(this, li, !1), m(this, qt) && S(this, ce, fl).call(this);
+      L(this, ci, !1), m(this, jt) && S(this, ce, fl).call(this);
     }
   }
 }, "#applyPartialState"), Ud = /* @__PURE__ */ c(function(n) {
-  I(this, qt, {
-    ...m(this, qt) ?? {},
+  L(this, jt, {
+    ...m(this, jt) ?? {},
     ...n ?? {}
-  }), m(this, Ze) !== null && clearTimeout(m(this, Ze)), S(this, ce, fr).call(this, "applying"), I(this, Ze, setTimeout(() => {
-    I(this, Ze, null), S(this, ce, fl).call(this);
+  }), m(this, Ze) !== null && clearTimeout(m(this, Ze)), S(this, ce, fr).call(this, "applying"), L(this, Ze, setTimeout(() => {
+    L(this, Ze, null), S(this, ce, fl).call(this);
   }, m(this, Po)));
 }, "#queuePartialState"), fl = /* @__PURE__ */ c(async function() {
-  if (m(this, li) || !m(this, qt)) return;
-  const n = m(this, qt);
-  I(this, qt, null), await S(this, ce, dl).call(this, n);
+  if (m(this, ci) || !m(this, jt)) return;
+  const n = m(this, jt);
+  L(this, jt, null), await S(this, ce, dl).call(this, n);
 }, "#flushPendingState"), Vd = /* @__PURE__ */ c(async function() {
   if (!m(this, ft).length) return;
   const n = m(this, ft).reduce((i, r) => (i[r.key] = r.default, i), {});
-  I(this, mt, n), m(this, Ze) !== null && (clearTimeout(m(this, Ze)), I(this, Ze, null)), I(this, qt, null), await S(this, ce, dl).call(this, n);
+  L(this, mt, n), m(this, Ze) !== null && (clearTimeout(m(this, Ze)), L(this, Ze, null)), L(this, jt, null), await S(this, ce, dl).call(this, n);
 }, "#resetToDefaults"), fr = /* @__PURE__ */ c(function(n, i = "") {
   const r = this.element;
   if (!(r instanceof HTMLElement)) return;
@@ -4556,31 +4556,31 @@ qe = new WeakMap(), ft = new WeakMap(), mt = new WeakMap(), li = new WeakMap(), 
   }
 });
 let ul = Et;
-const rg = Bo(ul);
+const og = Bo(ul);
 let bi = null;
-function ag(t) {
+function sg(t) {
   var e;
   return t ?? ((e = game.scenes) == null ? void 0 : e.viewed) ?? null;
 }
-c(ag, "resolveScene");
-function og(t) {
+c(sg, "resolveScene");
+function lg(t) {
   var e;
   return !!(t != null && t.rendered && ((e = t == null ? void 0 : t.element) != null && e.isConnected));
 }
-c(og, "isRendered");
+c(lg, "isRendered");
 function Yo() {
-  return og(bi) ? bi : (bi = null, null);
+  return lg(bi) ? bi : (bi = null, null);
 }
 c(Yo, "getCriteriaSwitcher");
 function Gd(t) {
   var i, r, a, o, s;
-  const e = ag(t);
+  const e = sg(t);
   if (!e)
     return (r = (i = ui.notifications) == null ? void 0 : i.warn) == null || r.call(i, "No active scene to open the criteria switcher."), null;
   if (!Go(e))
     return (o = (a = ui.notifications) == null ? void 0 : a.warn) == null || o.call(a, "You do not have permission to manage scene criteria."), null;
   const n = Yo();
-  return n ? (n.setScene(e), n.render({ force: !0 }), (s = n.bringToFront) == null || s.call(n), n) : (bi = rg({ scene: e }), bi.render({ force: !0 }), bi);
+  return n ? (n.setScene(e), n.render({ force: !0 }), (s = n.bringToFront) == null || s.call(n), n) : (bi = og({ scene: e }), bi.render({ force: !0 }), bi);
 }
 c(Gd, "openCriteriaSwitcher");
 function zd() {
@@ -4592,11 +4592,11 @@ function cc(t) {
   return Yo() ? (zd(), null) : Gd(t);
 }
 c(cc, "toggleCriteriaSwitcher");
-const sg = {
+const cg = {
   SCHEMA_VERSION: ac,
   applyState: Rd,
-  getState: Jh,
-  getVersion: Qh,
+  getState: Qh,
+  getVersion: eg,
   setVersion: Hd,
   getCriteria(t) {
     var e;
@@ -4608,15 +4608,15 @@ const sg = {
   },
   updateTiles: kd,
   updatePlaceables: Pd,
-  indexScene: ig,
+  indexScene: ag,
   openCriteriaSwitcher: Gd,
   closeCriteriaSwitcher: zd,
   toggleCriteriaSwitcher: cc,
-  findBestMatch: fh,
-  findFileIndex: mh,
+  findBestMatch: hh,
+  findFileIndex: gh,
   resolveRules: Ld
 };
-function lg(t) {
+function ug(t) {
   if (!(t instanceof HTMLElement)) return null;
   const e = [
     "nav.sheet-tabs[data-group]",
@@ -4630,8 +4630,8 @@ function lg(t) {
   }
   return null;
 }
-c(lg, "findTabNav");
-function cg(t, e) {
+c(ug, "findTabNav");
+function dg(t, e) {
   var i, r, a;
   return t instanceof HTMLElement ? [
     (i = t.querySelector(".tab[data-tab]")) == null ? void 0 : i.parentElement,
@@ -4640,13 +4640,13 @@ function cg(t, e) {
     e == null ? void 0 : e.parentElement
   ].find((o) => o instanceof HTMLElement) ?? null : null;
 }
-c(cg, "findTabBody");
-function ug(t, e) {
+c(dg, "findTabBody");
+function fg(t, e) {
   var n, i, r, a, o, s, l;
   return ((n = t == null ? void 0 : t.dataset) == null ? void 0 : n.group) ?? ((a = (r = (i = t == null ? void 0 : t.querySelector) == null ? void 0 : i.call(t, "[data-group]")) == null ? void 0 : r.dataset) == null ? void 0 : a.group) ?? ((l = (s = (o = e == null ? void 0 : e.querySelector) == null ? void 0 : o.call(e, ".tab[data-group]")) == null ? void 0 : s.dataset) == null ? void 0 : l.group) ?? "main";
 }
-c(ug, "getTabGroup");
-function dg(t, e, n) {
+c(fg, "getTabGroup");
+function mg(t, e, n) {
   if (!(t instanceof HTMLElement)) return;
   t.textContent = "";
   const i = document.createElement("i");
@@ -4654,19 +4654,19 @@ function dg(t, e, n) {
   const r = document.createElement("span");
   r.textContent = e, t.append(r);
 }
-c(dg, "setTabButtonContent");
-function fg(t, e, n) {
+c(mg, "setTabButtonContent");
+function hg(t, e, n) {
   const i = t.querySelector("[data-tab]"), r = (i == null ? void 0 : i.tagName) || "A", a = document.createElement(r);
   return i instanceof HTMLElement && (a.className = i.className), a.classList.remove("active"), r === "BUTTON" && (a.type = "button"), a.dataset.action = "tab", a.dataset.tab = n, a.dataset.group = e, a.setAttribute("aria-selected", "false"), a.setAttribute("aria-pressed", "false"), a;
 }
-c(fg, "createTabButton");
-function mg(t, e, n) {
+c(hg, "createTabButton");
+function gg(t, e, n) {
   const i = document.createElement("div");
   i.classList.add("tab"), i.dataset.tab = n, i.dataset.group = e, i.dataset.applicationPart = n, i.setAttribute("hidden", "true");
   const r = fd(t);
   return t.insertBefore(i, r ?? null), i;
 }
-c(mg, "createTabPanel");
+c(gg, "createTabPanel");
 function ys(t, e, n, i, r) {
   var s;
   if (!(i instanceof HTMLElement) || !(r instanceof HTMLElement)) return;
@@ -4679,13 +4679,13 @@ function ys(t, e, n, i, r) {
 }
 c(ys, "syncTabVisibility");
 function Wd(t, e, n, i, r) {
-  const a = lg(e), o = cg(e, a);
+  const a = ug(e), o = dg(e, a);
   if (!(a instanceof HTMLElement) || !(o instanceof HTMLElement)) return null;
-  const s = ug(a, o);
+  const s = fg(a, o);
   let l = a.querySelector(`[data-tab="${n}"]`);
-  l instanceof HTMLElement || (l = fg(a, s, n), a.appendChild(l)), dg(l, i, r);
+  l instanceof HTMLElement || (l = hg(a, s, n), a.appendChild(l)), mg(l, i, r);
   let u = o.querySelector(`.tab[data-tab="${n}"]`);
-  u instanceof HTMLElement || (u = mg(o, s, n));
+  u instanceof HTMLElement || (u = gg(o, s, n));
   const d = `data-eidolon-bound-${n}`;
   return l.hasAttribute(d) || (l.addEventListener("click", () => {
     ud(t, n, s), requestAnimationFrame(() => {
@@ -4693,10 +4693,10 @@ function Wd(t, e, n, i, r) {
     });
   }), l.setAttribute(d, "true")), ys(t, s, n, l, u), requestAnimationFrame(() => {
     ys(t, s, n, l, u);
-  }), hg(t, a), u;
+  }), pg(t, a), u;
 }
 c(Wd, "ensureTileConfigTab");
-function hg(t, e) {
+function pg(t, e) {
   !(t != null && t.setPosition) || !(e instanceof HTMLElement) || requestAnimationFrame(() => {
     var a;
     if (e.scrollWidth <= e.clientWidth) return;
@@ -4706,26 +4706,26 @@ function hg(t, e) {
     t.setPosition({ width: r + n + 16 });
   });
 }
-c(hg, "fitNavWidth");
+c(pg, "fitNavWidth");
 function Yd(t) {
   var e;
   return ((e = t == null ? void 0 : t.getFlag) == null ? void 0 : e.call(t, "monks-active-tiles", "files")) ?? [];
 }
 c(Yd, "getTileFiles$1");
-function gg(t = []) {
+function yg(t = []) {
   return {
     strategy: "select-one",
-    defaultTarget: Hn(t, 0) ?? { indexHint: 0 },
+    defaultTarget: qn(t, 0) ?? { indexHint: 0 },
     variants: [
       {
         criteria: {},
-        target: Hn(t, 0) ?? { indexHint: 0 }
+        target: qn(t, 0) ?? { indexHint: 0 }
       }
     ]
   };
 }
-c(gg, "createDefaultTileCriteria");
-function pg(t, e = {}) {
+c(yg, "createDefaultTileCriteria");
+function bg(t, e = {}) {
   var o, s;
   const { allowLegacy: n = !0 } = e, i = Yd(t), r = (o = t == null ? void 0 : t.getFlag) == null ? void 0 : o.call(t, ie, pi);
   if (r) return Ei(r, { files: i });
@@ -4733,7 +4733,7 @@ function pg(t, e = {}) {
   const a = (s = t == null ? void 0 : t.getFlag) == null ? void 0 : s.call(t, ie, gi);
   return a ? Ei(a, { files: i }) : null;
 }
-c(pg, "getTileCriteria");
+c(bg, "getTileCriteria");
 async function Xc(t, e, n = {}) {
   if (!(t != null && t.setFlag)) return null;
   const {
@@ -4751,8 +4751,8 @@ async function Xc(t, e, n = {}) {
   return await t.setFlag(ie, pi, a), typeof t.unsetFlag == "function" && await t.unsetFlag(ie, gi), a;
 }
 c(Xc, "setTileCriteria");
-const hl = "__eidolon_any__", gl = "eidolon-tile-criteria", yg = "fa-solid fa-sliders", Kd = Symbol.for("eidolon.tileCriteriaUiState"), Ko = ["all", "unmapped", "mapped", "conflicts"];
-function bg(t) {
+const hl = "__eidolon_any__", gl = "eidolon-tile-criteria", vg = "fa-solid fa-sliders", Kd = Symbol.for("eidolon.tileCriteriaUiState"), Ko = ["all", "unmapped", "mapped", "conflicts"];
+function wg(t) {
   const e = t == null ? void 0 : t[Kd];
   return !e || typeof e != "object" ? {
     filterQuery: "",
@@ -4764,13 +4764,13 @@ function bg(t) {
     selectedFileIndex: Number.isInteger(e.selectedFileIndex) ? e.selectedFileIndex : null
   };
 }
-c(bg, "readUiState");
-function vg(t, e) {
+c(wg, "readUiState");
+function Eg(t, e) {
   if (!t || !e) return;
   typeof e.filterQuery == "string" && (t.filterQuery = e.filterQuery), Ko.includes(e.filterMode) && (t.filterMode = e.filterMode), Number.isInteger(e.selectedFileIndex) && t.fileEntries.some((i) => i.index === e.selectedFileIndex) && (t.selectedFileIndex = e.selectedFileIndex);
 }
-c(vg, "applyUiState");
-function wg(t) {
+c(Eg, "applyUiState");
+function Sg(t) {
   const e = t == null ? void 0 : t.app, n = t == null ? void 0 : t.state;
   !e || !n || (e[Kd] = {
     filterQuery: typeof n.filterQuery == "string" ? n.filterQuery : "",
@@ -4778,18 +4778,18 @@ function wg(t) {
     selectedFileIndex: Number.isInteger(n.selectedFileIndex) ? n.selectedFileIndex : null
   });
 }
-c(wg, "persistUiState");
-function Eg(t) {
+c(Sg, "persistUiState");
+function Cg(t) {
   const e = (t == null ? void 0 : t.object) ?? (t == null ? void 0 : t.document) ?? null;
   return !(e != null && e.isEmbedded) || e.documentName !== "Tile" ? null : e;
 }
-c(Eg, "getTileDocument$1");
-function Sg(t) {
+c(Cg, "getTileDocument$1");
+function Tg(t) {
   var e;
   return ((e = t == null ? void 0 : t.getFlag) == null ? void 0 : e.call(t, "monks-active-tiles", "files")) ?? [];
 }
-c(Sg, "getTileFiles");
-function Cg(t, e) {
+c(Tg, "getTileFiles");
+function Lg(t, e) {
   var s;
   const n = (t == null ? void 0 : t.parent) ?? ((s = game.scenes) == null ? void 0 : s.viewed) ?? null, r = pt(n).sort((l, u) => l.order - u.order).map((l) => ({
     key: l.key,
@@ -4807,8 +4807,8 @@ function Cg(t, e) {
     });
   return r;
 }
-c(Cg, "getCriteriaDefinitions");
-function Tg(t) {
+c(Lg, "getCriteriaDefinitions");
+function Ig(t) {
   const e = {
     folders: /* @__PURE__ */ new Map(),
     files: []
@@ -4830,8 +4830,8 @@ function Tg(t) {
   }
   return e;
 }
-c(Tg, "buildTree");
-function Lg(t, e) {
+c(Ig, "buildTree");
+function Og(t, e) {
   const n = [t];
   let i = e;
   for (; i.files.length === 0 && i.folders.size === 1; ) {
@@ -4843,8 +4843,8 @@ function Lg(t, e) {
     node: i
   };
 }
-c(Lg, "collapseFolderBranch");
-function Ig(t, e) {
+c(Og, "collapseFolderBranch");
+function Ag(t, e) {
   const n = t.rulesByFile.get(e) ?? [], i = [];
   for (const r of n) {
     const a = Object.entries(r.criteria ?? {}).filter(([, s]) => typeof s == "string" && s.trim());
@@ -4857,10 +4857,10 @@ function Ig(t, e) {
   }
   return i;
 }
-c(Ig, "getRuleSummariesForFile");
+c(Ag, "getRuleSummariesForFile");
 function pl(t) {
   var g, p;
-  const e = Sg(t), n = oc(e), i = pg(t, { allowLegacy: !0 }) ?? gg(e), r = Cg(t, i), a = new Map(r.map((y) => [y.key, y.label])), o = new Map(
+  const e = Tg(t), n = oc(e), i = bg(t, { allowLegacy: !0 }) ?? yg(e), r = Lg(t, i), a = new Map(r.map((y) => [y.key, y.label])), o = new Map(
     n.map((y) => [
       y.index,
       y.path || y.label
@@ -4898,21 +4898,21 @@ function yl(t, e) {
   return t.rulesByFile.has(e) || t.rulesByFile.set(e, []), t.rulesByFile.get(e);
 }
 c(yl, "getRulesForFile");
-function Og(t) {
+function kg(t) {
   return Object.fromEntries(
     Object.entries(t ?? {}).filter(([e, n]) => typeof e == "string" && e && typeof n == "string" && n.trim()).map(([e, n]) => [e, n.trim()])
   );
 }
-c(Og, "sanitizeRuleCriteria");
+c(kg, "sanitizeRuleCriteria");
 function Jd(t) {
-  const e = Hn(t.files, t.defaultIndex);
+  const e = qn(t.files, t.defaultIndex);
   if (!e) return null;
   const n = [], i = [];
   for (const [a, o] of t.rulesByFile.entries()) {
-    const s = Hn(t.files, a);
+    const s = qn(t.files, a);
     if (s)
       for (const [l, u] of o.entries()) {
-        const d = Og(u.criteria);
+        const d = kg(u.criteria);
         n.push({
           criteria: d,
           target: { ...s }
@@ -4946,11 +4946,11 @@ function Jd(t) {
   };
 }
 c(Jd, "buildTileCriteriaDraft");
-function Ag(t) {
+function Mg(t) {
   var e;
   return ((e = Jd(t)) == null ? void 0 : e.normalized) ?? null;
 }
-c(Ag, "exportTileCriteria");
+c(Mg, "exportTileCriteria");
 function Qc(t) {
   const e = Jd(t);
   if (!(e != null && e.normalized))
@@ -4986,7 +4986,7 @@ function ca(t, e = "neutral") {
   return n.classList.add("eidolon-tile-criteria__badge"), n.dataset.kind = e, n.textContent = t, n;
 }
 c(ca, "createBadge");
-function kg(t, e = {}) {
+function Ng(t, e = {}) {
   const n = typeof t == "string" ? t : "", {
     maxLength: i = 42,
     headLength: r = 20,
@@ -4996,8 +4996,8 @@ function kg(t, e = {}) {
   const o = n.slice(0, r).trimEnd(), s = n.slice(-a).trimStart();
   return `${o}...${s}`;
 }
-c(kg, "middleEllipsis");
-function Mg(t) {
+c(Ng, "middleEllipsis");
+function $g(t) {
   const e = typeof t == "string" ? t.trim() : "";
   if (!e)
     return {
@@ -5023,8 +5023,8 @@ function Mg(t) {
     };
   }
 }
-c(Mg, "createRegexFilter");
-function Ng(t, e) {
+c($g, "createRegexFilter");
+function xg(t, e) {
   const n = document.createElement("select");
   n.dataset.criteriaKey = t.key;
   const i = document.createElement("option");
@@ -5037,8 +5037,8 @@ function Ng(t, e) {
   }
   return n.value = e ?? hl, n;
 }
-c(Ng, "createCriterionSelect");
-function $g(t, e, n, i) {
+c(xg, "createCriterionSelect");
+function _g(t, e, n, i) {
   var s;
   const r = document.createElement("div");
   r.classList.add("eidolon-tile-criteria__rule-editor");
@@ -5049,7 +5049,7 @@ function $g(t, e, n, i) {
     u.classList.add("eidolon-tile-criteria__rule-field");
     const d = document.createElement("span");
     d.classList.add("eidolon-tile-criteria__criterion-label"), d.textContent = l.label, u.appendChild(d);
-    const h = Ng(l, (s = t.criteria) == null ? void 0 : s[l.key]);
+    const h = xg(l, (s = t.criteria) == null ? void 0 : s[l.key]);
     h.addEventListener("change", () => {
       h.value === hl ? delete t.criteria[l.key] : t.criteria[l.key] = h.value, i();
     }), u.appendChild(h), a.appendChild(u);
@@ -5061,23 +5061,23 @@ function $g(t, e, n, i) {
     e.rulesByFile.set(n, u), i();
   }), r.appendChild(o), r;
 }
-c($g, "renderRuleEditor");
+c(_g, "renderRuleEditor");
 const Sa = /* @__PURE__ */ new WeakMap();
 function Xd(t) {
   return (t == null ? void 0 : t.app) ?? (t == null ? void 0 : t.tile) ?? null;
 }
 c(Xd, "getDialogOwner");
-function xg(t) {
+function Fg(t) {
   for (const e of t) {
-    const n = Yt(e);
+    const n = Kt(e);
     if (n) return n;
-    const i = Yt(e == null ? void 0 : e.element);
+    const i = Kt(e == null ? void 0 : e.element);
     if (i) return i;
   }
   return null;
 }
-c(xg, "findDialogRoot$1");
-function _g(t, e, n) {
+c(Fg, "findDialogRoot$1");
+function Dg(t, e, n) {
   const i = t.state, r = i.fileEntries.find((y) => y.index === e);
   if (!r) return document.createElement("div");
   const a = document.createElement("section");
@@ -5104,7 +5104,7 @@ function _g(t, e, n) {
   if (g.length)
     for (const y of g)
       f.appendChild(
-        $g(y, i, r.index, () => {
+        _g(y, i, r.index, () => {
           We(t), n();
         })
       );
@@ -5124,8 +5124,8 @@ function _g(t, e, n) {
     }), i.nextRuleId += 1, We(t), n();
   }), a.appendChild(p), a;
 }
-c(_g, "buildRuleEditorContent");
-function Fg(t, e) {
+c(Dg, "buildRuleEditorContent");
+function Pg(t, e) {
   var h, f, g;
   const n = Xd(t);
   if (!n) return;
@@ -5145,7 +5145,7 @@ function Fg(t, e) {
     Sa.delete(n);
   }, "closeDialog"), o = /* @__PURE__ */ c(() => {
     r.host instanceof HTMLElement && r.host.replaceChildren(
-      _g(r.controller, r.fileIndex, o)
+      Dg(r.controller, r.fileIndex, o)
     );
   }, "refreshDialog");
   r.refresh = o;
@@ -5157,7 +5157,7 @@ function Fg(t, e) {
       buttons: [{ action: "close", label: u, default: !0 }],
       render: /* @__PURE__ */ c((...p) => {
         var b;
-        const y = xg(p), v = (b = y == null ? void 0 : y.querySelector) == null ? void 0 : b.call(y, ".eidolon-tile-criteria-editor-host");
+        const y = Fg(p), v = (b = y == null ? void 0 : y.querySelector) == null ? void 0 : b.call(y, ".eidolon-tile-criteria-editor-host");
         v instanceof HTMLElement && (r.host = v, o());
       }, "render"),
       close: a,
@@ -5169,7 +5169,7 @@ function Fg(t, e) {
   }
   a();
 }
-c(Fg, "openRuleEditorDialog");
+c(Pg, "openRuleEditorDialog");
 function Zc(t) {
   var i;
   const e = Xd(t);
@@ -5187,7 +5187,7 @@ function Qd(t, e) {
   return ((n = t == null ? void 0 : t.errorFileIndexes) == null ? void 0 : n.includes(e)) || ((i = t == null ? void 0 : t.warningFileIndexes) == null ? void 0 : i.includes(e));
 }
 c(Qd, "hasConflictForFile");
-function Dg(t, e, n) {
+function Rg(t, e, n) {
   switch (t.filterMode) {
     case "unmapped":
       return !bl(t, e.index);
@@ -5200,8 +5200,8 @@ function Dg(t, e, n) {
       return !0;
   }
 }
-c(Dg, "matchesFilterMode");
-function Pg(t, e) {
+c(Rg, "matchesFilterMode");
+function Hg(t, e) {
   let n = 0, i = 0, r = 0;
   for (const a of t.fileEntries)
     bl(t, a.index) ? n += 1 : i += 1, Qd(e, a.index) && (r += 1);
@@ -5212,8 +5212,8 @@ function Pg(t, e) {
     conflicts: r
   };
 }
-c(Pg, "getFilterModeCounts");
-function Rg(t) {
+c(Hg, "getFilterModeCounts");
+function qg(t) {
   switch (t) {
     case "unmapped":
       return E("EIDOLON.TileCriteria.FilterModeUnmapped", "Unmapped");
@@ -5226,12 +5226,12 @@ function Rg(t) {
       return E("EIDOLON.TileCriteria.FilterModeAll", "All");
   }
 }
-c(Rg, "getFilterModeLabel");
+c(qg, "getFilterModeLabel");
 function Zd(t, e, n, i, r) {
   var u, d;
   const a = [...t.folders.keys()].sort((h, f) => h.localeCompare(f));
   for (const h of a) {
-    const f = Lg(h, t.folders.get(h)), g = document.createElement("li");
+    const f = Og(h, t.folders.get(h)), g = document.createElement("li");
     g.classList.add("eidolon-tile-criteria__tree-branch");
     const p = document.createElement("div");
     p.classList.add("document", "folder", "update", "eidolon-tile-criteria__folder-row");
@@ -5247,13 +5247,13 @@ function Zd(t, e, n, i, r) {
   const s = document.createElement("li"), l = document.createElement("ul");
   l.classList.add("document-list", "eidolon-tile-criteria__document-list");
   for (const h of o) {
-    const f = h.entry, g = f.index === e.selectedFileIndex, p = f.index === e.defaultIndex, y = Ig(e, f.index), v = document.createElement("li");
+    const f = h.entry, g = f.index === e.selectedFileIndex, p = f.index === e.defaultIndex, y = Ag(e, f.index), v = document.createElement("li");
     v.classList.add("document", "update", "eidolon-tile-criteria__tree-file");
     const b = document.createElement("button");
     b.type = "button", b.classList.add("eidolon-tile-criteria__file-row");
     const w = (u = i == null ? void 0 : i.errorFileIndexes) == null ? void 0 : u.includes(f.index), C = (d = i == null ? void 0 : i.warningFileIndexes) == null ? void 0 : d.includes(f.index);
     w ? b.classList.add("has-conflict") : C && b.classList.add("has-warning");
-    const L = e.relativePaths.get(f.index) || f.path || h.name, A = [L];
+    const I = e.relativePaths.get(f.index) || f.path || h.name, A = [I];
     w ? A.push(
       E(
         "EIDOLON.TileCriteria.ConflictFileHint",
@@ -5271,7 +5271,7 @@ function Zd(t, e, n, i, r) {
       )
     ), b.title = A.join(`
 `), g && b.classList.add("is-selected"), b.addEventListener("click", () => {
-      e.selectedFileIndex = f.index, We(n), Fg(n, f.index);
+      e.selectedFileIndex = f.index, We(n), Pg(n, f.index);
     });
     const O = document.createElement("span");
     O.classList.add("eidolon-tile-criteria__indicator"), O.dataset.kind = p ? "default" : y.length ? "mapped" : "unmapped", b.appendChild(O);
@@ -5280,7 +5280,7 @@ function Zd(t, e, n, i, r) {
     const _ = document.createElement("span");
     _.classList.add("eidolon-tile-criteria__file-heading");
     const j = document.createElement("span");
-    j.classList.add("eidolon-tile-criteria__file-title"), j.textContent = kg(h.name || f.label), j.title = L, _.appendChild(j);
+    j.classList.add("eidolon-tile-criteria__file-title"), j.textContent = Ng(h.name || f.label), j.title = I, _.appendChild(j);
     const D = ca(`#${f.index + 1}`, "meta");
     D.classList.add("eidolon-tile-criteria__index-badge"), _.appendChild(D), M.appendChild(_);
     const P = document.createElement("span");
@@ -5297,10 +5297,10 @@ function Zd(t, e, n, i, r) {
   s.appendChild(l), r.appendChild(s);
 }
 c(Zd, "renderTreeNode");
-function Hg(t, e, n, i = {}) {
+function jg(t, e, n, i = {}) {
   const r = document.createElement("section");
   r.classList.add("eidolon-tile-criteria__tree-panel");
-  const a = Mg(t.filterQuery), o = Pg(t, n);
+  const a = $g(t.filterQuery), o = Hg(t, n);
   t.filterMode !== "all" && o[t.filterMode] === 0 && (t.filterMode = "all");
   const s = document.createElement("div");
   s.classList.add("eidolon-tile-criteria__toolbar");
@@ -5308,9 +5308,9 @@ function Hg(t, e, n, i = {}) {
   l.classList.add("eidolon-tile-criteria__mode-bar");
   for (const w of Ko) {
     const C = document.createElement("button");
-    C.type = "button", C.classList.add("control", "ui-control", "eidolon-tile-criteria__mode-button"), C.dataset.mode = w, C.textContent = Rg(w);
-    const L = w === "all" || o[w] > 0;
-    C.disabled = !L, L || (C.dataset.tooltip = E(
+    C.type = "button", C.classList.add("control", "ui-control", "eidolon-tile-criteria__mode-button"), C.dataset.mode = w, C.textContent = qg(w);
+    const I = w === "all" || o[w] > 0;
+    C.disabled = !I, I || (C.dataset.tooltip = E(
       "EIDOLON.TileCriteria.FilterModeUnavailable",
       "No entries currently match this filter."
     ), C.title = C.dataset.tooltip), t.filterMode === w ? (C.classList.add("is-active"), C.setAttribute("aria-pressed", "true")) : C.setAttribute("aria-pressed", "false"), C.addEventListener("click", () => {
@@ -5329,13 +5329,13 @@ function Hg(t, e, n, i = {}) {
     w.stopPropagation();
   }), d.addEventListener("input", (w) => {
     w.stopPropagation();
-    const C = d.selectionStart ?? d.value.length, L = d.selectionEnd ?? C;
+    const C = d.selectionStart ?? d.value.length, I = d.selectionEnd ?? C;
     t.filterQuery = d.value, We(e), requestAnimationFrame(() => {
       const A = e.section.querySelector(".eidolon-tile-criteria__filter-input");
       if (A instanceof HTMLInputElement) {
         A.focus();
         try {
-          A.setSelectionRange(C, L);
+          A.setSelectionRange(C, I);
         } catch {
         }
       }
@@ -5364,12 +5364,12 @@ function Hg(t, e, n, i = {}) {
   v.classList.add("eidolon-tile-criteria__library-tree");
   const b = t.fileEntries.filter((w) => {
     const C = t.relativePaths.get(w.index) || w.path || w.label;
-    return Dg(t, w, n) && a.matches(C);
+    return Rg(t, w, n) && a.matches(C);
   });
   if (t.fileEntries.length)
     if (b.length) {
       const w = document.createElement("ul");
-      w.classList.add("eidolon-tile-criteria__tree"), Zd(Tg(b), t, e, n, w), v.appendChild(w);
+      w.classList.add("eidolon-tile-criteria__tree"), Zd(Ig(b), t, e, n, w), v.appendChild(w);
     } else {
       const w = document.createElement("p");
       w.classList.add("notes"), w.textContent = E("EIDOLON.TileCriteria.NoMatches", "No variants match this filter."), v.appendChild(w);
@@ -5380,10 +5380,10 @@ function Hg(t, e, n, i = {}) {
   }
   return r.appendChild(v), r;
 }
-c(Hg, "renderTreePanel");
+c(jg, "renderTreePanel");
 function We(t) {
   const { section: e, state: n } = t, i = Qc(n);
-  wg(t), e.replaceChildren();
+  Sg(t), e.replaceChildren();
   const r = /* @__PURE__ */ c(async () => {
     try {
       const o = Qc(n);
@@ -5397,7 +5397,7 @@ function We(t) {
         }, We(t);
         return;
       }
-      const s = Ag(n);
+      const s = Mg(n);
       if (!s) {
         n.status = {
           mode: "error",
@@ -5432,7 +5432,7 @@ function We(t) {
       }, We(t);
     }
   }, "handleClear");
-  if (e.appendChild(Hg(n, t, i, {
+  if (e.appendChild(jg(n, t, i, {
     onSave: r,
     onClear: a
   })), i.errors.length || i.warnings.length) {
@@ -5458,11 +5458,11 @@ function We(t) {
   }
 }
 c(We, "renderController");
-function qg(t, e = null) {
+function Bg(t, e = null) {
   const n = document.createElement("section");
   n.classList.add("eidolon-tile-criteria");
   const i = pl(t);
-  vg(i, bg(e));
+  Eg(i, wg(e));
   const r = {
     app: e,
     tile: t,
@@ -5471,29 +5471,29 @@ function qg(t, e = null) {
   };
   return We(r), r;
 }
-c(qg, "createController");
-function jg(t, e) {
+c(Bg, "createController");
+function Ug(t, e) {
   return Wd(
     t,
     e,
     gl,
     E("EIDOLON.TileCriteria.TabLabel", "Criteria"),
-    yg
+    vg
   );
 }
-c(jg, "ensureTileCriteriaTab");
-function Bg() {
+c(Ug, "ensureTileCriteriaTab");
+function Vg() {
   Hooks.on("renderTileConfig", (t, e) => {
     var l, u, d, h;
-    const n = Yt(e);
+    const n = Kt(e);
     if (!n) return;
-    const i = Eg(t);
+    const i = Cg(t);
     if (!i) return;
     if ((l = n.querySelector(".eidolon-tile-criteria")) == null || l.remove(), !Uo()) {
       (u = n.querySelector(`.item[data-tab='${gl}']`)) == null || u.remove(), (d = n.querySelector(`.tab[data-tab='${gl}']`)) == null || d.remove();
       return;
     }
-    const r = qg(i, t), a = jg(t, n);
+    const r = Bg(i, t), a = Ug(t, n);
     if (a instanceof HTMLElement) {
       a.replaceChildren(r.section), (h = t.setPosition) == null || h.call(t, { height: "auto" });
       return;
@@ -5504,8 +5504,8 @@ function Bg() {
     s != null && s.parentElement ? s.parentElement.insertAdjacentElement("beforebegin", r.section) : o.appendChild(r.section);
   });
 }
-c(Bg, "registerTileCriteriaConfigControls");
-function Ug(t) {
+c(Vg, "registerTileCriteriaConfigControls");
+function Gg(t) {
   if (Array.isArray(t)) return t;
   if (t instanceof Map) return Array.from(t.values());
   if (t && typeof t == "object") {
@@ -5519,13 +5519,13 @@ function Ug(t) {
   }
   return [];
 }
-c(Ug, "toList");
-function Vg(t, e) {
+c(Gg, "toList");
+function zg(t, e) {
   const n = t == null ? void 0 : t.tools;
   return Array.isArray(n) ? n.some((i) => (i == null ? void 0 : i.name) === e) : n instanceof Map ? n.has(e) : n && typeof n == "object" ? e in n ? !0 : Object.values(n).some((i) => (i == null ? void 0 : i.name) === e) : !1;
 }
-c(Vg, "hasTool");
-function Gg(t, e) {
+c(zg, "hasTool");
+function Wg(t, e) {
   if (Array.isArray(t.tools)) {
     t.tools.push(e);
     return;
@@ -5540,14 +5540,14 @@ function Gg(t, e) {
   }
   t.tools = [e];
 }
-c(Gg, "addTool");
-function zg() {
+c(Wg, "addTool");
+function Yg() {
   Hooks.on("getSceneControlButtons", (t) => {
     var i;
-    const e = Ug(t);
+    const e = Gg(t);
     if (!e.length) return;
     const n = e.find((r) => (r == null ? void 0 : r.name) === "tiles") ?? e.find((r) => (r == null ? void 0 : r.name) === "tokens" || (r == null ? void 0 : r.name) === "token") ?? e[0];
-    n && (Vg(n, "eidolonCriteriaSwitcher") || Gg(n, {
+    n && (zg(n, "eidolonCriteriaSwitcher") || Wg(n, {
       name: "eidolonCriteriaSwitcher",
       title: "Criteria Switcher",
       icon: "fa-solid fa-sliders",
@@ -5558,7 +5558,7 @@ function zg() {
     }));
   });
 }
-c(zg, "registerSceneControlButton");
+c(Yg, "registerSceneControlButton");
 function ua(t, e) {
   if (!t || typeof t != "object") return !1;
   const n = String(e).split(".");
@@ -5570,11 +5570,11 @@ function ua(t, e) {
   return !0;
 }
 c(ua, "hasOwnPath");
-function Wg() {
+function Kg() {
   const t = /* @__PURE__ */ c((i, r = null) => {
-    i && Fh(i, r);
+    i && Ph(i, r);
   }, "invalidateTileScene"), e = /* @__PURE__ */ c((i, r = null) => {
-    i && Kh(i, r);
+    i && Xh(i, r);
   }, "invalidatePlaceableScene");
   Hooks.on("createTile", (i) => {
     t((i == null ? void 0 : i.parent) ?? null, i ?? null);
@@ -5598,9 +5598,9 @@ function Wg() {
     r && (t(r), e(r));
   });
 }
-c(Wg, "registerCriteriaCacheInvalidationHooks");
-function Yg() {
-  zg(), Bg(), Wg(), Hooks.once("init", () => {
+c(Kg, "registerCriteriaCacheInvalidationHooks");
+function Jg() {
+  Yg(), Vg(), Kg(), Hooks.once("init", () => {
     var t, e;
     (e = (t = game.keybindings) == null ? void 0 : t.register) == null || e.call(t, ie, "toggleCriteriaSwitcher", {
       name: "Toggle Criteria Switcher",
@@ -5620,17 +5620,17 @@ function Yg() {
   }), Hooks.once("ready", () => {
     var e, n;
     const t = (n = (e = game.modules) == null ? void 0 : e.get) == null ? void 0 : n.call(e, ie);
-    t && (t.api || (t.api = {}), t.api.criteria = sg, console.log(`${ie} | Criteria engine API registered`));
+    t && (t.api || (t.api = {}), t.api.criteria = cg, console.log(`${ie} | Criteria engine API registered`));
   });
 }
-c(Yg, "registerCriteriaEngineHooks");
-Yg();
-const Ca = /* @__PURE__ */ new WeakMap(), da = /* @__PURE__ */ new WeakMap(), be = "__eidolon_default__";
-function Kg() {
-  Hooks.on("renderAmbientLightConfig", Jg), N("LightCriteria | AmbientLightConfig controls registered");
+c(Jg, "registerCriteriaEngineHooks");
+Jg();
+const Ca = /* @__PURE__ */ new WeakMap(), da = /* @__PURE__ */ new WeakMap(), ve = "__eidolon_default__";
+function Xg() {
+  Hooks.on("renderAmbientLightConfig", Qg), N("LightCriteria | AmbientLightConfig controls registered");
 }
-c(Kg, "registerAmbientLightCriteriaControls");
-function Jg(t, e) {
+c(Xg, "registerAmbientLightCriteriaControls");
+function Qg(t, e) {
   var n;
   Ki("LightCriteria | renderAmbientLightConfig", {
     appId: (t == null ? void 0 : t.id) ?? null,
@@ -5638,39 +5638,39 @@ function Jg(t, e) {
     isRendered: (t == null ? void 0 : t.rendered) ?? !1
   });
   try {
-    const i = Yt(e);
+    const i = Kt(e);
     if (!i) return;
     if (!Uo()) {
       i.querySelectorAll(".eidolon-light-criteria, .eidolon-light-criteria-main-switcher").forEach((r) => r.remove());
       return;
     }
-    Xg(t, i);
+    Zg(t, i);
   } catch (i) {
     console.error("eidolon-utilities | Failed to enhance AmbientLightConfig UI", i);
   } finally {
-    _n();
+    Fn();
   }
 }
-c(Jg, "handleAmbientLightConfigRender");
-function Xg(t, e) {
-  var xe, Wn, ir, na, Ic;
+c(Qg, "handleAmbientLightConfigRender");
+function Zg(t, e) {
+  var xe, Yn, ir, na, Ic;
   const n = (t == null ? void 0 : t.form) instanceof HTMLFormElement ? t.form : e instanceof HTMLFormElement ? e : (xe = e == null ? void 0 : e.closest) == null ? void 0 : xe.call(e, "form");
   if (!(n instanceof HTMLFormElement)) return;
   const i = n.querySelector(".window-content");
   if (!(i instanceof HTMLElement)) return;
   const r = tf(t);
   if (!r) return;
-  const a = vp(r);
+  const a = Ep(r);
   N("LightCriteria | Resolved ambient light", {
     sheetId: (r == null ? void 0 : r.id) ?? null,
     persistedId: (a == null ? void 0 : a.id) ?? null,
     sameRef: r === a
   });
-  const o = (a == null ? void 0 : a.parent) ?? r.parent ?? null, s = o ? nh(o) : [], l = s.filter(
+  const o = (a == null ? void 0 : a.parent) ?? r.parent ?? null, s = o ? rh(o) : [], l = s.filter(
     (x) => Array.isArray(x == null ? void 0 : x.values) && x.values.length > 0
-  ), u = cp(s), d = s.map((x) => typeof (x == null ? void 0 : x.id) == "string" ? x.id : null).filter((x) => !!x), h = a ?? r, f = o ? pt(o) : [];
+  ), u = dp(s), d = s.map((x) => typeof (x == null ? void 0 : x.id) == "string" ? x.id : null).filter((x) => !!x), h = a ?? r, f = o ? pt(o) : [];
   let g = Nd(h);
-  const p = qh(g, f);
+  const p = Bh(g, f);
   JSON.stringify(p) !== JSON.stringify(g) && (g = p, $d(h, p).catch((x) => {
     console.warn("eidolon-utilities | Failed to persist migrated light criteria keys", x);
   })), N("LightCriteria | Loaded mapping state", {
@@ -5698,11 +5698,11 @@ function Xg(t, e) {
   ), v.appendChild(w);
   const C = document.createElement("div");
   C.classList.add("eidolon-light-criteria__controls");
-  const L = document.createElement("button");
-  L.type = "button", L.dataset.action = "make-default", L.classList.add("eidolon-light-criteria__button"), L.textContent = E(
+  const I = document.createElement("button");
+  I.type = "button", I.dataset.action = "make-default", I.classList.add("eidolon-light-criteria__button"), I.textContent = E(
     "EIDOLON.LightCriteria.SetBase",
     "Set Base"
-  ), C.appendChild(L);
+  ), C.appendChild(I);
   const A = document.createElement("button");
   A.type = "button", A.dataset.action = "create-mapping", A.classList.add("eidolon-light-criteria__button"), A.textContent = E(
     "EIDOLON.LightCriteria.CreateMapping",
@@ -5735,7 +5735,7 @@ function Xg(t, e) {
     const G = document.createElement("label");
     G.classList.add("eidolon-light-criteria__filter");
     const Z = document.createElement("span");
-    Z.classList.add("eidolon-light-criteria__filter-name"), Z.textContent = (ir = (Wn = x.name) == null ? void 0 : Wn.trim) != null && ir.call(Wn) ? x.name.trim() : E("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category"), G.appendChild(Z);
+    Z.classList.add("eidolon-light-criteria__filter-name"), Z.textContent = (ir = (Yn = x.name) == null ? void 0 : Yn.trim) != null && ir.call(Yn) ? x.name.trim() : E("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category"), G.appendChild(Z);
     const ee = document.createElement("select");
     ee.dataset.filterCategoryId = x.id, ee.classList.add("eidolon-light-criteria__filter-select");
     const ne = document.createElement("option");
@@ -5759,11 +5759,11 @@ function Xg(t, e) {
   Q.type = "button", Q.dataset.action = "apply-selected-mapping", Q.classList.add("eidolon-light-criteria__button", "secondary"), Q.textContent = E("EIDOLON.LightCriteria.ApplyButton", "Apply"), K.appendChild(Q);
   const te = document.createElement("details");
   te.classList.add("eidolon-light-criteria__menu"), te.dataset.action = "mapping-actions-menu";
-  const Jt = document.createElement("summary");
-  Jt.classList.add("eidolon-light-criteria__menu-toggle"), Jt.innerHTML = '<i class="fa-solid fa-ellipsis-vertical" inert=""></i>', Jt.setAttribute(
+  const Xt = document.createElement("summary");
+  Xt.classList.add("eidolon-light-criteria__menu-toggle"), Xt.innerHTML = '<i class="fa-solid fa-ellipsis-vertical" inert=""></i>', Xt.setAttribute(
     "aria-label",
     E("EIDOLON.LightCriteria.MoreActions", "More actions")
-  ), Jt.dataset.tooltip = E("EIDOLON.LightCriteria.MoreActions", "More actions"), te.appendChild(Jt);
+  ), Xt.dataset.tooltip = E("EIDOLON.LightCriteria.MoreActions", "More actions"), te.appendChild(Xt);
   const yt = document.createElement("div");
   yt.classList.add("eidolon-light-criteria__menu-list"), te.appendChild(yt);
   const Pe = document.createElement("button");
@@ -5781,13 +5781,13 @@ function Xg(t, e) {
     "EIDOLON.LightCriteria.RemoveSelected",
     "Delete selected mapping"
   ), yt.appendChild(ot), K.appendChild(te);
-  const Xt = document.createElement("div");
-  Xt.classList.add("eidolon-light-criteria-main-switcher"), Xt.appendChild(M);
+  const Qt = document.createElement("div");
+  Qt.classList.add("eidolon-light-criteria-main-switcher"), Qt.appendChild(M);
   const Je = document.createElement("p");
   if (Je.classList.add("notes", "eidolon-light-criteria-main-switcher__empty"), Je.textContent = E(
     "EIDOLON.LightCriteria.ActiveRequiresBase",
     "Set Base Lighting to enable mapping selection and actions."
-  ), Xt.appendChild(Je), s.length === 0) {
+  ), Qt.appendChild(Je), s.length === 0) {
     const x = document.createElement("p");
     x.classList.add("notification", "warning", "eidolon-light-criteria__warning"), x.textContent = E(
       "EIDOLON.LightCriteria.NoCategoriesWarning",
@@ -5800,15 +5800,15 @@ function Xg(t, e) {
       "Criteria exist, but none define selectable values. Add values in Scene -> Criteria."
     ), v.appendChild(x);
   }
-  const Oe = document.createElement("div");
-  Oe.classList.add("eidolon-light-criteria__creation"), Oe.dataset.section = "creation", Oe.hidden = !0;
+  const Ae = document.createElement("div");
+  Ae.classList.add("eidolon-light-criteria__creation"), Ae.dataset.section = "creation", Ae.hidden = !0;
   const Li = document.createElement("p");
   Li.classList.add("notes"), Li.textContent = E(
     "EIDOLON.LightCriteria.CreateDescription",
     "Assign scene criteria values to map the current configuration."
-  ), Oe.appendChild(Li);
-  const Qt = document.createElement("div");
-  Qt.classList.add("eidolon-light-criteria__category-list"), Oe.appendChild(Qt);
+  ), Ae.appendChild(Li);
+  const Zt = document.createElement("div");
+  Zt.classList.add("eidolon-light-criteria__category-list"), Ae.appendChild(Zt);
   for (const x of l) {
     const G = document.createElement("label");
     G.classList.add("eidolon-light-criteria__category");
@@ -5825,20 +5825,20 @@ function Xg(t, e) {
       const de = document.createElement("option");
       de.value = ue, de.textContent = ue, ee.appendChild(de);
     }
-    G.appendChild(ee), Qt.appendChild(G);
+    G.appendChild(ee), Zt.appendChild(G);
   }
-  const zn = document.createElement("div");
-  zn.classList.add("eidolon-light-criteria__creation-actions");
+  const Wn = document.createElement("div");
+  Wn.classList.add("eidolon-light-criteria__creation-actions");
   const st = document.createElement("button");
   st.type = "button", st.dataset.action = "save-mapping", st.classList.add("eidolon-light-criteria__button", "primary"), st.textContent = E(
     "EIDOLON.LightCriteria.SaveMapping",
     "Save Mapping"
-  ), zn.appendChild(st);
-  const Zt = document.createElement("button");
-  Zt.type = "button", Zt.dataset.action = "cancel-create", Zt.classList.add("eidolon-light-criteria__button", "secondary"), Zt.textContent = E(
+  ), Wn.appendChild(st);
+  const en = document.createElement("button");
+  en.type = "button", en.dataset.action = "cancel-create", en.classList.add("eidolon-light-criteria__button", "secondary"), en.textContent = E(
     "EIDOLON.LightCriteria.Cancel",
     "Cancel"
-  ), zn.appendChild(Zt), Oe.appendChild(zn), v.appendChild(Oe), i.prepend(Xt), i.appendChild(v), v.hidden = !0, ep(t, {
+  ), Wn.appendChild(en), Ae.appendChild(Wn), v.appendChild(Ae), i.prepend(Qt), i.appendChild(v), v.hidden = !0, np(t, {
     fieldset: v,
     homeContainer: i
   }), requestAnimationFrame(() => {
@@ -5846,7 +5846,7 @@ function Xg(t, e) {
     (x = t.setPosition) == null || x.call(t, { height: "auto" });
   });
   let F = g;
-  Jn({ switcher: M, emptyState: Je, state: F }), Kn(O, F), sr(A, {
+  Xn({ switcher: M, emptyState: Je, state: F }), Jn(O, F), sr(A, {
     state: F,
     hasCategories: l.length > 0
   }), N("LightCriteria | Controls injected", {
@@ -5856,7 +5856,7 @@ function Xg(t, e) {
     mappingCount: Array.isArray(F == null ? void 0 : F.mappings) ? F.mappings.length : 0,
     categories: l.length
   });
-  const ea = gp(F), X = {
+  const ea = yp(F), X = {
     restoreConfig: null,
     app: t,
     selectedMapping: ea,
@@ -5868,17 +5868,17 @@ function Xg(t, e) {
   const bt = /* @__PURE__ */ c(() => {
     te.open = !1;
   }, "closeActionsMenu");
-  Jt.addEventListener("click", (x) => {
+  Xt.addEventListener("click", (x) => {
     te.classList.contains("is-disabled") && (x.preventDefault(), bt());
   });
   const $e = /* @__PURE__ */ c((x = X.selectedMapping) => {
-    const G = up(W), Z = Array.isArray(F == null ? void 0 : F.mappings) ? F.mappings : [], ee = fp(Z, G), ne = Object.keys(G).length;
-    X.mappingFilters = G, U.disabled = ne === 0, mp(R, {
+    const G = fp(W), Z = Array.isArray(F == null ? void 0 : F.mappings) ? F.mappings : [], ee = hp(Z, G), ne = Object.keys(G).length;
+    X.mappingFilters = G, U.disabled = ne === 0, gp(R, {
       totalCount: Z.length,
       visibleCount: ee.length,
       hasFilters: ne > 0,
       activeFilterCount: ne
-    }), D.classList.toggle("has-active-filters", ne > 0), hp(ae, F, u, x, {
+    }), D.classList.toggle("has-active-filters", ne > 0), pp(ae, F, u, x, {
       mappings: ee,
       categoryOrder: d
     }), X.selectedMapping = ae.value ?? "", bs({
@@ -5903,7 +5903,7 @@ function Xg(t, e) {
       });
     });
   }), U.addEventListener("click", () => {
-    dp(W);
+    mp(W);
     const x = X.selectedMapping;
     $e(x), D.open = !1, X.selectedMapping !== x && vs(
       a ?? r,
@@ -5930,7 +5930,7 @@ function Xg(t, e) {
     });
   });
   const nr = /* @__PURE__ */ c(async () => {
-    var ee, ne, ue, de, lt, mn, ct, hn, pe, gn, pn, Ft, Yn, rr;
+    var ee, ne, ue, de, lt, mn, ct, hn, pe, gn, pn, Dt, Kn, rr;
     const x = ae.value ?? "";
     if (!x) {
       (ne = (ee = ui.notifications) == null ? void 0 : ee.warn) == null || ne.call(
@@ -5942,7 +5942,7 @@ function Xg(t, e) {
       ), $e(X.selectedMapping);
       return;
     }
-    if (x === be) {
+    if (x === ve) {
       if (!(F != null && F.base)) {
         (de = (ue = ui.notifications) == null ? void 0 : ue.warn) == null || de.call(
           ue,
@@ -5953,15 +5953,15 @@ function Xg(t, e) {
         );
         return;
       }
-      fa(v, Oe, A), La(t, n, F.base), F = await pr(a ?? r, {
-        mappingId: be,
+      fa(v, Ae, A), La(t, n, F.base), F = await pr(a ?? r, {
+        mappingId: ve,
         categories: null,
         updatedAt: Date.now()
-      }), X.selectedMapping = be, $e(X.selectedMapping), Kn(O, F), Jn({ switcher: M, emptyState: Je, state: F }), sr(A, {
+      }), X.selectedMapping = ve, $e(X.selectedMapping), Jn(O, F), Xn({ switcher: M, emptyState: Je, state: F }), sr(A, {
         state: F,
         hasCategories: l.length > 0
       }), tu(n, {
-        mappingId: be,
+        mappingId: ve,
         color: ((mn = (lt = F.base) == null ? void 0 : lt.config) == null ? void 0 : mn.color) ?? null
       }), (hn = (ct = ui.notifications) == null ? void 0 : ct.info) == null || hn.call(
         ct,
@@ -5983,20 +5983,20 @@ function Xg(t, e) {
       ), X.selectedMapping = "", $e(X.selectedMapping);
       return;
     }
-    fa(v, Oe, A), La(t, n, G.config), F = await pr(a ?? r, {
+    fa(v, Ae, A), La(t, n, G.config), F = await pr(a ?? r, {
       mappingId: G.id,
       categories: G.categories,
       updatedAt: Date.now()
-    }), X.selectedMapping = G.id, $e(X.selectedMapping), Kn(O, F), Jn({ switcher: M, emptyState: Je, state: F }), sr(A, {
+    }), X.selectedMapping = G.id, $e(X.selectedMapping), Jn(O, F), Xn({ switcher: M, emptyState: Je, state: F }), sr(A, {
       state: F,
       hasCategories: l.length > 0
     }), tu(n, {
       mappingId: G.id,
-      color: ((Ft = (pn = G.config) == null ? void 0 : pn.config) == null ? void 0 : Ft.color) ?? null
+      color: ((Dt = (pn = G.config) == null ? void 0 : pn.config) == null ? void 0 : Dt.color) ?? null
     });
     const Z = Bi(G, u, d);
-    (rr = (Yn = ui.notifications) == null ? void 0 : Yn.info) == null || rr.call(
-      Yn,
+    (rr = (Kn = ui.notifications) == null ? void 0 : Kn.info) == null || rr.call(
+      Kn,
       E(
         "EIDOLON.LightCriteria.MappingApplied",
         "Applied mapping: {label}"
@@ -6009,7 +6009,7 @@ function Xg(t, e) {
     x.key === "Enter" && (x.preventDefault(), nr());
   });
   const ta = /* @__PURE__ */ c(async () => {
-    var G, Z, ee, ne, ue, de, lt, mn, ct, hn, pe, gn, pn, Ft, Yn, rr, Ii, ia, Oc, ra, Ac;
+    var G, Z, ee, ne, ue, de, lt, mn, ct, hn, pe, gn, pn, Dt, Kn, rr, Ii, ia, Oc, ra, Ac;
     const x = X.selectedMapping;
     if (!x) {
       (Z = (G = ui.notifications) == null ? void 0 : G.warn) == null || Z.call(
@@ -6024,7 +6024,7 @@ function Xg(t, e) {
     Pe.disabled = !0;
     try {
       const Xe = Ta(t, a);
-      if (x === be)
+      if (x === ve)
         F = await zc(a ?? r, Xe), N("LightCriteria | Base lighting updated", {
           lightId: ((ee = a ?? r) == null ? void 0 : ee.id) ?? null,
           configColor: ((ne = Xe == null ? void 0 : Xe.config) == null ? void 0 : ne.color) ?? null
@@ -6034,7 +6034,7 @@ function Xg(t, e) {
             "EIDOLON.LightCriteria.BaseUpdated",
             "Updated the base lighting state with the current configuration."
           )
-        ), X.selectedMapping = be;
+        ), X.selectedMapping = ve;
       else {
         const Oi = yr(F, x);
         if (!Oi) {
@@ -6058,21 +6058,21 @@ function Xg(t, e) {
           stored: Array.isArray(F == null ? void 0 : F.mappings) ? ((hn = F.mappings.find((rs) => (rs == null ? void 0 : rs.id) === x)) == null ? void 0 : hn.config) ?? null : null,
           persisted: (gn = (pe = a ?? r) == null ? void 0 : pe.getFlag) == null ? void 0 : gn.call(pe, yi, ji)
         });
-        const ar = yr(F, x), gm = Bi(ar || Oi, u, d);
+        const ar = yr(F, x), ym = Bi(ar || Oi, u, d);
         N("LightCriteria | Mapping updated", {
           mappingId: x,
           categories: Oi.categories,
           updatedColor: ((pn = Xe == null ? void 0 : Xe.config) == null ? void 0 : pn.color) ?? null,
-          storedColor: ((Yn = (Ft = ar == null ? void 0 : ar.config) == null ? void 0 : Ft.config) == null ? void 0 : Yn.color) ?? ((Ii = (rr = Oi.config) == null ? void 0 : rr.config) == null ? void 0 : Ii.color) ?? null
+          storedColor: ((Kn = (Dt = ar == null ? void 0 : ar.config) == null ? void 0 : Dt.config) == null ? void 0 : Kn.color) ?? ((Ii = (rr = Oi.config) == null ? void 0 : rr.config) == null ? void 0 : Ii.color) ?? null
         }), (Oc = (ia = ui.notifications) == null ? void 0 : ia.info) == null || Oc.call(
           ia,
           E(
             "EIDOLON.LightCriteria.MappingUpdated",
             "Saved changes to mapping: {label}"
-          ).replace("{label}", gm)
+          ).replace("{label}", ym)
         ), X.selectedMapping = x;
       }
-      Kn(O, F), Jn({ switcher: M, emptyState: Je, state: F }), sr(A, {
+      Jn(O, F), Xn({ switcher: M, emptyState: Je, state: F }), sr(A, {
         state: F,
         hasCategories: l.length > 0
       }), $e(X.selectedMapping), bt();
@@ -6098,9 +6098,9 @@ function Xg(t, e) {
   }, "updateSelectedMapping");
   Pe.addEventListener("click", () => {
     ta();
-  }), $e(X.selectedMapping), L.addEventListener("click", async () => {
+  }), $e(X.selectedMapping), I.addEventListener("click", async () => {
     var x, G, Z, ee, ne, ue;
-    L.disabled = !0;
+    I.disabled = !0;
     try {
       const de = Ta(t, a);
       F = await zc(a ?? r, de), N("LightCriteria | Base lighting stored", {
@@ -6112,10 +6112,10 @@ function Xg(t, e) {
           "EIDOLON.LightCriteria.BaseStored",
           "Saved the current configuration as the base lighting state."
         )
-      ), Kn(O, F), Jn({ switcher: M, emptyState: Je, state: F }), sr(A, {
+      ), Jn(O, F), Xn({ switcher: M, emptyState: Je, state: F }), sr(A, {
         state: F,
         hasCategories: l.length > 0
-      }), X.selectedMapping = be, $e(X.selectedMapping);
+      }), X.selectedMapping = ve, $e(X.selectedMapping);
     } catch (de) {
       console.error("eidolon-utilities | Failed to store base light criteria state", de), (ue = (ne = ui.notifications) == null ? void 0 : ne.error) == null || ue.call(
         ne,
@@ -6125,7 +6125,7 @@ function Xg(t, e) {
         )
       );
     } finally {
-      L.disabled = !1;
+      I.disabled = !1;
     }
   }), A.addEventListener("click", () => {
     var G, Z, ee, ne;
@@ -6154,8 +6154,8 @@ function Xg(t, e) {
       app: t,
       fieldset: v,
       createButton: A,
-      creationSection: Oe,
-      categoryList: Qt,
+      creationSection: Ae,
+      categoryList: Zt,
       form: n,
       persistedLight: a,
       stateEntry: x,
@@ -6166,7 +6166,7 @@ function Xg(t, e) {
   }), at.addEventListener("click", () => {
     var Z, ee, ne, ue;
     const x = X.selectedMapping;
-    if (!x || x === be) {
+    if (!x || x === ve) {
       (ee = (Z = ui.notifications) == null ? void 0 : Z.warn) == null || ee.call(
         Z,
         E(
@@ -6191,8 +6191,8 @@ function Xg(t, e) {
       app: t,
       fieldset: v,
       createButton: A,
-      creationSection: Oe,
-      categoryList: Qt,
+      creationSection: Ae,
+      categoryList: Zt,
       form: n,
       persistedLight: a,
       stateEntry: X,
@@ -6202,7 +6202,7 @@ function Xg(t, e) {
     });
   }), st.addEventListener("click", async () => {
     var G, Z, ee, ne, ue, de, lt, mn, ct, hn;
-    const x = bp(Qt);
+    const x = wp(Zt);
     if (!x) {
       (Z = (G = ui.notifications) == null ? void 0 : G.warn) == null || Z.call(
         G,
@@ -6218,21 +6218,21 @@ function Xg(t, e) {
       const pe = Ta(t, a);
       if (X.editorMode === "retarget" && X.editingMappingId) {
         const pn = vl(F, x);
-        let Ft = !1;
-        if (pn && pn !== X.editingMappingId && (Ft = await Qg(), !Ft)) {
+        let Dt = !1;
+        if (pn && pn !== X.editingMappingId && (Dt = await ep(), !Dt)) {
           st.disabled = !1;
           return;
         }
-        F = await Ph(
+        F = await Hh(
           a ?? r,
           X.editingMappingId,
           x,
           pe,
-          { replaceExisting: Ft }
+          { replaceExisting: Dt }
         ), N("LightCriteria | Mapping criteria retargeted", {
           mappingId: X.editingMappingId,
           categories: x,
-          replaced: Ft,
+          replaced: Dt,
           configColor: ((ee = pe == null ? void 0 : pe.config) == null ? void 0 : ee.color) ?? null
         }), (ue = (ne = ui.notifications) == null ? void 0 : ne.info) == null || ue.call(
           ne,
@@ -6257,9 +6257,9 @@ function Xg(t, e) {
             "Updated lighting mapping for the selected scene criteria."
           )
         );
-      Kn(O, F), Jn({ switcher: M, emptyState: Je, state: F });
+      Jn(O, F), Xn({ switcher: M, emptyState: Je, state: F });
       const gn = vl(F, x);
-      gn && (X.selectedMapping = gn), $e(X.selectedMapping), fa(v, Oe, A), bt();
+      gn && (X.selectedMapping = gn), $e(X.selectedMapping), fa(v, Ae, A), bt();
     } catch (pe) {
       console.error("eidolon-utilities | Failed to persist light criteria mapping", pe), (hn = (ct = ui.notifications) == null ? void 0 : ct.error) == null || hn.call(
         ct,
@@ -6271,19 +6271,19 @@ function Xg(t, e) {
     } finally {
       st.disabled = !1;
     }
-  }), Zt.addEventListener("click", () => {
+  }), en.addEventListener("click", () => {
     const x = Ca.get(v);
-    x != null && x.restoreConfig && La(t, n, x.restoreConfig), fa(v, Oe, A);
+    x != null && x.restoreConfig && La(t, n, x.restoreConfig), fa(v, Ae, A);
   }), ot.addEventListener("click", async () => {
     var Z, ee;
     const x = X.selectedMapping;
-    !x || x === be || !await Zg() || (F = await Rh(a ?? r, x), X.selectedMapping = "", Kn(O, F), Jn({ switcher: M, emptyState: Je, state: F }), $e(X.selectedMapping), bt(), (ee = (Z = ui.notifications) == null ? void 0 : Z.info) == null || ee.call(
+    !x || x === ve || !await tp() || (F = await qh(a ?? r, x), X.selectedMapping = "", Jn(O, F), Xn({ switcher: M, emptyState: Je, state: F }), $e(X.selectedMapping), bt(), (ee = (Z = ui.notifications) == null ? void 0 : Z.info) == null || ee.call(
       Z,
       E("EIDOLON.LightCriteria.MappingRemoved", "Removed selected mapping.")
     ));
   });
 }
-c(Xg, "enhanceAmbientLightConfig");
+c(Zg, "enhanceAmbientLightConfig");
 function eu({
   app: t,
   fieldset: e,
@@ -6297,7 +6297,7 @@ function eu({
   mapping: u,
   preloadConfig: d
 }) {
-  s && (s.restoreConfig = Ta(t, o), s.editorMode = l, s.editingMappingId = l === "retarget" ? (u == null ? void 0 : u.id) ?? null : null), d && La(t, a, d), l === "retarget" && (u != null && u.categories) ? yp(r, u.categories) : pp(r);
+  s && (s.restoreConfig = Ta(t, o), s.editorMode = l, s.editingMappingId = l === "retarget" ? (u == null ? void 0 : u.id) ?? null : null), d && La(t, a, d), l === "retarget" && (u != null && u.categories) ? vp(r, u.categories) : bp(r);
   const h = i.querySelector("p.notes");
   h instanceof HTMLElement && (h.textContent = l === "retarget" ? E(
     "EIDOLON.LightCriteria.EditCriteriaDescription",
@@ -6313,7 +6313,7 @@ function eu({
   });
 }
 c(eu, "openMappingEditor");
-async function Qg() {
+async function ep() {
   var n, i;
   const t = (i = (n = foundry == null ? void 0 : foundry.applications) == null ? void 0 : n.api) == null ? void 0 : i.DialogV2;
   if (typeof (t == null ? void 0 : t.confirm) == "function")
@@ -6337,8 +6337,8 @@ async function Qg() {
     defaultYes: !1
   });
 }
-c(Qg, "confirmCriteriaConflict");
-async function Zg() {
+c(ep, "confirmCriteriaConflict");
+async function tp() {
   var n, i;
   const t = (i = (n = foundry == null ? void 0 : foundry.applications) == null ? void 0 : n.api) == null ? void 0 : i.DialogV2;
   if (typeof (t == null ? void 0 : t.confirm) == "function")
@@ -6362,9 +6362,9 @@ async function Zg() {
     defaultYes: !1
   });
 }
-c(Zg, "confirmRemoveMapping");
-function ep(t, { fieldset: e, homeContainer: n }) {
-  const i = ip(t, n);
+c(tp, "confirmRemoveMapping");
+function np(t, { fieldset: e, homeContainer: n }) {
+  const i = ap(t, n);
   if (!(i instanceof HTMLElement)) return;
   const r = i.querySelector(".window-header");
   if (!(r instanceof HTMLElement)) return;
@@ -6383,7 +6383,7 @@ function ep(t, { fieldset: e, homeContainer: n }) {
     o.preventDefault(), ef(t, { fieldset: e, homeContainer: n });
   };
 }
-c(ep, "ensureManagerHeaderButton");
+c(np, "ensureManagerHeaderButton");
 function ef(t, { fieldset: e, homeContainer: n }) {
   var f, g, p;
   const i = da.get(t);
@@ -6393,8 +6393,8 @@ function ef(t, { fieldset: e, homeContainer: n }) {
   }
   const r = /* @__PURE__ */ c((...y) => {
     var w;
-    const v = tp(y), b = (w = v == null ? void 0 : v.querySelector) == null ? void 0 : w.call(v, ".eidolon-light-criteria-manager-host");
-    b instanceof HTMLElement && (np(e), e.hidden = !1, b.appendChild(e));
+    const v = ip(y), b = (w = v == null ? void 0 : v.querySelector) == null ? void 0 : w.call(v, ".eidolon-light-criteria-manager-host");
+    b instanceof HTMLElement && (rp(e), e.hidden = !1, b.appendChild(e));
   }, "onRender"), a = /* @__PURE__ */ c(() => {
     n instanceof HTMLElement && n.appendChild(e), e.hidden = !0, da.delete(t), requestAnimationFrame(() => {
       var y;
@@ -6447,17 +6447,17 @@ function ef(t, { fieldset: e, homeContainer: n }) {
   da.set(t, h), h.render(!0);
 }
 c(ef, "openManagerDialog");
-function tp(t) {
+function ip(t) {
   for (const e of t) {
-    const n = Yt(e);
+    const n = Kt(e);
     if (n) return n;
-    const i = Yt(e == null ? void 0 : e.element);
+    const i = Kt(e == null ? void 0 : e.element);
     if (i) return i;
   }
   return null;
 }
-c(tp, "findDialogRoot");
-function np(t) {
+c(ip, "findDialogRoot");
+function rp(t) {
   if (!(t instanceof HTMLElement) || t.dataset.managerLayout === "true") return;
   t.dataset.managerLayout = "true", t.classList.add("is-manager");
   const e = t.querySelector("legend"), n = t.querySelector("p.notes:not(.eidolon-light-criteria__status)"), i = t.querySelector(".eidolon-light-criteria__controls"), r = t.querySelector(".eidolon-light-criteria__status"), a = t.querySelector(".eidolon-light-criteria__creation"), o = Array.from(t.querySelectorAll(".eidolon-light-criteria__warning")), s = document.createElement("div");
@@ -6476,13 +6476,13 @@ function np(t) {
   const h = document.createElement("div");
   h.classList.add("eidolon-light-criteria-manager__header"), h.textContent = E("EIDOLON.LightCriteria.ManagerAuthoring", "Create or Update Mapping"), u.appendChild(h), a && u.appendChild(a), t.innerHTML = "", e && t.appendChild(e), n && t.appendChild(n), t.appendChild(s), uc(t, a);
 }
-c(np, "applyManagerLayout");
-function ip(t, e) {
+c(rp, "applyManagerLayout");
+function ap(t, e) {
   var i;
-  const n = Yt(t == null ? void 0 : t.element);
+  const n = Kt(t == null ? void 0 : t.element);
   return n || (((i = e == null ? void 0 : e.closest) == null ? void 0 : i.call(e, ".application")) ?? null);
 }
-c(ip, "resolveApplicationRoot");
+c(ap, "resolveApplicationRoot");
 function fa(t, e, n) {
   const i = Ca.get(t);
   i && (i.restoreConfig = null, i.editorMode = "create", i.editingMappingId = null), e.hidden = !0, n.setAttribute("aria-expanded", "false");
@@ -6498,7 +6498,7 @@ function fa(t, e, n) {
   });
 }
 c(fa, "hideCreationSection");
-function Kn(t, e) {
+function Jn(t, e) {
   if (!t) return;
   const n = !!(e != null && e.base), i = Array.isArray(e == null ? void 0 : e.mappings) ? e.mappings.length : 0, r = [];
   r.push(
@@ -6516,7 +6516,7 @@ function Kn(t, e) {
     ).replace("{count}", String(i))
   ), t.textContent = r.join(" ");
 }
-c(Kn, "updateStatusLine");
+c(Jn, "updateStatusLine");
 function sr(t, { state: e, hasCategories: n }) {
   if (!t) return;
   const i = !!(e != null && e.base), r = i && n;
@@ -6537,7 +6537,7 @@ function Ta(t, e) {
   const i = Si(((l = n.toObject) == null ? void 0 : l.call(n)) ?? {});
   if (!i)
     throw new Error("Unable to duplicate ambient light data.");
-  const r = (t == null ? void 0 : t.form) instanceof HTMLFormElement ? t.form : null, a = r ? Bm(r) : {}, o = foundry.utils.mergeObject(i, a, {
+  const r = (t == null ? void 0 : t.form) instanceof HTMLFormElement ? t.form : null, a = r ? Vm(r) : {}, o = foundry.utils.mergeObject(i, a, {
     inplace: !1,
     performDeletions: !0
   });
@@ -6558,13 +6558,13 @@ function Ta(t, e) {
     if (!f) return;
     const g = h.value !== void 0 && h.value !== null ? String(h.value) : "", p = (A = h.querySelector) == null ? void 0 : A.call(h, 'input[type="range"]'), y = (O = h.querySelector) == null ? void 0 : O.call(h, 'input[type="number"]'), v = p instanceof HTMLInputElement ? p.value : "", b = y instanceof HTMLInputElement ? y.value : "", w = g || b || v;
     if (typeof w != "string" || !w.length) return;
-    const C = Number(w), L = Number.isFinite(C) ? C : w;
-    foundry.utils.setProperty(o, f, L), N("LightCriteria | Captured range-picker value", {
+    const C = Number(w), I = Number.isFinite(C) ? C : w;
+    foundry.utils.setProperty(o, f, I), N("LightCriteria | Captured range-picker value", {
       path: f,
       elementValue: g,
       numberValue: b,
       rangeValue: v,
-      chosenValue: L
+      chosenValue: I
     });
   }));
   const s = Si(o);
@@ -6587,7 +6587,7 @@ function La(t, e, n) {
         elementCount: o.length
       });
       for (const s of o)
-        s instanceof HTMLElement && s.tagName === "COLOR-PICKER" ? ap(s, a) : s instanceof HTMLElement && s.tagName === "RANGE-PICKER" ? op(s, a) : s instanceof HTMLInputElement ? rp(s, a) : s instanceof HTMLSelectElement ? sp(s, a) : s instanceof HTMLTextAreaElement && lp(s, a);
+        s instanceof HTMLElement && s.tagName === "COLOR-PICKER" ? sp(s, a) : s instanceof HTMLElement && s.tagName === "RANGE-PICKER" ? lp(s, a) : s instanceof HTMLInputElement ? op(s, a) : s instanceof HTMLSelectElement ? cp(s, a) : s instanceof HTMLTextAreaElement && up(s, a);
     }
   }
   requestAnimationFrame(() => {
@@ -6596,48 +6596,48 @@ function La(t, e, n) {
   });
 }
 c(La, "applyConfigToForm");
-function rp(t, e, n) {
+function op(t, e, n) {
   const i = t.type;
   if (i === "checkbox") {
     const o = !!e;
-    t.checked !== o && (t.checked = o, xt(t));
+    t.checked !== o && (t.checked = o, _t(t));
     return;
   }
   if (i === "radio") {
     const o = e == null ? "" : String(e), s = t.value === o;
-    t.checked !== s && (t.checked = s, s && xt(t));
+    t.checked !== s && (t.checked = s, s && _t(t));
     return;
   }
   const r = e == null ? "" : String(e);
   let a = !1;
-  t.value !== r && (t.value = r, a = !0), a && xt(t);
+  t.value !== r && (t.value = r, a = !0), a && _t(t);
 }
-c(rp, "applyValueToInput");
-function ap(t, e, n) {
+c(op, "applyValueToInput");
+function sp(t, e, n) {
   var s, l, u, d, h, f;
   const i = e == null ? "" : String(e);
   let r = !1;
   t.value !== i && (t.value = i, t.setAttribute("value", i), (s = t.ui) != null && s.setValue && t.ui.setValue(i), r = !0);
   const a = ((l = t.ui) == null ? void 0 : l.input) ?? ((u = t.querySelector) == null ? void 0 : u.call(t, 'input[type="color"]'));
-  a instanceof HTMLInputElement && a.value !== i && (a.value = i, xt(a));
+  a instanceof HTMLInputElement && a.value !== i && (a.value = i, _t(a));
   const o = ((d = t.ui) == null ? void 0 : d.text) ?? ((h = t.querySelector) == null ? void 0 : h.call(t, 'input[type="text"]'));
-  o instanceof HTMLInputElement && o.value !== i && (o.value = i, xt(o)), (f = t.ui) != null && f.commit ? t.ui.commit() : (t.dispatchEvent(new Event("input", { bubbles: !0, cancelable: !0 })), t.dispatchEvent(new Event("change", { bubbles: !0, cancelable: !0 }))), N("LightCriteria | Color picker applied", {
+  o instanceof HTMLInputElement && o.value !== i && (o.value = i, _t(o)), (f = t.ui) != null && f.commit ? t.ui.commit() : (t.dispatchEvent(new Event("input", { bubbles: !0, cancelable: !0 })), t.dispatchEvent(new Event("change", { bubbles: !0, cancelable: !0 }))), N("LightCriteria | Color picker applied", {
     value: i,
     pickerValue: t.value ?? null,
     swatchValue: (a == null ? void 0 : a.value) ?? null,
     textValue: (o == null ? void 0 : o.value) ?? null
-  }), r && xt(t);
+  }), r && _t(t);
 }
-c(ap, "applyValueToColorPicker");
-function op(t, e, n) {
+c(sp, "applyValueToColorPicker");
+function lp(t, e, n) {
   var u, d;
   const i = e == null ? "" : String(e), r = Number(i), a = Number.isFinite(r) ? r : i;
   let o = !1;
   t.value !== void 0 && t.value !== a && (t.value = a, o = !0), t.getAttribute("value") !== i && (t.setAttribute("value", i), o = !0);
   const s = (u = t.querySelector) == null ? void 0 : u.call(t, 'input[type="range"]');
-  s instanceof HTMLInputElement && s.value !== i && (s.value = i, xt(s));
+  s instanceof HTMLInputElement && s.value !== i && (s.value = i, _t(s));
   const l = (d = t.querySelector) == null ? void 0 : d.call(t, 'input[type="number"]');
-  if (l instanceof HTMLInputElement && l.value !== i && (l.value = i, xt(l)), typeof t.commit == "function")
+  if (l instanceof HTMLInputElement && l.value !== i && (l.value = i, _t(l)), typeof t.commit == "function")
     try {
       t.commit();
     } catch (h) {
@@ -6648,23 +6648,23 @@ function op(t, e, n) {
     resolvedValue: a,
     rangeValue: (s == null ? void 0 : s.value) ?? null,
     numberValue: (l == null ? void 0 : l.value) ?? null
-  }), o && xt(t);
+  }), o && _t(t);
 }
-c(op, "applyValueToRangePicker");
-function sp(t, e, n) {
+c(lp, "applyValueToRangePicker");
+function cp(t, e, n) {
   const i = e == null ? "" : String(e);
-  t.value !== i && (t.value = i, xt(t));
+  t.value !== i && (t.value = i, _t(t));
 }
-c(sp, "applyValueToSelect");
-function lp(t, e, n) {
+c(cp, "applyValueToSelect");
+function up(t, e, n) {
   const i = e == null ? "" : String(e);
-  t.value !== i && (t.value = i, xt(t));
+  t.value !== i && (t.value = i, _t(t));
 }
-c(lp, "applyValueToTextarea");
-function xt(t) {
+c(up, "applyValueToTextarea");
+function _t(t) {
   t.dispatchEvent(new Event("input", { bubbles: !0, cancelable: !0 })), t.dispatchEvent(new Event("change", { bubbles: !0, cancelable: !0 }));
 }
-c(xt, "triggerInputChange");
+c(_t, "triggerInputChange");
 function bs({
   mappingSelect: t,
   applyMappingButton: e,
@@ -6674,14 +6674,14 @@ function bs({
   actionsMenu: a,
   state: o
 }) {
-  const s = (t == null ? void 0 : t.value) ?? "", l = !!(o != null && o.base), u = s && s !== be ? !!yr(o, s) : !1;
-  if (e instanceof HTMLButtonElement && (s ? s === be ? e.disabled = !l : e.disabled = !u : e.disabled = !0), n instanceof HTMLButtonElement && (s ? s === be ? n.disabled = !1 : n.disabled = !u : n.disabled = !0), i instanceof HTMLButtonElement && (i.disabled = !s || s === be || !u), r instanceof HTMLButtonElement && (r.disabled = !s || s === be || !u), a instanceof HTMLElement) {
+  const s = (t == null ? void 0 : t.value) ?? "", l = !!(o != null && o.base), u = s && s !== ve ? !!yr(o, s) : !1;
+  if (e instanceof HTMLButtonElement && (s ? s === ve ? e.disabled = !l : e.disabled = !u : e.disabled = !0), n instanceof HTMLButtonElement && (s ? s === ve ? n.disabled = !1 : n.disabled = !u : n.disabled = !0), i instanceof HTMLButtonElement && (i.disabled = !s || s === ve || !u), r instanceof HTMLButtonElement && (r.disabled = !s || s === ve || !u), a instanceof HTMLElement) {
     const d = n instanceof HTMLButtonElement && !n.disabled || i instanceof HTMLButtonElement && !i.disabled || r instanceof HTMLButtonElement && !r.disabled;
     a.classList.toggle("is-disabled", !d), !d && "open" in a && (a.open = !1);
   }
 }
 c(bs, "syncMappingSwitcherState");
-function cp(t) {
+function dp(t) {
   const e = /* @__PURE__ */ new Map();
   for (const n of t) {
     if (!n) continue;
@@ -6692,8 +6692,8 @@ function cp(t) {
   }
   return e;
 }
-c(cp, "buildCategoryNameLookup");
-function up(t) {
+c(dp, "buildCategoryNameLookup");
+function fp(t) {
   const e = {};
   return t instanceof HTMLElement && t.querySelectorAll("select[data-filter-category-id]").forEach((n) => {
     var a, o;
@@ -6701,14 +6701,14 @@ function up(t) {
     !i || !r || (e[i] = r);
   }), e;
 }
-c(up, "readMappingFilterSelections");
-function dp(t) {
+c(fp, "readMappingFilterSelections");
+function mp(t) {
   t instanceof HTMLElement && t.querySelectorAll("select[data-filter-category-id]").forEach((e) => {
     e.value = "";
   });
 }
-c(dp, "resetMappingFilterSelections");
-function fp(t, e) {
+c(mp, "resetMappingFilterSelections");
+function hp(t, e) {
   const n = Array.isArray(t) ? t : [], i = Object.entries(e ?? {}).filter(([, r]) => !!r);
   return i.length ? n.filter((r) => {
     if (!r || typeof r != "object") return !1;
@@ -6718,8 +6718,8 @@ function fp(t, e) {
     return !0;
   }) : n.slice();
 }
-c(fp, "filterMappingsByCriteria");
-function mp(t, { totalCount: e = 0, visibleCount: n = 0, hasFilters: i = !1, activeFilterCount: r = 0 } = {}) {
+c(hp, "filterMappingsByCriteria");
+function gp(t, { totalCount: e = 0, visibleCount: n = 0, hasFilters: i = !1, activeFilterCount: r = 0 } = {}) {
   if (!(t instanceof HTMLElement)) return;
   if (!i) {
     t.textContent = E(
@@ -6734,8 +6734,8 @@ function mp(t, { totalCount: e = 0, visibleCount: n = 0, hasFilters: i = !1, act
   ).replace("{active}", String(r)).replace("{visible}", String(n)).replace("{total}", String(e));
   t.textContent = a;
 }
-c(mp, "updateMappingFilterMeta");
-function hp(t, e, n, i, r = {}) {
+c(gp, "updateMappingFilterMeta");
+function pp(t, e, n, i, r = {}) {
   if (!(t instanceof HTMLSelectElement)) return;
   const a = typeof i == "string" ? i : "", o = !!(e != null && e.base), s = Array.isArray(r == null ? void 0 : r.categoryOrder) ? r.categoryOrder : [], l = Array.isArray(r == null ? void 0 : r.mappings) ? r.mappings.slice() : Array.isArray(e == null ? void 0 : e.mappings) ? e.mappings.slice() : [], u = t.value;
   t.innerHTML = "";
@@ -6745,7 +6745,7 @@ function hp(t, e, n, i, r = {}) {
     "Select a mapping"
   ), d.disabled = o, t.appendChild(d);
   const h = document.createElement("option");
-  h.value = be, h.textContent = E(
+  h.value = ve, h.textContent = E(
     "EIDOLON.LightCriteria.BaseOption",
     "Base Lighting"
   ), h.disabled = !o, t.appendChild(h), l.slice().sort((y, v) => {
@@ -6762,9 +6762,9 @@ function hp(t, e, n, i, r = {}) {
   const f = new Set(
     Array.from(t.options).filter((y) => !y.disabled).map((y) => y.value)
   ), g = o && u === "" ? "" : u, p = a || (f.has(g) ? g : "");
-  p && f.has(p) ? t.value = p : o ? t.value = be : t.value = "";
+  p && f.has(p) ? t.value = p : o ? t.value = ve : t.value = "";
 }
-c(hp, "populateMappingSelector");
+c(pp, "populateMappingSelector");
 function Bi(t, e, n = []) {
   if (!t || typeof t != "object")
     return E("EIDOLON.LightCriteria.UnnamedMapping", "Unnamed Mapping");
@@ -6796,12 +6796,12 @@ function yr(t, e) {
   return !e || !t || typeof t != "object" || !Array.isArray(t.mappings) ? null : t.mappings.find((n) => (n == null ? void 0 : n.id) === e) ?? null;
 }
 c(yr, "getMappingById");
-function gp(t) {
+function yp(t) {
   if (!t || typeof t != "object") return "";
   const e = t.current;
   if (e != null && e.mappingId) {
-    if (e.mappingId === be)
-      return t != null && t.base ? be : "";
+    if (e.mappingId === ve)
+      return t != null && t.base ? ve : "";
     if (Array.isArray(t.mappings) && t.mappings.some((n) => n.id === e.mappingId))
       return e.mappingId;
   }
@@ -6811,7 +6811,7 @@ function gp(t) {
   }
   return "";
 }
-c(gp, "resolveInitialMappingSelection");
+c(yp, "resolveInitialMappingSelection");
 function tu(t, e = {}) {
   var o, s, l, u;
   if (!(t instanceof HTMLFormElement)) return;
@@ -6824,13 +6824,13 @@ function tu(t, e = {}) {
   });
 }
 c(tu, "logAppliedColorState");
-function pp(t) {
+function bp(t) {
   t.querySelectorAll("select[data-category-id]").forEach((e) => {
     e.value = "";
   });
 }
-c(pp, "resetCategorySelections");
-function yp(t, e) {
+c(bp, "resetCategorySelections");
+function vp(t, e) {
   const n = e && typeof e == "object" ? e : {};
   t.querySelectorAll("select[data-category-id]").forEach((i) => {
     const r = i.dataset.categoryId;
@@ -6839,8 +6839,8 @@ function yp(t, e) {
     i.value = typeof a == "string" ? a : "";
   });
 }
-c(yp, "setCategorySelections");
-function bp(t) {
+c(vp, "setCategorySelections");
+function wp(t) {
   const e = {};
   return t.querySelectorAll("select[data-category-id]").forEach((n) => {
     var a, o;
@@ -6848,15 +6848,15 @@ function bp(t) {
     !i || !r || (e[i] = r);
   }), Object.keys(e).length > 0 ? e : null;
 }
-c(bp, "readCategorySelections");
+c(wp, "readCategorySelections");
 async function vs(t, e, n) {
   if (!t) return null;
   try {
     if (!n)
       return await pr(t, {});
-    if (n === be)
+    if (n === ve)
       return await pr(t, {
-        mappingId: be,
+        mappingId: ve,
         categories: null,
         updatedAt: Date.now()
       });
@@ -6877,17 +6877,17 @@ function uc(t, e) {
   n instanceof HTMLElement && (n.hidden = !!(e != null && e.hidden));
 }
 c(uc, "updateManagerSectionVisibility");
-function Jn({ switcher: t, emptyState: e, state: n }) {
+function Xn({ switcher: t, emptyState: e, state: n }) {
   const i = !!(n != null && n.base);
   t instanceof HTMLElement && (t.hidden = !i), e instanceof HTMLElement && (e.hidden = i);
 }
-c(Jn, "updateActiveMappingVisibility");
+c(Xn, "updateActiveMappingVisibility");
 function tf(t) {
   const e = (t == null ? void 0 : t.object) ?? (t == null ? void 0 : t.document) ?? null;
   return !(e != null && e.isEmbedded) || e.documentName !== "AmbientLight" ? null : e;
 }
 c(tf, "getAmbientLightDocument");
-function vp(t) {
+function Ep(t) {
   if (!(t != null && t.isEmbedded)) return null;
   const e = t.parent ?? null;
   if (!e) return t;
@@ -6902,12 +6902,12 @@ function vp(t) {
   }
   return t;
 }
-c(vp, "getPersistedAmbientLightDocument");
-function wp() {
-  Kg();
+c(Ep, "getPersistedAmbientLightDocument");
+function Sp() {
+  Xg();
 }
-c(wp, "registerLightCriteriaHooks");
-wp();
+c(Sp, "registerLightCriteriaHooks");
+Sp();
 const wl = /* @__PURE__ */ new Map();
 let El = !1;
 function dc(t, e) {
@@ -6922,14 +6922,14 @@ function Ia(t, e) {
   game.socket.emit(`module.${T}`, { type: t, payload: e });
 }
 c(Ia, "emitSocket");
-function Ep() {
+function Cp() {
   El || (game.socket.on(`module.${T}`, (t) => {
     const { type: e, payload: n } = t ?? {}, i = wl.get(e);
     i ? i(n) : console.warn(`[${T}] No socket handler for type "${e}"`);
   }), El = !0, console.log(`[${T}] Socket initialized on channel module.${T}`));
 }
-c(Ep, "initializeSocket");
-const nf = "tween", rf = "tween-sequence", Sl = "tween-sequence-cancel", Le = Object.freeze({
+c(Cp, "initializeSocket");
+const nf = "tween", rf = "tween-sequence", Sl = "tween-sequence-cancel", Ie = Object.freeze({
   ABORT: "abort",
   CONTINUE: "continue"
 }), yn = Object.freeze({
@@ -6947,22 +6947,22 @@ const nf = "tween", rf = "tween-sequence", Sl = "tween-sequence-cancel", Le = Ob
   EMIT: "emit",
   PARALLEL: "parallel"
 }), Ka = /* @__PURE__ */ new Map();
-function _t({ type: t, execute: e, validate: n }) {
+function Ft({ type: t, execute: e, validate: n }) {
   Ka.has(t) && console.warn(`[tween-registry] Type "${t}" already registered, overwriting.`), Ka.set(t, { type: t, execute: e, validate: n ?? (() => {
   }) });
 }
-c(_t, "registerTweenType");
+c(Ft, "registerTweenType");
 function tr(t) {
   return Ka.get(t);
 }
 c(tr, "getTweenType");
-function Sp(t, e = {}) {
+function Tp(t, e = {}) {
   const n = tr(t);
   if (!n)
     throw new Error(`Unknown tween type: "${t}".`);
   return n.validate(e ?? {}), n;
 }
-c(Sp, "validateTweenEntry");
+c(Tp, "validateTweenEntry");
 function Cl() {
   return [...Ka.keys()];
 }
@@ -7026,7 +7026,7 @@ function nu(t, e, n) {
   ];
 }
 c(nu, "linearRgbToOklab");
-function Cp(t, e, n) {
+function Lp(t, e, n) {
   const i = (t + 0.3963377774 * e + 0.2158037573 * n) ** 3, r = (t - 0.1055613458 * e - 0.0638541728 * n) ** 3, a = (t - 0.0894841775 * e - 1.291485548 * n) ** 3;
   return [
     4.0767416621 * i - 3.3077115913 * r + 0.2309699292 * a,
@@ -7034,7 +7034,7 @@ function Cp(t, e, n) {
     -0.0041960863 * i - 0.7034186147 * r + 1.707614701 * a
   ];
 }
-c(Cp, "oklabToLinearRgb");
+c(Lp, "oklabToLinearRgb");
 function Xa(t) {
   return [t.r, t.g, t.b];
 }
@@ -7044,42 +7044,42 @@ function af(t, e, n) {
   return `#${r(t)}${r(e)}${r(n)}`;
 }
 c(af, "rgbToHex");
-function Tp(t, e, n) {
+function Ip(t, e, n) {
   if (n <= 0) return t.toHTML();
   if (n >= 1) return e.toHTML();
   const i = foundry.utils.Color, [r, a, o] = t.hsl, [s, l, u] = e.hsl, d = (s - r + 0.5) % 1 - 0.5, h = (r + d * n + 1) % 1, f = a + (l - a) * n, g = o + (u - o) * n;
   return i.fromHSL([h, f, g]).toHTML();
 }
-c(Tp, "interpolateHsl");
-function Lp(t, e, n) {
+c(Ip, "interpolateHsl");
+function Op(t, e, n) {
   if (n <= 0) return t.toHTML();
   if (n >= 1) return e.toHTML();
   const [i, r, a] = Xa(t).map(Ja), [o, s, l] = Xa(e).map(Ja), u = Vi(i + (o - i) * n), d = Vi(r + (s - r) * n), h = Vi(a + (l - a) * n);
   return af(u, d, h);
 }
-c(Lp, "interpolateRgb");
-function Ip(t, e, n) {
+c(Op, "interpolateRgb");
+function Ap(t, e, n) {
   if (n <= 0) return t.toHTML();
   if (n >= 1) return e.toHTML();
   const [i, r, a] = Xa(t).map(Ja), [o, s, l] = Xa(e).map(Ja), [u, d, h] = nu(i, r, a), [f, g, p] = nu(o, s, l), y = 0.02, v = Math.sqrt(d * d + h * h), b = Math.sqrt(g * g + p * p);
-  let w, C, L;
+  let w, C, I;
   if (v < y || b < y)
-    w = u + (f - u) * n, C = d + (g - d) * n, L = h + (p - h) * n;
+    w = u + (f - u) * n, C = d + (g - d) * n, I = h + (p - h) * n;
   else {
     const _ = Math.atan2(h, d);
     let D = Math.atan2(p, g) - _;
     D > Math.PI && (D -= 2 * Math.PI), D < -Math.PI && (D += 2 * Math.PI), w = u + (f - u) * n;
     const P = v + (b - v) * n, $ = _ + D * n;
-    C = P * Math.cos($), L = P * Math.sin($);
+    C = P * Math.cos($), I = P * Math.sin($);
   }
-  const [A, O, M] = Cp(w, C, L);
+  const [A, O, M] = Lp(w, C, I);
   return af(Vi(A), Vi(O), Vi(M));
 }
-c(Ip, "interpolateOklch");
+c(Ap, "interpolateOklch");
 const Tl = {
-  hsl: Tp,
-  rgb: Lp,
-  oklch: Ip
+  hsl: Ip,
+  rgb: Op,
+  oklch: Ap
 };
 function mc(t = "hsl") {
   return Tl[t] ?? Tl.hsl;
@@ -7089,7 +7089,7 @@ function Ji() {
   return Object.keys(Tl);
 }
 c(Ji, "listInterpolationModes");
-function Op(t) {
+function kp(t) {
   if ((Array.isArray(t.uuid) ? t.uuid : [t.uuid]).some((n) => !n || typeof n != "string"))
     throw new Error("light-color tween: 'uuid' is required (string or array of AmbientLight document UUIDs).");
   if (t.toColor == null && t.toAlpha == null)
@@ -7107,8 +7107,8 @@ function Op(t) {
       `light-color tween: unknown mode "${t.mode}". Available: ${Ji().join(", ")}`
     );
 }
-c(Op, "validate$7");
-async function Ap(t, e = {}) {
+c(kp, "validate$7");
+async function Mp(t, e = {}) {
   const { CanvasAnimation: n } = foundry.canvas.animation, { Color: i } = foundry.utils, { uuid: r, toColor: a, toAlpha: o, mode: s = "oklch" } = t, l = Array.isArray(r) ? r : [r];
   if (l.length === 0)
     return console.warn("light-color tween: empty uuid array, nothing to animate."), !0;
@@ -7165,20 +7165,20 @@ async function Ap(t, e = {}) {
   }
   return c(C, "animateOne"), (await Promise.all(l.map(C))).every(Boolean);
 }
-c(Ap, "execute$7");
-function kp() {
-  _t({ type: "light-color", execute: Ap, validate: Op });
+c(Mp, "execute$7");
+function Np() {
+  Ft({ type: "light-color", execute: Mp, validate: kp });
 }
-c(kp, "registerLightColorTween");
+c(Np, "registerLightColorTween");
 const bn = /* @__PURE__ */ new WeakMap();
-function Mp(t) {
+function $p(t) {
   if ((Array.isArray(t.uuid) ? t.uuid : [t.uuid]).some((n) => !n || typeof n != "string"))
     throw new Error("light-state tween: 'uuid' is required (string or array of AmbientLight document UUIDs).");
   if (typeof t.enabled != "boolean")
     throw new Error("light-state tween: 'enabled' (boolean) is required.");
 }
-c(Mp, "validate$6");
-async function Np(t, e = {}) {
+c($p, "validate$6");
+async function xp(t, e = {}) {
   const { CanvasAnimation: n } = foundry.canvas.animation, { uuid: i, enabled: r } = t, a = Array.isArray(i) ? i : [i];
   if (a.length === 0)
     return console.warn("light-state tween: empty uuid array, nothing to animate."), !0;
@@ -7206,20 +7206,20 @@ async function Np(t, e = {}) {
     };
     if (bn.set(y, w), N(`light-state START ${r ? "ON" : "OFF"} | snap: ${JSON.stringify(w)} | _source.hidden=${y._source.hidden}, _source.config.alpha=${(M = y._source.config) == null ? void 0 : M.alpha}`), r && !w.hidden || !r && w.hidden)
       return bn.delete(y), !0;
-    const C = w.alpha, L = typeof u == "number" ? Math.max(0, Math.min(o, Date.now() - u)) : 0, A = /* @__PURE__ */ c((D) => {
+    const C = w.alpha, I = typeof u == "number" ? Math.max(0, Math.min(o, Date.now() - u)) : 0, A = /* @__PURE__ */ c((D) => {
       y.updateSource({ config: { alpha: D } }), v.initializeLightSource();
     }, "applyAlpha");
     if (r) {
       y.updateSource({ hidden: !1, config: { alpha: 0 } }), v.initializeLightSource(), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
       const D = { t: 0 };
-      L > 0 && (D.t = L / o, A(C * D.t));
+      I > 0 && (D.t = I / o, A(C * D.t));
       const P = await n.animate(
         [{ parent: D, attribute: "t", to: 1 }],
         {
           name: b,
           duration: o,
           easing: h,
-          time: L,
+          time: I,
           ontick: /* @__PURE__ */ c(() => A(C * D.t), "ontick")
         }
       );
@@ -7227,14 +7227,14 @@ async function Np(t, e = {}) {
     } else {
       y.updateSource({ hidden: !1, config: { alpha: w.alpha } }), v.initializeLightSource();
       const D = { t: 0 };
-      L > 0 && (D.t = L / o, A(C * (1 - D.t)));
+      I > 0 && (D.t = I / o, A(C * (1 - D.t)));
       const P = await n.animate(
         [{ parent: D, attribute: "t", to: 1 }],
         {
           name: b,
           duration: o,
           easing: h,
-          time: L,
+          time: I,
           ontick: /* @__PURE__ */ c(() => A(C * (1 - D.t)), "ontick")
         }
       );
@@ -7243,11 +7243,11 @@ async function Np(t, e = {}) {
   }
   return c(f, "animateOne"), (await Promise.all(a.map(f))).every(Boolean);
 }
-c(Np, "execute$6");
-function $p() {
-  _t({ type: "light-state", execute: Np, validate: Mp });
+c(xp, "execute$6");
+function _p() {
+  Ft({ type: "light-state", execute: xp, validate: $p });
 }
-c($p, "registerLightStateTween");
+c(_p, "registerLightStateTween");
 function Jo(t) {
   if ((Array.isArray(t.uuid) ? t.uuid : [t.uuid]).some((n) => !n || typeof n != "string"))
     throw new Error("tile-prop tween: 'uuid' is required (string or array of Tile document UUIDs).");
@@ -7281,18 +7281,18 @@ async function Xo(t, e = {}) {
     n.terminateAnimation(C), h && h.addEventListener("abort", () => {
       n.terminateAnimation(C);
     }, { once: !0 });
-    const L = typeof d == "number" ? Math.max(0, Math.min(s, Date.now() - d)) : 0, A = /* @__PURE__ */ c((_) => {
+    const I = typeof d == "number" ? Math.max(0, Math.min(s, Date.now() - d)) : 0, A = /* @__PURE__ */ c((_) => {
       const j = w + (a - w) * _;
       v.updateSource(foundry.utils.expandObject({ [r]: j })), b.refresh();
     }, "applyFrame"), O = { t: 0 };
-    L > 0 && (O.t = L / s, A(O.t));
+    I > 0 && (O.t = I / s, A(O.t));
     const M = await n.animate(
       [{ parent: O, attribute: "t", to: 1 }],
       {
         name: C,
         duration: s,
         easing: f,
-        time: L,
+        time: I,
         ontick: /* @__PURE__ */ c(() => A(O.t), "ontick")
       }
     );
@@ -7309,18 +7309,18 @@ async function Xo(t, e = {}) {
   return c(g, "animateOne"), (await Promise.all(o.map(g))).every(Boolean);
 }
 c(Xo, "execute$5");
-function xp() {
-  _t({ type: "tile-prop", execute: Xo, validate: Jo });
+function Fp() {
+  Ft({ type: "tile-prop", execute: Xo, validate: Jo });
 }
-c(xp, "registerTilePropTween");
-function _p(t) {
+c(Fp, "registerTilePropTween");
+function Dp(t) {
   if (!t.attribute || typeof t.attribute != "string")
     throw new Error("particles-prop tween: 'attribute' (string) is required — property name on canvas.particleeffects (e.g. 'alpha').");
   if (typeof t.value != "number")
     throw new Error("particles-prop tween: 'value' (number) is required — the target value to animate to.");
 }
-c(_p, "validate$4");
-async function Fp(t, e = {}) {
+c(Dp, "validate$4");
+async function Pp(t, e = {}) {
   const { CanvasAnimation: n } = foundry.canvas.animation, { attribute: i, value: r } = t, {
     durationMS: a = 2e3,
     easing: o = "easeInOutCosine",
@@ -7356,11 +7356,11 @@ async function Fp(t, e = {}) {
   }
   return v !== !1;
 }
-c(Fp, "execute$4");
-function Dp() {
-  _t({ type: "particles-prop", execute: Fp, validate: _p });
+c(Pp, "execute$4");
+function Rp() {
+  Ft({ type: "particles-prop", execute: Pp, validate: Dp });
 }
-c(Dp, "registerParticlesPropTween");
+c(Rp, "registerParticlesPropTween");
 var Ln, _r, Fr, Dr, Pr, Rr, zi;
 const Cc = class Cc {
   /**
@@ -7374,10 +7374,10 @@ const Cc = class Cc {
     k(this, Pr);
     k(this, Rr, !1);
     k(this, zi, null);
-    I(this, Ln, e), I(this, Dr, new Promise((n) => {
-      I(this, _r, n);
-    })), I(this, Pr, new Promise((n) => {
-      I(this, Fr, n);
+    L(this, Ln, e), L(this, Dr, new Promise((n) => {
+      L(this, _r, n);
+    })), L(this, Pr, new Promise((n) => {
+      L(this, Fr, n);
     }));
   }
   /** @returns {Promise<boolean>} Resolves true (completed) or false (cancelled/failed). */
@@ -7410,21 +7410,21 @@ const Cc = class Cc {
    */
   _resolve(e) {
     if (m(this, Rr)) return;
-    I(this, Rr, !0);
+    L(this, Rr, !0);
     const n = typeof e == "boolean" ? { status: e ? "completed" : "cancelled" } : e ?? { status: "cancelled" };
-    I(this, zi, n), m(this, _r).call(this, n.status === "completed"), m(this, Fr).call(this, n);
+    L(this, zi, n), m(this, _r).call(this, n.status === "completed"), m(this, Fr).call(this, n);
   }
 };
 Ln = new WeakMap(), _r = new WeakMap(), Fr = new WeakMap(), Dr = new WeakMap(), Pr = new WeakMap(), Rr = new WeakMap(), zi = new WeakMap(), c(Cc, "TimelineHandle");
 let Ll = Cc;
-var ci, Wi, di;
+var di, Wi, fi;
 const Tc = class Tc {
   constructor() {
     /** @type {Map<string, Set<Function>>} */
-    k(this, ci, /* @__PURE__ */ new Map());
+    k(this, di, /* @__PURE__ */ new Map());
     /** @type {Set<string>} Signals that have been emitted (sticky) */
     k(this, Wi, /* @__PURE__ */ new Set());
-    k(this, di, !1);
+    k(this, fi, !1);
   }
   /**
    * Subscribe to a named signal.
@@ -7433,10 +7433,10 @@ const Tc = class Tc {
    * @returns {() => void} Unsubscribe function
    */
   on(e, n) {
-    if (m(this, di)) return () => {
+    if (m(this, fi)) return () => {
     };
-    let i = m(this, ci).get(e);
-    return i || (i = /* @__PURE__ */ new Set(), m(this, ci).set(e, i)), i.add(n), () => i.delete(n);
+    let i = m(this, di).get(e);
+    return i || (i = /* @__PURE__ */ new Set(), m(this, di).set(e, i)), i.add(n), () => i.delete(n);
   }
   /**
    * Fire a named signal synchronously. All registered listeners are invoked.
@@ -7444,9 +7444,9 @@ const Tc = class Tc {
    * @param {string} signal
    */
   emit(e) {
-    if (m(this, di)) return;
+    if (m(this, fi)) return;
     m(this, Wi).add(e);
-    const n = m(this, ci).get(e);
+    const n = m(this, di).get(e);
     if (n)
       for (const i of n)
         i();
@@ -7459,7 +7459,7 @@ const Tc = class Tc {
    * @returns {Promise<void>}
    */
   waitFor(e, n) {
-    return m(this, di) ? Promise.reject(new Error("EventBus destroyed")) : m(this, Wi).has(e) ? Promise.resolve() : new Promise((i, r) => {
+    return m(this, fi) ? Promise.reject(new Error("EventBus destroyed")) : m(this, Wi).has(e) ? Promise.resolve() : new Promise((i, r) => {
       if (n != null && n.aborted)
         return r(n.reason ?? "aborted");
       const a = this.on(e, () => {
@@ -7475,10 +7475,10 @@ const Tc = class Tc {
    * Tear down the bus, clearing all listeners.
    */
   destroy() {
-    I(this, di, !0), m(this, ci).clear(), m(this, Wi).clear();
+    L(this, fi, !0), m(this, di).clear(), m(this, Wi).clear();
   }
 };
-ci = new WeakMap(), Wi = new WeakMap(), di = new WeakMap(), c(Tc, "EventBus");
+di = new WeakMap(), Wi = new WeakMap(), fi = new WeakMap(), c(Tc, "EventBus");
 let Il = Tc;
 const of = /* @__PURE__ */ new Map();
 function Qo(t, e) {
@@ -7514,22 +7514,22 @@ Qo("keypress", (t, e) => new Promise((n, i) => {
   document.addEventListener("keydown", r), e.signal.addEventListener("abort", a, { once: !0 });
 }));
 const Fi = /* @__PURE__ */ new Map();
-function Pp(t, e) {
+function Hp(t, e) {
   const n = Fi.get(t);
   n && !n.cancelled && n.cancel("replaced-by-name"), Fi.set(t, e), e.finished.then(() => {
     Fi.get(t) === e && Fi.delete(t);
   });
 }
-c(Pp, "registerTimeline");
+c(Hp, "registerTimeline");
 function sf(t) {
   const e = Fi.get(t);
   return e && !e.cancelled ? (e.cancel("cancelled-by-name"), !0) : !1;
 }
 c(sf, "cancelTimeline");
-function Rp(t) {
+function qp(t) {
   return Fi.get(t);
 }
-c(Rp, "getTimeline");
+c(qp, "getTimeline");
 function iu(t, e) {
   return t <= 0 ? Promise.resolve() : new Promise((n, i) => {
     if (e.aborted) return i(e.reason);
@@ -7551,7 +7551,7 @@ const Lc = class Lc {
     k(this, Hr, null);
     /** @type {Function|null} */
     k(this, qr, null);
-    I(this, je, e);
+    L(this, je, e);
   }
   /**
    * Add a tween entry to this step.
@@ -7578,7 +7578,7 @@ const Lc = class Lc {
    * @returns {StepBuilder} this
    */
   before(e) {
-    return I(this, Hr, e), this;
+    return L(this, Hr, e), this;
   }
   /**
    * Callback invoked after this step's awaited tweens complete.
@@ -7586,7 +7586,7 @@ const Lc = class Lc {
    * @returns {StepBuilder} this
    */
   after(e) {
-    return I(this, qr, e), this;
+    return L(this, qr, e), this;
   }
   // ── Delegation to parent TweenTimeline for fluent chaining ──
   /** Start a new step (finalizes this one). */
@@ -7641,14 +7641,14 @@ const Lc = class Lc {
 };
 je = new WeakMap(), In = new WeakMap(), Hr = new WeakMap(), qr = new WeakMap(), c(Lc, "StepBuilder");
 let Al = Lc;
-var Be, Ae, It, On, jr, Br, Ur, Vr, Un, kl, J, tn, Ml, lf, Nl, cf, uf, Oa, ut, Pt;
-const an = class an {
+var Be, ke, It, On, jr, Br, Ur, Vr, Vn, kl, J, nn, Ml, lf, Nl, cf, uf, Oa, ut, Rt;
+const on = class on {
   constructor() {
     k(this, J);
     /** @type {string|null} */
     k(this, Be, null);
     /** @type {string} */
-    k(this, Ae, Le.ABORT);
+    k(this, ke, Ie.ABORT);
     /** @type {Array<object>} */
     k(this, It, []);
     /** @type {StepBuilder|null} */
@@ -7669,7 +7669,7 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   name(e) {
-    return I(this, Be, e), this;
+    return L(this, Be, e), this;
   }
   /**
    * Set the error policy for step execution.
@@ -7677,16 +7677,16 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   errorPolicy(e) {
-    if (e !== Le.ABORT && e !== Le.CONTINUE)
+    if (e !== Ie.ABORT && e !== Ie.CONTINUE)
       throw new Error(`Invalid error policy: "${e}". Use "abort" or "continue".`);
-    return I(this, Ae, e), this;
+    return L(this, ke, e), this;
   }
   /**
    * Start a new step. Finalizes the previous step if one is open.
    * @returns {StepBuilder}
    */
   step() {
-    return S(this, J, tn).call(this), I(this, On, new Al(this)), m(this, On);
+    return S(this, J, nn).call(this), L(this, On, new Al(this)), m(this, On);
   }
   /**
    * Insert a delay (in ms) between the previous step and the next.
@@ -7694,7 +7694,7 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   delay(e) {
-    return S(this, J, tn).call(this), m(this, It).push({ kind: "delay", ms: e }), this;
+    return S(this, J, nn).call(this), m(this, It).push({ kind: "delay", ms: e }), this;
   }
   /**
    * Pause execution until an event occurs.
@@ -7702,7 +7702,7 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   await(e) {
-    return S(this, J, tn).call(this), m(this, It).push({ kind: "await", config: e }), this;
+    return S(this, J, nn).call(this), m(this, It).push({ kind: "await", config: e }), this;
   }
   /**
    * Fire a named signal (instant, non-blocking).
@@ -7710,7 +7710,7 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   emit(e) {
-    return S(this, J, tn).call(this), m(this, It).push({ kind: "emit", signal: e }), this;
+    return S(this, J, nn).call(this), m(this, It).push({ kind: "emit", signal: e }), this;
   }
   /**
    * Fork N branches with a join strategy.
@@ -7721,7 +7721,7 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   parallel(e, n = {}) {
-    S(this, J, tn).call(this);
+    S(this, J, nn).call(this);
     const i = n.join ?? "all", r = n.overflow ?? "detach";
     if (i !== "all" && i !== "any" && (typeof i != "number" || i < 1 || i > e.length))
       throw new Error(`parallel: join must be "all", "any", or 1..${e.length}, got ${JSON.stringify(i)}`);
@@ -7729,8 +7729,8 @@ const an = class an {
       throw new Error(`parallel: overflow must be "detach" or "cancel", got ${JSON.stringify(r)}`);
     const a = e.map((o) => {
       var l;
-      const s = new an();
-      return o(s), S(l = s, J, tn).call(l), m(s, It);
+      const s = new on();
+      return o(s), S(l = s, J, nn).call(l), m(s, It);
     });
     return m(this, It).push({ kind: "parallel", branches: a, join: i, overflow: r }), this;
   }
@@ -7740,7 +7740,7 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   beforeAll(e) {
-    return I(this, jr, e), this;
+    return L(this, jr, e), this;
   }
   /**
    * Callback invoked on successful completion.
@@ -7748,7 +7748,7 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   onComplete(e) {
-    return I(this, Br, e), this;
+    return L(this, Br, e), this;
   }
   /**
    * Callback invoked on cancellation (mutually exclusive with onComplete).
@@ -7756,7 +7756,7 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   onCancel(e) {
-    return I(this, Ur, e), this;
+    return L(this, Ur, e), this;
   }
   /**
    * Callback invoked on runtime failure (mutually exclusive with onComplete/onCancel).
@@ -7764,7 +7764,7 @@ const an = class an {
    * @returns {TweenTimeline} this
    */
   onError(e) {
-    return I(this, Vr, e), this;
+    return L(this, Vr, e), this;
   }
   /**
    * Execute the timeline.
@@ -7776,13 +7776,13 @@ const an = class an {
    * @returns {TimelineHandle}
    */
   run(e = {}) {
-    S(this, J, tn).call(this);
+    S(this, J, nn).call(this);
     const n = new AbortController();
     e.signal && (e.signal.aborted ? n.abort(e.signal.reason ?? "parent-aborted") : e.signal.addEventListener("abort", () => {
       n.signal.aborted || n.abort(e.signal.reason ?? "parent-aborted");
     }, { once: !0 }));
     const i = new Ll(n);
-    m(this, Be) && Pp(m(this, Be), i);
+    m(this, Be) && Hp(m(this, Be), i);
     const r = e.broadcast ?? game.user.isGM, a = e.commit ?? game.user.isGM, o = e.startEpochMS ?? Date.now();
     r && m(this, Be) && Ia(rf, {
       name: m(this, Be),
@@ -7814,12 +7814,12 @@ const an = class an {
    */
   toJSON() {
     var i;
-    S(this, J, tn).call(this);
-    const n = { timeline: S(i = an, Un, kl).call(i, m(this, It)) };
-    return m(this, Be) && (n.name = m(this, Be)), m(this, Ae) !== Le.ABORT && (n.errorPolicy = m(this, Ae)), n;
+    S(this, J, nn).call(this);
+    const n = { timeline: S(i = on, Vn, kl).call(i, m(this, It)) };
+    return m(this, Be) && (n.name = m(this, Be)), m(this, ke) !== Ie.ABORT && (n.errorPolicy = m(this, ke)), n;
   }
 };
-Be = new WeakMap(), Ae = new WeakMap(), It = new WeakMap(), On = new WeakMap(), jr = new WeakMap(), Br = new WeakMap(), Ur = new WeakMap(), Vr = new WeakMap(), Un = new WeakSet(), kl = /* @__PURE__ */ c(function(e) {
+Be = new WeakMap(), ke = new WeakMap(), It = new WeakMap(), On = new WeakMap(), jr = new WeakMap(), Br = new WeakMap(), Ur = new WeakMap(), Vr = new WeakMap(), Vn = new WeakSet(), kl = /* @__PURE__ */ c(function(e) {
   const n = [];
   for (const i of e)
     if (i.kind === "delay")
@@ -7833,7 +7833,7 @@ Be = new WeakMap(), Ae = new WeakMap(), It = new WeakMap(), On = new WeakMap(), 
         parallel: {
           branches: i.branches.map((r) => {
             var a;
-            return S(a = an, Un, kl).call(a, r);
+            return S(a = on, Vn, kl).call(a, r);
           }),
           join: i.join,
           overflow: i.overflow
@@ -7848,8 +7848,8 @@ Be = new WeakMap(), Ae = new WeakMap(), It = new WeakMap(), On = new WeakMap(), 
     }
   return n;
 }, "#serializeSegments"), J = new WeakSet(), // ── Private ─────────────────────────────────────────────────────────
-tn = /* @__PURE__ */ c(function() {
-  m(this, On) && (m(this, It).push({ kind: "step", data: m(this, On)._finalize() }), I(this, On, null));
+nn = /* @__PURE__ */ c(function() {
+  m(this, On) && (m(this, It).push({ kind: "step", data: m(this, On)._finalize() }), L(this, On, null));
 }, "#finalizeCurrentStep"), Ml = /* @__PURE__ */ c(function(e) {
   e.length !== 0 && Promise.allSettled(e).catch(() => {
   });
@@ -7859,18 +7859,18 @@ tn = /* @__PURE__ */ c(function() {
     if (n.signal.aborted) return S(this, J, ut).call(this, n.signal.reason);
     const a = await S(this, J, Oa).call(this, m(this, jr), vt.BEFORE_ALL, null);
     if (a) {
-      if (m(this, Ae) === Le.ABORT) return a;
+      if (m(this, ke) === Ie.ABORT) return a;
       n.errors.push(a);
     }
     const o = await S(this, J, Nl).call(this, m(this, It), n);
     if (o)
-      return S(i = an, Un, Ml).call(i, n.detachedPromises), o;
+      return S(i = on, Vn, Ml).call(i, n.detachedPromises), o;
     if (!n.signal.aborted) {
       const s = await Promise.allSettled(n.detachedPromises);
       for (const l of s)
         if (l.status === "rejected") {
-          const u = S(this, J, Pt).call(this, l.reason, vt.ENTRY);
-          if (m(this, Ae) === Le.ABORT) return u;
+          const u = S(this, J, Rt).call(this, l.reason, vt.ENTRY);
+          if (m(this, ke) === Ie.ABORT) return u;
           n.errors.push(u);
         }
     }
@@ -7879,7 +7879,7 @@ tn = /* @__PURE__ */ c(function() {
       ...n.errors.length > 0 ? { errors: n.errors } : {}
     };
   } catch (a) {
-    return S(r = an, Un, Ml).call(r, n.detachedPromises), n.signal.aborted ? S(this, J, ut).call(this, n.signal.reason) : (console.error("TweenTimeline execution error:", a), S(this, J, Pt).call(this, a, vt.RUNTIME));
+    return S(r = on, Vn, Ml).call(r, n.detachedPromises), n.signal.aborted ? S(this, J, ut).call(this, n.signal.reason) : (console.error("TweenTimeline execution error:", a), S(this, J, Rt).call(this, a, vt.RUNTIME));
   }
 }, "#execute"), Nl = /* @__PURE__ */ c(async function(e, n) {
   let i = -1, r = 0;
@@ -7907,8 +7907,8 @@ tn = /* @__PURE__ */ c(function() {
         ])), await p;
       } catch (p) {
         if (n.signal.aborted) return S(this, J, ut).call(this, n.signal.reason);
-        const y = S(this, J, Pt).call(this, p, vt.AWAIT);
-        if (m(this, Ae) === Le.ABORT) return y;
+        const y = S(this, J, Rt).call(this, p, vt.AWAIT);
+        if (m(this, ke) === Ie.ABORT) return y;
         n.errors.push(y);
       }
       continue;
@@ -7917,8 +7917,8 @@ tn = /* @__PURE__ */ c(function() {
       try {
         n.eventBus.emit(a.signal);
       } catch (p) {
-        const y = S(this, J, Pt).call(this, p, vt.EMIT);
-        if (m(this, Ae) === Le.ABORT) return y;
+        const y = S(this, J, Rt).call(this, p, vt.EMIT);
+        if (m(this, ke) === Ie.ABORT) return y;
         n.errors.push(y);
       }
       continue;
@@ -7931,7 +7931,7 @@ tn = /* @__PURE__ */ c(function() {
     i += 1;
     const { entries: o, before: s, after: l } = a.data, u = await S(this, J, Oa).call(this, s, vt.BEFORE_STEP, i);
     if (u) {
-      if (m(this, Ae) === Le.ABORT) return u;
+      if (m(this, ke) === Ie.ABORT) return u;
       n.errors.push(u);
       continue;
     }
@@ -7941,8 +7941,8 @@ tn = /* @__PURE__ */ c(function() {
     for (const p of o) {
       const y = tr(p.type);
       if (!y) {
-        const C = S(this, J, Pt).call(this, new Error(`TweenTimeline: unknown tween type "${p.type}"`), vt.ENTRY, i, p.type);
-        if (m(this, Ae) === Le.ABORT) return C;
+        const C = S(this, J, Rt).call(this, new Error(`TweenTimeline: unknown tween type "${p.type}"`), vt.ENTRY, i, p.type);
+        if (m(this, ke) === Ie.ABORT) return C;
         n.errors.push(C), console.warn(C.error.message);
         continue;
       }
@@ -7953,10 +7953,10 @@ tn = /* @__PURE__ */ c(function() {
         signal: n.signal
       }, b = v.durationMS ?? 2e3, w = Promise.resolve().then(() => y.execute(p.params, v)).then((C) => C === !1 ? {
         ok: !1,
-        failure: S(this, J, Pt).call(this, new Error("Tween entry returned false."), vt.ENTRY, i, p.type)
+        failure: S(this, J, Rt).call(this, new Error("Tween entry returned false."), vt.ENTRY, i, p.type)
       } : { ok: !0 }).catch((C) => ({
         ok: !1,
-        failure: S(this, J, Pt).call(this, C, vt.ENTRY, i, p.type)
+        failure: S(this, J, Rt).call(this, C, vt.ENTRY, i, p.type)
       }));
       p.detach ? n.detachedPromises.push(w) : (d.push(w), h = Math.max(h, b));
     }
@@ -7964,12 +7964,12 @@ tn = /* @__PURE__ */ c(function() {
     if (f === null) return S(this, J, ut).call(this, n.signal.reason);
     for (const p of f)
       if (!p.ok) {
-        if (m(this, Ae) === Le.ABORT) return p.failure;
+        if (m(this, ke) === Ie.ABORT) return p.failure;
         n.errors.push(p.failure), console.warn("TweenTimeline: entry failed:", p.failure.error);
       }
     const g = await S(this, J, Oa).call(this, l, vt.AFTER_STEP, i);
     if (g) {
-      if (m(this, Ae) === Le.ABORT) return g;
+      if (m(this, ke) === Ie.ABORT) return g;
       n.errors.push(g);
     }
     if (n.signal.aborted) return S(this, J, ut).call(this, n.signal.reason);
@@ -7997,8 +7997,8 @@ tn = /* @__PURE__ */ c(function() {
       const w = s - d - h;
       if (d + w < l) {
         y = !0, b();
-        const C = f.filter((A) => A && A.status === yn.FAILED).map((A) => A), L = S(this, J, Pt).call(this, new Error(`parallel: join target ${l} impossible (${d} completed, ${h} failed)`), vt.PARALLEL);
-        m(this, Ae) === Le.ABORT ? p(L) : (n.errors.push(L), n.errors.push(...C), p(null));
+        const C = f.filter((A) => A && A.status === yn.FAILED).map((A) => A), I = S(this, J, Rt).call(this, new Error(`parallel: join target ${l} impossible (${d} completed, ${h} failed)`), vt.PARALLEL);
+        m(this, ke) === Ie.ABORT ? p(I) : (n.errors.push(I), n.errors.push(...C), p(null));
       }
     }, "checkJoin"), b = /* @__PURE__ */ c(() => {
       if (o === "cancel")
@@ -8008,7 +8008,7 @@ tn = /* @__PURE__ */ c(function() {
         f[w] || n.detachedPromises.push(g[w]);
     }, "applyOverflow");
     if (g = r.map((w, C) => {
-      const L = {
+      const I = {
         signal: u[C].signal,
         commit: n.commit,
         startEpochMS: n.startEpochMS + i,
@@ -8019,7 +8019,7 @@ tn = /* @__PURE__ */ c(function() {
         detachedPromises: n.detachedPromises
         // shared
       };
-      return S(this, J, Nl).call(this, w, L).then((A) => {
+      return S(this, J, Nl).call(this, w, I).then((A) => {
         if (A)
           if (A.status === yn.CANCELLED) {
             if (u[C].signal.aborted) {
@@ -8060,8 +8060,8 @@ uf = /* @__PURE__ */ c(function(e, n) {
   try {
     return await e(), null;
   } catch (r) {
-    const a = S(this, J, Pt).call(this, r, n, i ?? void 0);
-    return m(this, Ae) === Le.CONTINUE && console.warn(`TweenTimeline: hook failure in ${n}:`, r), a;
+    const a = S(this, J, Rt).call(this, r, n, i ?? void 0);
+    return m(this, ke) === Ie.CONTINUE && console.warn(`TweenTimeline: hook failure in ${n}:`, r), a;
   }
 }, "#runHook"), /** @param {unknown} reason */
 ut = /* @__PURE__ */ c(function(e) {
@@ -8076,7 +8076,7 @@ ut = /* @__PURE__ */ c(function(e) {
  * @param {number} [stepIndex]
  * @param {string} [entryType]
  */
-Pt = /* @__PURE__ */ c(function(e, n, i, r) {
+Rt = /* @__PURE__ */ c(function(e, n, i, r) {
   const a = e instanceof Error ? e : new Error(String(e));
   return {
     status: yn.FAILED,
@@ -8085,8 +8085,8 @@ Pt = /* @__PURE__ */ c(function(e, n, i, r) {
     ...typeof i == "number" ? { stepIndex: i } : {},
     ...r ? { entryType: r } : {}
   };
-}, "#failedOutcome"), k(an, Un), c(an, "TweenTimeline");
-let Qa = an;
+}, "#failedOutcome"), k(on, Vn), c(on, "TweenTimeline");
+let Qa = on;
 function hc(t) {
   if (!t || typeof t != "object")
     throw new Error("Sequence JSON: data must be an object.");
@@ -8094,7 +8094,7 @@ function hc(t) {
     throw new Error("Sequence JSON: 'timeline' must be an array.");
   if (t.name != null && typeof t.name != "string")
     throw new Error("Sequence JSON: 'name' must be a string.");
-  if (t.errorPolicy != null && t.errorPolicy !== Le.ABORT && t.errorPolicy !== Le.CONTINUE)
+  if (t.errorPolicy != null && t.errorPolicy !== Ie.ABORT && t.errorPolicy !== Ie.CONTINUE)
     throw new Error(`Sequence JSON: 'errorPolicy' must be "abort" or "continue".`);
   df(t.timeline, "timeline", 0);
 }
@@ -8183,7 +8183,7 @@ function mf(t, e) {
       for (let a = 0; a < i.length; a++) {
         const o = i[a];
         try {
-          Sp(o.type, o.params ?? {});
+          Tp(o.type, o.params ?? {});
         } catch (s) {
           throw new Error(`Sequence JSON: ${r}[${a}] failed semantic validation: ${s.message}`);
         }
@@ -8230,11 +8230,11 @@ function hf(t, e) {
   }
 }
 c(hf, "compileSegments");
-function Hp(t) {
+function jp(t) {
   hc(t), ff(t);
 }
-c(Hp, "validate$3");
-async function qp(t, e = {}) {
+c(jp, "validate$3");
+async function Bp(t, e = {}) {
   return gc(t, { validateSemantics: !0 }).run({
     broadcast: !1,
     commit: e.commit,
@@ -8242,12 +8242,12 @@ async function qp(t, e = {}) {
     signal: e.signal
   }).finished;
 }
-c(qp, "execute$3");
-function jp() {
-  _t({ type: "sequence", execute: qp, validate: Hp });
+c(Bp, "execute$3");
+function Up() {
+  Ft({ type: "sequence", execute: Bp, validate: jp });
 }
-c(jp, "registerSequenceTween");
-function Bp(t) {
+c(Up, "registerSequenceTween");
+function Vp(t) {
   if (t.x == null && t.y == null && t.scale == null)
     throw new Error("camera-pan tween: at least one of 'x', 'y', or 'scale' is required.");
   if (t.x != null && typeof t.x != "number")
@@ -8257,8 +8257,8 @@ function Bp(t) {
   if (t.scale != null && (typeof t.scale != "number" || t.scale <= 0))
     throw new Error("camera-pan tween: 'scale' must be a positive number.");
 }
-c(Bp, "validate$2");
-async function Up(t, e = {}) {
+c(Vp, "validate$2");
+async function Gp(t, e = {}) {
   const {
     durationMS: n = 2e3,
     startEpochMS: i = null,
@@ -8280,12 +8280,12 @@ async function Up(t, e = {}) {
     });
   }) : (await l, !0);
 }
-c(Up, "execute$2");
-function Vp() {
-  _t({ type: "camera-pan", execute: Up, validate: Bp });
+c(Gp, "execute$2");
+function zp() {
+  Ft({ type: "camera-pan", execute: Gp, validate: Vp });
 }
-c(Vp, "registerCameraPanTween");
-function Gp(t) {
+c(zp, "registerCameraPanTween");
+function Wp(t) {
   if ((Array.isArray(t.uuid) ? t.uuid : [t.uuid]).some((i) => !i || typeof i != "string"))
     throw new Error("tile-tint tween: 'uuid' is required (string or array of Tile document UUIDs).");
   if (t.toColor == null || typeof t.toColor != "string")
@@ -8297,8 +8297,8 @@ function Gp(t) {
       `tile-tint tween: unknown mode "${t.mode}". Available: ${Ji().join(", ")}`
     );
 }
-c(Gp, "validate$1");
-async function zp(t, e = {}) {
+c(Wp, "validate$1");
+async function Yp(t, e = {}) {
   const { CanvasAnimation: n } = foundry.canvas.animation, { Color: i } = foundry.utils, { uuid: r, toColor: a, mode: o = "oklch" } = t, s = Array.isArray(r) ? r : [r];
   if (s.length === 0)
     return console.warn("tile-tint tween: empty uuid array, nothing to animate."), !0;
@@ -8315,8 +8315,8 @@ async function zp(t, e = {}) {
     if (f != null && f.aborted) return !1;
     const C = await fromUuid(w);
     if (!C) return !1;
-    const L = C.object;
-    if (!L) return !1;
+    const I = C.object;
+    if (!I) return !1;
     const A = ((B = (R = C._source) == null ? void 0 : R.texture) == null ? void 0 : B.tint) ?? "#ffffff", O = i.fromString(A);
     O.valid || console.warn(`tile-tint tween: source tint invalid on ${w}, using white.`);
     const M = O.valid ? O : i.fromString("#ffffff"), _ = { t: 0 }, j = `tile-tint-tween:${w}`;
@@ -8325,7 +8325,7 @@ async function zp(t, e = {}) {
     }, { once: !0 });
     const D = typeof h == "number" ? Math.max(0, Math.min(l, Date.now() - h)) : 0, P = /* @__PURE__ */ c((W) => {
       const H = p(M, y, W);
-      C.updateSource({ texture: { tint: H } }), L.refresh();
+      C.updateSource({ texture: { tint: H } }), I.refresh();
     }, "applyFrame");
     D > 0 && (_.t = D / l, P(_.t));
     const $ = await n.animate(
@@ -8340,7 +8340,7 @@ async function zp(t, e = {}) {
     );
     if ($ !== !1) {
       if (f != null && f.aborted) return !1;
-      C.updateSource({ texture: { tint: y.toHTML() } }), L.refresh();
+      C.updateSource({ texture: { tint: y.toHTML() } }), I.refresh();
     }
     if (d && $ !== !1 && C.canUserModify(game.user, "update")) {
       if (f != null && f.aborted) return !1;
@@ -8350,12 +8350,12 @@ async function zp(t, e = {}) {
   }
   return c(v, "animateOne"), (await Promise.all(s.map(v))).every(Boolean);
 }
-c(zp, "execute$1");
-function Wp() {
-  _t({ type: "tile-tint", execute: zp, validate: Gp });
+c(Yp, "execute$1");
+function Kp() {
+  Ft({ type: "tile-tint", execute: Yp, validate: Wp });
 }
-c(Wp, "registerTileTintTween");
-function Yp(t) {
+c(Kp, "registerTileTintTween");
+function Jp(t) {
   if ((Array.isArray(t.uuid) ? t.uuid : [t.uuid]).some((n) => !n || typeof n != "string"))
     throw new Error("tile-scale tween: 'uuid' is required (string or array of Tile document UUIDs).");
   if (typeof t.toScale != "number" || t.toScale <= 0)
@@ -8364,8 +8364,8 @@ function Yp(t) {
     if (typeof t[n] != "number")
       throw new Error(`tile-scale tween: '${n}' (number) is required.`);
 }
-c(Yp, "validate");
-async function Kp(t, e = {}) {
+c(Jp, "validate");
+async function Xp(t, e = {}) {
   const { CanvasAnimation: n } = foundry.canvas.animation, { uuid: i, toScale: r, baseWidth: a, baseHeight: o, centerX: s, centerY: l } = t, u = Array.isArray(i) ? i : [i];
   if (u.length === 0) return !0;
   const {
@@ -8375,7 +8375,7 @@ async function Kp(t, e = {}) {
     startEpochMS: g = null,
     signal: p = null
   } = e, y = rt(h), v = a * r, b = o * r, w = s - v / 2, C = l - b / 2;
-  async function L(O) {
+  async function I(O) {
     if (p != null && p.aborted) return !1;
     const M = await fromUuid(O);
     if (!M) return !1;
@@ -8386,8 +8386,8 @@ async function Kp(t, e = {}) {
       n.terminateAnimation(R);
     }, { once: !0 });
     const B = typeof g == "number" ? Math.max(0, Math.min(d, Date.now() - g)) : 0, W = /* @__PURE__ */ c((K) => {
-      const ae = j + (v - j) * K, Q = D + (b - D) * K, te = P + (w - P) * K, Jt = $ + (C - $) * K;
-      M.updateSource({ width: ae, height: Q, x: te, y: Jt }), _.refresh();
+      const ae = j + (v - j) * K, Q = D + (b - D) * K, te = P + (w - P) * K, Xt = $ + (C - $) * K;
+      M.updateSource({ width: ae, height: Q, x: te, y: Xt }), _.refresh();
     }, "applyFrame"), H = { t: 0 };
     B > 0 && (H.t = B / d, W(H.t));
     const U = await n.animate(
@@ -8410,14 +8410,14 @@ async function Kp(t, e = {}) {
     }
     return U !== !1;
   }
-  return c(L, "animateOne"), (await Promise.all(u.map(L))).every(Boolean);
+  return c(I, "animateOne"), (await Promise.all(u.map(I))).every(Boolean);
 }
-c(Kp, "execute");
-function Jp() {
-  _t({ type: "tile-scale", execute: Kp, validate: Yp });
+c(Xp, "execute");
+function Qp() {
+  Ft({ type: "tile-scale", execute: Xp, validate: Jp });
 }
-c(Jp, "registerTileScaleTween");
-async function Xp(t, e, n = {}) {
+c(Qp, "registerTileScaleTween");
+async function Zp(t, e, n = {}) {
   if (!game.user.isGM)
     return ui.notifications.warn("Only the GM can dispatch tweens."), !1;
   const i = tr(t);
@@ -8434,8 +8434,8 @@ async function Xp(t, e, n = {}) {
     commit: !1
   }), i.execute(e, { durationMS: r, easing: a, commit: o, startEpochMS: s });
 }
-c(Xp, "dispatchTween");
-function Qp(t) {
+c(Zp, "dispatchTween");
+function ey(t) {
   const { type: e, params: n, durationMS: i, easing: r, startEpochMS: a, commit: o } = t ?? {}, s = tr(e);
   if (!s) {
     console.warn(`[${T}] Received unknown tween type over socket: "${e}"`);
@@ -8448,22 +8448,22 @@ function Qp(t) {
     startEpochMS: a
   });
 }
-c(Qp, "handleTweenSocketMessage");
-kp();
-$p();
-xp();
-Dp();
-jp();
-Vp();
-Wp();
-Jp();
-_t({ type: "token-prop", execute: Xo, validate: Jo });
-_t({ type: "drawing-prop", execute: Xo, validate: Jo });
-_t({ type: "sound-prop", execute: Xo, validate: Jo });
-dc(nf, Qp);
-dc(rf, Zp);
-dc(Sl, ey);
-function Zp(t) {
+c(ey, "handleTweenSocketMessage");
+Np();
+_p();
+Fp();
+Rp();
+Up();
+zp();
+Kp();
+Qp();
+Ft({ type: "token-prop", execute: Xo, validate: Jo });
+Ft({ type: "drawing-prop", execute: Xo, validate: Jo });
+Ft({ type: "sound-prop", execute: Xo, validate: Jo });
+dc(nf, ey);
+dc(rf, ty);
+dc(Sl, ny);
+function ty(t) {
   const { data: e, startEpochMS: n } = t ?? {};
   if (!e) {
     console.warn(`[${T}] Received empty tween-sequence socket message.`);
@@ -8475,44 +8475,44 @@ function Zp(t) {
     console.error(`[${T}] Failed to run received tween sequence:`, i);
   }
 }
-c(Zp, "handleSequenceSocketMessage");
-function ey(t) {
+c(ty, "handleSequenceSocketMessage");
+function ny(t) {
   const { name: e } = t ?? {};
   e && sf(e);
 }
-c(ey, "handleSequenceCancelMessage");
-function ty() {
+c(ny, "handleSequenceCancelMessage");
+function iy() {
   Hooks.once("ready", () => {
-    Ep();
+    Cp();
     const t = game.modules.get(T);
     t.api || (t.api = {}), t.api.tween = {
-      dispatch: Xp,
+      dispatch: Zp,
       types: Cl,
       Timeline: Qa,
-      ErrorPolicy: Le,
+      ErrorPolicy: Ie,
       compileSequence: gc,
       cancelTimeline: sf,
-      getTimeline: Rp
+      getTimeline: qp
     }, console.log(`[${T}] Tween API registered. Types: ${Cl().join(", ")}`);
   });
 }
-c(ty, "registerTweenHooks");
-ty();
-const ny = ["tag", "tag-all", "id", "tags-any", "tags-all"], iy = /* @__PURE__ */ new Set(["tags-any", "tags-all"]);
+c(iy, "registerTweenHooks");
+iy();
+const ry = ["tag", "tag-all", "id", "tags-any", "tags-all"], ay = /* @__PURE__ */ new Set(["tags-any", "tags-all"]);
 function pc(t) {
   if (!t || typeof t != "string")
     return { type: "unknown", value: t ?? "" };
   if (t.startsWith("$"))
     return { type: "special", value: t };
-  for (const e of ny)
+  for (const e of ry)
     if (t.startsWith(`${e}:`)) {
-      const n = t.slice(e.length + 1), i = iy.has(e) ? n.split(",").map((r) => r.trim()) : n;
+      const n = t.slice(e.length + 1), i = ay.has(e) ? n.split(",").map((r) => r.trim()) : n;
       return { type: e, value: i };
     }
   return t.includes(".") ? { type: "uuid", value: t } : { type: "unknown", value: t };
 }
 c(pc, "parseSelector");
-function ry(t) {
+function oy(t) {
   if (!t) return "";
   const { type: e, value: n } = t;
   if (e === "special" || e === "uuid" || e === "unknown")
@@ -8520,7 +8520,7 @@ function ry(t) {
   const i = Array.isArray(n) ? n.join(",") : n ?? "";
   return `${e}:${i}`;
 }
-c(ry, "buildSelector");
+c(oy, "buildSelector");
 function gf(t, e = "first") {
   return t != null && t.length ? t.length === 1 ? e === "first-all" || e === "all" ? `tag-all:${t[0]}` : `tag:${t[0]}` : e === "any" ? `tags-any:${t.join(",")}` : e === "all" ? `tags-all:${t.join(",")}` : e === "first-all" ? `tags-all:${t.join(",")}` : `tags-any:${t.join(",")}` : "";
 }
@@ -8546,25 +8546,25 @@ function es(t, e) {
   const i = pc(t);
   switch (i.type) {
     case "special":
-      return ay(i.value);
+      return sy(i.value);
     case "tag":
       return ru(i.value, n);
     case "tag-all":
       return ru(i.value, n);
     case "id":
-      return oy(i.value, n);
+      return ly(i.value, n);
     case "tags-any":
       return au(i.value, n, !0);
     case "tags-all":
       return au(i.value, n, !1);
     case "uuid":
-      return sy(i.value);
+      return cy(i.value);
     default:
       return null;
   }
 }
 c(es, "resolveSelector");
-function ay(t) {
+function sy(t) {
   var e;
   if (t === "$particles") {
     if (!((e = game.modules.get("fxmaster")) != null && e.active))
@@ -8574,7 +8574,7 @@ function ay(t) {
   }
   return null;
 }
-c(ay, "resolveSpecial");
+c(sy, "resolveSpecial");
 function ru(t, e, n) {
   const i = pf();
   if (!i)
@@ -8593,7 +8593,7 @@ function ru(t, e, n) {
   };
 }
 c(ru, "resolveTag");
-function oy(t, e) {
+function ly(t, e) {
   const n = [
     e.tiles,
     e.lights,
@@ -8615,7 +8615,7 @@ function oy(t, e) {
   }
   return null;
 }
-c(oy, "resolveById");
+c(ly, "resolveById");
 function au(t, e, n) {
   const i = pf();
   if (!i)
@@ -8637,7 +8637,7 @@ function au(t, e, n) {
   };
 }
 c(au, "resolveMultiTag");
-function sy(t) {
+function cy(t) {
   const e = fromUuidSync(t);
   if (!e) return null;
   const n = Zo(e);
@@ -8647,8 +8647,8 @@ function sy(t) {
     placeables: [n]
   } : null;
 }
-c(sy, "resolveUUID");
-function ly(t) {
+c(cy, "resolveUUID");
+function uy(t) {
   var e;
   if (!t) return null;
   if (t.kind === "particles")
@@ -8661,7 +8661,7 @@ function ly(t) {
   }
   return null;
 }
-c(ly, "adaptResolved");
+c(uy, "adaptResolved");
 function Za(t) {
   var r;
   const e = /* @__PURE__ */ new Set();
@@ -8680,13 +8680,13 @@ function Za(t) {
   }
   const n = /* @__PURE__ */ new Map(), i = [];
   for (const a of e) {
-    const o = es(a), s = ly(o);
+    const o = es(a), s = uy(o);
     s ? n.set(a, s) : i.push(a);
   }
   return i.length && console.warn(`[${T}] Cinematic: ${i.length} unresolved target(s): ${i.join(", ")}`), { targets: n, unresolved: i };
 }
 c(Za, "resolveAllTargets");
-function cy(t, e) {
+function dy(t, e) {
   if (!t) return {};
   const n = {};
   for (const [i, r] of Object.entries(t)) {
@@ -8715,8 +8715,8 @@ function cy(t, e) {
   }
   return n;
 }
-c(cy, "captureSnapshot");
-function uy(t) {
+c(dy, "captureSnapshot");
+function fy(t) {
   const e = {};
   function n(i) {
     if (i)
@@ -8731,7 +8731,7 @@ function uy(t) {
     n(t.setup), n(t.landing), t.timeline && $l(t.timeline, e, n);
   return e;
 }
-c(uy, "gatherAllStateMaps");
+c(fy, "gatherAllStateMaps");
 function $l(t, e, n) {
   var i;
   for (const r of t)
@@ -8827,7 +8827,7 @@ const ou = {
     "radius",
     "volume"
   ])
-}, dy = /* @__PURE__ */ new Set([
+}, my = /* @__PURE__ */ new Set([
   "alpha",
   "visible",
   "x",
@@ -8842,7 +8842,7 @@ function ws(t, e, n) {
   return i;
 }
 c(ws, "filterOverrides");
-function Ie(t, e) {
+function Oe(t, e) {
   var i, r;
   if (!t) return;
   const n = [];
@@ -8851,7 +8851,7 @@ function Ie(t, e) {
     if (s)
       if (s.kind === "particles") {
         if (s.target.destroyed) continue;
-        const l = ws(o, dy, "$particles");
+        const l = ws(o, my, "$particles");
         for (const [u, d] of Object.entries(l))
           s.target[u] = d;
       } else if (s.kind === "multi-placeable")
@@ -8879,7 +8879,7 @@ function Ie(t, e) {
   for (const a of n)
     a.refresh();
 }
-c(Ie, "applyState");
+c(Oe, "applyState");
 function Di(t, e) {
   var n;
   if (t)
@@ -8899,7 +8899,7 @@ function Di(t, e) {
     }
 }
 c(Di, "refreshPerceptionIfNeeded");
-const fy = {
+const hy = {
   "tile-prop": /* @__PURE__ */ new Set(["uuid", "attribute", "value"]),
   "light-color": /* @__PURE__ */ new Set(["uuid", "toColor", "toAlpha", "mode"]),
   "light-state": /* @__PURE__ */ new Set(["uuid", "enabled"]),
@@ -8908,12 +8908,12 @@ const fy = {
   "token-prop": /* @__PURE__ */ new Set(["uuid", "attribute", "value"]),
   "drawing-prop": /* @__PURE__ */ new Set(["uuid", "attribute", "value"]),
   "sound-prop": /* @__PURE__ */ new Set(["uuid", "attribute", "value"])
-}, my = /* @__PURE__ */ new Set(["easing"]), hy = /* @__PURE__ */ new Set(["type", "target"]);
+}, gy = /* @__PURE__ */ new Set(["easing"]), py = /* @__PURE__ */ new Set(["type", "target"]);
 function yf(t, e) {
   const { type: n, target: i, ...r } = t;
   if (!n)
     return console.warn(`[${T}] Cinematic: tween entry missing 'type', skipping.`), null;
-  const a = {}, o = {}, s = fy[n];
+  const a = {}, o = {}, s = hy[n];
   if (i === "$particles")
     a.target = "$particles";
   else if (i) {
@@ -8922,20 +8922,20 @@ function yf(t, e) {
     l.kind === "multi-placeable" ? a.uuid = l.placeables.map((u) => u.doc.uuid) : a.uuid = l.doc.uuid;
   }
   for (const [l, u] of Object.entries(r))
-    hy.has(l) || (my.has(l) ? o[l] = u : (s != null && s.has(l), a[l] = u));
+    py.has(l) || (gy.has(l) ? o[l] = u : (s != null && s.has(l), a[l] = u));
   return { type: n, params: a, opts: o };
 }
 c(yf, "compileTween");
 const Or = /* @__PURE__ */ new Map();
-let gy = 0;
-async function py(t) {
+let yy = 0;
+async function by(t) {
   var u, d, h, f, g;
   const { id: e, src: n, volume: i = 0.8, loop: r = !1, fadeIn: a } = t;
   if (!n) {
     console.warn(`[${T}] Cinematic sound: missing 'src', skipping.`);
     return;
   }
-  const o = e || `__auto_${++gy}`, s = {
+  const o = e || `__auto_${++yy}`, s = {
     src: n,
     autoplay: !0,
     loop: r,
@@ -8954,7 +8954,7 @@ async function py(t) {
   }
   a && a > 0 && l.fade && l.fade(i, { duration: a, from: 0 }), Or.set(o, { sound: l, config: t }), console.log(`[${T}] Cinematic sound: playing "${n}" as "${o}" (loop=${r}, vol=${i})`);
 }
-c(py, "playLocalSound");
+c(by, "playLocalSound");
 function Es(t) {
   var i, r;
   const e = Or.get(t);
@@ -8985,18 +8985,18 @@ function su() {
   Or.clear();
 }
 c(su, "stopAllCinematicSounds");
-function yy(t, e, n, i = {}) {
+function vy(t, e, n, i = {}) {
   const { skipToStep: r, onStepComplete: a, timelineName: o } = i, s = new n().name(o ?? `cinematic-${canvas.scene.id}`);
   return s.beforeAll(() => {
     var l;
     try {
-      Ie(t.setup, e), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
+      Oe(t.setup, e), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
     } catch (u) {
       throw console.error(`[${T}] Cinematic: error in beforeAll (setup state) on scene ${(l = canvas.scene) == null ? void 0 : l.id}:`, u), u;
     }
   }), vf(t.timeline, s, e, { skipToStep: r, onStepComplete: a }), { tl: s };
 }
-c(yy, "buildTimeline");
+c(vy, "buildTimeline");
 function bf(t, e) {
   var n;
   if (t)
@@ -9004,13 +9004,13 @@ function bf(t, e) {
       for (const r of i) {
         if (r.before)
           try {
-            Ie(r.before, e), Di(r.before, e);
+            Oe(r.before, e), Di(r.before, e);
           } catch (a) {
             console.warn(`[${T}] Cinematic: error in skipped parallel before:`, a);
           }
         if (r.after)
           try {
-            Ie(r.after, e), Di(r.after, e);
+            Oe(r.after, e), Di(r.after, e);
           } catch (a) {
             console.warn(`[${T}] Cinematic: error in skipped parallel after:`, a);
           }
@@ -9026,7 +9026,7 @@ function vf(t, e, n, i = {}) {
       if (r != null && o < r) continue;
       const h = s.sound, { duration: f, loop: g, fireAndForget: p } = h, y = e.step();
       if (y.before(() => {
-        py(h);
+        by(h);
       }), f && f > 0)
         if (p) {
           if (g && h.id) {
@@ -9083,13 +9083,13 @@ function vf(t, e, n, i = {}) {
     if (o++, r != null && o < r) {
       if (s.before)
         try {
-          Ie(s.before, n), Di(s.before, n);
+          Oe(s.before, n), Di(s.before, n);
         } catch (h) {
           console.warn(`[${T}] Cinematic: error applying skipped step.before:`, h);
         }
       if (s.after)
         try {
-          Ie(s.after, n), Di(s.after, n);
+          Oe(s.after, n), Di(s.after, n);
         } catch (h) {
           console.warn(`[${T}] Cinematic: error applying skipped step.after:`, h);
         }
@@ -9099,7 +9099,7 @@ function vf(t, e, n, i = {}) {
     s.before && u.before(() => {
       var h;
       try {
-        Ie(s.before, n), Di(s.before, n);
+        Oe(s.before, n), Di(s.before, n);
       } catch (f) {
         throw console.error(`[${T}] Cinematic: error in step.before callback on scene ${(h = canvas.scene) == null ? void 0 : h.id}:`, f), f;
       }
@@ -9112,7 +9112,7 @@ function vf(t, e, n, i = {}) {
     u.after(() => {
       var h;
       try {
-        s.after && (Ie(s.after, n), Di(s.after, n)), a == null || a(l);
+        s.after && (Oe(s.after, n), Di(s.after, n)), a == null || a(l);
       } catch (f) {
         throw console.error(`[${T}] Cinematic: error in step.after callback on scene ${(h = canvas.scene) == null ? void 0 : h.id}:`, f), f;
       }
@@ -9166,7 +9166,7 @@ function _l(t, e, n, i) {
   }
 }
 c(_l, "validateEntries");
-function by(t, e = null) {
+function wy(t, e = null) {
   var i;
   const n = [];
   if (!t || typeof t != "object")
@@ -9190,20 +9190,20 @@ function by(t, e = null) {
     Pi(t.setup, "setup", n), Pi(t.landing, "landing", n), t.timeline && Array.isArray(t.timeline) && _l(t.timeline, "timeline", e, n);
   return n;
 }
-c(by, "validateCinematicDeep");
+c(wy, "validateCinematicDeep");
 const Ss = 5, lu = /* @__PURE__ */ new Set(["click", "tile-click", "keypress"]);
-var le, he, Ue, ke, gt, mr, Fl, wf, Y, _e, Aa, Te, wt;
+var le, he, Ue, Me, gt, mr, Fl, wf, Y, _e, Aa, Le, wt;
 const se = class se {
   constructor(e = null, { loadedHash: n = null, cinematicName: i = "default", segmentName: r = null } = {}) {
     k(this, Y);
     k(this, le);
     k(this, he);
     k(this, Ue);
-    k(this, ke);
+    k(this, Me);
     var o;
-    I(this, le, e ?? se.empty()), I(this, he, i), I(this, ke, n);
+    L(this, le, e ?? se.empty()), L(this, he, i), L(this, Me, n);
     const a = (o = m(this, le).cinematics) == null ? void 0 : o[m(this, he)];
-    I(this, Ue, r ?? (a == null ? void 0 : a.entry) ?? "main");
+    L(this, Ue, r ?? (a == null ? void 0 : a.entry) ?? "main");
   }
   static empty() {
     return {
@@ -9242,10 +9242,10 @@ const se = class se {
         return b.await != null && lu.has(((w = b.await) == null ? void 0 : w.event) ?? "click");
       }
     )) {
-      const b = s.filter((L) => L.transitionTo == null), w = s.find((L) => L.transitionTo != null), C = { timeline: b };
+      const b = s.filter((I) => I.transitionTo == null), w = s.find((I) => I.transitionTo != null), C = { timeline: b };
       if (a && Object.keys(a).length && (C.setup = a), o && Object.keys(o).length && (C.landing = o), w) {
-        const L = w.transitionTo;
-        L.scene && L.cinematic ? C.next = { segment: L.cinematic, scene: L.scene } : L.cinematic;
+        const I = w.transitionTo;
+        I.scene && I.cinematic ? C.next = { segment: I.cinematic, scene: I.scene } : I.cinematic;
       }
       return {
         trigger: n,
@@ -9331,9 +9331,9 @@ const se = class se {
    * @returns {boolean} true if scene data differs from what was loaded
    */
   isStale(e) {
-    if (!m(this, ke)) return !1;
+    if (!m(this, Me)) return !1;
     const n = e == null ? void 0 : e.getFlag(T, "cinematic");
-    return n ? !foundry.utils.objectsEqual(n, m(this, ke)) : !1;
+    return n ? !foundry.utils.objectsEqual(n, m(this, Me)) : !1;
   }
   // ── Read ──────────────────────────────────────────────────────────────
   get data() {
@@ -9390,7 +9390,7 @@ const se = class se {
     if (!m(this, le).cinematics[e]) return this;
     const n = m(this, le).cinematics[e];
     return new se(foundry.utils.deepClone(m(this, le)), {
-      loadedHash: m(this, ke),
+      loadedHash: m(this, Me),
       cinematicName: e,
       segmentName: n.entry ?? "main"
     });
@@ -9399,7 +9399,7 @@ const se = class se {
     if (!e || m(this, le).cinematics[e]) return this;
     const n = foundry.utils.deepClone(m(this, le));
     return n.cinematics[e] = se.emptyCinematic(), new se(n, {
-      loadedHash: m(this, ke),
+      loadedHash: m(this, Me),
       cinematicName: e,
       segmentName: "main"
     });
@@ -9411,7 +9411,7 @@ const se = class se {
     delete i.cinematics[e];
     const r = m(this, he) === e ? Object.keys(i.cinematics)[0] : m(this, he), a = i.cinematics[r];
     return new se(i, {
-      loadedHash: m(this, ke),
+      loadedHash: m(this, Me),
       cinematicName: r,
       segmentName: (a == null ? void 0 : a.entry) ?? "main"
     });
@@ -9426,7 +9426,7 @@ const se = class se {
     i.cinematics = r;
     const a = m(this, he) === e ? n : m(this, he);
     return new se(i, {
-      loadedHash: m(this, ke),
+      loadedHash: m(this, Me),
       cinematicName: a,
       segmentName: m(this, Ue)
     });
@@ -9443,16 +9443,16 @@ const se = class se {
   }
   // ── Segment-level mutations (setup/landing now live on segments) ──────
   setSetup(e) {
-    return S(this, Y, Te).call(this, { setup: e });
+    return S(this, Y, Le).call(this, { setup: e });
   }
   setLanding(e) {
-    return S(this, Y, Te).call(this, { landing: e });
+    return S(this, Y, Le).call(this, { landing: e });
   }
   // ── Segment management methods ────────────────────────────────────────
   switchSegment(e) {
     var n;
     return (n = m(this, Y, _e).segments) != null && n[e] ? new se(foundry.utils.deepClone(m(this, le)), {
-      loadedHash: m(this, ke),
+      loadedHash: m(this, Me),
       cinematicName: m(this, he),
       segmentName: e
     }) : this;
@@ -9466,7 +9466,7 @@ const se = class se {
       r.segments[n].next = e, o && (r.segments[e].next = o);
     }
     return new se(i, {
-      loadedHash: m(this, ke),
+      loadedHash: m(this, Me),
       cinematicName: m(this, he),
       segmentName: e
     });
@@ -9481,7 +9481,7 @@ const se = class se {
     delete r.segments[e], r.entry === e && (r.entry = Object.keys(r.segments)[0]);
     const o = m(this, Ue) === e ? r.entry : m(this, Ue);
     return new se(i, {
-      loadedHash: m(this, ke),
+      loadedHash: m(this, Me),
       cinematicName: m(this, he),
       segmentName: o
     });
@@ -9500,22 +9500,22 @@ const se = class se {
     r.entry === e && (r.entry = n);
     const o = m(this, Ue) === e ? n : m(this, Ue);
     return new se(i, {
-      loadedHash: m(this, ke),
+      loadedHash: m(this, Me),
       cinematicName: m(this, he),
       segmentName: o
     });
   }
   setSegmentGate(e) {
-    return S(this, Y, Te).call(this, { gate: e ?? void 0 });
+    return S(this, Y, Le).call(this, { gate: e ?? void 0 });
   }
   setSegmentNext(e) {
-    return S(this, Y, Te).call(this, { next: e ?? void 0 });
+    return S(this, Y, Le).call(this, { next: e ?? void 0 });
   }
   setSegmentSetup(e) {
-    return S(this, Y, Te).call(this, { setup: e });
+    return S(this, Y, Le).call(this, { setup: e });
   }
   setSegmentLanding(e) {
-    return S(this, Y, Te).call(this, { landing: e });
+    return S(this, Y, Le).call(this, { landing: e });
   }
   listSegmentNames() {
     return Object.keys(m(this, Y, _e).segments ?? {});
@@ -9523,33 +9523,33 @@ const se = class se {
   // ── Timeline entry mutations (scoped to active segment) ──────────────
   addStep(e = -1) {
     const n = [...this.activeSegment.timeline], i = { duration: 1e3, tweens: [] };
-    return e < 0 || e >= n.length ? n.push(i) : n.splice(e, 0, i), S(this, Y, Te).call(this, { timeline: n });
+    return e < 0 || e >= n.length ? n.push(i) : n.splice(e, 0, i), S(this, Y, Le).call(this, { timeline: n });
   }
   addDelay(e = -1, n = 1e3) {
     const i = [...this.activeSegment.timeline], r = { delay: n };
-    return e < 0 || e >= i.length ? i.push(r) : i.splice(e, 0, r), S(this, Y, Te).call(this, { timeline: i });
+    return e < 0 || e >= i.length ? i.push(r) : i.splice(e, 0, r), S(this, Y, Le).call(this, { timeline: i });
   }
   addAwait(e = -1, n = null) {
     return console.warn(`[${T}] CinematicState.addAwait() is deprecated in v4. Use segment gates instead.`), this;
   }
   addEmit(e = -1, n = "") {
     const i = [...this.activeSegment.timeline], r = { emit: n };
-    return e < 0 || e >= i.length ? i.push(r) : i.splice(e, 0, r), S(this, Y, Te).call(this, { timeline: i });
+    return e < 0 || e >= i.length ? i.push(r) : i.splice(e, 0, r), S(this, Y, Le).call(this, { timeline: i });
   }
   addParallel(e = -1) {
     const n = [...this.activeSegment.timeline], i = { parallel: { branches: [[], []], join: "all", overflow: "detach" } };
-    return e < 0 || e >= n.length ? n.push(i) : n.splice(e, 0, i), S(this, Y, Te).call(this, { timeline: n });
+    return e < 0 || e >= n.length ? n.push(i) : n.splice(e, 0, i), S(this, Y, Le).call(this, { timeline: n });
   }
   addTransitionTo(e = -1, n = null) {
     return console.warn(`[${T}] CinematicState.addTransitionTo() is deprecated in v4. Use segment next edges instead.`), this;
   }
   addSound(e = -1, n = null) {
     const i = [...this.activeSegment.timeline], r = { sound: n ?? { src: "", volume: 0.8, loop: !1, duration: 0, fireAndForget: !1 } };
-    return e < 0 || e >= i.length ? i.push(r) : i.splice(e, 0, r), S(this, Y, Te).call(this, { timeline: i });
+    return e < 0 || e >= i.length ? i.push(r) : i.splice(e, 0, r), S(this, Y, Le).call(this, { timeline: i });
   }
   addStopSound(e = -1, n = "") {
     const i = [...this.activeSegment.timeline], r = { stopSound: n };
-    return e < 0 || e >= i.length ? i.push(r) : i.splice(e, 0, r), S(this, Y, Te).call(this, { timeline: i });
+    return e < 0 || e >= i.length ? i.push(r) : i.splice(e, 0, r), S(this, Y, Le).call(this, { timeline: i });
   }
   moveEntry(e, n) {
     if (e === n) return this;
@@ -9557,15 +9557,15 @@ const se = class se {
     if (e < 0 || e >= i.length) return this;
     if (n < 0 || n >= i.length) return this;
     const [r] = i.splice(e, 1);
-    return i.splice(n, 0, r), S(this, Y, Te).call(this, { timeline: i });
+    return i.splice(n, 0, r), S(this, Y, Le).call(this, { timeline: i });
   }
   removeEntry(e) {
     const n = [...this.activeSegment.timeline];
-    return e < 0 || e >= n.length ? this : (n.splice(e, 1), S(this, Y, Te).call(this, { timeline: n }));
+    return e < 0 || e >= n.length ? this : (n.splice(e, 1), S(this, Y, Le).call(this, { timeline: n }));
   }
   updateEntry(e, n) {
     const i = this.activeSegment.timeline.map((r, a) => a !== e ? r : { ...foundry.utils.deepClone(r), ...n });
-    return S(this, Y, Te).call(this, { timeline: i });
+    return S(this, Y, Le).call(this, { timeline: i });
   }
   // ── Tween mutations ──────────────────────────────────────────────────
   addTween(e, n = null) {
@@ -9654,7 +9654,7 @@ const se = class se {
     return foundry.utils.deepClone(m(this, le));
   }
 };
-le = new WeakMap(), he = new WeakMap(), Ue = new WeakMap(), ke = new WeakMap(), gt = new WeakSet(), mr = /* @__PURE__ */ c(function(e) {
+le = new WeakMap(), he = new WeakMap(), Ue = new WeakMap(), Me = new WeakMap(), gt = new WeakSet(), mr = /* @__PURE__ */ c(function(e) {
   const { duration: n, detach: i, ...r } = e;
   return r;
 }, "#stripTween"), Fl = /* @__PURE__ */ c(function(e) {
@@ -9720,19 +9720,19 @@ le = new WeakMap(), he = new WeakMap(), Ue = new WeakMap(), ke = new WeakMap(), 
 Aa = /* @__PURE__ */ c(function(e) {
   const n = foundry.utils.deepClone(m(this, le));
   return Object.assign(n.cinematics[m(this, he)], e), new se(n, {
-    loadedHash: m(this, ke),
+    loadedHash: m(this, Me),
     cinematicName: m(this, he),
     segmentName: m(this, Ue)
   });
 }, "#cloneActive"), /** Clone the full state with a patch to the active segment within the active cinematic. */
-Te = /* @__PURE__ */ c(function(e) {
+Le = /* @__PURE__ */ c(function(e) {
   const n = foundry.utils.deepClone(m(this, le)), i = n.cinematics[m(this, he)].segments[m(this, Ue)];
   if (!i) return this;
   Object.assign(i, e);
   for (const [r, a] of Object.entries(i))
     a === void 0 && delete i[r];
   return new se(n, {
-    loadedHash: m(this, ke),
+    loadedHash: m(this, Me),
     cinematicName: m(this, he),
     segmentName: m(this, Ue)
   });
@@ -9741,9 +9741,9 @@ wt = /* @__PURE__ */ c(function(e, n) {
   const i = this.activeSegment;
   if (!i || e < 0 || e >= i.timeline.length) return this;
   const r = i.timeline.map((a, o) => o !== e ? a : n(foundry.utils.deepClone(a)));
-  return S(this, Y, Te).call(this, { timeline: r });
+  return S(this, Y, Le).call(this, { timeline: r });
 }, "#mutateEntry"), k(se, gt), c(se, "CinematicState");
-let zt = se;
+let Wt = se;
 const cu = [
   { value: "tile-prop", label: "Tile Prop" },
   { value: "light-color", label: "Light Color" },
@@ -9762,7 +9762,7 @@ const cu = [
   "camera-pan": { form: "camera", x: 0, y: 0, scale: 1 },
   "light-color": { form: "lightColor", toColor: "#ffffff", toAlpha: "", mode: "oklch" },
   "light-state": { form: "lightState", enabled: !0 }
-}, vy = [
+}, Ey = [
   { value: "canvasReady", label: "Canvas Ready" },
   { value: "manual", label: "Manual Only" }
 ];
@@ -9779,12 +9779,12 @@ function du(t) {
   }) : Promise.resolve(0);
 }
 c(du, "loadAudioDurationMs");
-const Dn = 40, br = 24, Ar = 50, fu = 50, Xn = 60, ti = 10, Cs = 16, Sf = 40, Cf = 20, wy = 90, mu = 70, hu = 8;
+const Pn = 40, br = 24, Ar = 50, fu = 50, Qn = 60, ni = 10, Cs = 16, Sf = 40, Cf = 20, Sy = 90, mu = 70, hu = 8;
 function ts(t) {
   return { stepDuration: Math.max(500, t.duration ?? 500), detachOverflow: 0 };
 }
 c(ts, "computeStepDurations");
-function Ey(t) {
+function Cy(t) {
   var i;
   const e = ((i = t.parallel) == null ? void 0 : i.branches) ?? [];
   let n = 0;
@@ -9796,17 +9796,17 @@ function Ey(t) {
   }
   return Math.max(500, n);
 }
-c(Ey, "computeParallelDuration");
+c(Cy, "computeParallelDuration");
 function yc(t) {
-  return t.reduce((e, n) => n.delay != null ? e + n.delay : n.await != null || n.emit != null || n.transitionTo != null ? e : n.sound != null ? e + (n.sound.fireAndForget ? 0 : n.sound.duration ?? 0) : n.stopSound != null ? e : n.parallel != null ? e + Ey(n) : e + ts(n).stepDuration, 0);
+  return t.reduce((e, n) => n.delay != null ? e + n.delay : n.await != null || n.emit != null || n.transitionTo != null ? e : n.sound != null ? e + (n.sound.fireAndForget ? 0 : n.sound.duration ?? 0) : n.stopSound != null ? e : n.parallel != null ? e + Cy(n) : e + ts(n).stepDuration, 0);
 }
 c(yc, "computeTotalDuration");
-function Sy(t, e) {
+function Ty(t, e) {
   if (t <= 0) return 0.1;
   const n = e / t;
   return Math.max(0.03, Math.min(0.5, n));
 }
-c(Sy, "computeScale");
+c(Ty, "computeScale");
 function Tf(t) {
   const e = t.tweens ?? [];
   if (e.length === 0) return "Empty";
@@ -9814,7 +9814,7 @@ function Tf(t) {
   return n.type === "camera-pan" ? "Pan" : r === "alpha" ? `Fade ${i}` : r === "x" || r === "y" ? `Move ${i}` : n.type === "light-color" ? `Light ${i}` : n.type === "sound-prop" ? `Sound ${i}` : i ? `${i}` : "Step";
 }
 c(Tf, "deriveStepLabel");
-function Cy(t, e, n, i, r) {
+function Ly(t, e, n, i, r) {
   var u, d;
   const a = [], o = [], s = [];
   let l = e;
@@ -9827,17 +9827,17 @@ function Cy(t, e, n, i, r) {
       const y = ((u = f.await) == null ? void 0 : u.event) ?? "click", v = y === "tile-click" ? "fa-hand-pointer" : y === "signal" ? "fa-bolt" : "fa-pause";
       a.push({ type: "await", leftPx: l, widthPx: Cs, label: y, entryPath: g, selected: p, isGate: !0, gateIcon: v }), ((d = f.await) == null ? void 0 : d.event) === "signal" && s.push({ signal: f.await.signal, centerPx: l + Cs / 2 }), l += Cs;
     } else if (f.emit != null)
-      a.push({ type: "emit", leftPx: l, widthPx: ti, label: "emit", entryPath: g, selected: p, isMarker: !0 }), o.push({ signal: f.emit, centerPx: l + ti / 2 });
+      a.push({ type: "emit", leftPx: l, widthPx: ni, label: "emit", entryPath: g, selected: p, isMarker: !0 }), o.push({ signal: f.emit, centerPx: l + ni / 2 });
     else if (f.sound != null) {
       const y = (f.sound.src || "").split("/").pop() || "Sound", v = f.sound.duration ?? 0;
       if (f.sound.fireAndForget ?? !1)
-        a.push({ type: "sound", leftPx: l, widthPx: ti, label: y, entryPath: g, selected: p, isMarker: !0 });
+        a.push({ type: "sound", leftPx: l, widthPx: ni, label: y, entryPath: g, selected: p, isMarker: !0 });
       else {
-        const w = v > 0 ? Math.max(Xn, v * n) : Xn, C = (f.sound.loop ?? !1) && v <= 0;
+        const w = v > 0 ? Math.max(Qn, v * n) : Qn, C = (f.sound.loop ?? !1) && v <= 0;
         a.push({ type: "sound", leftPx: l, widthPx: w, label: y, entryPath: g, selected: p, hasTrailingArrow: C }), l += w;
       }
     } else if (f.stopSound != null)
-      a.push({ type: "stopSound", leftPx: l, widthPx: ti, label: "Stop", entryPath: g, selected: p, isMarker: !0 });
+      a.push({ type: "stopSound", leftPx: l, widthPx: ni, label: "Stop", entryPath: g, selected: p, isMarker: !0 });
     else {
       const { stepDuration: y } = ts(f), v = Math.max(Sf, y * n), b = Tf(f);
       a.push({ type: "step", leftPx: l, widthPx: v, label: b, entryPath: g, selected: p }), l += v;
@@ -9845,17 +9845,17 @@ function Cy(t, e, n, i, r) {
   }
   return { blocks: a, width: l - e, emits: o, awaits: s };
 }
-c(Cy, "computeBranchLane");
+c(Ly, "computeBranchLane");
 function gu(t) {
-  return br + t * Dn;
+  return br + t * Pn;
 }
 c(gu, "laneIndexToY");
-function Ty(t, e) {
+function Iy(t, e) {
   const n = [];
   for (const i of t.emits)
     for (const r of t.awaits) {
       if (i.signal !== r.signal) continue;
-      const a = i.centerPx, o = gu(i.laneIndex) + Dn / 2, s = r.centerPx, l = gu(r.laneIndex) + Dn / 2, u = l - o, d = (a + s) / 2, h = o + Math.sign(u || 1) * Math.min(40, Math.abs(u) * 0.5 + 20), f = l - Math.sign(u || 1) * Math.min(40, Math.abs(u) * 0.5 + 20);
+      const a = i.centerPx, o = gu(i.laneIndex) + Pn / 2, s = r.centerPx, l = gu(r.laneIndex) + Pn / 2, u = l - o, d = (a + s) / 2, h = o + Math.sign(u || 1) * Math.min(40, Math.abs(u) * 0.5 + 20), f = l - Math.sign(u || 1) * Math.min(40, Math.abs(u) * 0.5 + 20);
       n.push({
         pathD: `M ${a} ${o} C ${d} ${h}, ${d} ${f}, ${s} ${l}`,
         signal: i.signal
@@ -9863,8 +9863,8 @@ function Ty(t, e) {
     }
   return n;
 }
-c(Ty, "computeSignalArcs");
-function Ly(t, e) {
+c(Iy, "computeSignalArcs");
+function Oy(t, e) {
   const n = [];
   if (t <= 0) return n;
   const i = e * 1e3;
@@ -9876,11 +9876,11 @@ function Ly(t, e) {
   }
   return n;
 }
-c(Ly, "computeTimeMarkers");
-function Iy(t) {
+c(Oy, "computeTimeMarkers");
+function Ay(t) {
   const e = [];
   for (let n = 0; n < t.length - 1; n++) {
-    const i = t[n], r = t[n + 1], a = i.leftPx + i.widthPx + (r.leftPx - (i.leftPx + i.widthPx)) / 2, o = br + Dn / 2;
+    const i = t[n], r = t[n + 1], a = i.leftPx + i.widthPx + (r.leftPx - (i.leftPx + i.widthPx)) / 2, o = br + Pn / 2;
     let s;
     if (i.entryPath === "setup")
       s = 0;
@@ -9898,9 +9898,9 @@ function Iy(t) {
   }
   return e;
 }
-c(Iy, "computeInsertionPoints");
-function Oy(t, { selectedPath: e, windowWidth: n }) {
-  const i = yc(t), r = n - 70 - 100, a = Sy(i, r), o = [], s = [], l = { emits: [], awaits: [] }, u = [];
+c(Ay, "computeInsertionPoints");
+function ky(t, { selectedPath: e, windowWidth: n }) {
+  const i = yc(t), r = n - 70 - 100, a = Ty(i, r), o = [], s = [], l = { emits: [], awaits: [] }, u = [];
   o.push({
     type: "setup",
     leftPx: 0,
@@ -9911,7 +9911,7 @@ function Oy(t, { selectedPath: e, windowWidth: n }) {
   });
   let d = Ar;
   for (let w = 0; w < t.length; w++) {
-    const C = t[w], L = `timeline.${w}`, A = e === L;
+    const C = t[w], I = `timeline.${w}`, A = e === I;
     if (C.delay != null) {
       const O = Math.max(Cf, C.delay * a);
       o.push({
@@ -9919,32 +9919,32 @@ function Oy(t, { selectedPath: e, windowWidth: n }) {
         leftPx: d,
         widthPx: O,
         label: `${C.delay}ms`,
-        entryPath: L,
+        entryPath: I,
         selected: A
       }), d += O;
     } else if (C.emit != null)
       o.push({
         type: "emit",
         leftPx: d,
-        widthPx: ti,
+        widthPx: ni,
         label: "Emit",
-        entryPath: L,
+        entryPath: I,
         selected: A,
         isMarker: !0
       }), l.emits.push({
         signal: C.emit,
-        centerPx: d + ti / 2,
+        centerPx: d + ni / 2,
         laneIndex: 0
       });
     else if (C.sound != null) {
       const O = (C.sound.src || "").split("/").pop() || "Sound", M = C.sound.duration ?? 0;
       if (C.sound.fireAndForget ?? !1) {
-        const j = M > 0 ? Math.max(Xn, M * a) : Xn, D = (C.sound.loop ?? !1) && M <= 0, P = {
+        const j = M > 0 ? Math.max(Qn, M * a) : Qn, D = (C.sound.loop ?? !1) && M <= 0, P = {
           type: "sound",
           leftPx: d,
           widthPx: j,
           label: O,
-          entryPath: L,
+          entryPath: I,
           selected: A,
           hasTrailingArrow: D
         };
@@ -9960,13 +9960,13 @@ function Oy(t, { selectedPath: e, windowWidth: n }) {
           rightEdgePx: d + j
         });
       } else {
-        const j = M > 0 ? Math.max(Xn, M * a) : Xn, D = (C.sound.loop ?? !1) && M <= 0;
+        const j = M > 0 ? Math.max(Qn, M * a) : Qn, D = (C.sound.loop ?? !1) && M <= 0;
         o.push({
           type: "sound",
           leftPx: d,
           widthPx: j,
           label: O,
-          entryPath: L,
+          entryPath: I,
           selected: A,
           hasTrailingArrow: D
         }), d += j;
@@ -9975,9 +9975,9 @@ function Oy(t, { selectedPath: e, windowWidth: n }) {
       o.push({
         type: "stopSound",
         leftPx: d,
-        widthPx: ti,
+        widthPx: ni,
         label: "Stop",
-        entryPath: L,
+        entryPath: I,
         selected: A,
         isMarker: !0
       });
@@ -9985,19 +9985,19 @@ function Oy(t, { selectedPath: e, windowWidth: n }) {
       const O = C.parallel.branches ?? [], M = d, _ = [];
       let j = 0;
       for (let P = 0; P < O.length; P++) {
-        const $ = `timeline.${w}.parallel.branches.${P}`, { blocks: R, width: B, emits: W, awaits: H } = Cy(O[P], M, a, $, e);
+        const $ = `timeline.${w}.parallel.branches.${P}`, { blocks: R, width: B, emits: W, awaits: H } = Ly(O[P], M, a, $, e);
         _.push({ label: `Br ${P + 1}`, blocks: R }), j = Math.max(j, B);
         const U = s.length * 10 + P + 1;
         for (const K of W) l.emits.push({ ...K, laneIndex: U });
         for (const K of H) l.awaits.push({ ...K, laneIndex: U });
       }
-      const D = Math.max(Xn, j);
+      const D = Math.max(Qn, j);
       o.push({
         type: "parallel",
         leftPx: M,
         widthPx: D,
         label: `${O.length} br`,
-        entryPath: L,
+        entryPath: I,
         selected: A
       }), s.push({ parallelEntryIndex: w, startPx: M, lanes: _ }), d += D;
     } else {
@@ -10007,7 +10007,7 @@ function Oy(t, { selectedPath: e, windowWidth: n }) {
         leftPx: d,
         widthPx: M,
         label: _,
-        entryPath: L,
+        entryPath: I,
         selected: A
       }), d += M;
     }
@@ -10023,15 +10023,15 @@ function Oy(t, { selectedPath: e, windowWidth: n }) {
   const h = s.flatMap((w) => w.lanes), f = h.length;
   for (const w of u)
     h.push({ label: w.label, blocks: w.blocks });
-  const g = Ty(l, h.length), p = [];
+  const g = Iy(l, h.length), p = [];
   for (let w = 0; w < u.length; w++) {
     const C = f + w;
-    for (const L of u[w].blocks) {
-      const A = L.leftPx, O = br + Dn, M = br + (1 + C) * Dn + Dn / 2;
+    for (const I of u[w].blocks) {
+      const A = I.leftPx, O = br + Pn, M = br + (1 + C) * Pn + Pn / 2;
       p.push({ x: A, y1: O, y2: M });
     }
   }
-  const y = Ly(i, a), v = Iy(o), b = br + (1 + h.length) * Dn;
+  const y = Oy(i, a), v = Ay(o), b = br + (1 + h.length) * Pn;
   return {
     mainBlocks: o,
     subLanes: h,
@@ -10044,15 +10044,15 @@ function Oy(t, { selectedPath: e, windowWidth: n }) {
     totalDurationMs: i
   };
 }
-c(Oy, "computeLanes");
-function Ay(t) {
+c(ky, "computeLanes");
+function My(t) {
   if (t <= 0) return "0s";
   if (t < 1e3) return `${t}ms`;
   const e = t / 1e3;
   return e % 1 === 0 ? `${e}s` : `${e.toFixed(1)}s`;
 }
-c(Ay, "formatDuration");
-function ky(t, e) {
+c(My, "formatDuration");
+function Ny(t, e) {
   var g, p, y, v;
   const n = t.segments ?? {}, i = t.entry ?? "main", r = Object.keys(n);
   if (r.length === 0)
@@ -10066,11 +10066,11 @@ function ky(t, e) {
   const l = [];
   let u = hu;
   for (const b of o) {
-    const w = n[b], C = yc(w.timeline ?? []), L = Ay(C), A = b === i, O = b === e, M = !a.has(b), _ = wy;
+    const w = n[b], C = yc(w.timeline ?? []), I = My(C), A = b === i, O = b === e, M = !a.has(b), _ = Sy;
     l.push({
       name: b,
       durationMs: C,
-      durationLabel: L,
+      durationLabel: I,
       isEntry: A,
       isActive: O,
       isOrphan: M,
@@ -10086,23 +10086,23 @@ function ky(t, e) {
     if (!w.next) continue;
     const C = typeof w.next == "string" ? w.next : (p = w.next) == null ? void 0 : p.segment;
     if (!C) continue;
-    const L = h.get(b), A = h.get(C);
-    if (!L || !A) continue;
+    const I = h.get(b), A = h.get(C);
+    if (!I || !A) continue;
     const O = n[C], M = ((y = O == null ? void 0 : O.gate) == null ? void 0 : y.event) ?? null, _ = typeof w.next == "object" && ((v = w.next) == null ? void 0 : v.scene);
     d.push({
       fromName: b,
       toName: C,
       gateLabel: M,
       isCrossScene: _,
-      fromRightPx: L.leftPx + L.widthPx,
+      fromRightPx: I.leftPx + I.widthPx,
       toLeftPx: A.leftPx
     });
   }
   const f = u - mu + hu;
   return { nodes: l, edges: d, totalWidthPx: f };
 }
-c(ky, "computeSegmentGraph");
-function jn(t) {
+c(Ny, "computeSegmentGraph");
+function Bn(t) {
   if (!t) return null;
   if (t === "setup") return { type: "setup" };
   if (t === "landing") return { type: "landing" };
@@ -10120,19 +10120,19 @@ function jn(t) {
   }
   return null;
 }
-c(jn, "parseEntryPath");
+c(Bn, "parseEntryPath");
 function eo(t, e) {
   var i, r, a, o;
-  const n = jn(t);
+  const n = Bn(t);
   return n ? n.type === "setup" ? e.setup : n.type === "landing" ? e.landing : n.type === "timeline" ? e.timeline[n.index] : n.type === "branch" ? (o = (a = (r = (i = e.timeline[n.index]) == null ? void 0 : i.parallel) == null ? void 0 : r.branches) == null ? void 0 : a[n.branchIndex]) == null ? void 0 : o[n.branchEntryIndex] : null : null;
 }
 c(eo, "getEntryAtPath");
 function pu(t) {
-  const e = jn(t);
+  const e = Bn(t);
   return !e || e.type !== "timeline" ? null : e.index;
 }
 c(pu, "getTimelineIndexFromPath");
-function My(t) {
+function $y(t) {
   var a, o;
   const e = /* @__PURE__ */ new Set(), i = (a = t.data.cinematics) == null ? void 0 : a[t.activeCinematicName];
   if (!i) return 0;
@@ -10161,10 +10161,10 @@ function My(t) {
   }
   return e.size;
 }
-c(My, "countUniqueTargets");
-function Ny(t, e) {
+c($y, "countUniqueTargets");
+function xy(t, e) {
   var i, r, a;
-  const n = jn(t);
+  const n = Bn(t);
   if (!n) return 0;
   if (n.type === "timeline") {
     let o = 0;
@@ -10185,30 +10185,30 @@ function Ny(t, e) {
   }
   return 0;
 }
-c(Ny, "stepNumberForPath");
-function $y(t) {
+c(xy, "stepNumberForPath");
+function _y(t) {
   return {
     isSetup: !0,
     targetCount: Object.keys(t.setup ?? {}).length
   };
 }
-c($y, "buildSetupDetail");
-function xy(t) {
+c(_y, "buildSetupDetail");
+function Fy(t) {
   return {
     isLanding: !0,
     targetCount: Object.keys(t.landing ?? {}).length
   };
 }
-c(xy, "buildLandingDetail");
-function _y(t) {
+c(Fy, "buildLandingDetail");
+function Dy(t) {
   return { type: "delay", isDelay: !0, delay: t.delay };
 }
-c(_y, "buildDelayDetail");
-function Fy(t) {
+c(Dy, "buildDelayDetail");
+function Py(t) {
   return { type: "emit", isEmit: !0, signal: t.emit };
 }
-c(Fy, "buildEmitDetail");
-function Dy(t) {
+c(Py, "buildEmitDetail");
+function Ry(t) {
   const e = (t.sound.src || "").split("/").pop() || "";
   return {
     type: "sound",
@@ -10225,25 +10225,25 @@ function Dy(t) {
     soundModeForever: (t.sound.loop ?? !1) && !((t.sound.duration ?? 0) > 0)
   };
 }
-c(Dy, "buildSoundDetail");
-function Py(t) {
+c(Ry, "buildSoundDetail");
+function Hy(t) {
   return {
     type: "stopSound",
     isStopSound: !0,
     stopSoundId: t.stopSound
   };
 }
-c(Py, "buildStopSoundDetail");
-function Ry(t, e) {
+c(Hy, "buildStopSoundDetail");
+function qy(t, e) {
   var o;
   const n = t.parallel, i = n.join ?? "all", r = n.overflow ?? "detach", a = (n.branches ?? []).map((s, l) => ({
     branchIndex: l,
     label: `Branch ${l + 1}`,
     entries: (s ?? []).map((u, d) => {
-      var C, L;
+      var C, I;
       const h = u.delay != null, f = u.await != null, g = u.emit != null, p = u.sound != null, y = u.stopSound != null, v = !h && !f && !g && !p && !y;
       let b, w;
-      return h ? (b = `${u.delay}ms`, w = "delay") : f ? (b = "Await", w = ((C = u.await) == null ? void 0 : C.event) ?? "click") : g ? (b = "Emit", w = u.emit || "(unnamed)") : p ? (b = "Sound", w = (u.sound.src || "").split("/").pop() || "(none)") : y ? (b = "Stop Sound", w = u.stopSound || "(no id)") : (b = "Step", w = `${((L = u.tweens) == null ? void 0 : L.length) ?? 0} tweens`), { branchEntryIndex: d, isDelay: h, isAwait: f, isEmit: g, isSound: p, isStopSound: y, isStep: v, label: b, sub: w };
+      return h ? (b = `${u.delay}ms`, w = "delay") : f ? (b = "Await", w = ((C = u.await) == null ? void 0 : C.event) ?? "click") : g ? (b = "Emit", w = u.emit || "(unnamed)") : p ? (b = "Sound", w = (u.sound.src || "").split("/").pop() || "(none)") : y ? (b = "Stop Sound", w = u.stopSound || "(no id)") : (b = "Step", w = `${((I = u.tweens) == null ? void 0 : I.length) ?? 0} tweens`), { branchEntryIndex: d, isDelay: h, isAwait: f, isEmit: g, isSound: p, isStopSound: y, isStep: v, label: b, sub: w };
     })
   }));
   return {
@@ -10259,8 +10259,8 @@ function Ry(t, e) {
     branches: a
   };
 }
-c(Ry, "buildParallelDetail");
-function Hy(t, e, n, i) {
+c(qy, "buildParallelDetail");
+function jy(t, e, n, i) {
   const r = fc(), a = (t.tweens ?? []).map((l, u) => {
     const d = `${e}.tweens.${u}`, h = n.has(d), f = l.type ?? "tile-prop", g = cu.find((b) => b.value === f), p = Ef[f], y = (p == null ? void 0 : p.form) ?? "prop", v = l.mode ?? "oklch";
     return {
@@ -10311,24 +10311,24 @@ function Hy(t, e, n, i) {
     type: "step",
     isStep: !0,
     isDelay: !1,
-    stepNumber: Ny(e, i),
+    stepNumber: xy(e, i),
     stepDuration: t.duration ?? 1e3,
     tweens: a,
     beforeSummary: o.length ? `${o.length} target${o.length !== 1 ? "s" : ""}` : "(none)",
     afterSummary: s.length ? `${s.length} target${s.length !== 1 ? "s" : ""}` : "(none)"
   };
 }
-c(Hy, "buildStepDetail");
-function qy(t, { state: e, expandedTweens: n }) {
-  const i = jn(t);
+c(jy, "buildStepDetail");
+function By(t, { state: e, expandedTweens: n }) {
+  const i = Bn(t);
   if (!i) return null;
-  if (i.type === "setup") return $y(e);
-  if (i.type === "landing") return xy(e);
+  if (i.type === "setup") return _y(e);
+  if (i.type === "landing") return Fy(e);
   const r = eo(t, e);
-  return r ? r.delay != null ? _y(r) : r.emit != null ? Fy(r) : r.sound != null ? Dy(r) : r.stopSound != null ? Py(r) : r.parallel != null && i.type === "timeline" ? Ry(r) : Hy(r, t, n, e) : null;
+  return r ? r.delay != null ? Dy(r) : r.emit != null ? Py(r) : r.sound != null ? Ry(r) : r.stopSound != null ? Hy(r) : r.parallel != null && i.type === "timeline" ? qy(r) : jy(r, t, n, e) : null;
 }
-c(qy, "buildDetail");
-function jy({ state: t, mutate: e }) {
+c(By, "buildDetail");
+function Uy({ state: t, mutate: e }) {
   new Dialog({
     title: "Import Cinematic JSON",
     content: `
@@ -10347,13 +10347,13 @@ function jy({ state: t, mutate: e }) {
             if (typeof l != "object" || l === null || Array.isArray(l))
               throw new Error("Expected a JSON object");
             if (l.cinematics)
-              e(() => new zt(l));
+              e(() => new Wt(l));
             else if (l.segments !== void 0) {
               const u = { version: 4, cinematics: { [t.activeCinematicName]: l } };
-              e(() => new zt(u, { cinematicName: t.activeCinematicName }));
+              e(() => new Wt(u, { cinematicName: t.activeCinematicName }));
             } else if (l.timeline !== void 0) {
               const u = { version: 3, cinematics: { [t.activeCinematicName]: l } };
-              e(() => new zt(u, { cinematicName: t.activeCinematicName }));
+              e(() => new Wt(u, { cinematicName: t.activeCinematicName }));
             } else
               throw new Error("Expected v3/v4 wrapper or single cinematic with 'segments' or 'timeline'");
             (a = (r = ui.notifications) == null ? void 0 : r.info) == null || a.call(r, "Cinematic JSON imported.");
@@ -10367,14 +10367,14 @@ function jy({ state: t, mutate: e }) {
     default: "import"
   }).render(!0);
 }
-c(jy, "showImportDialog");
+c(Uy, "showImportDialog");
 function to(t, { state: e, mutate: n }) {
   const i = t === "setup" ? e.setup : e.landing, r = JSON.stringify(i ?? {}, null, 2);
   new Dialog({
     title: `Edit ${t.charAt(0).toUpperCase() + t.slice(1)}`,
     content: `
 			<p style="font-size:0.82rem;margin-bottom:0.4rem">JSON map of target selector → property overrides:</p>
-			<textarea id="cinematic-json-edit" style="width:100%;height:200px;font-family:monospace;font-size:0.8rem">${$t(r)}</textarea>
+			<textarea id="cinematic-json-edit" style="width:100%;height:200px;font-family:monospace;font-size:0.8rem">${xt(r)}</textarea>
 		`,
     buttons: {
       save: {
@@ -10404,7 +10404,7 @@ function yu(t, { selectedPath: e, state: n, mutate: i }) {
     title: `Edit Step ${t.charAt(0).toUpperCase() + t.slice(1)}`,
     content: `
 			<p style="font-size:0.82rem;margin-bottom:0.4rem">JSON map of target selector → property overrides:</p>
-			<textarea id="cinematic-json-edit" style="width:100%;height:200px;font-family:monospace;font-size:0.8rem">${$t(o)}</textarea>
+			<textarea id="cinematic-json-edit" style="width:100%;height:200px;font-family:monospace;font-size:0.8rem">${xt(o)}</textarea>
 		`,
     buttons: {
       save: {
@@ -10413,7 +10413,7 @@ function yu(t, { selectedPath: e, state: n, mutate: i }) {
           var u, d;
           const l = s.find("#cinematic-json-edit").val();
           try {
-            const h = JSON.parse(l), f = jn(e);
+            const h = JSON.parse(l), f = Bn(e);
             (f == null ? void 0 : f.type) === "timeline" ? i((g) => g.updateEntry(f.index, { [t]: h })) : (f == null ? void 0 : f.type) === "branch" && i((g) => g.updateBranchEntry(f.index, f.branchIndex, f.branchEntryIndex, { [t]: h }));
           } catch (h) {
             (d = (u = ui.notifications) == null ? void 0 : u.error) == null || d.call(u, `Invalid JSON: ${h.message}`);
@@ -10426,8 +10426,8 @@ function yu(t, { selectedPath: e, state: n, mutate: i }) {
   }).render(!0);
 }
 c(yu, "showEditStepStateDialog");
-function By({ selectedPath: t, state: e, mutate: n }) {
-  const i = jn(t);
+function Vy({ selectedPath: t, state: e, mutate: n }) {
+  const i = Bn(t);
   if (!i || i.type !== "timeline") return;
   const r = e.timeline[i.index];
   if (!(r != null && r.parallel)) return;
@@ -10436,7 +10436,7 @@ function By({ selectedPath: t, state: e, mutate: n }) {
     title: "Edit Parallel Branches",
     content: `
 			<p style="font-size:0.82rem;margin-bottom:0.4rem">JSON array of branch timelines:</p>
-			<textarea id="cinematic-json-edit" style="width:100%;height:250px;font-family:monospace;font-size:0.8rem">${$t(a)}</textarea>
+			<textarea id="cinematic-json-edit" style="width:100%;height:250px;font-family:monospace;font-size:0.8rem">${xt(a)}</textarea>
 		`,
     buttons: {
       save: {
@@ -10460,18 +10460,18 @@ function By({ selectedPath: t, state: e, mutate: n }) {
     default: "save"
   }).render(!0);
 }
-c(By, "showEditParallelJsonDialog");
-var $u, An, Rn, ka, Lf;
-const St = class St extends Gn(Vn) {
+c(Vy, "showEditParallelJsonDialog");
+var $u, An, Hn, ka, Lf;
+const St = class St extends zn(Gn) {
   constructor(n = {}) {
     super(n);
-    k(this, Rn);
+    k(this, Hn);
     k(this, An, null);
-    I(this, An, n.scene ?? canvas.scene ?? null);
+    L(this, An, n.scene ?? canvas.scene ?? null);
   }
   async _prepareContext() {
     var r, a, o;
-    const n = m(this, Rn, ka), i = ((a = n == null ? void 0 : n.getSeenStatus) == null ? void 0 : a.call(n, (r = m(this, An)) == null ? void 0 : r.id)) ?? [];
+    const n = m(this, Hn, ka), i = ((a = n == null ? void 0 : n.getSeenStatus) == null ? void 0 : a.call(n, (r = m(this, An)) == null ? void 0 : r.id)) ?? [];
     return {
       sceneName: ((o = m(this, An)) == null ? void 0 : o.name) ?? "No scene",
       users: i.map((s) => ({
@@ -10483,10 +10483,10 @@ const St = class St extends Gn(Vn) {
     };
   }
   _onRender(n, i) {
-    super._onRender(n, i), S(this, Rn, Lf).call(this);
+    super._onRender(n, i), S(this, Hn, Lf).call(this);
   }
 };
-An = new WeakMap(), Rn = new WeakSet(), ka = /* @__PURE__ */ c(function() {
+An = new WeakMap(), Hn = new WeakSet(), ka = /* @__PURE__ */ c(function() {
   var n, i;
   return (i = (n = game.modules.get(T)) == null ? void 0 : n.api) == null ? void 0 : i.cinematic;
 }, "#api"), Lf = /* @__PURE__ */ c(function() {
@@ -10497,12 +10497,12 @@ An = new WeakMap(), Rn = new WeakSet(), ka = /* @__PURE__ */ c(function() {
       var l;
       const o = a.dataset.userId;
       if (!o) return;
-      const s = m(this, Rn, ka);
+      const s = m(this, Hn, ka);
       s != null && s.resetForUser && (await s.resetForUser((l = m(this, An)) == null ? void 0 : l.id, o), this.render({ force: !0 }));
     });
   }), (i = n.querySelector("[data-action='reset-all']")) == null || i.addEventListener("click", async () => {
     var o;
-    const a = m(this, Rn, ka);
+    const a = m(this, Hn, ka);
     a != null && a.resetForAll && (await a.resetForAll((o = m(this, An)) == null ? void 0 : o.id), this.render({ force: !0 }));
   }), (r = n.querySelector("[data-action='refresh']")) == null || r.addEventListener("click", () => {
     this.render({ force: !0 });
@@ -10532,14 +10532,14 @@ An = new WeakMap(), Rn = new WeakSet(), ka = /* @__PURE__ */ c(function() {
   }
 });
 let Dl = St;
-function Uy(t, e) {
+function Gy(t, e) {
   var n, i, r, a, o, s, l, u, d;
   (n = t.querySelector("[data-action='save']")) == null || n.addEventListener("click", () => e.save()), (i = t.querySelector("[data-action='play-preview']")) == null || i.addEventListener("click", () => e.play()), (r = t.querySelector("[data-action='reset-tracking']")) == null || r.addEventListener("click", () => e.resetTracking()), (a = t.querySelector("[data-action='export-json']")) == null || a.addEventListener("click", () => e.exportJSON()), (o = t.querySelector("[data-action='undo']")) == null || o.addEventListener("click", () => e.undo()), (s = t.querySelector("[data-action='redo']")) == null || s.addEventListener("click", () => e.redo()), (l = t.querySelector("[data-action='validate']")) == null || l.addEventListener("click", () => e.validate()), (u = t.querySelector("[data-action='import-json']")) == null || u.addEventListener("click", () => e.importJSON()), (d = t.querySelector("[data-action='open-tracking']")) == null || d.addEventListener("click", () => {
     new Dl({ scene: e.scene }).render(!0);
   });
 }
-c(Uy, "bindToolbarEvents");
-function Vy(t, e) {
+c(Gy, "bindToolbarEvents");
+function zy(t, e) {
   var n, i, r, a;
   (n = t.querySelector("[data-action='change-cinematic']")) == null || n.addEventListener("change", (o) => {
     e.flushTweenChanges(), e.switchCinematic(o.target.value);
@@ -10597,7 +10597,7 @@ function Vy(t, e) {
     const o = e.state.activeCinematicName;
     new Dialog({
       title: "Rename Cinematic",
-      content: `<label style="display:flex;align-items:center;gap:0.5rem"><span>Name:</span><input id="cinematic-rename" type="text" style="flex:1" value="${$t(o)}" /></label>`,
+      content: `<label style="display:flex;align-items:center;gap:0.5rem"><span>Name:</span><input id="cinematic-rename" type="text" style="flex:1" value="${xt(o)}" /></label>`,
       buttons: {
         ok: {
           label: "Rename",
@@ -10627,8 +10627,8 @@ function Vy(t, e) {
     }).render(!0);
   });
 }
-c(Vy, "bindCinematicSelectorEvents");
-function Gy(t, e) {
+c(zy, "bindCinematicSelectorEvents");
+function Wy(t, e) {
   t.querySelectorAll("[data-action='select-block']").forEach((i) => {
     i.addEventListener("click", (r) => {
       if (r.target.closest("button")) return;
@@ -10694,8 +10694,8 @@ function Gy(t, e) {
     e.insertMenuState && !i.target.closest(".cinematic-editor__insert-menu") && !i.target.closest("[data-action='show-insert-menu']") && e.hideInsertMenu();
   });
 }
-c(Gy, "bindSwimlaneEvents");
-function zy(t, e) {
+c(Wy, "bindSwimlaneEvents");
+function Yy(t, e) {
   var n, i, r, a, o, s, l, u, d, h, f;
   (n = t.querySelector("[data-action='delete-entry']")) == null || n.addEventListener("click", () => {
     const g = e.parseEntryPath(e.selectedPath);
@@ -10738,7 +10738,7 @@ function zy(t, e) {
     e.mutate((p) => p.setSynchronized(g.target.checked));
   });
 }
-c(zy, "bindDetailPanelEvents");
+c(Yy, "bindDetailPanelEvents");
 const Xi = /* @__PURE__ */ new WeakMap(), no = /* @__PURE__ */ new Set(), io = /* @__PURE__ */ new Set(), bu = {
   hover: {
     borderColor: 52945,
@@ -10787,7 +10787,7 @@ function ro(t, e = {}) {
   Qi(t);
   const n = e.mode ?? (e.color != null ? "custom" : "hover"), i = bu[n] ?? bu.hover, r = e.color ?? i.borderColor, a = e.alpha ?? i.borderAlpha, o = e.color ?? i.spriteTint, s = i.spriteAlpha, l = e.pulse ?? i.pulse, u = { border: null, sprite: null, pulseData: null, mode: n }, d = ((p = t.document) == null ? void 0 : p.width) ?? t.w ?? 100, h = ((y = t.document) == null ? void 0 : y.height) ?? t.h ?? 100, f = new PIXI.Graphics();
   f.lineStyle(i.borderWidth, r, a), f.drawRect(0, 0, d, h), t.addChild(f), u.border = f;
-  const g = Wy(t, o, s);
+  const g = Ky(t, o, s);
   if (g && (canvas.controls.debug.addChild(g), io.add(g), u.sprite = g), l && ((v = canvas.app) != null && v.ticker)) {
     const b = {
       elapsed: 0,
@@ -10836,25 +10836,25 @@ function Ma() {
       }
 }
 c(Ma, "clearAllHighlights");
-function Wy(t, e, n) {
+function Ky(t, e, n) {
   var a;
   const i = t.mesh;
   if (!((a = i == null ? void 0 : i.texture) != null && a.baseTexture)) return null;
   const r = PIXI.Sprite.from(i.texture);
   return r.isSprite = !0, r.anchor.set(i.anchor.x, i.anchor.y), r.width = i.width, r.height = i.height, r.scale = i.scale, r.position = t.center, r.angle = i.angle, r.alpha = n, r.tint = e, r.name = "eidolonPickerHighlight", r;
 }
-c(Wy, "createTintSprite");
-let Qn = null;
+c(Ky, "createTintSprite");
+let Zn = null;
 function Of(t) {
   var p, y, v;
-  Qn && Qn.cancel();
+  Zn && Zn.cancel();
   const { placeableType: e = "Tile", onPick: n, onCancel: i } = t;
   let r = null;
   const a = `control${e}`, o = `hover${e}`, s = /* @__PURE__ */ c((b, w) => {
-    var L;
+    var I;
     if (!w) return;
     const C = b.document ?? b;
-    (L = b.release) == null || L.call(b), n(C);
+    (I = b.release) == null || I.call(b), n(C);
   }, "onControl"), l = /* @__PURE__ */ c((b, w) => {
     w ? (r = b, ro(b, { mode: "pick" })) : r === b && (Qi(b), r = null);
   }, "onHoverIn"), u = /* @__PURE__ */ c((b) => {
@@ -10865,22 +10865,22 @@ function Of(t) {
   document.addEventListener("keydown", u, { capture: !0 }), (p = canvas.stage) == null || p.addEventListener("rightclick", d), (v = (y = ui.notifications) == null ? void 0 : y.info) == null || v.call(y, `Pick mode active — click a ${e.toLowerCase()} on the canvas, or press ESC to cancel.`, { permanent: !1 });
   function g() {
     var b;
-    Qn && (Qn = null, Hooks.off(a, h), Hooks.off(o, f), document.removeEventListener("keydown", u, { capture: !0 }), (b = canvas.stage) == null || b.removeEventListener("rightclick", d), r && (Qi(r), r = null), i == null || i());
+    Zn && (Zn = null, Hooks.off(a, h), Hooks.off(o, f), document.removeEventListener("keydown", u, { capture: !0 }), (b = canvas.stage) == null || b.removeEventListener("rightclick", d), r && (Qi(r), r = null), i == null || i());
   }
-  return c(g, "cancel"), Qn = { cancel: g }, { cancel: g };
+  return c(g, "cancel"), Zn = { cancel: g }, { cancel: g };
 }
 c(Of, "enterPickMode");
 function hr() {
-  Qn && Qn.cancel();
+  Zn && Zn.cancel();
 }
 c(hr, "cancelPickMode");
-const Yy = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const Jy = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   cancelPickMode: hr,
   enterPickMode: Of
 }, Symbol.toStringTag, { value: "Module" }));
-var xu, Me, Ve, Gr, kn, zr, Wr, et, Mn, fe, Af, Pl, kf, Mf, Nf, Rl, Hl, $f, xf;
-const dt = class dt extends Gn(Vn) {
+var xu, Ne, Ve, Gr, kn, zr, Wr, et, Mn, fe, Af, Pl, kf, Mf, Nf, Rl, Hl, $f, xf;
+const dt = class dt extends zn(Gn) {
   /**
    * @param {object} options
    * @param {string[]} [options.selections]  Initial selections
@@ -10892,7 +10892,7 @@ const dt = class dt extends Gn(Vn) {
     super(n);
     k(this, fe);
     /** @type {string[]} Current selections (selector strings). */
-    k(this, Me, []);
+    k(this, Ne, []);
     /** @type {boolean} Whether pick mode is active. */
     k(this, Ve, !1);
     /** @type {string} Placeable type (Tile, Token, etc.). */
@@ -10907,7 +10907,7 @@ const dt = class dt extends Gn(Vn) {
     k(this, et, null);
     /** @type {PlaceableObject | null} Currently hovered tile in the browser. */
     k(this, Mn, null);
-    I(this, Me, [...n.selections ?? []]), I(this, Gr, n.placeableType ?? "Tile"), I(this, zr, n.onApply ?? null), I(this, Wr, n.onCancel ?? null);
+    L(this, Ne, [...n.selections ?? []]), L(this, Gr, n.placeableType ?? "Tile"), L(this, zr, n.onApply ?? null), L(this, Wr, n.onCancel ?? null);
   }
   // ── Context ───────────────────────────────────────────────────────────
   async _prepareContext() {
@@ -10923,8 +10923,8 @@ const dt = class dt extends Gn(Vn) {
       };
     });
     return {
-      selections: m(this, Me),
-      selectionCount: m(this, Me).length,
+      selections: m(this, Ne),
+      selectionCount: m(this, Ne).length,
       pickModeActive: m(this, Ve),
       tagModeIsAny: m(this, kn) === "any",
       tagModeIsAll: m(this, kn) === "all",
@@ -10938,7 +10938,7 @@ const dt = class dt extends Gn(Vn) {
     super._onRender(n, i), S(this, fe, Af).call(this), S(this, fe, Hl).call(this);
   }
   async _onClose(n) {
-    return m(this, Ve) && (hr(), I(this, Ve, !1)), Ma(), m(this, et) && (m(this, et).call(this, null), I(this, et, null)), super._onClose(n);
+    return m(this, Ve) && (hr(), L(this, Ve, !1)), Ma(), m(this, et) && (m(this, et).call(this, null), L(this, et, null)), super._onClose(n);
   }
   // ── Promise-based API ────────────────────────────────────────────────
   /**
@@ -10957,17 +10957,17 @@ const dt = class dt extends Gn(Vn) {
         onApply: /* @__PURE__ */ c((a) => i(a), "onApply"),
         onCancel: /* @__PURE__ */ c(() => i(null), "onCancel")
       });
-      I(r, et, i), r.render(!0);
+      L(r, et, i), r.render(!0);
     });
   }
 };
-Me = new WeakMap(), Ve = new WeakMap(), Gr = new WeakMap(), kn = new WeakMap(), zr = new WeakMap(), Wr = new WeakMap(), et = new WeakMap(), Mn = new WeakMap(), fe = new WeakSet(), Af = /* @__PURE__ */ c(function() {
+Ne = new WeakMap(), Ve = new WeakMap(), Gr = new WeakMap(), kn = new WeakMap(), zr = new WeakMap(), Wr = new WeakMap(), et = new WeakMap(), Mn = new WeakMap(), fe = new WeakSet(), Af = /* @__PURE__ */ c(function() {
   var a, o, s, l;
   const n = this.element;
   if (!(n instanceof HTMLElement)) return;
   const i = n.querySelector("[data-role='tag-input']"), r = n.querySelector("[data-role='tag-mode']");
   r == null || r.addEventListener("change", (u) => {
-    I(this, kn, u.target.value);
+    L(this, kn, u.target.value);
   }), i == null || i.addEventListener("input", () => {
     S(this, fe, kf).call(this, n);
   }), i == null || i.addEventListener("keydown", (u) => {
@@ -10975,13 +10975,13 @@ Me = new WeakMap(), Ve = new WeakMap(), Gr = new WeakMap(), kn = new WeakMap(), 
   }), (a = n.querySelector("[data-action='add-tag-selector']")) == null || a.addEventListener("click", () => {
     S(this, fe, Pl).call(this, n);
   }), (o = n.querySelector("[data-action='toggle-pick-mode']")) == null || o.addEventListener("click", () => {
-    m(this, Ve) ? (hr(), I(this, Ve, !1)) : (I(this, Ve, !0), Of({
+    m(this, Ve) ? (hr(), L(this, Ve, !1)) : (L(this, Ve, !0), Of({
       placeableType: m(this, Gr),
       onPick: /* @__PURE__ */ c((u) => {
         S(this, fe, Mf).call(this, u.id);
       }, "onPick"),
       onCancel: /* @__PURE__ */ c(() => {
-        I(this, Ve, !1), this.render({ force: !0 });
+        L(this, Ve, !1), this.render({ force: !0 });
       }, "onCancel")
     })), this.render({ force: !0 });
   }), n.querySelectorAll("[data-action='toggle-tile']").forEach((u) => {
@@ -10993,14 +10993,14 @@ Me = new WeakMap(), Ve = new WeakMap(), Gr = new WeakMap(), kn = new WeakMap(), 
       const d = u.dataset.docId;
       if (!d) return;
       const h = (g = (f = canvas.tiles) == null ? void 0 : f.placeables) == null ? void 0 : g.find((p) => p.document.id === d);
-      h && (I(this, Mn, h), ro(h, { mode: "hover" }));
+      h && (L(this, Mn, h), ro(h, { mode: "hover" }));
     }), u.addEventListener("mouseleave", () => {
-      m(this, Mn) && (Qi(m(this, Mn)), I(this, Mn, null), S(this, fe, Hl).call(this));
+      m(this, Mn) && (Qi(m(this, Mn)), L(this, Mn, null), S(this, fe, Hl).call(this));
     });
   }), n.querySelectorAll("[data-action='remove-selection']").forEach((u) => {
     u.addEventListener("click", () => {
       const d = Number(u.dataset.selectionIndex);
-      Number.isNaN(d) || (m(this, Me).splice(d, 1), this.render({ force: !0 }));
+      Number.isNaN(d) || (m(this, Ne).splice(d, 1), this.render({ force: !0 }));
     });
   }), (s = n.querySelector("[data-action='apply']")) == null || s.addEventListener("click", () => {
     S(this, fe, $f).call(this);
@@ -11015,7 +11015,7 @@ Pl = /* @__PURE__ */ c(function(n) {
   const a = r.split(",").map((l) => l.trim()).filter(Boolean);
   if (a.length === 0) return;
   const o = gf(a, m(this, kn));
-  o && !m(this, Me).includes(o) && m(this, Me).push(o), i && (i.value = ""), this.render({ force: !0 });
+  o && !m(this, Ne).includes(o) && m(this, Ne).push(o), i && (i.value = ""), this.render({ force: !0 });
 }, "#addTagSelector"), kf = /* @__PURE__ */ c(function(n) {
   var h, f;
   const i = n.querySelector("[data-role='tag-input']"), r = n.querySelector("[data-role='tag-preview']");
@@ -11043,10 +11043,10 @@ Pl = /* @__PURE__ */ c(function(n) {
 }, "#updateTagPreview"), // ── ID selector helpers ──────────────────────────────────────────────
 Mf = /* @__PURE__ */ c(function(n) {
   const i = `id:${n}`;
-  m(this, Me).includes(i) || (m(this, Me).push(i), this.render({ force: !0 }));
+  m(this, Ne).includes(i) || (m(this, Ne).push(i), this.render({ force: !0 }));
 }, "#addIdSelector"), Nf = /* @__PURE__ */ c(function(n) {
-  const i = `id:${n}`, r = m(this, Me).indexOf(i);
-  r >= 0 ? m(this, Me).splice(r, 1) : m(this, Me).push(i), this.render({ force: !0 });
+  const i = `id:${n}`, r = m(this, Ne).indexOf(i);
+  r >= 0 ? m(this, Ne).splice(r, 1) : m(this, Ne).push(i), this.render({ force: !0 });
 }, "#toggleIdSelector"), /**
  * Get the set of document IDs that are currently selected across all selector types.
  * Resolves tag/tags-any/tags-all selectors to find matching document IDs.
@@ -11054,7 +11054,7 @@ Mf = /* @__PURE__ */ c(function(n) {
  */
 Rl = /* @__PURE__ */ c(function() {
   const n = /* @__PURE__ */ new Set();
-  for (const i of m(this, Me)) {
+  for (const i of m(this, Ne)) {
     const r = pc(i);
     if (r.type === "id") {
       n.add(r.value);
@@ -11083,12 +11083,12 @@ Hl = /* @__PURE__ */ c(function() {
 }, "#refreshSelectionHighlights"), // ── Apply / Cancel ──────────────────────────────────────────────────
 $f = /* @__PURE__ */ c(function() {
   var i;
-  m(this, Ve) && (hr(), I(this, Ve, !1)), Ma();
-  const n = [...m(this, Me)];
-  (i = m(this, zr)) == null || i.call(this, n), m(this, et) && (m(this, et).call(this, n), I(this, et, null)), this.close({ force: !0 });
+  m(this, Ve) && (hr(), L(this, Ve, !1)), Ma();
+  const n = [...m(this, Ne)];
+  (i = m(this, zr)) == null || i.call(this, n), m(this, et) && (m(this, et).call(this, n), L(this, et, null)), this.close({ force: !0 });
 }, "#doApply"), xf = /* @__PURE__ */ c(function() {
   var n;
-  m(this, Ve) && (hr(), I(this, Ve, !1)), Ma(), (n = m(this, Wr)) == null || n.call(this), m(this, et) && (m(this, et).call(this, null), I(this, et, null)), this.close({ force: !0 });
+  m(this, Ve) && (hr(), L(this, Ve, !1)), Ma(), (n = m(this, Wr)) == null || n.call(this), m(this, et) && (m(this, et).call(this, null), L(this, et, null)), this.close({ force: !0 });
 }, "#doCancel"), c(dt, "PlaceablePickerApplication"), ye(dt, "APP_ID", `${T}-placeable-picker`), ye(dt, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
   Re(dt, dt, "DEFAULT_OPTIONS"),
   {
@@ -11114,7 +11114,7 @@ $f = /* @__PURE__ */ c(function() {
   }
 });
 let ao = dt;
-function Ky(t, e) {
+function Xy(t, e) {
   t.querySelectorAll("[data-action='toggle-tween-card']").forEach((n) => {
     n.addEventListener("click", (i) => {
       if (i.target.closest("[data-action='delete-tween']")) return;
@@ -11169,8 +11169,8 @@ function Ky(t, e) {
     });
   });
 }
-c(Ky, "bindTweenFieldEvents");
-function Jy(t, e) {
+c(Xy, "bindTweenFieldEvents");
+function Qy(t, e) {
   var i, r, a, o, s, l, u, d, h, f;
   function n(g, p, y) {
     g.type === "timeline" ? e.mutate((v) => v.updateEntry(g.index, { sound: y })) : g.type === "branch" && e.mutate((v) => v.updateBranchEntry(g.index, g.branchIndex, g.branchEntryIndex, { sound: y }));
@@ -11239,8 +11239,8 @@ function Jy(t, e) {
     p && (p.type === "timeline" ? e.mutate((y) => y.updateEntry(p.index, { stopSound: g.target.value })) : p.type === "branch" && e.mutate((y) => y.updateBranchEntry(p.index, p.branchIndex, p.branchEntryIndex, { stopSound: g.target.value })));
   });
 }
-c(Jy, "bindSoundFieldEvents");
-function Xy(t, e) {
+c(Qy, "bindSoundFieldEvents");
+function Zy(t, e) {
   var n, i, r, a, o;
   (n = t.querySelector("[data-action='change-emit-signal']")) == null || n.addEventListener("change", (s) => {
     const l = e.parseEntryPath(e.selectedPath);
@@ -11256,7 +11256,7 @@ function Xy(t, e) {
     const u = e.state.timeline[l.index];
     u != null && u.parallel && e.mutate((d) => d.updateEntry(l.index, { parallel: { ...u.parallel, overflow: s.target.value } }));
   }), (a = t.querySelector("[data-action='edit-parallel-json']")) == null || a.addEventListener("click", () => {
-    By({ selectedPath: e.selectedPath, state: e.state, mutate: e.mutate });
+    Vy({ selectedPath: e.selectedPath, state: e.state, mutate: e.mutate });
   }), (o = t.querySelector("[data-action='add-branch']")) == null || o.addEventListener("click", () => {
     const s = e.parseEntryPath(e.selectedPath);
     !s || s.type !== "timeline" || e.mutate((l) => l.addBranch(s.index));
@@ -11292,8 +11292,8 @@ function Xy(t, e) {
     });
   });
 }
-c(Xy, "bindSpecialEntryEvents");
-function Qy(t, e) {
+c(Zy, "bindSpecialEntryEvents");
+function eb(t, e) {
   var n;
   t.querySelectorAll("[data-action='select-segment']").forEach((i) => {
     i.addEventListener("click", () => {
@@ -11351,8 +11351,8 @@ function Qy(t, e) {
     });
   });
 }
-c(Qy, "bindSegmentGraphEvents");
-function Zy(t, e) {
+c(eb, "bindSegmentGraphEvents");
+function tb(t, e) {
   var n, i, r, a, o, s, l;
   (n = t.querySelector("[data-action='change-gate-event']")) == null || n.addEventListener("change", (u) => {
     var h;
@@ -11371,7 +11371,7 @@ function Zy(t, e) {
     var h;
     const u = (h = e.state.activeSegment) == null ? void 0 : h.gate;
     if (!u) return;
-    const { enterPickMode: d } = await Promise.resolve().then(() => Yy);
+    const { enterPickMode: d } = await Promise.resolve().then(() => Jy);
     d({
       placeableType: "Tile",
       onPick: /* @__PURE__ */ c((f) => {
@@ -11400,9 +11400,9 @@ function Zy(t, e) {
     to("landing", { state: e.state, mutate: e.mutate });
   });
 }
-c(Zy, "bindSegmentDetailEvents");
-var _u, Ge, z, tt, Nn, Ot, nt, ze, Ro, Fe, it, Ho, cn, Yi, ht, fi, $n, mi, q, _f, Ff, Df, Pf, wn, jl, Bl, Ul, Vl, Rf, En, Gl, Hf, qf, jf, Bf, Uf, zl, gr;
-const Ct = class Ct extends Gn(Vn) {
+c(tb, "bindSegmentDetailEvents");
+var _u, Ge, z, tt, Nn, Ot, nt, ze, Ro, Fe, it, Ho, un, Yi, ht, mi, $n, hi, q, _f, Ff, Df, Pf, wn, jl, Bl, Ul, Vl, Rf, En, Gl, Hf, qf, jf, Bf, Uf, zl, gr;
+const Ct = class Ct extends zn(Gn) {
   constructor(n = {}) {
     super(n);
     k(this, q);
@@ -11417,21 +11417,21 @@ const Ct = class Ct extends Gn(Vn) {
     k(this, Fe, []);
     k(this, it, -1);
     k(this, Ho, 50);
-    k(this, cn, null);
+    k(this, un, null);
     k(this, Yi, null);
     k(this, ht, null);
-    k(this, fi, null);
-    k(this, $n, null);
     k(this, mi, null);
-    I(this, Ge, n.scene ?? canvas.scene ?? null), I(this, z, zt.fromScene(m(this, Ge)));
+    k(this, $n, null);
+    k(this, hi, null);
+    L(this, Ge, n.scene ?? canvas.scene ?? null), L(this, z, Wt.fromScene(m(this, Ge)));
   }
   // ── Context ───────────────────────────────────────────────────────────
   async _prepareContext() {
     var g, p;
-    const n = ky(m(this, z), m(this, z).activeSegmentName), i = Oy(m(this, z).timeline, {
+    const n = Ny(m(this, z), m(this, z).activeSegmentName), i = ky(m(this, z).timeline, {
       selectedPath: m(this, tt),
       windowWidth: ((g = this.position) == null ? void 0 : g.width) ?? 1100
-    }), r = m(this, tt) != null ? qy(m(this, tt), { state: m(this, z), expandedTweens: m(this, Nn) }) : null, a = m(this, z).listCinematicNames(), o = m(this, z).activeCinematicName, l = m(this, z).listSegmentNames().length > 1, u = m(this, z).activeSegment, d = (u == null ? void 0 : u.gate) ?? null, h = (u == null ? void 0 : u.next) ?? null, f = typeof h == "string" ? h : (h == null ? void 0 : h.segment) ?? null;
+    }), r = m(this, tt) != null ? By(m(this, tt), { state: m(this, z), expandedTweens: m(this, Nn) }) : null, a = m(this, z).listCinematicNames(), o = m(this, z).activeCinematicName, l = m(this, z).listSegmentNames().length > 1, u = m(this, z).activeSegment, d = (u == null ? void 0 : u.gate) ?? null, h = (u == null ? void 0 : u.next) ?? null, f = typeof h == "string" ? h : (h == null ? void 0 : h.segment) ?? null;
     return {
       // Toolbar
       sceneName: ((p = m(this, Ge)) == null ? void 0 : p.name) ?? "No scene",
@@ -11471,13 +11471,13 @@ const Ct = class Ct extends Gn(Vn) {
       trigger: m(this, z).trigger,
       tracking: m(this, z).tracking,
       synchronized: m(this, z).synchronized,
-      triggerOptions: vy.map((y) => ({
+      triggerOptions: Ey.map((y) => ({
         ...y,
         selected: y.value === m(this, z).trigger
       })),
       entryCount: m(this, z).timeline.length,
       totalDuration: i.totalDurationMs,
-      targetCount: My(m(this, z)),
+      targetCount: $y(m(this, z)),
       setupCount: Object.keys(m(this, z).setup ?? {}).length,
       landingCount: Object.keys(m(this, z).landing ?? {}).length
     };
@@ -11485,19 +11485,19 @@ const Ct = class Ct extends Gn(Vn) {
   // ── Render & Events ───────────────────────────────────────────────────
   _onRender(n, i) {
     var r, a, o;
-    if (super._onRender(n, i), S(this, q, _f).call(this), !m(this, fi)) {
+    if (super._onRender(n, i), S(this, q, _f).call(this), !m(this, mi)) {
       const s = (a = (r = game.modules.get(T)) == null ? void 0 : r.api) == null ? void 0 : a.cinematic;
-      s != null && s.onPlaybackProgress ? (I(this, fi, s.onPlaybackProgress((l) => S(this, q, Uf).call(this, l))), console.log("[cinematic-editor] Subscribed to playback progress events")) : console.warn("[cinematic-editor] onPlaybackProgress not available on API", s);
+      s != null && s.onPlaybackProgress ? (L(this, mi, s.onPlaybackProgress((l) => S(this, q, Uf).call(this, l))), console.log("[cinematic-editor] Subscribed to playback progress events")) : console.warn("[cinematic-editor] onPlaybackProgress not available on API", s);
     }
-    if (m(this, mi) && ((o = this.element) == null || o.querySelectorAll(".cinematic-editor__segment-node").forEach((s) => {
-      s.classList.toggle("cinematic-editor__segment-node--playing", s.dataset.segmentName === m(this, mi));
+    if (m(this, hi) && ((o = this.element) == null || o.querySelectorAll(".cinematic-editor__segment-node").forEach((s) => {
+      s.classList.toggle("cinematic-editor__segment-node--playing", s.dataset.segmentName === m(this, hi));
     }), m(this, ht) && m(this, ht).segmentName === m(this, z).activeSegmentName)) {
       const s = performance.now() - m(this, ht).startTime;
       m(this, ht).durationMs - s > 0 && S(this, q, zl).call(this, m(this, ht).durationMs, m(this, ht).startTime);
     }
-    m(this, cn) || (I(this, cn, (s) => {
+    m(this, un) || (L(this, un, (s) => {
       !s.ctrlKey && !s.metaKey || (s.key === "z" && !s.shiftKey ? (s.preventDefault(), S(this, q, Ul).call(this)) : (s.key === "z" && s.shiftKey || s.key === "y") && (s.preventDefault(), S(this, q, Vl).call(this)));
-    }), document.addEventListener("keydown", m(this, cn)));
+    }), document.addEventListener("keydown", m(this, un)));
   }
   async close(n = {}) {
     if (m(this, ze) && S(this, q, En).call(this), m(this, Ot) && !n.force) {
@@ -11521,15 +11521,15 @@ const Ct = class Ct extends Gn(Vn) {
   }
   async _onClose(n) {
     var i;
-    return m(this, nt) !== null && (clearTimeout(m(this, nt)), I(this, nt, null)), m(this, cn) && (document.removeEventListener("keydown", m(this, cn)), I(this, cn, null)), (i = m(this, fi)) == null || i.call(this), I(this, fi, null), S(this, q, gr).call(this), super._onClose(n);
+    return m(this, nt) !== null && (clearTimeout(m(this, nt)), L(this, nt, null)), m(this, un) && (document.removeEventListener("keydown", m(this, un)), L(this, un, null)), (i = m(this, mi)) == null || i.call(this), L(this, mi, null), S(this, q, gr).call(this), super._onClose(n);
   }
 };
-Ge = new WeakMap(), z = new WeakMap(), tt = new WeakMap(), Nn = new WeakMap(), Ot = new WeakMap(), nt = new WeakMap(), ze = new WeakMap(), Ro = new WeakMap(), Fe = new WeakMap(), it = new WeakMap(), Ho = new WeakMap(), cn = new WeakMap(), Yi = new WeakMap(), ht = new WeakMap(), fi = new WeakMap(), $n = new WeakMap(), mi = new WeakMap(), q = new WeakSet(), // ── Event binding ─────────────────────────────────────────────────────
+Ge = new WeakMap(), z = new WeakMap(), tt = new WeakMap(), Nn = new WeakMap(), Ot = new WeakMap(), nt = new WeakMap(), ze = new WeakMap(), Ro = new WeakMap(), Fe = new WeakMap(), it = new WeakMap(), Ho = new WeakMap(), un = new WeakMap(), Yi = new WeakMap(), ht = new WeakMap(), mi = new WeakMap(), $n = new WeakMap(), hi = new WeakMap(), q = new WeakSet(), // ── Event binding ─────────────────────────────────────────────────────
 _f = /* @__PURE__ */ c(function() {
   const n = this.element;
   if (!(n instanceof HTMLElement)) return;
   const i = S(this, q, Ff).call(this);
-  Uy(n, i), Vy(n, i), Qy(n, i), Gy(n, i), zy(n, i), Ky(n, i), Jy(n, i), Xy(n, i), Zy(n, i);
+  Gy(n, i), zy(n, i), eb(n, i), Wy(n, i), Yy(n, i), Xy(n, i), Qy(n, i), Zy(n, i), tb(n, i);
 }, "#bindEvents"), Ff = /* @__PURE__ */ c(function() {
   const n = this;
   return {
@@ -11552,16 +11552,16 @@ _f = /* @__PURE__ */ c(function() {
     // Mutations
     mutate: /* @__PURE__ */ c((i) => S(this, q, wn).call(this, i), "mutate"),
     setSelectedPath: /* @__PURE__ */ c((i) => {
-      I(this, tt, i), this.render({ force: !0 });
+      L(this, tt, i), this.render({ force: !0 });
     }, "setSelectedPath"),
     render: /* @__PURE__ */ c(() => this.render({ force: !0 }), "render"),
     // Cinematic switching (needs full state swap + clear)
     switchCinematic: /* @__PURE__ */ c((i) => {
-      m(this, ze) && S(this, q, En).call(this), I(this, z, m(this, z).switchCinematic(i)), I(this, tt, null), m(this, Nn).clear(), this.render({ force: !0 });
+      m(this, ze) && S(this, q, En).call(this), L(this, z, m(this, z).switchCinematic(i)), L(this, tt, null), m(this, Nn).clear(), this.render({ force: !0 });
     }, "switchCinematic"),
     // Segment management
     selectSegment: /* @__PURE__ */ c((i) => {
-      m(this, ze) && S(this, q, En).call(this), I(this, z, m(this, z).switchSegment(i)), I(this, tt, null), m(this, Nn).clear(), this.render({ force: !0 });
+      m(this, ze) && S(this, q, En).call(this), L(this, z, m(this, z).switchSegment(i)), L(this, tt, null), m(this, Nn).clear(), this.render({ force: !0 });
     }, "selectSegment"),
     addSegment: /* @__PURE__ */ c((i) => {
       S(this, q, wn).call(this, (r) => r.addSegment(i, r.activeSegmentName));
@@ -11584,10 +11584,10 @@ _f = /* @__PURE__ */ c(function() {
       m(this, ze) && S(this, q, En).call(this);
     }, "flushTweenChanges"),
     flushTweenChangesImmediate: /* @__PURE__ */ c(() => {
-      m(this, nt) !== null && clearTimeout(m(this, nt)), I(this, nt, null), S(this, q, En).call(this);
+      m(this, nt) !== null && clearTimeout(m(this, nt)), L(this, nt, null), S(this, q, En).call(this);
     }, "flushTweenChangesImmediate"),
     // Path utilities
-    parseEntryPath: jn,
+    parseEntryPath: Bn,
     getEntryAtPath: /* @__PURE__ */ c((i) => eo(i, m(this, z)), "getEntryAtPath"),
     // Insert menu
     showInsertMenu: /* @__PURE__ */ c((i, r, a) => S(this, q, Df).call(this, i, r, a), "showInsertMenu"),
@@ -11598,7 +11598,7 @@ _f = /* @__PURE__ */ c(function() {
     resetTracking: /* @__PURE__ */ c(() => S(this, q, qf).call(this), "resetTracking"),
     exportJSON: /* @__PURE__ */ c(() => S(this, q, jf).call(this), "exportJSON"),
     validate: /* @__PURE__ */ c(() => S(this, q, Bf).call(this), "validate"),
-    importJSON: /* @__PURE__ */ c(() => jy({ state: m(this, z), mutate: /* @__PURE__ */ c((i) => S(this, q, wn).call(this, i), "mutate") }), "importJSON"),
+    importJSON: /* @__PURE__ */ c(() => Uy({ state: m(this, z), mutate: /* @__PURE__ */ c((i) => S(this, q, wn).call(this, i), "mutate") }), "importJSON"),
     undo: /* @__PURE__ */ c(() => S(this, q, Ul).call(this), "undo"),
     redo: /* @__PURE__ */ c(() => S(this, q, Vl).call(this), "redo")
   };
@@ -11610,7 +11610,7 @@ Df = /* @__PURE__ */ c(function(n, i, r) {
   const o = n.getBoundingClientRect();
   document.body.appendChild(a), a.style.display = "", a.style.position = "fixed", a.style.left = `${o.left}px`;
   const s = a.offsetHeight || 200;
-  o.bottom + 4 + s > window.innerHeight ? a.style.top = `${o.top - s - 4}px` : a.style.top = `${o.bottom + 4}px`, I(this, Yi, { insertIndex: i, lane: r });
+  o.bottom + 4 + s > window.innerHeight ? a.style.top = `${o.top - s - 4}px` : a.style.top = `${o.bottom + 4}px`, L(this, Yi, { insertIndex: i, lane: r });
 }, "#showInsertMenu"), Pf = /* @__PURE__ */ c(function() {
   var i, r;
   const n = document.body.querySelector(".cinematic-editor__insert-menu") ?? ((i = this.element) == null ? void 0 : i.querySelector(".cinematic-editor__insert-menu"));
@@ -11619,44 +11619,44 @@ Df = /* @__PURE__ */ c(function(n, i, r) {
     const a = (r = this.element) == null ? void 0 : r.querySelector(".cinematic-editor");
     a && n.parentNode !== a && a.appendChild(n);
   }
-  I(this, Yi, null);
+  L(this, Yi, null);
 }, "#hideInsertMenu"), // ── State mutation ────────────────────────────────────────────────────
 wn = /* @__PURE__ */ c(function(n) {
-  I(this, Fe, m(this, Fe).slice(0, m(this, it) + 1)), m(this, Fe).push(m(this, z)), m(this, Fe).length > m(this, Ho) && m(this, Fe).shift(), I(this, it, m(this, Fe).length - 1), I(this, z, n(m(this, z))), I(this, Ot, !0), this.render({ force: !0 });
+  L(this, Fe, m(this, Fe).slice(0, m(this, it) + 1)), m(this, Fe).push(m(this, z)), m(this, Fe).length > m(this, Ho) && m(this, Fe).shift(), L(this, it, m(this, Fe).length - 1), L(this, z, n(m(this, z))), L(this, Ot, !0), this.render({ force: !0 });
 }, "#mutate"), jl = /* @__PURE__ */ c(function() {
   return m(this, it) >= 0;
 }, "#canUndo"), Bl = /* @__PURE__ */ c(function() {
   return m(this, it) < m(this, Fe).length - 1;
 }, "#canRedo"), Ul = /* @__PURE__ */ c(function() {
-  m(this, q, jl) && (m(this, it) === m(this, Fe).length - 1 && m(this, Fe).push(m(this, z)), I(this, z, m(this, Fe)[m(this, it)]), os(this, it)._--, I(this, Ot, !0), this.render({ force: !0 }));
+  m(this, q, jl) && (m(this, it) === m(this, Fe).length - 1 && m(this, Fe).push(m(this, z)), L(this, z, m(this, Fe)[m(this, it)]), os(this, it)._--, L(this, Ot, !0), this.render({ force: !0 }));
 }, "#undo"), Vl = /* @__PURE__ */ c(function() {
-  m(this, q, Bl) && (os(this, it)._++, I(this, z, m(this, Fe)[m(this, it) + 1]), I(this, Ot, !0), this.render({ force: !0 }));
+  m(this, q, Bl) && (os(this, it)._++, L(this, z, m(this, Fe)[m(this, it) + 1]), L(this, Ot, !0), this.render({ force: !0 }));
 }, "#redo"), Rf = /* @__PURE__ */ c(function(n, i) {
   var r;
-  m(this, tt) != null && (I(this, ze, {
+  m(this, tt) != null && (L(this, ze, {
     ...m(this, ze) ?? {},
     entryPath: m(this, tt),
     tweenIndex: n,
     patch: { ...((r = m(this, ze)) == null ? void 0 : r.patch) ?? {}, ...i }
-  }), m(this, nt) !== null && clearTimeout(m(this, nt)), I(this, nt, setTimeout(() => {
-    I(this, nt, null), S(this, q, En).call(this);
+  }), m(this, nt) !== null && clearTimeout(m(this, nt)), L(this, nt, setTimeout(() => {
+    L(this, nt, null), S(this, q, En).call(this);
   }, m(this, Ro))));
 }, "#queueTweenChange"), En = /* @__PURE__ */ c(function() {
   if (!m(this, ze)) return;
   const { entryPath: n, tweenIndex: i, patch: r } = m(this, ze);
-  I(this, ze, null);
-  const a = jn(n);
+  L(this, ze, null);
+  const a = Bn(n);
   if (a) {
     if (a.type === "timeline")
-      I(this, z, m(this, z).updateTween(a.index, i, r));
+      L(this, z, m(this, z).updateTween(a.index, i, r));
     else if (a.type === "branch") {
       const o = eo(n, m(this, z));
       if (o) {
         const s = (o.tweens ?? []).map((l, u) => u === i ? { ...l, ...r } : l);
-        I(this, z, m(this, z).updateBranchEntry(a.index, a.branchIndex, a.branchEntryIndex, { tweens: s }));
+        L(this, z, m(this, z).updateBranchEntry(a.index, a.branchIndex, a.branchEntryIndex, { tweens: s }));
       }
     }
-    I(this, Ot, !0);
+    L(this, Ot, !0);
   }
 }, "#flushTweenChanges"), Gl = /* @__PURE__ */ c(async function() {
   var n, i, r, a, o, s;
@@ -11676,13 +11676,13 @@ wn = /* @__PURE__ */ c(function(n) {
         }).render(!0);
       });
       if (l === "reload") {
-        I(this, z, zt.fromScene(m(this, Ge), m(this, z).activeCinematicName)), I(this, Ot, !1), I(this, Fe, []), I(this, it, -1), this.render({ force: !0 }), (i = (n = ui.notifications) == null ? void 0 : n.info) == null || i.call(n, "Cinematic reloaded from scene.");
+        L(this, z, Wt.fromScene(m(this, Ge), m(this, z).activeCinematicName)), L(this, Ot, !1), L(this, Fe, []), L(this, it, -1), this.render({ force: !0 }), (i = (n = ui.notifications) == null ? void 0 : n.info) == null || i.call(n, "Cinematic reloaded from scene.");
         return;
       }
       if (!l) return;
     }
     try {
-      await m(this, z).save(m(this, Ge)), I(this, z, zt.fromScene(m(this, Ge), m(this, z).activeCinematicName)), I(this, Ot, !1), (a = (r = ui.notifications) == null ? void 0 : r.info) == null || a.call(r, "Cinematic saved."), this.render({ force: !0 });
+      await m(this, z).save(m(this, Ge)), L(this, z, Wt.fromScene(m(this, Ge), m(this, z).activeCinematicName)), L(this, Ot, !1), (a = (r = ui.notifications) == null ? void 0 : r.info) == null || a.call(r, "Cinematic saved."), this.render({ force: !0 });
     } catch (l) {
       console.error(`${T} | Cinematic save failed`, l), (s = (o = ui.notifications) == null ? void 0 : o.error) == null || s.call(o, "Failed to save cinematic data.");
     }
@@ -11707,13 +11707,13 @@ wn = /* @__PURE__ */ c(function(n) {
   } catch {
     new Dialog({
       title: "Cinematic JSON",
-      content: `<textarea style="width:100%;height:300px;font-family:monospace;font-size:0.8rem">${$t(n)}</textarea>`,
+      content: `<textarea style="width:100%;height:300px;font-family:monospace;font-size:0.8rem">${xt(n)}</textarea>`,
       buttons: { ok: { label: "Close" } }
     }).render(!0);
   }
 }, "#onExportJSON"), Bf = /* @__PURE__ */ c(function() {
   var l, u;
-  const n = m(this, z).toJSON(), { targets: i, unresolved: r } = Za(n), a = by(n, i), o = [
+  const n = m(this, z).toJSON(), { targets: i, unresolved: r } = Za(n), a = wy(n, i), o = [
     ...r.map((d) => ({ path: "targets", level: "warn", message: `Unresolved target: "${d}"` })),
     ...a
   ];
@@ -11723,7 +11723,7 @@ wn = /* @__PURE__ */ c(function(n) {
   }
   const s = o.map((d) => {
     const h = d.level === "error" ? "fa-circle-xmark" : "fa-triangle-exclamation", f = d.level === "error" ? "#e74c3c" : "#f39c12";
-    return `<li style="margin:0.3rem 0"><i class="fa-solid ${h}" style="color:${f};margin-right:0.3rem"></i><strong>${$t(d.path)}</strong>: ${$t(d.message)}</li>`;
+    return `<li style="margin:0.3rem 0"><i class="fa-solid ${h}" style="color:${f};margin-right:0.3rem"></i><strong>${xt(d.path)}</strong>: ${xt(d.message)}</li>`;
   });
   new Dialog({
     title: "Cinematic Validation",
@@ -11735,7 +11735,7 @@ Uf = /* @__PURE__ */ c(function(n) {
   var i, r, a, o, s, l;
   switch (console.log(`[cinematic-editor] playback event: ${n.type}`, n), n.type) {
     case "segment-start":
-      I(this, mi, n.segmentName), n.segmentName !== m(this, z).activeSegmentName ? (I(this, z, m(this, z).switchSegment(n.segmentName)), I(this, tt, null), m(this, Nn).clear(), this.render({ force: !0 })) : (i = this.element) == null || i.querySelectorAll(".cinematic-editor__segment-node").forEach((u) => {
+      L(this, hi, n.segmentName), n.segmentName !== m(this, z).activeSegmentName ? (L(this, z, m(this, z).switchSegment(n.segmentName)), L(this, tt, null), m(this, Nn).clear(), this.render({ force: !0 })) : (i = this.element) == null || i.querySelectorAll(".cinematic-editor__segment-node").forEach((u) => {
         u.classList.toggle("cinematic-editor__segment-node--playing", u.dataset.segmentName === n.segmentName);
       });
       break;
@@ -11746,13 +11746,13 @@ Uf = /* @__PURE__ */ c(function(n) {
       (s = (o = this.element) == null ? void 0 : o.querySelector(`.cinematic-editor__segment-node[data-segment-name="${CSS.escape(n.segmentName)}"]`)) == null || s.classList.remove("cinematic-editor__segment-node--gate-waiting");
       break;
     case "timeline-start":
-      I(this, ht, { segmentName: n.segmentName, startTime: performance.now(), durationMs: n.durationMs }), n.segmentName === m(this, z).activeSegmentName && S(this, q, zl).call(this, n.durationMs);
+      L(this, ht, { segmentName: n.segmentName, startTime: performance.now(), durationMs: n.durationMs }), n.segmentName === m(this, z).activeSegmentName && S(this, q, zl).call(this, n.durationMs);
       break;
     case "timeline-end":
-      S(this, q, gr).call(this), I(this, ht, null);
+      S(this, q, gr).call(this), L(this, ht, null);
       break;
     case "playback-end":
-      S(this, q, gr).call(this), I(this, ht, null), I(this, mi, null), (l = this.element) == null || l.querySelectorAll(".cinematic-editor__segment-node--playing, .cinematic-editor__segment-node--gate-waiting").forEach((u) => {
+      S(this, q, gr).call(this), L(this, ht, null), L(this, hi, null), (l = this.element) == null || l.querySelectorAll(".cinematic-editor__segment-node--playing, .cinematic-editor__segment-node--gate-waiting").forEach((u) => {
         u.classList.remove("cinematic-editor__segment-node--playing", "cinematic-editor__segment-node--gate-waiting");
       });
       break;
@@ -11765,12 +11765,12 @@ Uf = /* @__PURE__ */ c(function(n) {
   r.style.display = "block";
   const o = i ?? performance.now(), s = a.scrollWidth, l = /* @__PURE__ */ c(() => {
     const h = performance.now() - o, f = Math.min(h / n, 1), g = Ar + f * (s - Ar);
-    r.style.left = `${g}px`, f < 1 && I(this, $n, requestAnimationFrame(l));
+    r.style.left = `${g}px`, f < 1 && L(this, $n, requestAnimationFrame(l));
   }, "tick");
-  I(this, $n, requestAnimationFrame(l));
+  L(this, $n, requestAnimationFrame(l));
 }, "#startCursorAnimation"), gr = /* @__PURE__ */ c(function() {
   var i;
-  m(this, $n) && (cancelAnimationFrame(m(this, $n)), I(this, $n, null));
+  m(this, $n) && (cancelAnimationFrame(m(this, $n)), L(this, $n, null));
   const n = (i = this.element) == null ? void 0 : i.querySelector(".cinematic-editor__playback-cursor");
   n && (n.style.display = "none");
 }, "#stopCursorAnimation"), c(Ct, "CinematicEditorApplication"), ye(Ct, "APP_ID", `${T}-cinematic-editor`), ye(Ct, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
@@ -11807,7 +11807,7 @@ function Na(t) {
   return Vf.get(t);
 }
 c(Na, "getBehaviour");
-function eb(t, e, n) {
+function nb(t, e, n) {
   let i, r, a;
   if (e === 0)
     i = r = a = n;
@@ -11817,7 +11817,7 @@ function eb(t, e, n) {
   }
   return Math.round(i * 255) << 16 | Math.round(r * 255) << 8 | Math.round(a * 255);
 }
-c(eb, "hslToInt");
+c(nb, "hslToInt");
 me("float", (t, e = {}) => {
   const n = t.mesh;
   if (!n) return { update() {
@@ -11920,7 +11920,7 @@ me("colorCycle", (t, e = {}) => {
   let s = 0;
   return {
     update(l) {
-      s = (s + l * i) % 1, n.tint = eb(s, r, a);
+      s = (s + l * i) % 1, n.tint = nb(s, r, a);
     },
     detach() {
       n.tint = o;
@@ -11976,10 +11976,10 @@ me("borderTrace", (t, e = {}) => {
   return c(b, "perimeterPoint"), {
     update(w) {
       v = (v + w * s) % o, f.visible = n.visible !== !1, f.alpha = d * (n.alpha ?? 1), f.scale.set(n.scale.x / g, n.scale.y / p), f.angle = n.angle - y, f.clear(), f.lineStyle(h, u, 1);
-      const C = 16, L = l / C, A = b(v);
+      const C = 16, I = l / C, A = b(v);
       f.moveTo(A.x, A.y);
       for (let O = 1; O <= C; O++) {
-        const M = b(v + O * L);
+        const M = b(v + O * I);
         f.lineTo(M.x, M.y);
       }
     },
@@ -12004,8 +12004,8 @@ me("shimmer", (t, e = {}) => {
   return {
     update(C) {
       if (w = (w + C * o) % h, f.visible = n.visible !== !1, f.scale.set(n.scale.x / y, n.scale.y / v), f.angle = n.angle - b, g.alpha = l * (n.alpha ?? 1), g.clear(), w < d) {
-        const L = w - s;
-        g.beginFill(16777215, 1), g.moveTo(L, 0), g.lineTo(L + s, 0), g.lineTo(L + s - a, a), g.lineTo(L - a, a), g.closePath(), g.endFill();
+        const I = w - s;
+        g.beginFill(16777215, 1), g.moveTo(I, 0), g.lineTo(I + s, 0), g.lineTo(I + s - a, a), g.lineTo(I - a, a), g.closePath(), g.endFill();
       }
     },
     detach() {
@@ -12088,10 +12088,10 @@ me("embers", (t, e = {}) => {
   const g = n.scale.x, p = n.scale.y, y = n.angle, v = [];
   function b() {
     const w = Math.random();
-    let C, L;
-    return w < 0.7 ? (C = Math.random() * r, L = a) : w < 0.85 ? (C = 0, L = a * 0.5 + Math.random() * a * 0.5) : (C = r, L = a * 0.5 + Math.random() * a * 0.5), {
+    let C, I;
+    return w < 0.7 ? (C = Math.random() * r, I = a) : w < 0.85 ? (C = 0, I = a * 0.5 + Math.random() * a * 0.5) : (C = r, I = a * 0.5 + Math.random() * a * 0.5), {
       x: C,
-      y: L,
+      y: I,
       vx: (Math.random() - 0.5) * 0.3,
       vy: -s * (0.5 + Math.random() * 0.5),
       life: 0,
@@ -12103,17 +12103,17 @@ me("embers", (t, e = {}) => {
     update(w) {
       h.visible = n.visible !== !1, h.scale.set(n.scale.x / g, n.scale.y / p), h.angle = n.angle - y, v.length < o && v.push(b());
       for (let C = v.length - 1; C >= 0; C--) {
-        const L = v[C];
-        if (L.life += w, L.life >= L.maxLife) {
+        const I = v[C];
+        if (I.life += w, I.life >= I.maxLife) {
           v.splice(C, 1);
           continue;
         }
-        L.x += L.vx * w, L.y += L.vy * w, L.vx += (Math.random() - 0.5) * 0.05 * w;
+        I.x += I.vx * w, I.y += I.vy * w, I.vx += (Math.random() - 0.5) * 0.05 * w;
       }
       f.clear();
       for (const C of v) {
-        const L = 1 - C.life / C.maxLife;
-        f.beginFill(l, u * L * (n.alpha ?? 1)), f.drawCircle(C.x, C.y, C.size), f.endFill();
+        const I = 1 - C.life / C.maxLife;
+        f.beginFill(l, u * I * (n.alpha ?? 1)), f.drawCircle(C.x, C.y, C.size), f.endFill();
       }
     },
     detach() {
@@ -12129,20 +12129,20 @@ me("runeGlow", (t, e = {}) => {
   const i = t.document, r = Math.abs(i.width), a = Math.abs(i.height), o = 2 * (r + a), s = e.dots ?? 3, l = e.speed ?? 1.2, u = e.color ?? 4513279, d = e.color2 ?? 8930559, h = e.radius ?? 3, f = e.alpha ?? 0.7, g = new PIXI.Graphics();
   g.pivot.set(r / 2, a / 2), g.position.set(r / 2, a / 2), t.addChildAt(g, 0);
   const p = n.scale.x, y = n.scale.y, v = n.angle, b = [];
-  for (let L = 0; L < s; L++)
+  for (let I = 0; I < s; I++)
     b.push({
-      phase: L / s * o,
+      phase: I / s * o,
       speedMul: 0.7 + Math.random() * 0.6,
-      color: L % 2 === 0 ? u : d
+      color: I % 2 === 0 ? u : d
     });
-  function w(L) {
-    return L = (L % o + o) % o, L < r ? { x: L, y: 0 } : (L -= r, L < a ? { x: r, y: L } : (L -= a, L < r ? { x: r - L, y: a } : (L -= r, { x: 0, y: a - L })));
+  function w(I) {
+    return I = (I % o + o) % o, I < r ? { x: I, y: 0 } : (I -= r, I < a ? { x: r, y: I } : (I -= a, I < r ? { x: r - I, y: a } : (I -= r, { x: 0, y: a - I })));
   }
   c(w, "perimeterPoint");
   let C = 0;
   return {
-    update(L) {
-      C += L, g.visible = n.visible !== !1, g.alpha = f * (n.alpha ?? 1), g.scale.set(n.scale.x / p, n.scale.y / y), g.angle = n.angle - v, g.clear();
+    update(I) {
+      C += I, g.visible = n.visible !== !1, g.alpha = f * (n.alpha ?? 1), g.scale.set(n.scale.x / p, n.scale.y / y), g.angle = n.angle - v, g.clear();
       for (const A of b) {
         const O = w(A.phase + C * l * A.speedMul);
         g.beginFill(A.color, 1), g.drawCircle(O.x, O.y, h), g.endFill();
@@ -12163,10 +12163,10 @@ me("ripple", (t, e = {}) => {
   const p = new PIXI.Graphics();
   g.addChild(p), t.addChild(g);
   const y = n.scale.x, v = n.scale.y, b = n.angle, w = [];
-  let C = 0, L = 0;
+  let C = 0, I = 0;
   return {
     update(A) {
-      C += A, g.visible = n.visible !== !1, g.scale.set(n.scale.x / y, n.scale.y / v), g.angle = n.angle - b, C >= L && w.length < s && (w.push({ radius: 0, alpha: h }), L = C + l);
+      C += A, g.visible = n.visible !== !1, g.scale.set(n.scale.x / y, n.scale.y / v), g.angle = n.angle - b, C >= I && w.length < s && (w.push({ radius: 0, alpha: h }), I = C + l);
       for (let _ = w.length - 1; _ >= 0; _--) {
         const j = w[_];
         j.radius += u * A, j.alpha = h * (1 - j.radius / o), j.radius >= o && w.splice(_, 1);
@@ -12191,7 +12191,7 @@ me("frostEdge", (t, e = {}) => {
   const f = new PIXI.Graphics(), g = new PIXI.Graphics();
   g.beginFill(16777215), g.drawRect(0, 0, r, a), g.endFill(), h.addChild(g), f.mask = g, h.addChild(f), t.addChild(h);
   const p = n.scale.x, y = n.scale.y, v = n.angle, b = [];
-  for (let L = 0; L < o; L++) {
+  for (let I = 0; I < o; I++) {
     const A = Math.floor(Math.random() * 4);
     let O, M, _;
     switch (A) {
@@ -12212,13 +12212,13 @@ me("frostEdge", (t, e = {}) => {
   }
   let w = !1, C = 0;
   return {
-    update(L) {
+    update(I) {
       if (h.visible = n.visible !== !1, h.scale.set(n.scale.x / p, n.scale.y / y), h.angle = n.angle - v, w)
-        C += L * 0.03;
+        C += I * 0.03;
       else {
         w = !0;
         for (const O of b)
-          O.grown || (O.currentLength += (O.targetLength - O.currentLength) * d * L, O.currentLength >= O.targetLength * 0.99 ? (O.currentLength = O.targetLength, O.grown = !0) : w = !1);
+          O.grown || (O.currentLength += (O.targetLength - O.currentLength) * d * I, O.currentLength >= O.targetLength * 0.99 ? (O.currentLength = O.targetLength, O.grown = !0) : w = !1);
       }
       const A = w ? u * (0.7 + 0.3 * Math.sin(C)) : u;
       f.clear(), f.lineStyle(1.5, l, A * (n.alpha ?? 1));
@@ -12322,7 +12322,7 @@ const lr = {
   hover: ["scale"],
   dim: ["none"]
 };
-function tb(t) {
+function ib(t) {
   if (!t) return { ...lr };
   const e = /* @__PURE__ */ c((n, i) => n === void 0 ? i : typeof n == "string" ? [n] : typeof n == "object" && !Array.isArray(n) && n.name ? [n] : Array.isArray(n) ? n : i, "normalize");
   return {
@@ -12332,29 +12332,29 @@ function tb(t) {
     dim: e(t.dim, lr.dim)
   };
 }
-c(tb, "normalizeConfig");
-var Ne, At, un, jt, hi, xn, Bt, kt, dn, ve, Gf, $a, zf, Wf, Yf, Kf, Jf, Xf;
+c(ib, "normalizeConfig");
+var be, At, Bt, kt, xn, _n, Ut, Mt, dn, we, Gf, $a, zf, Wf, Yf, Kf, Jf, Xf;
 const Cr = class Cr {
   /**
    * @param {PlaceableObject} placeable
    * @param {object|undefined} animationConfig  Raw animation config from the await entry
    */
   constructor(e, n) {
-    k(this, ve);
-    k(this, Ne);
+    k(this, we);
+    k(this, be);
     k(this, At);
-    k(this, un, null);
-    k(this, jt, []);
-    k(this, hi, []);
-    k(this, xn, null);
     k(this, Bt, null);
-    k(this, kt, null);
+    k(this, kt, []);
+    k(this, xn, []);
+    k(this, _n, null);
+    k(this, Ut, null);
+    k(this, Mt, null);
     k(this, dn, 0);
-    I(this, Ne, e), I(this, At, tb(n));
+    L(this, be, e), L(this, At, ib(n));
   }
   /** Current animation state name. */
   get state() {
-    return m(this, un);
+    return m(this, Bt);
   }
   /**
    * Start animating in the given state.
@@ -12362,14 +12362,18 @@ const Cr = class Cr {
    */
   start(e = "idle") {
     var r;
-    S(this, ve, Gf).call(this);
-    const n = ((r = m(this, Ne).document) == null ? void 0 : r.id) ?? "?", i = m(this, Bt);
-    i && console.log(`%c[TileAnimator ${n}] start("${e}") canonical: pos=(${i.x.toFixed(2)}, ${i.y.toFixed(2)}) scale=(${i.scaleX.toFixed(4)}, ${i.scaleY.toFixed(4)}) alpha=${i.alpha.toFixed(4)} angle=${i.angle.toFixed(2)}`, "color: #FFAA44; font-weight: bold"), S(this, ve, Jf).call(this), S(this, ve, Yf).call(this, e), I(this, xn, (a) => {
-      m(this, kt) && S(this, ve, $a).call(this);
-      for (const o of m(this, hi)) o.update(a);
-      for (const o of m(this, jt)) o.update(a);
-      S(this, ve, Wf).call(this, a);
-    }), canvas.app.ticker.add(m(this, xn));
+    S(this, we, Gf).call(this);
+    const n = ((r = m(this, be).document) == null ? void 0 : r.id) ?? "?", i = m(this, Ut);
+    i && console.log(`%c[TileAnimator ${n}] start("${e}") canonical: pos=(${i.x.toFixed(2)}, ${i.y.toFixed(2)}) scale=(${i.scaleX.toFixed(4)}, ${i.scaleY.toFixed(4)}) alpha=${i.alpha.toFixed(4)} angle=${i.angle.toFixed(2)}`, "color: #FFAA44; font-weight: bold"), S(this, we, Jf).call(this), S(this, we, Yf).call(this, e), L(this, _n, (a) => {
+      if (m(this, be).destroyed || !m(this, be).transform) {
+        this.detach();
+        return;
+      }
+      m(this, Mt) && S(this, we, $a).call(this);
+      for (const o of m(this, xn)) o.update(a);
+      for (const o of m(this, kt)) o.update(a);
+      S(this, we, Wf).call(this, a);
+    }), canvas.app.ticker.add(m(this, _n));
   }
   /**
    * Transition to a new state. Behaviours shared between old and new state
@@ -12382,26 +12386,26 @@ const Cr = class Cr {
    */
   setState(e) {
     var h;
-    if (e === m(this, un)) return;
-    const n = ((h = m(this, Ne).document) == null ? void 0 : h.id) ?? "?", i = m(this, Ne).mesh, r = m(this, At)[m(this, un)] ?? m(this, At).idle ?? ["none"], a = m(this, At)[e] ?? m(this, At).idle ?? ["none"], o = r.map((f) => typeof f == "string" ? f : f == null ? void 0 : f.name), s = a.map((f) => typeof f == "string" ? f : f == null ? void 0 : f.name);
-    if (console.log(`%c[TileAnimator ${n}] setState: ${m(this, un)} → ${e}`, "color: #44DDFF; font-weight: bold"), console.log(`  old behaviours: [${o.join(", ")}]  →  new: [${s.join(", ")}]`), i && console.log(`  mesh BEFORE detach: pos=(${i.position.x.toFixed(2)}, ${i.position.y.toFixed(2)}) scale=(${i.scale.x.toFixed(4)}, ${i.scale.y.toFixed(4)}) alpha=${i.alpha.toFixed(4)} angle=${i.angle.toFixed(2)}`), m(this, Bt)) {
-      const f = m(this, Bt);
+    if (e === m(this, Bt)) return;
+    const n = ((h = m(this, be).document) == null ? void 0 : h.id) ?? "?", i = m(this, be).mesh, r = m(this, At)[m(this, Bt)] ?? m(this, At).idle ?? ["none"], a = m(this, At)[e] ?? m(this, At).idle ?? ["none"], o = r.map((f) => typeof f == "string" ? f : f == null ? void 0 : f.name), s = a.map((f) => typeof f == "string" ? f : f == null ? void 0 : f.name);
+    if (console.log(`%c[TileAnimator ${n}] setState: ${m(this, Bt)} → ${e}`, "color: #44DDFF; font-weight: bold"), console.log(`  old behaviours: [${o.join(", ")}]  →  new: [${s.join(", ")}]`), i && console.log(`  mesh BEFORE detach: pos=(${i.position.x.toFixed(2)}, ${i.position.y.toFixed(2)}) scale=(${i.scale.x.toFixed(4)}, ${i.scale.y.toFixed(4)}) alpha=${i.alpha.toFixed(4)} angle=${i.angle.toFixed(2)}`), m(this, Ut)) {
+      const f = m(this, Ut);
       console.log(`  canonical: pos=(${f.x.toFixed(2)}, ${f.y.toFixed(2)}) scale=(${f.scaleX.toFixed(4)}, ${f.scaleY.toFixed(4)}) alpha=${f.alpha.toFixed(4)} angle=${f.angle.toFixed(2)}`);
     }
     const l = /* @__PURE__ */ new Map();
-    for (let f = 0; f < m(this, jt).length; f++) {
+    for (let f = 0; f < m(this, kt).length; f++) {
       const g = r[f], p = typeof g == "string" ? g : g == null ? void 0 : g.name;
-      p && l.set(p, m(this, jt)[f]);
+      p && l.set(p, m(this, kt)[f]);
     }
     const u = [], d = /* @__PURE__ */ new Set();
     for (const f of a) {
       const g = typeof f == "string" ? f : f.name;
       l.has(g) && !d.has(g) && d.add(g);
     }
-    console.log(`  reused: [${[...d].join(", ")}]  detaching: [${[...l.keys()].filter((f) => !d.has(f)).join(", ")}]`), S(this, ve, zf).call(this);
+    console.log(`  reused: [${[...d].join(", ")}]  detaching: [${[...l.keys()].filter((f) => !d.has(f)).join(", ")}]`), S(this, we, zf).call(this);
     for (const [f, g] of l)
       d.has(f) || (g.detach(), i && console.log(`  mesh AFTER detach("${f}"): scale=(${i.scale.x.toFixed(4)}, ${i.scale.y.toFixed(4)}) alpha=${i.alpha.toFixed(4)}`));
-    S(this, ve, $a).call(this), i && console.log(`  mesh AFTER canonical restore: scale=(${i.scale.x.toFixed(4)}, ${i.scale.y.toFixed(4)}) alpha=${i.alpha.toFixed(4)}`);
+    S(this, we, $a).call(this), i && console.log(`  mesh AFTER canonical restore: scale=(${i.scale.x.toFixed(4)}, ${i.scale.y.toFixed(4)}) alpha=${i.alpha.toFixed(4)}`);
     for (const f of a) {
       const g = typeof f == "string" ? f : f.name;
       if (l.has(g) && d.has(g))
@@ -12412,27 +12416,27 @@ const Cr = class Cr {
           console.warn(`TileAnimator: unknown behaviour "${g}"`);
           continue;
         }
-        u.push(y(m(this, Ne), p, m(this, Bt))), i && console.log(`  → create "${g}" — mesh after factory: scale=(${i.scale.x.toFixed(4)}, ${i.scale.y.toFixed(4)}) alpha=${i.alpha.toFixed(4)} pos=(${i.position.x.toFixed(2)}, ${i.position.y.toFixed(2)})`);
+        u.push(y(m(this, be), p, m(this, Ut))), i && console.log(`  → create "${g}" — mesh after factory: scale=(${i.scale.x.toFixed(4)}, ${i.scale.y.toFixed(4)}) alpha=${i.alpha.toFixed(4)} pos=(${i.position.x.toFixed(2)}, ${i.position.y.toFixed(2)})`);
       }
     }
-    if (m(this, kt)) {
-      const f = m(this, kt);
+    if (m(this, Mt)) {
+      const f = m(this, Mt);
       console.log(`  blend FROM: pos=(${f.x.toFixed(2)}, ${f.y.toFixed(2)}) scale=(${f.scaleX.toFixed(4)}, ${f.scaleY.toFixed(4)}) alpha=${f.alpha.toFixed(4)}`);
     }
-    I(this, un, e), I(this, jt, u);
+    L(this, Bt, e), L(this, kt, u);
   }
   /**
    * Full cleanup — detach all behaviours, restore canonical, and remove ticker.
    */
   detach() {
-    var e, n;
-    S(this, ve, Kf).call(this), S(this, ve, Xf).call(this), S(this, ve, $a).call(this), I(this, kt, null), m(this, xn) && ((n = (e = canvas.app) == null ? void 0 : e.ticker) == null || n.remove(m(this, xn)), I(this, xn, null));
+    var n, i;
+    m(this, be).destroyed || !m(this, be).transform ? (L(this, kt, []), L(this, xn, [])) : (S(this, we, Kf).call(this), S(this, we, Xf).call(this), S(this, we, $a).call(this)), L(this, Mt, null), L(this, Bt, null), m(this, _n) && ((i = (n = canvas.app) == null ? void 0 : n.ticker) == null || i.remove(m(this, _n)), L(this, _n, null));
   }
 };
-Ne = new WeakMap(), At = new WeakMap(), un = new WeakMap(), jt = new WeakMap(), hi = new WeakMap(), xn = new WeakMap(), Bt = new WeakMap(), kt = new WeakMap(), dn = new WeakMap(), ve = new WeakSet(), // ── Private ──────────────────────────────────────────────────────────
+be = new WeakMap(), At = new WeakMap(), Bt = new WeakMap(), kt = new WeakMap(), xn = new WeakMap(), _n = new WeakMap(), Ut = new WeakMap(), Mt = new WeakMap(), dn = new WeakMap(), we = new WeakSet(), // ── Private ──────────────────────────────────────────────────────────
 Gf = /* @__PURE__ */ c(function() {
-  const e = m(this, Ne).mesh;
-  e && I(this, Bt, {
+  const e = m(this, be).mesh;
+  e && L(this, Ut, {
     x: e.position.x,
     y: e.position.y,
     scaleX: e.scale.x,
@@ -12442,24 +12446,24 @@ Gf = /* @__PURE__ */ c(function() {
     tint: e.tint
   });
 }, "#captureCanonical"), $a = /* @__PURE__ */ c(function() {
-  const e = m(this, Ne).mesh;
-  if (!e || !m(this, Bt)) return;
-  const n = m(this, Bt);
+  const e = m(this, be).mesh;
+  if (!e || !m(this, Ut)) return;
+  const n = m(this, Ut);
   e.position.x = n.x, e.position.y = n.y, e.scale.x = n.scaleX, e.scale.y = n.scaleY, e.angle = n.angle, e.alpha = n.alpha, e.tint = n.tint;
 }, "#restoreCanonical"), /**
  * Snapshot the current (animated) mesh values so the transition blend
  * can lerp FROM here toward the new state's computed values.
  */
 zf = /* @__PURE__ */ c(function() {
-  const e = m(this, Ne).mesh;
-  e && (I(this, kt, {
+  const e = m(this, be).mesh;
+  e && (L(this, Mt, {
     x: e.position.x,
     y: e.position.y,
     scaleX: e.scale.x,
     scaleY: e.scale.y,
     angle: e.angle,
     alpha: e.alpha
-  }), I(this, dn, 0));
+  }), L(this, dn, 0));
 }, "#captureBlendStart"), /**
  * After behaviours compute the new state's mesh values, blend from the
  * pre-transition snapshot toward those values over BLEND_FRAMES using
@@ -12467,24 +12471,24 @@ zf = /* @__PURE__ */ c(function() {
  */
 Wf = /* @__PURE__ */ c(function(e) {
   var o, s;
-  if (!m(this, kt)) return;
-  I(this, dn, m(this, dn) + e);
+  if (!m(this, Mt)) return;
+  L(this, dn, m(this, dn) + e);
   const n = Math.min(m(this, dn) / Cr.BLEND_FRAMES, 1);
   if (n >= 1) {
-    const l = ((o = m(this, Ne).document) == null ? void 0 : o.id) ?? "?";
-    console.log(`%c[TileAnimator ${l}] blend complete`, "color: #88FF88"), I(this, kt, null);
+    const l = ((o = m(this, be).document) == null ? void 0 : o.id) ?? "?";
+    console.log(`%c[TileAnimator ${l}] blend complete`, "color: #88FF88"), L(this, Mt, null);
     return;
   }
-  const i = 1 - (1 - n) ** 3, r = m(this, Ne).mesh;
+  const i = 1 - (1 - n) ** 3, r = m(this, be).mesh;
   if (!r) return;
-  const a = m(this, kt);
+  const a = m(this, Mt);
   if (m(this, dn) <= e * 3) {
-    const l = ((s = m(this, Ne).document) == null ? void 0 : s.id) ?? "?", u = Math.round(m(this, dn) / e);
+    const l = ((s = m(this, be).document) == null ? void 0 : s.id) ?? "?", u = Math.round(m(this, dn) / e);
     console.log(`  [blend ${l} f${u}] t=${n.toFixed(3)} eased=${i.toFixed(3)} | behaviour→scale=(${r.scale.x.toFixed(4)},${r.scale.y.toFixed(4)}) alpha=${r.alpha.toFixed(4)} | blendFrom→scale=(${a.scaleX.toFixed(4)},${a.scaleY.toFixed(4)}) alpha=${a.alpha.toFixed(4)}`);
   }
   r.position.x = a.x + (r.position.x - a.x) * i, r.position.y = a.y + (r.position.y - a.y) * i, r.scale.x = a.scaleX + (r.scale.x - a.scaleX) * i, r.scale.y = a.scaleY + (r.scale.y - a.scaleY) * i, r.angle = a.angle + (r.angle - a.angle) * i, r.alpha = a.alpha + (r.alpha - a.alpha) * i, m(this, dn) <= e * 3 && console.log(`  [blend result] scale=(${r.scale.x.toFixed(4)},${r.scale.y.toFixed(4)}) alpha=${r.alpha.toFixed(4)} pos=(${r.position.x.toFixed(2)},${r.position.y.toFixed(2)})`);
 }, "#applyBlend"), Yf = /* @__PURE__ */ c(function(e) {
-  I(this, un, e);
+  L(this, Bt, e);
   const n = m(this, At)[e] ?? m(this, At).idle ?? ["none"];
   for (const i of n) {
     const r = typeof i == "string" ? i : i.name, a = typeof i == "string" ? void 0 : i, o = Na(r);
@@ -12492,11 +12496,11 @@ Wf = /* @__PURE__ */ c(function(e) {
       console.warn(`TileAnimator: unknown behaviour "${r}"`);
       continue;
     }
-    m(this, jt).push(o(m(this, Ne), a));
+    m(this, kt).push(o(m(this, be), a));
   }
 }, "#attachBehaviours"), Kf = /* @__PURE__ */ c(function() {
-  for (const e of m(this, jt)) e.detach();
-  I(this, jt, []);
+  for (const e of m(this, kt)) e.detach();
+  L(this, kt, []);
 }, "#detachBehaviours"), Jf = /* @__PURE__ */ c(function() {
   const e = m(this, At).always ?? [];
   for (const n of e) {
@@ -12505,16 +12509,16 @@ Wf = /* @__PURE__ */ c(function(e) {
       console.warn(`TileAnimator: unknown always behaviour "${i}"`);
       continue;
     }
-    m(this, hi).push(a(m(this, Ne), r));
+    m(this, xn).push(a(m(this, be), r));
   }
 }, "#attachAlwaysBehaviours"), Xf = /* @__PURE__ */ c(function() {
-  for (const e of m(this, hi)) e.detach();
-  I(this, hi, []);
+  for (const e of m(this, xn)) e.detach();
+  L(this, xn, []);
 }, "#detachAlwaysBehaviours"), c(Cr, "TileAnimator"), /** Frames over which state transitions are blended (easeOutCubic). */
 ye(Cr, "BLEND_FRAMES", 8);
 let Ci = Cr;
-const nb = "cinematic", Ts = 5, Wl = /* @__PURE__ */ new Set();
-function en(t) {
+const rb = "cinematic", Ts = 5, Wl = /* @__PURE__ */ new Set();
+function tn(t) {
   for (const e of Wl)
     try {
       e(t);
@@ -12522,17 +12526,17 @@ function en(t) {
       console.error("[cinematic] playback listener error:", n);
     }
 }
-c(en, "emitPlaybackEvent");
-function ib(t) {
+c(tn, "emitPlaybackEvent");
+function ab(t) {
   return Wl.add(t), () => Wl.delete(t);
 }
-c(ib, "onPlaybackProgress");
-let Se = null, on = null, vr = null, wr = null, Ai = 0, Zn = null;
+c(ab, "onPlaybackProgress");
+let Ce = null, sn = null, vr = null, wr = null, Ai = 0, ei = null;
 function bc(t, e = "default") {
   return `cinematic-progress-${t}-${e}`;
 }
 c(bc, "progressFlagKey");
-function rb(t, e, n, i) {
+function ob(t, e, n, i) {
   game.user.setFlag(T, bc(t, e), {
     currentSegment: n,
     completedSegments: [...i],
@@ -12540,7 +12544,7 @@ function rb(t, e, n, i) {
   }).catch(() => {
   });
 }
-c(rb, "saveSegmentProgress");
+c(ob, "saveSegmentProgress");
 function Yl(t, e = "default") {
   game.user.unsetFlag(T, bc(t, e)).catch(() => {
   });
@@ -12559,7 +12563,7 @@ function vu(t, e = "default") {
   return !!game.user.getFlag(T, Ti(t, e));
 }
 c(vu, "hasSeenCinematic");
-function ab(t, e) {
+function sb(t, e) {
   var n;
   if (t == null) return null;
   if (typeof t != "object" || Array.isArray(t))
@@ -12589,10 +12593,10 @@ function ab(t, e) {
   }
   return t.timeline !== void 0 && !Array.isArray(t.timeline) ? (console.warn(`[${T}] Cinematic: invalid 'timeline' on ${e} (expected array). Ignoring.`), null) : t;
 }
-c(ab, "validateSingleCinematic");
+c(sb, "validateSingleCinematic");
 function ns(t) {
   const e = t ? game.scenes.get(t) : canvas.scene;
-  let n = (e == null ? void 0 : e.getFlag(T, nb)) ?? null;
+  let n = (e == null ? void 0 : e.getFlag(T, rb)) ?? null;
   if (n == null) return null;
   if (typeof n != "object" || Array.isArray(n))
     return console.warn(`[${T}] Cinematic: invalid flag data on scene ${e == null ? void 0 : e.id} (expected object). Ignoring.`), null;
@@ -12602,12 +12606,12 @@ function ns(t) {
   }
   if (n.version === 3) {
     for (const [i, r] of Object.entries(n.cinematics ?? {}))
-      n.cinematics[i] = zt.migrateV3toV4(r);
+      n.cinematics[i] = Wt.migrateV3toV4(r);
     n.version = 4;
   }
   if (n.version === 4) {
     for (const [i, r] of Object.entries(n.cinematics ?? {}))
-      n.cinematics[i] = zt.migrateV4toV5(r);
+      n.cinematics[i] = Wt.migrateV4toV5(r);
     n.version = Ts;
   }
   if (n.version > Ts)
@@ -12615,7 +12619,7 @@ function ns(t) {
   if (!n.cinematics || typeof n.cinematics != "object")
     return console.warn(`[${T}] Cinematic: no 'cinematics' map on scene ${e == null ? void 0 : e.id}. Ignoring.`), null;
   for (const [i, r] of Object.entries(n.cinematics)) {
-    const a = ab(r, `scene ${e == null ? void 0 : e.id} cinematic "${i}"`);
+    const a = sb(r, `scene ${e == null ? void 0 : e.id} cinematic "${i}"`);
     a ? n.cinematics[i] = a : delete n.cinematics[i];
   }
   return Object.keys(n.cinematics).length === 0 ? null : n;
@@ -12627,16 +12631,16 @@ function oo(t, e = "default") {
   return ((i = n == null ? void 0 : n.cinematics) == null ? void 0 : i[e]) ?? null;
 }
 c(oo, "getNamedCinematic");
-function ob(t) {
+function lb(t) {
   const e = ns(t);
   return e ? Object.keys(e.cinematics) : [];
 }
-c(ob, "listCinematicNames");
-function sb() {
+c(lb, "listCinematicNames");
+function cb() {
   return game.ready ? Promise.resolve() : new Promise((t) => Hooks.once("ready", t));
 }
-c(sb, "waitForReady");
-async function lb(t = 1e4) {
+c(cb, "waitForReady");
+async function ub(t = 1e4) {
   var n, i;
   const e = (i = (n = game.modules.get(T)) == null ? void 0 : n.api) == null ? void 0 : i.tween;
   return e != null && e.Timeline ? e.Timeline : new Promise((r) => {
@@ -12650,7 +12654,7 @@ async function lb(t = 1e4) {
     }, 200);
   });
 }
-c(lb, "waitForTweenAPI");
+c(ub, "waitForTweenAPI");
 async function Kl(t = 5e3) {
   var e;
   return window.Tagger ?? ((e = game.modules.get("tagger")) == null ? void 0 : e.api) ? !0 : new Promise((n) => {
@@ -12661,7 +12665,7 @@ async function Kl(t = 5e3) {
   });
 }
 c(Kl, "waitForTagger");
-async function cb(t, e, n) {
+async function db(t, e, n) {
   if (!t || !t.event) return;
   const i = { ...t };
   console.log(`[${T}] Cinematic: waiting for gate: ${t.event}`);
@@ -12680,7 +12684,7 @@ async function cb(t, e, n) {
     r && r.detach();
   }
 }
-c(cb, "processGate");
+c(db, "processGate");
 function Zf(t) {
   if (!t.segments) return [];
   const e = [], n = /* @__PURE__ */ new Set();
@@ -12693,7 +12697,7 @@ c(Zf, "getSegmentOrder");
 function so(t, e) {
   if (t.setup)
     try {
-      Ie(t.setup, e);
+      Oe(t.setup, e);
     } catch (i) {
       console.warn(`[${T}] Cinematic: error applying cinematic-level setup:`, i);
     }
@@ -12702,20 +12706,20 @@ function so(t, e) {
     const r = t.segments[i];
     if (r.setup)
       try {
-        Ie(r.setup, e);
+        Oe(r.setup, e);
       } catch (a) {
         console.warn(`[${T}] Cinematic: error applying setup for segment "${i}":`, a);
       }
     if (r.landing)
       try {
-        Ie(r.landing, e);
+        Oe(r.landing, e);
       } catch (a) {
         console.warn(`[${T}] Cinematic: error applying landing for segment "${i}":`, a);
       }
   }
   if (t.landing)
     try {
-      Ie(t.landing, e);
+      Oe(t.landing, e);
     } catch (i) {
       console.warn(`[${T}] Cinematic: error applying cinematic-level landing:`, i);
     }
@@ -12723,31 +12727,31 @@ function so(t, e) {
 }
 c(so, "applyAllSegmentLandingStates");
 async function Er(t, e = "default", n = null) {
-  var w, C, L, A, O, M, _, j;
+  var w, C, I, A, O, M, _, j;
   const i = t ?? ((w = canvas.scene) == null ? void 0 : w.id);
   if (!i) return;
   const r = `${i}:${e}`;
   if (n || (n = /* @__PURE__ */ new Set()), n.has(r)) {
-    console.warn(`[${T}] Cinematic: circular transition detected at "${r}". Stopping chain.`), (L = (C = ui.notifications) == null ? void 0 : C.warn) == null || L.call(C, "Cinematic: circular transition detected, stopping.");
+    console.warn(`[${T}] Cinematic: circular transition detected at "${r}". Stopping chain.`), (I = (C = ui.notifications) == null ? void 0 : C.warn) == null || I.call(C, "Cinematic: circular transition detected, stopping.");
     return;
   }
-  n.add(r), (Se == null ? void 0 : Se.status) === "running" && Se.cancel("replaced"), Se = null, on && (on.abort("replaced"), on = null);
+  n.add(r), (Ce == null ? void 0 : Ce.status) === "running" && Ce.cancel("replaced"), Ce = null, sn && (sn.abort("replaced"), sn = null);
   const a = oo(i, e);
   if (!a) {
     console.warn(`[${T}] Cinematic: no cinematic "${e}" on scene ${i}.`);
     return;
   }
-  const o = await lb();
+  const o = await ub();
   if (!o || ((A = canvas.scene) == null ? void 0 : A.id) !== i || (await Kl(), ((O = canvas.scene) == null ? void 0 : O.id) !== i)) return;
   const { targets: s, unresolved: l } = Za(a);
   if (console.log(`[${T}] Cinematic "${e}": resolved ${s.size} targets`), l.length && console.warn(`[${T}] Cinematic "${e}": skipping ${l.length} unresolved: ${l.join(", ")}`), s.size === 0) {
     console.warn(`[${T}] Cinematic "${e}": no targets could be resolved on scene ${i}.`);
     return;
   }
-  const u = uy(a);
-  vr = cy(u, s), wr = s;
+  const u = fy(a);
+  vr = dy(u, s), wr = s;
   const d = Qf(i, e), h = new AbortController();
-  on = h;
+  sn = h;
   const f = a.synchronized === !0 && game.user.isGM, g = Zf(a);
   if (g.length === 0) {
     console.warn(`[${T}] Cinematic "${e}": no segments to execute.`);
@@ -12763,7 +12767,7 @@ async function Er(t, e = "default", n = null) {
   }
   if (a.setup)
     try {
-      Ie(a.setup, s), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
+      Oe(a.setup, s), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
     } catch (D) {
       console.error(`[${T}] Cinematic "${e}": error applying cinematic-level setup:`, D);
     }
@@ -12771,19 +12775,19 @@ async function Er(t, e = "default", n = null) {
     const P = g[D], $ = a.segments[P];
     if ($.setup)
       try {
-        Ie($.setup, s);
+        Oe($.setup, s);
       } catch (R) {
         console.warn(`[${T}] Cinematic: error applying setup for completed segment "${P}":`, R);
       }
     if ($.landing)
       try {
-        Ie($.landing, s);
+        Oe($.landing, s);
       } catch (R) {
         console.warn(`[${T}] Cinematic: error applying landing for completed segment "${P}":`, R);
       }
   }
   let v = !1, b = !1;
-  en({ type: "playback-start", sceneName: ((M = canvas.scene) == null ? void 0 : M.name) ?? i });
+  tn({ type: "playback-start", sceneName: ((M = canvas.scene) == null ? void 0 : M.name) ?? i });
   try {
     for (let D = p; D < g.length; D++) {
       if (h.signal.aborted) {
@@ -12795,10 +12799,10 @@ async function Er(t, e = "default", n = null) {
         break;
       }
       const P = g[D], $ = a.segments[P];
-      if (console.log(`[${T}] Cinematic "${e}": entering segment "${P}"`), en({ type: "segment-start", segmentName: P }), rb(i, e, P, [...y]), $.gate) {
-        en({ type: "gate-wait", segmentName: P, gate: $.gate });
+      if (console.log(`[${T}] Cinematic "${e}": entering segment "${P}"`), tn({ type: "segment-start", segmentName: P }), ob(i, e, P, [...y]), $.gate) {
+        tn({ type: "gate-wait", segmentName: P, gate: $.gate });
         try {
-          await cb($.gate, s, h);
+          await db($.gate, s, h);
         } catch (B) {
           if (h.signal.aborted) {
             v = !0;
@@ -12806,7 +12810,7 @@ async function Er(t, e = "default", n = null) {
           }
           throw B;
         }
-        en({ type: "gate-resolved", segmentName: P });
+        tn({ type: "gate-resolved", segmentName: P });
       }
       if (h.signal.aborted) {
         v = !0;
@@ -12814,25 +12818,25 @@ async function Er(t, e = "default", n = null) {
       }
       if ($.setup)
         try {
-          Ie($.setup, s), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
+          Oe($.setup, s), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
         } catch (B) {
           console.error(`[${T}] Cinematic "${e}": error applying setup for segment "${P}":`, B);
         }
       if ((j = $.timeline) != null && j.length) {
         const B = yc($.timeline);
-        en({ type: "timeline-start", segmentName: P, durationMs: B });
-        const { tl: W } = yy(
+        tn({ type: "timeline-start", segmentName: P, durationMs: B });
+        const { tl: W } = vy(
           { setup: {}, timeline: $.timeline },
           s,
           o,
           {
             timelineName: `cinematic-${i}-${e}-${P}`,
             onStepComplete: /* @__PURE__ */ c((U) => {
-              en({ type: "step-complete", segmentName: P, stepIndex: U });
+              tn({ type: "step-complete", segmentName: P, stepIndex: U });
             }, "onStepComplete")
           }
         );
-        Se = W.run({
+        Ce = W.run({
           broadcast: f,
           commit: f
         });
@@ -12849,7 +12853,7 @@ async function Er(t, e = "default", n = null) {
           }
           throw U;
         }
-        en({ type: "timeline-end", segmentName: P });
+        tn({ type: "timeline-end", segmentName: P });
       }
       if (h.signal.aborted) {
         v = !0;
@@ -12857,24 +12861,24 @@ async function Er(t, e = "default", n = null) {
       }
       if ($.landing)
         try {
-          Ie($.landing, s), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
+          Oe($.landing, s), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 });
         } catch (B) {
           console.error(`[${T}] Cinematic "${e}": error applying landing for segment "${P}":`, B);
         }
-      en({ type: "segment-complete", segmentName: P }), y.add(P);
+      tn({ type: "segment-complete", segmentName: P }), y.add(P);
       const R = $.next;
       if (R && typeof R == "object" && R.scene) {
         const B = R.scene, W = R.segment ?? a.entry;
-        console.log(`[${T}] Cinematic "${e}": cross-scene transition to scene ${B}, segment "${W}"`), Se = null, on = null, Yl(i, e), su(), a.tracking !== !1 && await game.user.setFlag(T, Ti(i, e), !0), Zn = { sceneId: B, cinematicName: e, visitedChain: n };
+        console.log(`[${T}] Cinematic "${e}": cross-scene transition to scene ${B}, segment "${W}"`), Ce = null, sn = null, Yl(i, e), su(), a.tracking !== !1 && await game.user.setFlag(T, Ti(i, e), !0), ei = { sceneId: B, cinematicName: e, visitedChain: n };
         const H = game.scenes.get(B);
-        H ? H.view() : (console.warn(`[${T}] Cinematic: cross-scene transition target scene "${B}" not found.`), Zn = null);
+        H ? H.view() : (console.warn(`[${T}] Cinematic: cross-scene transition target scene "${B}" not found.`), ei = null);
         return;
       }
     }
   } catch (D) {
     b = !0, console.error(`[${T}] Cinematic "${e}" error on scene ${i}:`, D);
   }
-  if (Se = null, on = null, Yl(i, e), su(), vr = null, wr = null, en({ type: "playback-end", cancelled: !!v }), v) {
+  if (Ce = null, sn = null, Yl(i, e), su(), vr = null, wr = null, tn({ type: "playback-end", cancelled: !!v }), v) {
     console.log(`[${T}] Cinematic "${e}" cancelled on scene ${i}.`), so(a, s);
     return;
   }
@@ -12885,13 +12889,13 @@ async function Er(t, e = "default", n = null) {
   a.tracking !== !1 && await game.user.setFlag(T, Ti(i, e), !0), console.log(`[${T}] Cinematic "${e}" complete on scene ${i}.`);
 }
 c(Er, "playCinematic");
-async function ub(t, e = "default") {
+async function fb(t, e = "default") {
   var i;
   const n = t ?? ((i = canvas.scene) == null ? void 0 : i.id);
   n && (await game.user.unsetFlag(T, Ti(n, e)), console.log(`[${T}] Cinematic: cleared seen flag for "${e}" on scene ${n}.`));
 }
-c(ub, "resetCinematic");
-async function db(t, e, n = "default") {
+c(fb, "resetCinematic");
+async function mb(t, e, n = "default") {
   var a;
   if (!game.user.isGM) return;
   const i = t ?? ((a = canvas.scene) == null ? void 0 : a.id);
@@ -12899,8 +12903,8 @@ async function db(t, e, n = "default") {
   const r = game.users.get(e);
   r && (await r.unsetFlag(T, Ti(i, n)), console.log(`[${T}] Cinematic: cleared seen flag for user ${r.name} on "${n}" scene ${i}.`));
 }
-c(db, "resetCinematicForUser");
-async function fb(t, e = "default") {
+c(mb, "resetCinematicForUser");
+async function hb(t, e = "default") {
   var a;
   if (!game.user.isGM) return;
   const n = t ?? ((a = canvas.scene) == null ? void 0 : a.id);
@@ -12908,8 +12912,8 @@ async function fb(t, e = "default") {
   const i = Ti(n, e), r = game.users.map((o) => o.getFlag(T, i) ? o.unsetFlag(T, i) : Promise.resolve());
   await Promise.all(r), console.log(`[${T}] Cinematic: cleared seen flag for all users on "${e}" scene ${n}.`);
 }
-c(fb, "resetCinematicForAll");
-function mb(t, e = "default") {
+c(hb, "resetCinematicForAll");
+function gb(t, e = "default") {
   var r;
   const n = t ?? ((r = canvas.scene) == null ? void 0 : r.id);
   if (!n) return [];
@@ -12922,39 +12926,39 @@ function mb(t, e = "default") {
     seen: !!a.getFlag(T, i)
   }));
 }
-c(mb, "getSeenStatus");
-function hb(t, e) {
+c(gb, "getSeenStatus");
+function pb(t, e) {
   var i;
   const n = t ?? ((i = canvas.scene) == null ? void 0 : i.id);
   return e ? oo(n, e) != null : ns(n) != null;
 }
-c(hb, "hasCinematic");
-function gb() {
+c(pb, "hasCinematic");
+function yb() {
   if (!vr || !wr) {
     console.warn(`[${T}] Cinematic: no snapshot available for revert.`);
     return;
   }
-  (Se == null ? void 0 : Se.status) === "running" && Se.cancel("reverted"), Se = null, on && (on.abort("reverted"), on = null);
+  (Ce == null ? void 0 : Ce.status) === "running" && Ce.cancel("reverted"), Ce = null, sn && (sn.abort("reverted"), sn = null);
   try {
-    Ie(vr, wr), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 }), console.log(`[${T}] Cinematic: reverted to pre-cinematic state.`);
+    Oe(vr, wr), canvas.perception.update({ refreshLighting: !0, refreshVision: !0 }), console.log(`[${T}] Cinematic: reverted to pre-cinematic state.`);
   } catch (t) {
     console.error(`[${T}] Cinematic: error during revert:`, t);
   }
   vr = null, wr = null;
 }
-c(gb, "revertCinematic");
-async function pb() {
+c(yb, "revertCinematic");
+async function bb() {
   const t = ++Ai;
-  if (console.log(`[${T}] Cinematic: canvasReady fired, gen=${t}, game.ready=${game.ready}`), await sb(), t !== Ai) return;
+  if (console.log(`[${T}] Cinematic: canvasReady fired, gen=${t}, game.ready=${game.ready}`), await cb(), t !== Ai) return;
   console.log(`[${T}] Cinematic: game is ready`);
   const e = canvas.scene;
   if (!e) {
     console.log(`[${T}] Cinematic: no canvas.scene, exiting`);
     return;
   }
-  if (Zn && Zn.sceneId === e.id) {
-    const a = Zn;
-    Zn = null, console.log(`[${T}] Cinematic: picking up pending transition to "${a.cinematicName}" on scene ${e.id}`);
+  if (ei && ei.sceneId === e.id) {
+    const a = ei;
+    ei = null, console.log(`[${T}] Cinematic: picking up pending transition to "${a.cinematicName}" on scene ${e.id}`);
     try {
       await Er(e.id, a.cinematicName, a.visitedChain);
     } catch (o) {
@@ -12962,7 +12966,7 @@ async function pb() {
     }
     return;
   }
-  Zn = null;
+  ei = null;
   const n = ns(e.id);
   if (!n) {
     console.log(`[${T}] Cinematic: no cinematic flag on scene ${e.id}, exiting`);
@@ -12996,7 +13000,7 @@ async function pb() {
       break;
     }
   if (!r) {
-    if (console.log(`[${T}] Cinematic: all canvasReady cinematics already seen on scene ${e.id}`), yb(e.id, i), (Se == null ? void 0 : Se.status) === "running" && Se.cancel("already-seen"), Se = null, await Kl(), t !== Ai) return;
+    if (console.log(`[${T}] Cinematic: all canvasReady cinematics already seen on scene ${e.id}`), vb(e.id, i), (Ce == null ? void 0 : Ce.status) === "running" && Ce.cancel("already-seen"), Ce = null, await Kl(), t !== Ai) return;
     for (const { name: a, data: o } of i)
       try {
         const { targets: s } = Za(o);
@@ -13025,13 +13029,13 @@ async function pb() {
     }
   }
 }
-c(pb, "onCanvasReady$1");
-function yb(t, e) {
+c(bb, "onCanvasReady$1");
+function vb(t, e) {
   for (const { name: n } of e)
     Yl(t, n);
 }
-c(yb, "clearAllCanvasReadyProgress");
-function bb(t = 3e5) {
+c(vb, "clearAllCanvasReadyProgress");
+function wb(t = 3e5) {
   var i;
   const e = (i = game.user.flags) == null ? void 0 : i[T];
   if (!e) return;
@@ -13048,8 +13052,8 @@ function bb(t = 3e5) {
     }));
   }
 }
-c(bb, "cleanupStaleProgressFlags");
-function vb() {
+c(wb, "cleanupStaleProgressFlags");
+function Eb() {
   Hooks.on("getSceneControlButtons", (t) => {
     if (!game.user.isGM) return;
     const e = Array.isArray(t) ? t : t instanceof Map ? Array.from(t.values()) : Object.values(t);
@@ -13072,22 +13076,22 @@ function vb() {
     Array.isArray(i) ? i.push(a) : i instanceof Map ? i.set(r, a) : i && typeof i == "object" ? i[r] = a : n.tools = [a];
   });
 }
-c(vb, "registerEditorButton");
-function wb() {
-  Hooks.on("canvasReady", pb), vb(), Hooks.once("ready", () => {
-    bb();
+c(Eb, "registerEditorButton");
+function Sb() {
+  Hooks.on("canvasReady", bb), Eb(), Hooks.once("ready", () => {
+    wb();
     const t = game.modules.get(T);
     t.api || (t.api = {}), t.api.cinematic = {
       play: Er,
-      reset: ub,
-      resetForUser: db,
-      resetForAll: fb,
-      getSeenStatus: mb,
-      has: hb,
+      reset: fb,
+      resetForUser: mb,
+      resetForAll: hb,
+      getSeenStatus: gb,
+      has: pb,
       get: oo,
-      list: ob,
-      revert: gb,
-      onPlaybackProgress: ib,
+      list: lb,
+      revert: yb,
+      onPlaybackProgress: ab,
       TileAnimator: Ci,
       registerBehaviour: me,
       getBehaviour: Na,
@@ -13101,7 +13105,7 @@ function wb() {
     }, console.log(`[${T}] Cinematic API registered (v5).`);
   });
 }
-c(wb, "registerCinematicHooks");
+c(Sb, "registerCinematicHooks");
 function Jl(t, e) {
   const n = Math.abs(t.width), i = Math.abs(t.height), r = n / 2, a = i / 2;
   let o = e.x - (t.x + r), s = e.y - (t.y + a);
@@ -13156,8 +13160,8 @@ Qo("tile-click", (t, e) => t.target ? new Promise((n, i) => {
   }
   c(f, "cleanup");
 }) : Promise.reject(new Error('await tile-click: "target" is required')));
-wb();
-function Eb() {
+Sb();
+function Cb() {
   Hooks.once("ready", () => {
     const t = game.modules.get(T);
     t.api || (t.api = {}), t.api.picker = {
@@ -13168,7 +13172,7 @@ function Eb() {
       /** Parse a selector string into { type, value }. */
       parseSelector: pc,
       /** Build a selector string from { type, value }. */
-      buildSelector: ry,
+      buildSelector: oy,
       /** Build a tag selector from tags array + mode. */
       buildTagSelector: gf,
       /** Canvas highlight utilities. */
@@ -13181,29 +13185,29 @@ function Eb() {
     }, console.log(`[${T}] Placeable Picker API registered.`);
   });
 }
-c(Eb, "registerPlaceablePickerHooks");
-Eb();
-const xa = "eidolon-utilities", Sb = "tile-interactions", Cb = "tile-animations", Tb = "idle-animation";
-function Lb(t) {
+c(Cb, "registerPlaceablePickerHooks");
+Cb();
+const xa = "eidolon-utilities", Tb = "tile-interactions", Lb = "tile-animations", Ib = "idle-animation";
+function Ob(t) {
   const e = t.type ?? "tile-prop";
   return e === "tile-tint" ? { name: "tween-tint", fromColor: t.fromColor, toColor: t.toColor, mode: t.mode, period: t.period, easing: t.easing } : e === "tile-scale" ? { name: "tween-scale", fromScale: t.fromScale, toScale: t.toScale, period: t.period, easing: t.easing } : { name: "tween-prop", attribute: t.attribute, from: t.from, to: t.to, period: t.period, easing: t.easing };
 }
-c(Lb, "migrateIdleTweenToAlways");
+c(Ob, "migrateIdleTweenToAlways");
 function vc(t) {
   var u, d, h;
-  const e = (u = t == null ? void 0 : t.getFlag) == null ? void 0 : u.call(t, xa, Cb);
+  const e = (u = t == null ? void 0 : t.getFlag) == null ? void 0 : u.call(t, xa, Lb);
   if (e) return e;
-  const n = (d = t == null ? void 0 : t.getFlag) == null ? void 0 : d.call(t, xa, Tb), i = (h = t == null ? void 0 : t.getFlag) == null ? void 0 : h.call(t, xa, Sb);
+  const n = (d = t == null ? void 0 : t.getFlag) == null ? void 0 : d.call(t, xa, Ib), i = (h = t == null ? void 0 : t.getFlag) == null ? void 0 : h.call(t, xa, Tb);
   let r = [], a = [], o = [], s = [];
   if (n) {
     let f;
-    Array.isArray(n) ? f = n : typeof n == "object" && "0" in n ? f = Object.values(n) : typeof n == "object" && (n.type || n.attribute) ? f = [n] : f = [], r = f.filter((g) => g && typeof g == "object").map(Lb);
+    Array.isArray(n) ? f = n : typeof n == "object" && "0" in n ? f = Object.values(n) : typeof n == "object" && (n.type || n.attribute) ? f = [n] : f = [], r = f.filter((g) => g && typeof g == "object").map(Ob);
   }
   return i && (i.hover && (Array.isArray(i.hover) ? o = i.hover : typeof i.hover == "object" && (a = Array.isArray(i.hover.idle) ? i.hover.idle : [], o = Array.isArray(i.hover.enter) ? i.hover.enter : [])), Array.isArray(i.click) && i.click.length && (s = i.click)), r.length > 0 || a.length > 0 || o.length > 0 || s.length > 0 ? { always: r, idle: a, hover: o, click: s } : null;
 }
 c(vc, "readUnifiedConfig");
-const fn = /* @__PURE__ */ new Map(), Bn = /* @__PURE__ */ new Map(), wu = /* @__PURE__ */ new WeakMap(), Sr = /* @__PURE__ */ new Set();
-let Nt = null, Ye = null, Mt = null, Vt = null, Gt = null;
+const fn = /* @__PURE__ */ new Map(), Un = /* @__PURE__ */ new Map(), wu = /* @__PURE__ */ new WeakMap(), Sr = /* @__PURE__ */ new Set();
+let $t = null, Ye = null, Nt = null, Gt = null, zt = null;
 function em(t) {
   const e = canvas.activeLayer;
   if (!e) return null;
@@ -13221,7 +13225,7 @@ function tm(t) {
   return e;
 }
 c(tm, "hitTest");
-function Ib(t) {
+function Ab(t) {
   var e, n;
   return {
     always: t.always ?? [],
@@ -13229,16 +13233,16 @@ function Ib(t) {
     hover: (n = t.hover) != null && n.length ? t.hover : ["none"]
   };
 }
-c(Ib, "buildAnimatorConfig");
+c(Ab, "buildAnimatorConfig");
 function wc(t, e, n) {
   Zr(t);
-  const i = Ib(n), r = new Ci(e, i);
-  r.start("idle"), Bn.set(t, r);
+  const i = Ab(n), r = new Ci(e, i);
+  r.start("idle"), Un.set(t, r);
 }
 c(wc, "startHoverAnimator");
 function Zr(t) {
-  const e = Bn.get(t);
-  e && (e.detach(), Bn.delete(t));
+  const e = Un.get(t);
+  e && (e.detach(), Un.delete(t));
 }
 c(Zr, "stopHoverAnimator");
 function Ls(t, e, n, i) {
@@ -13249,7 +13253,7 @@ function Ls(t, e, n, i) {
   } : { uuid: t, attribute: e.attribute, value: n ? e.to : e.from };
 }
 c(Ls, "buildClickParams");
-function Ob(t) {
+function kb(t) {
   const e = t._source.width, n = t._source.height, i = t._source.x, r = t._source.y;
   return {
     baseWidth: e,
@@ -13258,14 +13262,14 @@ function Ob(t) {
     centerY: r + n / 2
   };
 }
-c(Ob, "captureRefGeometry");
-async function Ab(t, e) {
+c(kb, "captureRefGeometry");
+async function Mb(t, e) {
   const n = t.uuid, i = e.type ?? "tile-prop", r = tr(i);
   if (!r) {
     console.warn(`[${xa}] tile-interactions: unknown tween type "${i}"`);
     return;
   }
-  const a = e.period ?? 300, o = e.easing ?? "easeOutCubic", s = e.mode ?? "bounce", l = i === "tile-scale" ? Ob(t) : null;
+  const a = e.period ?? 300, o = e.easing ?? "easeOutCubic", s = e.mode ?? "bounce", l = i === "tile-scale" ? kb(t) : null;
   if (s === "toggle") {
     const d = !(wu.get(t) ?? !1);
     await r.execute(
@@ -13283,37 +13287,37 @@ async function Ab(t, e) {
     );
   }
 }
-c(Ab, "playClickAnimation");
-async function kb(t) {
+c(Mb, "playClickAnimation");
+async function Nb(t) {
   var n, i, r, a;
   const e = t.doc.id;
   if (!Sr.has(e)) {
     Sr.add(e);
     try {
       Zr(e);
-      const o = t.clickConfig.map((s) => Ab(t.doc, s));
+      const o = t.clickConfig.map((s) => Mb(t.doc, s));
       await Promise.all(o);
     } finally {
-      Sr.delete(e), t.animConfig && (((n = t.animConfig.always) == null ? void 0 : n.length) > 0 || ((i = t.animConfig.idle) == null ? void 0 : i.length) > 0 || ((r = t.animConfig.hover) == null ? void 0 : r.length) > 0) && (wc(e, t.placeable, t.animConfig), Nt === e && ((a = Bn.get(e)) == null || a.setState("hover")));
+      Sr.delete(e), t.animConfig && (((n = t.animConfig.always) == null ? void 0 : n.length) > 0 || ((i = t.animConfig.idle) == null ? void 0 : i.length) > 0 || ((r = t.animConfig.hover) == null ? void 0 : r.length) > 0) && (wc(e, t.placeable, t.animConfig), $t === e && ((a = Un.get(e)) == null || a.setState("hover")));
     }
   }
 }
-c(kb, "handleClick");
+c(Nb, "handleClick");
 function nm(t) {
   var r;
   const e = em(t);
   if (!e) return;
   const n = tm(e), i = (n == null ? void 0 : n.doc.id) ?? null;
-  if (i !== Nt) {
-    if (Nt) {
-      const a = Bn.get(Nt);
+  if (i !== $t) {
+    if ($t) {
+      const a = Un.get($t);
       a && a.setState("idle");
     }
     if (i) {
-      const a = Bn.get(i);
+      const a = Un.get(i);
       a && a.setState("hover");
     }
-    Nt = i, i && (n.animConfig || (r = n.clickConfig) != null && r.length) ? (Ye === null && (Ye = document.body.style.cursor), document.body.style.cursor = "pointer") : Ye !== null && (document.body.style.cursor = Ye, Ye = null);
+    $t = i, i && (n.animConfig || (r = n.clickConfig) != null && r.length) ? (Ye === null && (Ye = document.body.style.cursor), document.body.style.cursor = "pointer") : Ye !== null && (document.body.style.cursor = Ye, Ye = null);
   }
 }
 c(nm, "onPointerMove");
@@ -13323,24 +13327,24 @@ function im(t) {
   const e = em(t);
   if (!e) return;
   const n = tm(e);
-  !n || !((i = n.clickConfig) != null && i.length) || kb(n);
+  !n || !((i = n.clickConfig) != null && i.length) || Nb(n);
 }
 c(im, "onPointerDown");
 function rm() {
-  if (Nt) {
-    const t = Bn.get(Nt);
-    t && t.setState("idle"), Nt = null;
+  if ($t) {
+    const t = Un.get($t);
+    t && t.setState("idle"), $t = null;
   }
   Ye !== null && (document.body.style.cursor = Ye, Ye = null);
 }
 c(rm, "onPointerLeave");
-function Mb() {
+function am() {
   var n, i, r, a;
-  for (const o of Bn.keys())
+  for (const o of Un.keys())
     Zr(o);
-  fn.clear(), Sr.clear(), Nt = null, Ye !== null && (document.body.style.cursor = Ye, Ye = null);
+  fn.clear(), Sr.clear(), $t = null, Ye !== null && (document.body.style.cursor = Ye, Ye = null);
   const t = document.getElementById("board");
-  Mt && (t == null || t.removeEventListener("pointermove", Mt), Mt = null), Vt && (t == null || t.removeEventListener("pointerdown", Vt), Vt = null), Gt && (t == null || t.removeEventListener("pointerleave", Gt), Gt = null);
+  Nt && (t == null || t.removeEventListener("pointermove", Nt), Nt = null), Gt && (t == null || t.removeEventListener("pointerdown", Gt), Gt = null), zt && (t == null || t.removeEventListener("pointerleave", zt), zt = null);
   const e = (n = canvas.tiles) == null ? void 0 : n.placeables;
   if (Array.isArray(e)) {
     for (const o of e) {
@@ -13349,15 +13353,15 @@ function Mb() {
       const u = ((i = l.always) == null ? void 0 : i.length) > 0 || ((r = l.idle) == null ? void 0 : r.length) > 0 || ((a = l.hover) == null ? void 0 : a.length) > 0, d = Array.isArray(l.click) && l.click.length ? l.click : null;
       !u && !d || (fn.set(s.id, { doc: s, placeable: o, animConfig: l, clickConfig: d }), u && wc(s.id, o, l));
     }
-    fn.size !== 0 && (Mt = nm, Vt = im, Gt = rm, t == null || t.addEventListener("pointermove", Mt), t == null || t.addEventListener("pointerdown", Vt), t == null || t.addEventListener("pointerleave", Gt));
+    fn.size !== 0 && (Nt = nm, Gt = im, zt = rm, t == null || t.addEventListener("pointermove", Nt), t == null || t.addEventListener("pointerdown", Gt), t == null || t.addEventListener("pointerleave", zt));
   }
 }
-c(Mb, "rebuild");
-function Nb(t) {
+c(am, "rebuild");
+function $b(t) {
   var o, s, l;
   const e = t.id, n = vc(t), i = n && (((o = n.always) == null ? void 0 : o.length) > 0 || ((s = n.idle) == null ? void 0 : s.length) > 0 || ((l = n.hover) == null ? void 0 : l.length) > 0), r = n && Array.isArray(n.click) && n.click.length ? n.click : null;
   if (!i && !r) {
-    am(t);
+    om(t);
     return;
   }
   Zr(e);
@@ -13366,23 +13370,23 @@ function Nb(t) {
     fn.delete(e);
     return;
   }
-  fn.set(e, { doc: t, placeable: a, animConfig: n, clickConfig: r }), i && wc(e, a, n), $b();
+  fn.set(e, { doc: t, placeable: a, animConfig: n, clickConfig: r }), i && wc(e, a, n), xb();
 }
-c(Nb, "updateTile");
-function am(t) {
+c($b, "updateTile");
+function om(t) {
   const e = t.id;
-  if (Zr(e), fn.delete(e), Sr.delete(e), Nt === e && (Nt = null, Ye !== null && (document.body.style.cursor = Ye, Ye = null)), fn.size === 0) {
+  if (Zr(e), fn.delete(e), Sr.delete(e), $t === e && ($t = null, Ye !== null && (document.body.style.cursor = Ye, Ye = null)), fn.size === 0) {
     const n = document.getElementById("board");
-    Mt && (n == null || n.removeEventListener("pointermove", Mt), Mt = null), Vt && (n == null || n.removeEventListener("pointerdown", Vt), Vt = null), Gt && (n == null || n.removeEventListener("pointerleave", Gt), Gt = null);
+    Nt && (n == null || n.removeEventListener("pointermove", Nt), Nt = null), Gt && (n == null || n.removeEventListener("pointerdown", Gt), Gt = null), zt && (n == null || n.removeEventListener("pointerleave", zt), zt = null);
   }
 }
-c(am, "removeTile");
-function $b() {
-  if (fn.size === 0 || Mt) return;
+c(om, "removeTile");
+function xb() {
+  if (fn.size === 0 || Nt) return;
   const t = document.getElementById("board");
-  t && (Mt = nm, Vt = im, Gt = rm, t.addEventListener("pointermove", Mt), t.addEventListener("pointerdown", Vt), t.addEventListener("pointerleave", Gt));
+  t && (Nt = nm, Gt = im, zt = rm, t.addEventListener("pointermove", Nt), t.addEventListener("pointerdown", Gt), t.addEventListener("pointerleave", zt));
 }
-c($b, "ensureListeners");
+c(xb, "ensureListeners");
 function Ni(t, e, n) {
   const i = document.createElement("div");
   i.classList.add("form-group");
@@ -13440,7 +13444,7 @@ function lo(t, e) {
   t.dispatchEvent(new CustomEvent("slot-reorder", { detail: { card: e } }));
 }
 c(lo, "notifyReorder");
-function om(t, { dropGroup: e, handleSelector: n = ".idle-anim__slot-header" }) {
+function sm(t, { dropGroup: e, handleSelector: n = ".idle-anim__slot-header" }) {
   t.setAttribute("draggable", "true");
   let i = !1;
   t.addEventListener("pointerdown", (r) => {
@@ -13469,8 +13473,8 @@ function om(t, { dropGroup: e, handleSelector: n = ".idle-anim__slot-header" }) 
     oe = null;
   });
 }
-c(om, "makeDraggable");
-function sm(t, { dropGroup: e, onDrop: n }) {
+c(sm, "makeDraggable");
+function lm(t, { dropGroup: e, onDrop: n }) {
   t.addEventListener("dragover", (i) => {
     !oe || oe.group !== e || (i.preventDefault(), i.dataTransfer.dropEffect = "move");
   }), t.addEventListener("dragenter", (i) => {
@@ -13485,8 +13489,8 @@ function sm(t, { dropGroup: e, onDrop: n }) {
     n == null || n(i.detail.card, t);
   });
 }
-c(sm, "makeDropContainer");
-const ma = "eidolon-utilities", Su = "tile-animations", xb = "tile-interactions", _b = "idle-animation", Fb = "eidolon-idle-animation", Db = "fa-solid fa-wave-pulse", lm = [
+c(lm, "makeDropContainer");
+const ma = "eidolon-utilities", Su = "tile-animations", _b = "tile-interactions", Fb = "idle-animation", Db = "eidolon-idle-animation", Pb = "fa-solid fa-wave-pulse", cm = [
   { value: "float", label: "Float" },
   { value: "pulse", label: "Pulse" },
   { value: "scale", label: "Scale" },
@@ -13505,11 +13509,11 @@ const ma = "eidolon-utilities", Su = "tile-animations", xb = "tile-interactions"
   { value: "ripple", label: "Ripple" },
   { value: "frostEdge", label: "Frost Edge" },
   { value: "shadowLift", label: "Shadow Lift" }
-], Pb = [
+], Rb = [
   { value: "tween-prop", label: "Numeric" },
   { value: "tween-tint", label: "Tint" },
   { value: "tween-scale", label: "Scale" }
-], cm = {
+], um = {
   float: [
     { key: "speed", label: "Speed", type: "number", default: 0.04, attrs: { step: "0.01", min: "0.001" } },
     { key: "amplitude", label: "Amplitude (px)", type: "number", default: 3, attrs: { step: "1", min: "1" } }
@@ -13654,18 +13658,18 @@ const ma = "eidolon-utilities", Su = "tile-animations", xb = "tile-interactions"
   period: 300,
   easing: "easeOutCubic",
   mode: "bounce"
-}, um = [
+}, dm = [
   { value: "alpha", label: "Alpha (Opacity)" },
   { value: "rotation", label: "Rotation" },
   { value: "texture.rotation", label: "Texture Rotation" }
 ];
 let vn = null;
-function Rb(t) {
+function Hb(t) {
   var e;
   return (t == null ? void 0 : t.document) ?? ((e = t == null ? void 0 : t.object) == null ? void 0 : e.document) ?? (t == null ? void 0 : t.object) ?? null;
 }
-c(Rb, "getTileDocument");
-function Hb(t, e) {
+c(Hb, "getTileDocument");
+function qb(t, e) {
   const n = document.createElement("div");
   n.classList.add("form-group");
   const i = document.createElement("label");
@@ -13674,20 +13678,20 @@ function Hb(t, e) {
   r.classList.add(e);
   const a = document.createElement("optgroup");
   a.label = "Effects";
-  for (const s of lm) {
+  for (const s of cm) {
     const l = document.createElement("option");
     l.value = s.value, l.textContent = s.label, s.value === t && (l.selected = !0), a.appendChild(l);
   }
   r.appendChild(a);
   const o = document.createElement("optgroup");
   o.label = "Tweens";
-  for (const s of Pb) {
+  for (const s of Rb) {
     const l = document.createElement("option");
     l.value = s.value, l.textContent = s.label, s.value === t && (l.selected = !0), o.appendChild(l);
   }
   return r.appendChild(o), n.appendChild(r), n;
 }
-c(Hb, "buildEffectTypeSelect");
+c(qb, "buildEffectTypeSelect");
 function Cu(t) {
   if (!t) return "";
   const e = t.name ?? "float";
@@ -13699,7 +13703,7 @@ function Cu(t) {
     const i = t.fromScale != null ? `${Math.round(t.fromScale * 100)}%` : "?", r = t.toScale != null ? `${Math.round(t.toScale * 100)}%` : "?";
     return `Tween Scale ${i}→${r} (${t.period ?? "?"}ms)`;
   }
-  const n = lm.find((i) => i.value === e);
+  const n = cm.find((i) => i.value === e);
   return (n == null ? void 0 : n.label) ?? e;
 }
 c(Cu, "summarizeEffectConfig");
@@ -13718,15 +13722,15 @@ function Tu(t, e, n, i) {
   f.type = "button", f.classList.add("idle-anim__slot-remove"), f.innerHTML = '<i class="fa-solid fa-xmark"></i>', f.title = "Remove effect", l.append(u, d, h, f), s.appendChild(l);
   const g = document.createElement("div");
   g.classList.add("idle-anim__slot-body");
-  const p = Hb(r, "ti-effect__type");
+  const p = qb(r, "ti-effect__type");
   g.appendChild(p);
   const y = document.createElement("div");
   y.classList.add("idle-anim__type-fields"), g.appendChild(y);
   function v(w, C) {
     y.innerHTML = "";
-    const L = cm[w];
-    if (L)
-      for (const A of L) {
+    const I = um[w];
+    if (I)
+      for (const A of I) {
         const O = C[A.key] ?? A.default;
         if (A.type === "color")
           y.appendChild(Xl(A.label, `ti-effect__${A.key}`, O));
@@ -13743,19 +13747,19 @@ function Tu(t, e, n, i) {
     v(b.value, {});
   }), l.addEventListener("click", (w) => {
     if (!w.target.closest(".idle-anim__slot-remove") && (s.classList.toggle("is-collapsed"), s.classList.contains("is-collapsed"))) {
-      const C = dm(s);
+      const C = fm(s);
       C && (h.textContent = Cu(C));
     }
   }), f.addEventListener("click", (w) => {
     w.stopPropagation();
     const C = s.parentElement;
     s.remove(), C && is(C, n, i);
-  }), om(s, { dropGroup: "effect" }), s;
+  }), sm(s, { dropGroup: "effect" }), s;
 }
 c(Tu, "buildEffectSlot");
-function dm(t) {
+function fm(t) {
   var r;
-  const e = ((r = t.querySelector(".ti-effect__type")) == null ? void 0 : r.value) ?? "float", n = cm[e], i = { name: e };
+  const e = ((r = t.querySelector(".ti-effect__type")) == null ? void 0 : r.value) ?? "float", n = um[e], i = { name: e };
   if (n)
     for (const a of n) {
       const o = t.querySelector(`.ti-effect__${a.key}`);
@@ -13771,7 +13775,7 @@ function dm(t) {
     }
   return i;
 }
-c(dm, "readEffectSlot");
+c(fm, "readEffectSlot");
 function Lu(t) {
   if (!t) return "";
   const e = t.type ?? "tile-prop", n = t.mode ?? "bounce", i = n.charAt(0).toUpperCase() + n.slice(1);
@@ -13781,7 +13785,7 @@ function Lu(t) {
     const o = t.fromScale != null ? `${Math.round(t.fromScale * 100)}%` : "?", s = t.toScale != null ? `${Math.round(t.toScale * 100)}%` : "?";
     return `${i} Scale ${o} → ${s} (${t.period ?? "?"}ms)`;
   }
-  const r = um.find((o) => o.value === t.attribute), a = (r == null ? void 0 : r.label) ?? t.attribute ?? "?";
+  const r = dm.find((o) => o.value === t.attribute), a = (r == null ? void 0 : r.label) ?? t.attribute ?? "?";
   return `${i} ${a} ${t.from ?? "?"} → ${t.to ?? "?"} (${t.period ?? "?"}ms)`;
 }
 c(Lu, "summarizeClickConfig");
@@ -13813,23 +13817,23 @@ function Iu(t, e) {
   g.classList.add("idle-anim__type-fields"), h.appendChild(g);
   function p(w, C) {
     if (g.innerHTML = "", w === "tile-tint") {
-      const L = Ji(), A = C.fromColor ?? Ri.fromColor, O = C.toColor ?? Ri.toColor, M = C.mode ?? "oklch", _ = document.createElement("div");
+      const I = Ji(), A = C.fromColor ?? Ri.fromColor, O = C.toColor ?? Ri.toColor, M = C.mode ?? "oklch", _ = document.createElement("div");
       _.classList.add("idle-anim__range-row"), _.appendChild(Xl("From", "ti-click__from-color", A)), _.appendChild(Xl("To", "ti-click__to-color", O)), g.appendChild(_), g.appendChild(Ni(
         "Interpolation",
         "ti-click__color-mode",
-        L.map((j) => ({ value: j, label: j, selected: j === M }))
+        I.map((j) => ({ value: j, label: j, selected: j === M }))
       ));
     } else if (w === "tile-scale") {
-      const L = C.fromScale ?? _a.fromScale, A = C.toScale ?? _a.toScale, O = document.createElement("div");
-      O.classList.add("idle-anim__range-row"), O.appendChild($i("From", "ti-click__from-scale", L, { step: "0.01", min: "0.01" })), O.appendChild($i("To", "ti-click__to-scale", A, { step: "0.01", min: "0.01" })), g.appendChild(O);
+      const I = C.fromScale ?? _a.fromScale, A = C.toScale ?? _a.toScale, O = document.createElement("div");
+      O.classList.add("idle-anim__range-row"), O.appendChild($i("From", "ti-click__from-scale", I, { step: "0.01", min: "0.01" })), O.appendChild($i("To", "ti-click__to-scale", A, { step: "0.01", min: "0.01" })), g.appendChild(O);
       const M = document.createElement("p");
       M.classList.add("idle-anim__hint"), M.textContent = "1.0 = original size. Scales from center.", g.appendChild(M);
     } else {
-      const L = C.attribute ?? xi.attribute, A = C.from ?? xi.from, O = C.to ?? xi.to;
+      const I = C.attribute ?? xi.attribute, A = C.from ?? xi.from, O = C.to ?? xi.to;
       g.appendChild(Ni(
         "Attribute",
         "ti-click__attribute",
-        um.map((_) => ({ value: _.value, label: _.label, selected: _.value === L }))
+        dm.map((_) => ({ value: _.value, label: _.label, selected: _.value === I }))
       ));
       const M = document.createElement("div");
       M.classList.add("idle-anim__range-row"), M.appendChild($i("From", "ti-click__from", A, { step: "0.01" })), M.appendChild($i("To", "ti-click__to", O, { step: "0.01" })), g.appendChild(M);
@@ -13848,18 +13852,18 @@ function Iu(t, e) {
     p(w, w === "tile-tint" ? Ri : w === "tile-scale" ? _a : xi);
   }), o.addEventListener("click", (w) => {
     if (!w.target.closest(".idle-anim__slot-remove") && (a.classList.toggle("is-collapsed"), a.classList.contains("is-collapsed"))) {
-      const C = fm(a);
+      const C = mm(a);
       C && (u.textContent = Lu(C));
     }
   }), d.addEventListener("click", (w) => {
     w.stopPropagation();
     const C = a.parentElement;
     a.remove(), C && is(C, "ti-click-slot", "Animation");
-  }), om(a, { dropGroup: "click" }), a;
+  }), sm(a, { dropGroup: "click" }), a;
 }
 c(Iu, "buildClickSlot");
-function fm(t) {
-  var u, d, h, f, g, p, y, v, b, w, C, L, A, O;
+function mm(t) {
+  var u, d, h, f, g, p, y, v, b, w, C, I, A, O;
   const e = ((u = t.querySelector(".ti-click__type")) == null ? void 0 : u.value) ?? "tile-prop", n = ((d = t.querySelector(".ti-click__mode")) == null ? void 0 : d.value) ?? "bounce", i = Number.parseInt((h = t.querySelector(".ti-click__period")) == null ? void 0 : h.value, 10), r = ((f = t.querySelector(".ti-click__easing")) == null ? void 0 : f.value) ?? "easeOutCubic";
   if (!i || i <= 0) return null;
   const a = { mode: n, period: i, easing: r };
@@ -13871,10 +13875,10 @@ function fm(t) {
     const M = Number.parseFloat((w = t.querySelector(".ti-click__from-scale")) == null ? void 0 : w.value), _ = Number.parseFloat((C = t.querySelector(".ti-click__to-scale")) == null ? void 0 : C.value);
     return Number.isNaN(M) || Number.isNaN(_) || M <= 0 || _ <= 0 ? null : { type: "tile-scale", fromScale: M, toScale: _, ...a };
   }
-  const o = ((L = t.querySelector(".ti-click__attribute")) == null ? void 0 : L.value) ?? xi.attribute, s = Number.parseFloat((A = t.querySelector(".ti-click__from")) == null ? void 0 : A.value), l = Number.parseFloat((O = t.querySelector(".ti-click__to")) == null ? void 0 : O.value);
+  const o = ((I = t.querySelector(".ti-click__attribute")) == null ? void 0 : I.value) ?? xi.attribute, s = Number.parseFloat((A = t.querySelector(".ti-click__from")) == null ? void 0 : A.value), l = Number.parseFloat((O = t.querySelector(".ti-click__to")) == null ? void 0 : O.value);
   return Number.isNaN(s) || Number.isNaN(l) ? null : { type: "tile-prop", attribute: o, from: s, to: l, ...a };
 }
-c(fm, "readClickSlot");
+c(mm, "readClickSlot");
 function is(t, e, n) {
   t.querySelectorAll(`.${e}`).forEach((r, a) => {
     r.dataset.index = String(a);
@@ -13894,7 +13898,7 @@ function Os(t, { heading: e, hint: n, configs: i, slotClass: r, titlePrefix: a, 
     h.appendChild(Tu(i[p], p, r, a));
   t.appendChild(h);
   const f = ["ti-always-slot", "ti-idle-slot", "ti-hover-slot"];
-  sm(h, {
+  lm(h, {
     dropGroup: o,
     onDrop(p) {
       if (p.parentElement === h)
@@ -13910,7 +13914,7 @@ function Os(t, { heading: e, hint: n, configs: i, slotClass: r, titlePrefix: a, 
   }), t.appendChild(g), h;
 }
 c(Os, "buildEffectCategory");
-function qb(t) {
+function jb(t) {
   const e = vc(t) ?? { always: [], idle: [], hover: [], click: [] }, n = document.createElement("section");
   n.classList.add("eidolon-tile-interactions"), Os(n, {
     heading: "Always",
@@ -13948,7 +13952,7 @@ function qb(t) {
   o.classList.add("idle-anim__slots", "ti-click-slots");
   for (let d = 0; d < a.length; d++)
     o.appendChild(Iu(a[d], d));
-  n.appendChild(o), sm(o, {
+  n.appendChild(o), lm(o, {
     dropGroup: "click",
     onDrop() {
       is(o, "ti-click-slot", "Animation");
@@ -13964,45 +13968,45 @@ function qb(t) {
   const u = document.createElement("button");
   return u.type = "button", u.classList.add("idle-anim__preview"), u.innerHTML = '<i class="fa-solid fa-play"></i> Preview', l.append(u), n.appendChild(l), n;
 }
-c(qb, "buildSectionContent");
+c(jb, "buildSectionContent");
 function As(t, e) {
   const n = [];
   for (const i of t.querySelectorAll(`.${e}`)) {
-    const r = dm(i);
+    const r = fm(i);
     r && n.push(r);
   }
   return n;
 }
 c(As, "readAllEffectSlots");
-function jb(t) {
+function Bb(t) {
   const e = [];
   for (const n of t.querySelectorAll(".ti-click-slot")) {
-    const i = fm(n);
+    const i = mm(n);
     i && e.push(i);
   }
   return e;
 }
-c(jb, "readAllClickConfigs");
+c(Bb, "readAllClickConfigs");
 function Ou(t) {
   return {
     always: As(t, "ti-always-slot"),
     idle: As(t, "ti-idle-slot"),
     hover: As(t, "ti-hover-slot"),
-    click: jb(t)
+    click: Bb(t)
   };
 }
 c(Ou, "readFormConfig");
-function Bb(t, e) {
+function Ub(t, e) {
   var l;
-  const n = Yt(e);
+  const n = Kt(e);
   if (!n) return;
-  const i = Rb(t);
+  const i = Hb(t);
   if (!i) return;
-  const r = Wd(t, n, Fb, "Animations", Db);
+  const r = Wd(t, n, Db, "Animations", Pb);
   if (!r || r.querySelector(".eidolon-tile-interactions")) return;
   const a = r.closest("form");
   a && (a.noValidate = !0);
-  const o = qb(i);
+  const o = jb(i);
   r.appendChild(o), (l = t.setPosition) == null || l.call(t, { height: "auto" });
   const s = r.querySelector(".idle-anim__preview");
   s == null || s.addEventListener("click", () => {
@@ -14018,8 +14022,8 @@ function Bb(t, e) {
     vn && (vn.detach(), vn = null);
     const u = Ou(o), d = u.always.length > 0 || u.idle.length > 0 || u.hover.length > 0 || u.click.length > 0, h = {
       [`flags.${ma}.-=${Su}`]: null,
-      [`flags.${ma}.-=${xb}`]: null,
-      [`flags.${ma}.-=${_b}`]: null
+      [`flags.${ma}.-=${_b}`]: null,
+      [`flags.${ma}.-=${Fb}`]: null
     };
     i.update(h).then(() => {
       if (d)
@@ -14027,46 +14031,50 @@ function Bb(t, e) {
     });
   });
 }
-c(Bb, "renderAnimationSection");
+c(Ub, "renderAnimationSection");
 const co = /* @__PURE__ */ new Map();
-function mm(t) {
+function hm(t) {
   const e = co.get(t);
   e && (e.controller.abort(), co.delete(t), e.restore());
 }
-c(mm, "stopLoopByKey");
-function hm(t) {
+c(hm, "stopLoopByKey");
+function gm(t) {
   const e = `${t}::`;
   for (const n of [...co.keys()])
-    n.startsWith(e) && mm(n);
+    n.startsWith(e) && hm(n);
 }
-c(hm, "stopLoopsForTile");
-function Ub() {
+c(gm, "stopLoopsForTile");
+function pm() {
   for (const t of [...co.keys()])
-    mm(t);
+    hm(t);
 }
-c(Ub, "stopAllLoops");
+c(pm, "stopAllLoops");
 const Vb = "eidolon-utilities", Gb = ["tile-animations", "tile-interactions", "idle-animation"];
 function zb() {
-  Ub(), Mb();
+  pm(), am();
 }
-c(zb, "onCanvasReady");
-function Wb(t, e) {
+c(zb, "onCanvasTearDown");
+function Wb() {
+  pm(), am();
+}
+c(Wb, "onCanvasReady");
+function Yb(t, e) {
   var r;
   const n = (r = e == null ? void 0 : e.flags) == null ? void 0 : r[Vb];
-  !n || !Gb.some((a) => a in n || `-=${a}` in n) || (hm(t.id), Nb(t));
+  !n || !Gb.some((a) => a in n || `-=${a}` in n) || (gm(t.id), $b(t));
 }
-c(Wb, "onUpdateTile");
-function Yb(t) {
-  hm(t.id), am(t);
+c(Yb, "onUpdateTile");
+function Kb(t) {
+  gm(t.id), om(t);
 }
-c(Yb, "onDeleteTile");
-function Kb(t, e) {
-  Bb(t, e);
+c(Kb, "onDeleteTile");
+function Jb(t, e) {
+  Ub(t, e);
 }
-c(Kb, "onRenderTileConfig");
-function Jb() {
-  Hooks.on("canvasReady", zb), Hooks.on("updateTile", Wb), Hooks.on("deleteTile", Yb), Hooks.on("renderTileConfig", Kb);
+c(Jb, "onRenderTileConfig");
+function Xb() {
+  Hooks.on("canvasTearDown", zb), Hooks.on("canvasReady", Wb), Hooks.on("updateTile", Yb), Hooks.on("deleteTile", Kb), Hooks.on("renderTileConfig", Jb);
 }
-c(Jb, "registerTileInteractionHooks");
-Jb();
+c(Xb, "registerTileInteractionHooks");
+Xb();
 //# sourceMappingURL=eidolon-utilities.js.map
