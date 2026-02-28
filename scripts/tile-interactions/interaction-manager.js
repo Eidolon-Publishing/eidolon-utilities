@@ -20,6 +20,84 @@ import { getTweenType } from "../tween/core/registry.js";
 
 const MODULE_ID = "eidolon-utilities";
 const FLAG_KEY = "tile-interactions";
+const NEW_FLAG_KEY = "tile-animations";
+const OLD_IDLE_FLAG = "idle-animation";
+
+// ── Migration: unified config reader ───────────────────────────────────
+
+/**
+ * Convert an old idle-animation tween config into a behaviour entry.
+ * { type: "tile-prop", attribute: "alpha", from: 0.85, to: 1, period: 1500, easing: "easeInOutCosine" }
+ * → { name: "tween-prop", attribute: "alpha", from: 0.85, to: 1, period: 1500, easing: "easeInOutCosine" }
+ */
+function migrateIdleTweenToAlways(config) {
+	const type = config.type ?? "tile-prop";
+	if (type === "tile-tint") {
+		return { name: "tween-tint", fromColor: config.fromColor, toColor: config.toColor, mode: config.mode, period: config.period, easing: config.easing };
+	}
+	if (type === "tile-scale") {
+		return { name: "tween-scale", fromScale: config.fromScale, toScale: config.toScale, period: config.period, easing: config.easing };
+	}
+	// tile-prop
+	return { name: "tween-prop", attribute: config.attribute, from: config.from, to: config.to, period: config.period, easing: config.easing };
+}
+
+/**
+ * Read the unified tile-animations config from a tile document,
+ * with migration fallback for old idle-animation and tile-interactions flags.
+ *
+ * Returns: { always: [], idle: [], hover: [], click: [] } or null if no config.
+ */
+export function readUnifiedConfig(doc) {
+	// Prefer new unified flag
+	const unified = doc?.getFlag?.(MODULE_ID, NEW_FLAG_KEY);
+	if (unified) return unified;
+
+	// Migration: read old flags
+	const oldIdleRaw = doc?.getFlag?.(MODULE_ID, OLD_IDLE_FLAG);
+	const oldInteractions = doc?.getFlag?.(MODULE_ID, FLAG_KEY);
+
+	let always = [];
+	let idle = [];
+	let hover = [];
+	let click = [];
+
+	// Migrate old idle-animation → always
+	if (oldIdleRaw) {
+		let entries;
+		if (Array.isArray(oldIdleRaw)) {
+			entries = oldIdleRaw;
+		} else if (typeof oldIdleRaw === "object" && "0" in oldIdleRaw) {
+			entries = Object.values(oldIdleRaw);
+		} else if (typeof oldIdleRaw === "object" && (oldIdleRaw.type || oldIdleRaw.attribute)) {
+			entries = [oldIdleRaw];
+		} else {
+			entries = [];
+		}
+		always = entries.filter(c => c && typeof c === "object").map(migrateIdleTweenToAlways);
+	}
+
+	// Migrate old tile-interactions → idle/hover/click
+	if (oldInteractions) {
+		if (oldInteractions.hover) {
+			if (Array.isArray(oldInteractions.hover)) {
+				// Legacy flat array → hover-only
+				hover = oldInteractions.hover;
+			} else if (typeof oldInteractions.hover === "object") {
+				idle = Array.isArray(oldInteractions.hover.idle) ? oldInteractions.hover.idle : [];
+				hover = Array.isArray(oldInteractions.hover.enter) ? oldInteractions.hover.enter : [];
+			}
+		}
+		if (Array.isArray(oldInteractions.click) && oldInteractions.click.length) {
+			click = oldInteractions.click;
+		}
+	}
+
+	const hasData = always.length > 0 || idle.length > 0 || hover.length > 0 || click.length > 0;
+	if (!hasData) return null;
+
+	return { always, idle, hover, click };
+}
 
 // ── State ──────────────────────────────────────────────────────────────
 
@@ -46,36 +124,6 @@ let boundPointerMove = null;
 let boundPointerDown = null;
 
 // ── Helpers ────────────────────────────────────────────────────────────
-
-/**
- * Parse the hover flag into a normalized { idle, enter } shape.
- * Supports:
- *   - { idle: [...], enter: [...] }  → two-state config
- *   - [...] (legacy flat array)      → treated as enter-only
- *   - null/undefined                 → null
- */
-function parseHoverConfig(raw) {
-	if (!raw) return null;
-
-	// New object format: { idle: [...], enter: [...] }
-	if (!Array.isArray(raw) && typeof raw === "object") {
-		const idle = Array.isArray(raw.idle) && raw.idle.length ? raw.idle : null;
-		const enter = Array.isArray(raw.enter) && raw.enter.length ? raw.enter : null;
-		if (!idle && !enter) return null;
-		return { idle, enter };
-	}
-
-	// Legacy flat array → enter-only
-	if (Array.isArray(raw) && raw.length) {
-		return { idle: null, enter: raw };
-	}
-
-	return null;
-}
-
-function getInteractionFlag(doc) {
-	return doc?.getFlag?.(MODULE_ID, FLAG_KEY) ?? null;
-}
 
 function canvasToLocal(event) {
 	const layer = canvas.activeLayer;
@@ -107,24 +155,25 @@ function hitTest(pt) {
 // ── Hover lifecycle ────────────────────────────────────────────────────
 
 /**
- * Build a TileAnimator config from the parsed hover config.
- * Maps { idle, enter } → TileAnimator's { idle, hover } states.
+ * Build a TileAnimator config from the unified config.
+ * Maps { always, idle, hover } → TileAnimator's config shape.
  */
-function buildAnimatorConfig(hoverConfig) {
+function buildAnimatorConfig(unifiedConfig) {
 	return {
-		idle: hoverConfig.idle ?? ["none"],
-		hover: hoverConfig.enter ?? ["none"],
+		always: unifiedConfig.always ?? [],
+		idle: unifiedConfig.idle?.length ? unifiedConfig.idle : ["none"],
+		hover: unifiedConfig.hover?.length ? unifiedConfig.hover : ["none"],
 	};
 }
 
 /**
- * Start a persistent hover animator for a tile.
+ * Start a persistent animator for a tile.
  * Begins in "idle" state.
  */
-function startHoverAnimator(tileId, placeable, hoverConfig) {
+function startHoverAnimator(tileId, placeable, unifiedConfig) {
 	stopHoverAnimator(tileId);
 
-	const animConfig = buildAnimatorConfig(hoverConfig);
+	const animConfig = buildAnimatorConfig(unifiedConfig);
 	const animator = new TileAnimator(placeable, animConfig);
 	animator.start("idle");
 	activeHoverAnimators.set(tileId, animator);
@@ -238,9 +287,10 @@ async function handleClick(entry) {
 	} finally {
 		clickingTiles.delete(tileId);
 
-		// Restart hover animator if tile still has hover config
-		if (entry.hoverConfig) {
-			startHoverAnimator(tileId, entry.placeable, entry.hoverConfig);
+		// Restart animator if tile still has animation config
+		const hasAnimations = entry.animConfig && ((entry.animConfig.always?.length > 0) || (entry.animConfig.idle?.length > 0) || (entry.animConfig.hover?.length > 0));
+		if (hasAnimations) {
+			startHoverAnimator(tileId, entry.placeable, entry.animConfig);
 
 			// If pointer is still over the tile, switch to hover state
 			if (hoveredTileId === tileId) {
@@ -277,7 +327,7 @@ function onPointerMove(event) {
 	hoveredTileId = hitId;
 
 	// Cursor management
-	if (hitId && (hit.hoverConfig || hit.clickConfig?.length)) {
+	if (hitId && (hit.animConfig || hit.clickConfig?.length)) {
 		if (savedCursor === null) {
 			savedCursor = document.body.style.cursor;
 		}
@@ -337,19 +387,19 @@ export function rebuild() {
 
 	for (const tile of tiles) {
 		const doc = tile.document;
-		const flag = getInteractionFlag(doc);
-		if (!flag) continue;
+		const config = readUnifiedConfig(doc);
+		if (!config) continue;
 
-		const hoverConfig = parseHoverConfig(flag.hover);
-		const clickConfig = Array.isArray(flag.click) && flag.click.length ? flag.click : null;
+		const hasAnimations = (config.always?.length > 0) || (config.idle?.length > 0) || (config.hover?.length > 0);
+		const clickConfig = Array.isArray(config.click) && config.click.length ? config.click : null;
 
-		if (!hoverConfig && !clickConfig) continue;
+		if (!hasAnimations && !clickConfig) continue;
 
-		watchedTiles.set(doc.id, { doc, placeable: tile, hoverConfig, clickConfig });
+		watchedTiles.set(doc.id, { doc, placeable: tile, animConfig: config, clickConfig });
 
-		// Start persistent hover animator in idle state
-		if (hoverConfig) {
-			startHoverAnimator(doc.id, tile, hoverConfig);
+		// Start persistent animator (always + idle/hover states)
+		if (hasAnimations) {
+			startHoverAnimator(doc.id, tile, config);
 		}
 	}
 
@@ -368,12 +418,12 @@ export function rebuild() {
  */
 export function updateTile(doc) {
 	const tileId = doc.id;
-	const flag = getInteractionFlag(doc);
+	const config = readUnifiedConfig(doc);
 
-	const hoverConfig = flag ? parseHoverConfig(flag.hover) : null;
-	const clickConfig = flag && Array.isArray(flag.click) && flag.click.length ? flag.click : null;
+	const hasAnimations = config && ((config.always?.length > 0) || (config.idle?.length > 0) || (config.hover?.length > 0));
+	const clickConfig = config && Array.isArray(config.click) && config.click.length ? config.click : null;
 
-	if (!hoverConfig && !clickConfig) {
+	if (!hasAnimations && !clickConfig) {
 		removeTile(doc);
 		return;
 	}
@@ -387,11 +437,11 @@ export function updateTile(doc) {
 		return;
 	}
 
-	watchedTiles.set(tileId, { doc, placeable, hoverConfig, clickConfig });
+	watchedTiles.set(tileId, { doc, placeable, animConfig: config, clickConfig });
 
-	// Restart hover animator with new config
-	if (hoverConfig) {
-		startHoverAnimator(tileId, placeable, hoverConfig);
+	// Restart animator with new config
+	if (hasAnimations) {
+		startHoverAnimator(tileId, placeable, config);
 	}
 
 	// Re-install listeners if this is the first watched tile
