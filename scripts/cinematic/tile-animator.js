@@ -36,6 +36,33 @@ export function getBehaviour(name) {
 	return behaviourRegistry.get(name);
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────────
+
+/**
+ * Convert HSL (h in [0,1], s in [0,1], l in [0,1]) to a 0xRRGGBB integer.
+ */
+function hslToInt(h, s, l) {
+	let r, g, b;
+	if (s === 0) {
+		r = g = b = l;
+	} else {
+		const hue2rgb = (p, q, t) => {
+			if (t < 0) t += 1;
+			if (t > 1) t -= 1;
+			if (t < 1 / 6) return p + (q - p) * 6 * t;
+			if (t < 1 / 2) return q;
+			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+			return p;
+		};
+		const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+		const p = 2 * l - q;
+		r = hue2rgb(p, q, h + 1 / 3);
+		g = hue2rgb(p, q, h);
+		b = hue2rgb(p, q, h - 1 / 3);
+	}
+	return ((Math.round(r * 255) << 16) | (Math.round(g * 255) << 8) | Math.round(b * 255));
+}
+
 // ── Built-in Behaviours ──────────────────────────────────────────────────
 
 /**
@@ -173,6 +200,220 @@ registerBehaviour("glow", (placeable, opts = {}) => {
 		detach() {
 			if (glow.parent) glow.parent.removeChild(glow);
 			glow.destroy({ children: true });
+		},
+	};
+});
+
+/**
+ * wobble — rapid rotation oscillation.
+ * Params: speed (0.15), angle (2.5°)
+ */
+registerBehaviour("wobble", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const speed = opts.speed ?? 0.15;
+	const angle = opts.angle ?? 2.5;
+	const originalAngle = mesh.angle;
+	let elapsed = 0;
+
+	return {
+		update(dt) {
+			elapsed += dt;
+			mesh.angle = originalAngle + Math.sin(elapsed * speed) * angle;
+		},
+		detach() {
+			mesh.angle = originalAngle;
+		},
+	};
+});
+
+/**
+ * colorCycle — continuous hue rotation on the mesh tint.
+ * Params: speed (0.005), saturation (0.6), lightness (0.6)
+ */
+registerBehaviour("colorCycle", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const speed = opts.speed ?? 0.005;
+	const saturation = opts.saturation ?? 0.6;
+	const lightness = opts.lightness ?? 0.6;
+	const originalTint = mesh.tint;
+	let hue = 0;
+
+	return {
+		update(dt) {
+			hue = (hue + dt * speed) % 1;
+			mesh.tint = hslToInt(hue, saturation, lightness);
+		},
+		detach() {
+			mesh.tint = originalTint;
+		},
+	};
+});
+
+/**
+ * spin — continuous rotation at constant angular velocity.
+ * Params: speed (0.5 deg/frame-tick)
+ */
+registerBehaviour("spin", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const speed = opts.speed ?? 0.5;
+	const originalAngle = mesh.angle;
+
+	return {
+		update(dt) {
+			mesh.angle += dt * speed;
+		},
+		detach() {
+			mesh.angle = originalAngle;
+		},
+	};
+});
+
+/**
+ * bounce — float with easeOutBounce easing.
+ * Params: speed (0.02), amplitude (6px)
+ */
+registerBehaviour("bounce", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const speed = opts.speed ?? 0.02;
+	const amplitude = opts.amplitude ?? 6;
+	const easingFn = resolveEasing("easeOutBounce");
+	const originalY = mesh.position.y;
+	let elapsed = 0;
+
+	return {
+		update(dt) {
+			elapsed += dt;
+			// Triangle wave 0→1→0 mapped through bounce easing
+			const t = Math.abs(((elapsed * speed) % 2) - 1);
+			mesh.position.y = originalY + easingFn(t) * amplitude;
+		},
+		detach() {
+			mesh.position.y = originalY;
+		},
+	};
+});
+
+/**
+ * borderTrace — glowing dot tracing the tile perimeter.
+ * Params: speed (1.5 px/frame), length (60px), color (0x44DDFF), alpha (0.8), lineWidth (2)
+ */
+registerBehaviour("borderTrace", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const doc = placeable.document;
+	const w = Math.abs(doc.width);
+	const h = Math.abs(doc.height);
+	const perimeter = 2 * (w + h);
+
+	const speed = opts.speed ?? 1.5;
+	const length = opts.length ?? 60;
+	const color = opts.color ?? 0x44DDFF;
+	const alpha = opts.alpha ?? 0.8;
+	const lineWidth = opts.lineWidth ?? 2;
+
+	const gfx = new PIXI.Graphics();
+	gfx.alpha = alpha;
+	placeable.addChildAt(gfx, 0);
+
+	let offset = 0;
+
+	function perimeterPoint(d) {
+		d = ((d % perimeter) + perimeter) % perimeter;
+		if (d < w) return { x: d, y: 0 };
+		d -= w;
+		if (d < h) return { x: w, y: d };
+		d -= h;
+		if (d < w) return { x: w - d, y: h };
+		d -= w;
+		return { x: 0, y: h - d };
+	}
+
+	return {
+		update(dt) {
+			offset = (offset + dt * speed) % perimeter;
+			gfx.clear();
+			gfx.lineStyle(lineWidth, color, 1);
+
+			const segments = 16;
+			const segLen = length / segments;
+			const start = perimeterPoint(offset);
+			gfx.moveTo(start.x, start.y);
+			for (let i = 1; i <= segments; i++) {
+				const pt = perimeterPoint(offset + i * segLen);
+				gfx.lineTo(pt.x, pt.y);
+			}
+		},
+		detach() {
+			if (gfx.parent) gfx.parent.removeChild(gfx);
+			gfx.destroy({ children: true });
+		},
+	};
+});
+
+/**
+ * shimmer — diagonal shine sweep across the tile.
+ * Params: speed (1.0), bandWidth (40px), alpha (0.15), pause (120 frame-ticks)
+ */
+registerBehaviour("shimmer", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const doc = placeable.document;
+	const w = Math.abs(doc.width);
+	const h = Math.abs(doc.height);
+
+	const speed = opts.speed ?? 1.0;
+	const bandWidth = opts.bandWidth ?? 40;
+	const alpha = opts.alpha ?? 0.15;
+	const pause = opts.pause ?? 120;
+
+	const diagonal = w + h + bandWidth;
+	const cycleLength = diagonal + pause * speed;
+
+	const gfx = new PIXI.Graphics();
+	gfx.alpha = alpha;
+
+	const mask = new PIXI.Graphics();
+	mask.beginFill(0xffffff);
+	mask.drawRect(0, 0, w, h);
+	mask.endFill();
+	placeable.addChild(mask);
+	gfx.mask = mask;
+	placeable.addChild(gfx);
+
+	let offset = 0;
+
+	return {
+		update(dt) {
+			offset = (offset + dt * speed) % cycleLength;
+			gfx.clear();
+
+			if (offset < diagonal) {
+				const pos = offset - bandWidth;
+				gfx.beginFill(0xffffff, 1);
+				gfx.moveTo(pos, 0);
+				gfx.lineTo(pos + bandWidth, 0);
+				gfx.lineTo(pos + bandWidth - h, h);
+				gfx.lineTo(pos - h, h);
+				gfx.closePath();
+				gfx.endFill();
+			}
+		},
+		detach() {
+			gfx.mask = null;
+			if (mask.parent) mask.parent.removeChild(mask);
+			mask.destroy({ children: true });
+			if (gfx.parent) gfx.parent.removeChild(gfx);
+			gfx.destroy({ children: true });
 		},
 	};
 });
