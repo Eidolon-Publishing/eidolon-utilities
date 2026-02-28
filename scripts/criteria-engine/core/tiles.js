@@ -604,7 +604,7 @@ export async function updateTiles(state, scene, options = {}) {
       continue;
     }
 
-    const nextFileIndex = matchIndex + 1;
+    const nextFileIndex = matchIndex;
     const currentFileIndex = Number(tile.getFlag("monks-active-tiles", "fileindex"));
     const shouldUpdateFileIndex = currentFileIndex !== nextFileIndex;
 

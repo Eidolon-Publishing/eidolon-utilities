@@ -358,7 +358,7 @@ describe("criteria engine performance guards", () => {
         }
 
         if (scope === "monks-active-tiles" && key === "fileindex") {
-          return 1;
+          return 0;
         }
 
         return null;
@@ -402,7 +402,7 @@ describe("criteria engine performance guards", () => {
         }
 
         if (scope === "monks-active-tiles" && key === "fileindex") {
-          return 1;
+          return 0;
         }
 
         return null;
@@ -425,7 +425,7 @@ describe("criteria engine performance guards", () => {
           { name: "maps/day.webp", selected: false },
           { name: "maps/night.webp", selected: true }
         ],
-        "flags.monks-active-tiles.fileindex": 2,
+        "flags.monks-active-tiles.fileindex": 1,
         texture: { src: "maps/night.webp" }
       }
     ]);
@@ -502,7 +502,7 @@ describe("criteria engine performance guards", () => {
         }
 
         if (scope === "monks-active-tiles" && key === "fileindex") {
-          return 1;
+          return 0;
         }
 
         return null;

@@ -232,7 +232,7 @@ export async function seedCriteriaHarness(page) {
           },
           "monks-active-tiles": {
             files,
-            fileindex: 1
+            fileindex: 0
           }
         }
       };

@@ -3647,7 +3647,7 @@ async function Pd(n, e, t = {}) {
       console.warn(`${ie} | Tile ${f.id} has no valid file match for state`, n), r.skipped.noMatch += 1;
       continue;
     }
-    const b = v + 1, C = Number(f.getFlag("monks-active-tiles", "fileindex")) !== b, I = p.some((D, P) => !!(D != null && D.selected) != (P === v)), A = Wa(((u = f.texture) == null ? void 0 : u.src) ?? ((m = (d = f._source) == null ? void 0 : d.texture) == null ? void 0 : m.src) ?? ""), O = $d(p[v]), M = Wa(O), $ = !!M && M !== A;
+    const b = v, C = Number(f.getFlag("monks-active-tiles", "fileindex")) !== b, I = p.some((D, P) => !!(D != null && D.selected) != (P === v)), A = Wa(((u = f.texture) == null ? void 0 : u.src) ?? ((m = (d = f._source) == null ? void 0 : d.texture) == null ? void 0 : m.src) ?? ""), O = $d(p[v]), M = Wa(O), $ = !!M && M !== A;
     if (!I && !C && !$) {
       r.skipped.unchanged += 1;
       continue;
