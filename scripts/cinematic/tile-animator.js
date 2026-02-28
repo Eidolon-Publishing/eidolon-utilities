@@ -55,6 +55,13 @@ export function listBehaviourNames() {
  * @returns {PIXI.DisplayObject|null}
  */
 export function getAnimationTarget(placeable) {
+	// Drawings: use placeable.shape (PrimaryGraphics on the primary canvas).
+	// This contains both the visual shape and the PreciseText as children,
+	// so scaling/moving/fading the shape affects text too.
+	// The placeable container itself only holds the control frame (border + handles).
+	if (placeable.document?.documentName === "Drawing") {
+		return placeable.shape ?? null;
+	}
 	if (placeable.mesh) return placeable.mesh;
 	if (placeable.destroyed || !placeable.transform) return null;
 	return placeable;
@@ -143,18 +150,29 @@ registerBehaviour("pulse", (placeable, opts = {}) => {
  * scale — smooth eased scale transition toward a target factor.
  * Params: factor (1.12), durationFrames (15), easing ("easeOutCubic")
  */
-registerBehaviour("scale", (placeable, opts = {}) => {
-	const mesh = getAnimationTarget(placeable);
-	if (!mesh) return { update() {}, detach() {} };
+registerBehaviour("scale", (placeable, opts = {}, canonicalState) => {
+	const target = getAnimationTarget(placeable);
+	if (!target) return { update() {}, detach() {} };
 
 	const factor = opts.factor ?? 1.12;
 	const durationFrames = opts.durationFrames ?? 15;
 	const easingFn = resolveEasing(opts.easing ?? "easeOutCubic");
 
-	const originalScaleX = mesh.scale.x;
-	const originalScaleY = mesh.scale.y;
+	const originalScaleX = target.scale.x;
+	const originalScaleY = target.scale.y;
 	const targetScaleX = originalScaleX * factor;
 	const targetScaleY = originalScaleY * factor;
+
+	// Position compensation is needed only if the target has no centered origin.
+	// Tiles use mesh.anchor (0.5, 0.5); Drawing shapes use pivot at center.
+	// Only compensate for targets with neither anchor nor pivot set.
+	const hasCenteredOrigin = !!placeable.mesh || (target.pivot?.x || target.pivot?.y);
+	const needsCenterFix = !hasCenteredOrigin;
+	const cx = needsCenterFix ? ((placeable.document?.shape?.width ?? 0) / 2) : 0;
+	const cy = needsCenterFix ? ((placeable.document?.shape?.height ?? 0) / 2) : 0;
+	const canonX = canonicalState?.x ?? target.position.x;
+	const canonY = canonicalState?.y ?? target.position.y;
+
 	let frame = 0;
 
 	return {
@@ -163,13 +181,23 @@ registerBehaviour("scale", (placeable, opts = {}) => {
 				frame += dt;
 				const progress = Math.min(frame / durationFrames, 1);
 				const eased = easingFn(progress);
-				mesh.scale.x = originalScaleX + (targetScaleX - originalScaleX) * eased;
-				mesh.scale.y = originalScaleY + (targetScaleY - originalScaleY) * eased;
+				const sx = originalScaleX + (targetScaleX - originalScaleX) * eased;
+				const sy = originalScaleY + (targetScaleY - originalScaleY) * eased;
+				target.scale.x = sx;
+				target.scale.y = sy;
+				if (needsCenterFix) {
+					target.position.x = canonX - cx * (sx - originalScaleX);
+					target.position.y = canonY - cy * (sy - originalScaleY);
+				}
 			}
 		},
 		detach() {
-			mesh.scale.x = originalScaleX;
-			mesh.scale.y = originalScaleY;
+			target.scale.x = originalScaleX;
+			target.scale.y = originalScaleY;
+			if (needsCenterFix) {
+				target.position.x = canonX;
+				target.position.y = canonY;
+			}
 		},
 	};
 });
