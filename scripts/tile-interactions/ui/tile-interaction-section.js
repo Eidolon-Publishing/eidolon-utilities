@@ -1,6 +1,6 @@
 /**
- * UI section for tile interaction config (hover effects + click animations).
- * Renders into the same Animations tab panel as idle animations.
+ * Unified UI for tile animations (Always / Idle / Hover / Click).
+ * Single section replacing both idle-animations and tile-interactions UIs.
  */
 
 import { asHTMLElement } from "../../common/ui/foundry-compat.js";
@@ -9,15 +9,19 @@ import { makeDraggable, makeDropContainer } from "../../common/ui/drag-reorder.j
 import { ensureTileConfigTab } from "../../common/ui/tile-config-tab.js";
 import { listEasingNames } from "../../tween/core/easing.js";
 import { listInterpolationModes } from "../../tween/core/color-interpolation.js";
+import { readUnifiedConfig } from "../interaction-manager.js";
+import { TileAnimator } from "../../cinematic/tile-animator.js";
 
 const MODULE_ID = "eidolon-utilities";
-const FLAG_KEY = "tile-interactions";
-const TAB_ID = "eidolon-idle-animation"; // Same tab as idle animations
+const NEW_FLAG_KEY = "tile-animations";
+const OLD_INTERACTION_FLAG = "tile-interactions";
+const OLD_IDLE_FLAG = "idle-animation";
+const TAB_ID = "eidolon-idle-animation";
 const TAB_ICON = "fa-solid fa-wave-pulse";
 
 // ── Behaviour definitions (match TileAnimator registry) ────────────────
 
-const HOVER_BEHAVIOURS = [
+const EFFECT_BEHAVIOURS = [
 	{ value: "float", label: "Float" },
 	{ value: "pulse", label: "Pulse" },
 	{ value: "scale", label: "Scale" },
@@ -38,7 +42,13 @@ const HOVER_BEHAVIOURS = [
 	{ value: "shadowLift", label: "Shadow Lift" },
 ];
 
-const HOVER_PARAM_DEFS = {
+const TWEEN_BEHAVIOURS = [
+	{ value: "tween-prop", label: "Numeric" },
+	{ value: "tween-tint", label: "Tint" },
+	{ value: "tween-scale", label: "Scale" },
+];
+
+const EFFECT_PARAM_DEFS = {
 	float: [
 		{ key: "speed", label: "Speed", type: "number", default: 0.04, attrs: { step: "0.01", min: "0.001" } },
 		{ key: "amplitude", label: "Amplitude (px)", type: "number", default: 3, attrs: { step: "1", min: "1" } },
@@ -61,7 +71,7 @@ const HOVER_PARAM_DEFS = {
 	],
 	wobble: [
 		{ key: "speed", label: "Speed", type: "number", default: 0.15, attrs: { step: "0.01", min: "0.001" } },
-		{ key: "angle", label: "Angle (°)", type: "number", default: 2.5, attrs: { step: "0.5", min: "0.1", max: "45" } },
+		{ key: "angle", label: "Angle (\u00B0)", type: "number", default: 2.5, attrs: { step: "0.5", min: "0.1", max: "45" } },
 	],
 	colorCycle: [
 		{ key: "speed", label: "Speed", type: "number", default: 0.005, attrs: { step: "0.001", min: "0.001" } },
@@ -69,7 +79,7 @@ const HOVER_PARAM_DEFS = {
 		{ key: "lightness", label: "Lightness", type: "number", default: 0.6, attrs: { step: "0.05", min: "0", max: "1" } },
 	],
 	spin: [
-		{ key: "speed", label: "Speed (°/frame)", type: "number", default: 0.5, attrs: { step: "0.1", min: "-10", max: "10" } },
+		{ key: "speed", label: "Speed (\u00B0/frame)", type: "number", default: 0.5, attrs: { step: "0.1", min: "-10", max: "10" } },
 	],
 	bounce: [
 		{ key: "speed", label: "Speed", type: "number", default: 0.02, attrs: { step: "0.005", min: "0.001" } },
@@ -141,6 +151,30 @@ const HOVER_PARAM_DEFS = {
 		{ key: "durationFrames", label: "Duration (frames)", type: "number", default: 12, attrs: { step: "1", min: "1" } },
 		{ key: "easing", label: "Easing", type: "select", default: "easeOutCubic" },
 	],
+	// Tween-as-behaviour param defs
+	"tween-prop": [
+		{ key: "attribute", label: "Attribute", type: "select", default: "alpha", options: [
+			{ value: "alpha", label: "Alpha (Opacity)" },
+			{ value: "rotation", label: "Rotation" },
+		] },
+		{ key: "from", label: "From", type: "number", default: 0.85, attrs: { step: "0.01" } },
+		{ key: "to", label: "To", type: "number", default: 1.0, attrs: { step: "0.01" } },
+		{ key: "period", label: "Period (ms)", type: "number", default: 1500, attrs: { min: "100", step: "100" } },
+		{ key: "easing", label: "Easing", type: "select", default: "easeInOutCosine" },
+	],
+	"tween-tint": [
+		{ key: "fromColor", label: "From", type: "color", default: "#ffffff" },
+		{ key: "toColor", label: "To", type: "color", default: "#ffcc88" },
+		{ key: "mode", label: "Interpolation", type: "select", default: "oklch", options: "interpolation" },
+		{ key: "period", label: "Period (ms)", type: "number", default: 3000, attrs: { min: "100", step: "100" } },
+		{ key: "easing", label: "Easing", type: "select", default: "easeInOutCosine" },
+	],
+	"tween-scale": [
+		{ key: "fromScale", label: "From", type: "number", default: 0.95, attrs: { step: "0.01", min: "0.01" } },
+		{ key: "toScale", label: "To", type: "number", default: 1.05, attrs: { step: "0.01", min: "0.01" } },
+		{ key: "period", label: "Period (ms)", type: "number", default: 2000, attrs: { min: "100", step: "100" } },
+		{ key: "easing", label: "Easing", type: "select", default: "easeInOutCosine" },
+	],
 };
 
 // ── Click animation defaults ───────────────────────────────────────────
@@ -179,48 +213,84 @@ const CLICK_ATTRIBUTES = [
 	{ value: "texture.rotation", label: "Texture Rotation" },
 ];
 
+// ── Preview state ──────────────────────────────────────────────────────
+
+let previewAnimator = null;
+
 // ── Helpers ────────────────────────────────────────────────────────────
 
 function getTileDocument(app) {
 	return app?.document ?? app?.object?.document ?? app?.object ?? null;
 }
 
-function getInteractionConfigs(doc) {
-	const flag = doc?.getFlag?.(MODULE_ID, FLAG_KEY);
-	if (!flag) return { hoverIdle: [], hoverEnter: [], click: [] };
-
-	let hoverIdle = [];
-	let hoverEnter = [];
-
-	if (flag.hover) {
-		if (Array.isArray(flag.hover)) {
-			// Legacy flat array → enter-only
-			hoverEnter = flag.hover;
-		} else if (typeof flag.hover === "object") {
-			hoverIdle = Array.isArray(flag.hover.idle) ? flag.hover.idle : [];
-			hoverEnter = Array.isArray(flag.hover.enter) ? flag.hover.enter : [];
-		}
-	}
-
-	return {
-		hoverIdle,
-		hoverEnter,
-		click: Array.isArray(flag.click) ? flag.click : [],
-	};
+function isTweenBehaviour(name) {
+	return name === "tween-prop" || name === "tween-tint" || name === "tween-scale";
 }
 
-// ── Hover slot builder ─────────────────────────────────────────────────
+// ── Effect slot builder (unified: behaviours + tweens via optgroup) ────
 
-function summarizeHoverConfig(config) {
+function buildEffectTypeSelect(selectedName, cssClass) {
+	const group = document.createElement("div");
+	group.classList.add("form-group");
+
+	const label = document.createElement("label");
+	label.textContent = "Type";
+	group.appendChild(label);
+
+	const select = document.createElement("select");
+	select.classList.add(cssClass);
+
+	// Effects optgroup
+	const effectsGroup = document.createElement("optgroup");
+	effectsGroup.label = "Effects";
+	for (const b of EFFECT_BEHAVIOURS) {
+		const opt = document.createElement("option");
+		opt.value = b.value;
+		opt.textContent = b.label;
+		if (b.value === selectedName) opt.selected = true;
+		effectsGroup.appendChild(opt);
+	}
+	select.appendChild(effectsGroup);
+
+	// Tweens optgroup
+	const tweensGroup = document.createElement("optgroup");
+	tweensGroup.label = "Tweens";
+	for (const b of TWEEN_BEHAVIOURS) {
+		const opt = document.createElement("option");
+		opt.value = b.value;
+		opt.textContent = b.label;
+		if (b.value === selectedName) opt.selected = true;
+		tweensGroup.appendChild(opt);
+	}
+	select.appendChild(tweensGroup);
+
+	group.appendChild(select);
+	return group;
+}
+
+function summarizeEffectConfig(config) {
 	if (!config) return "";
 	const name = config.name ?? "float";
-	const def = HOVER_BEHAVIOURS.find((b) => b.value === name);
+	if (name === "tween-prop") {
+		const attr = config.attribute ?? "alpha";
+		return `Tween ${attr} ${config.from ?? "?"}\u2192${config.to ?? "?"} (${config.period ?? "?"}ms)`;
+	}
+	if (name === "tween-tint") {
+		return `Tween Tint ${config.fromColor ?? "?"}\u2192${config.toColor ?? "?"} (${config.period ?? "?"}ms)`;
+	}
+	if (name === "tween-scale") {
+		const from = config.fromScale != null ? `${Math.round(config.fromScale * 100)}%` : "?";
+		const to = config.toScale != null ? `${Math.round(config.toScale * 100)}%` : "?";
+		return `Tween Scale ${from}\u2192${to} (${config.period ?? "?"}ms)`;
+	}
+	const def = EFFECT_BEHAVIOURS.find((b) => b.value === name);
 	return def?.label ?? name;
 }
 
-function buildHoverSlot(config, index, slotClass, titlePrefix) {
+function buildEffectSlot(config, index, slotClass, titlePrefix) {
 	const name = config.name ?? "float";
 	const easingNames = listEasingNames();
+	const interpolationModes = listInterpolationModes();
 
 	const card = document.createElement("div");
 	card.classList.add("idle-anim__slot", "is-collapsed", slotClass);
@@ -236,7 +306,7 @@ function buildHoverSlot(config, index, slotClass, titlePrefix) {
 	title.textContent = `${titlePrefix} ${index + 1}`;
 	const summary = document.createElement("span");
 	summary.classList.add("idle-anim__slot-summary");
-	summary.textContent = summarizeHoverConfig(config);
+	summary.textContent = summarizeEffectConfig(config);
 	const removeBtn = document.createElement("button");
 	removeBtn.type = "button";
 	removeBtn.classList.add("idle-anim__slot-remove");
@@ -249,11 +319,9 @@ function buildHoverSlot(config, index, slotClass, titlePrefix) {
 	const body = document.createElement("div");
 	body.classList.add("idle-anim__slot-body");
 
-	// Behaviour dropdown
-	const behaviourGroup = buildSelectGroup("Behaviour", "ti-hover__behaviour",
-		HOVER_BEHAVIOURS.map((b) => ({ value: b.value, label: b.label, selected: b.value === name }))
-	);
-	body.appendChild(behaviourGroup);
+	// Type dropdown with optgroup
+	const typeGroup = buildEffectTypeSelect(name, "ti-effect__type");
+	body.appendChild(typeGroup);
 
 	// Params container
 	const paramsContainer = document.createElement("div");
@@ -262,20 +330,27 @@ function buildHoverSlot(config, index, slotClass, titlePrefix) {
 
 	function renderParams(behaviourName, currentConfig) {
 		paramsContainer.innerHTML = "";
-		const paramDefs = HOVER_PARAM_DEFS[behaviourName];
+		const paramDefs = EFFECT_PARAM_DEFS[behaviourName];
 		if (!paramDefs) return;
 
 		for (const def of paramDefs) {
 			const value = currentConfig[def.key] ?? def.default;
 
 			if (def.type === "color") {
-				paramsContainer.appendChild(buildColorGroup(def.label, `ti-hover__${def.key}`, value));
-			} else if (def.type === "select" && def.key === "easing") {
-				paramsContainer.appendChild(buildSelectGroup(def.label, `ti-hover__${def.key}`,
-					easingNames.map((n) => ({ value: n, label: n, selected: n === value }))
-				));
+				paramsContainer.appendChild(buildColorGroup(def.label, `ti-effect__${def.key}`, value));
+			} else if (def.type === "select") {
+				let options;
+				if (def.options === "interpolation") {
+					options = interpolationModes.map((m) => ({ value: m, label: m, selected: m === value }));
+				} else if (Array.isArray(def.options)) {
+					options = def.options.map((o) => ({ value: o.value, label: o.label, selected: o.value === value }));
+				} else {
+					// Default: easing names
+					options = easingNames.map((n) => ({ value: n, label: n, selected: n === value }));
+				}
+				paramsContainer.appendChild(buildSelectGroup(def.label, `ti-effect__${def.key}`, options));
 			} else {
-				paramsContainer.appendChild(buildNumberGroup(def.label, `ti-hover__${def.key}`, value, def.attrs ?? {}));
+				paramsContainer.appendChild(buildNumberGroup(def.label, `ti-effect__${def.key}`, value, def.attrs ?? {}));
 			}
 		}
 	}
@@ -284,10 +359,10 @@ function buildHoverSlot(config, index, slotClass, titlePrefix) {
 
 	card.appendChild(body);
 
-	// Wire behaviour change
-	const behaviourSelect = card.querySelector(".ti-hover__behaviour");
-	behaviourSelect?.addEventListener("change", () => {
-		renderParams(behaviourSelect.value, {});
+	// Wire type change
+	const typeSelect = card.querySelector(".ti-effect__type");
+	typeSelect?.addEventListener("change", () => {
+		renderParams(typeSelect.value, {});
 	});
 
 	// Wire collapse toggle
@@ -295,8 +370,8 @@ function buildHoverSlot(config, index, slotClass, titlePrefix) {
 		if (e.target.closest(".idle-anim__slot-remove")) return;
 		card.classList.toggle("is-collapsed");
 		if (card.classList.contains("is-collapsed")) {
-			const cfg = readHoverSlot(card);
-			if (cfg) summary.textContent = summarizeHoverConfig(cfg);
+			const cfg = readEffectSlot(card);
+			if (cfg) summary.textContent = summarizeEffectConfig(cfg);
 		}
 	});
 
@@ -308,20 +383,20 @@ function buildHoverSlot(config, index, slotClass, titlePrefix) {
 		if (container) renumberSlots(container, slotClass, titlePrefix);
 	});
 
-	// Drag & drop — idle and hover share "hover" group for cross-category drag
-	makeDraggable(card, { dropGroup: "hover" });
+	// Drag & drop — always/idle/hover share "effect" group for cross-category drag
+	makeDraggable(card, { dropGroup: "effect" });
 
 	return card;
 }
 
-function readHoverSlot(slot) {
-	const name = slot.querySelector(".ti-hover__behaviour")?.value ?? "float";
-	const paramDefs = HOVER_PARAM_DEFS[name];
+function readEffectSlot(slot) {
+	const name = slot.querySelector(".ti-effect__type")?.value ?? "float";
+	const paramDefs = EFFECT_PARAM_DEFS[name];
 	const config = { name };
 
 	if (paramDefs) {
 		for (const def of paramDefs) {
-			const el = slot.querySelector(`.ti-hover__${def.key}`);
+			const el = slot.querySelector(`.ti-effect__${def.key}`);
 			if (!el) continue;
 
 			if (def.type === "color") {
@@ -554,104 +629,118 @@ function renumberSlots(container, slotClass, prefix) {
 	});
 }
 
+// ── Category builder helper ────────────────────────────────────────────
+
+/**
+ * Build a category section (Always / Idle / Hover) with heading, hint,
+ * slots container, drop zone, and add button.
+ */
+function buildEffectCategory(section, { heading, hint, configs, slotClass, titlePrefix, dropGroup, defaultEffect, addLabel }) {
+	const h = document.createElement("h3");
+	h.classList.add("ti-section-heading");
+	h.textContent = heading;
+	section.appendChild(h);
+
+	const hintP = document.createElement("p");
+	hintP.classList.add("idle-anim__hint");
+	hintP.textContent = hint;
+	section.appendChild(hintP);
+
+	const slotsContainer = document.createElement("div");
+	slotsContainer.classList.add("idle-anim__slots", `${slotClass}s`);
+	for (let i = 0; i < configs.length; i++) {
+		slotsContainer.appendChild(buildEffectSlot(configs[i], i, slotClass, titlePrefix));
+	}
+	section.appendChild(slotsContainer);
+
+	// All three effect categories share "effect" drop group for cross-category drag
+	const allSlotClasses = ["ti-always-slot", "ti-idle-slot", "ti-hover-slot"];
+	makeDropContainer(slotsContainer, {
+		dropGroup,
+		onDrop(card) {
+			// Swap category class to match the container this card landed in
+			if (card.parentElement === slotsContainer) {
+				for (const cls of allSlotClasses) {
+					if (cls !== slotClass && card.classList.contains(cls)) {
+						card.classList.replace(cls, slotClass);
+					}
+				}
+			}
+			renumberSlots(slotsContainer, slotClass, titlePrefix);
+		},
+	});
+
+	const addBtn = document.createElement("button");
+	addBtn.type = "button";
+	addBtn.classList.add("idle-anim__add");
+	addBtn.innerHTML = `<i class="fa-solid fa-plus"></i> ${addLabel}`;
+	addBtn.addEventListener("click", () => {
+		const count = slotsContainer.querySelectorAll(`.${slotClass}`).length;
+		const slot = buildEffectSlot(defaultEffect, count, slotClass, titlePrefix);
+		slot.classList.remove("is-collapsed");
+		slotsContainer.appendChild(slot);
+	});
+	section.appendChild(addBtn);
+
+	return slotsContainer;
+}
+
 // ── Section builder ────────────────────────────────────────────────────
 
 function buildSectionContent(doc) {
-	const { hoverIdle, hoverEnter, click: clickConfigs } = getInteractionConfigs(doc);
+	const config = readUnifiedConfig(doc) ?? { always: [], idle: [], hover: [], click: [] };
 
 	const section = document.createElement("section");
 	section.classList.add("eidolon-tile-interactions");
 
-	// ── Hover: Idle (default state) ────────────────────────────────
-	const idleHeading = document.createElement("h3");
-	idleHeading.classList.add("ti-section-heading");
-	idleHeading.textContent = "Idle";
-	section.appendChild(idleHeading);
-
-	const idleHint = document.createElement("p");
-	idleHint.classList.add("idle-anim__hint");
-	idleHint.textContent = "Plays continuously. Stops when pointer enters the tile.";
-	section.appendChild(idleHint);
-
-	const idleSlots = document.createElement("div");
-	idleSlots.classList.add("idle-anim__slots", "ti-hover-idle-slots");
-	for (let i = 0; i < hoverIdle.length; i++) {
-		idleSlots.appendChild(buildHoverSlot(hoverIdle[i], i, "ti-hover-idle-slot", "Effect"));
-	}
-	section.appendChild(idleSlots);
-
-	// Drop container — accepts cards from both idle and hover (same "hover" group)
-	makeDropContainer(idleSlots, {
-		dropGroup: "hover",
-		onDrop(card) {
-			// If the card landed here, swap its category class
-			if (card.parentElement === idleSlots && card.classList.contains("ti-hover-enter-slot")) {
-				card.classList.replace("ti-hover-enter-slot", "ti-hover-idle-slot");
-			}
-			renumberSlots(idleSlots, "ti-hover-idle-slot", "Effect");
-		},
+	// ── Always ─────────────────────────────────────────────────────
+	buildEffectCategory(section, {
+		heading: "Always",
+		hint: "Runs continuously, ignores pointer state.",
+		configs: config.always ?? [],
+		slotClass: "ti-always-slot",
+		titlePrefix: "Effect",
+		dropGroup: "effect",
+		defaultEffect: { name: "embers" },
+		addLabel: "Add Effect",
 	});
 
-	const addIdleBtn = document.createElement("button");
-	addIdleBtn.type = "button";
-	addIdleBtn.classList.add("idle-anim__add");
-	addIdleBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Idle Effect';
-	addIdleBtn.addEventListener("click", () => {
-		const count = idleSlots.querySelectorAll(".ti-hover-idle-slot").length;
-		const slot = buildHoverSlot({ name: "float" }, count, "ti-hover-idle-slot", "Effect");
-		slot.classList.remove("is-collapsed");
-		idleSlots.appendChild(slot);
-	});
-	section.appendChild(addIdleBtn);
-
-	// ── Hover: Enter (on-hover state) ──────────────────────────────
-	const enterHeading = document.createElement("h3");
-	enterHeading.classList.add("ti-section-heading");
-	enterHeading.textContent = "Hover";
-	section.appendChild(enterHeading);
-
-	const enterHint = document.createElement("p");
-	enterHint.classList.add("idle-anim__hint");
-	enterHint.textContent = "Plays while pointer is over the tile. Stops when pointer leaves.";
-	section.appendChild(enterHint);
-
-	const enterSlots = document.createElement("div");
-	enterSlots.classList.add("idle-anim__slots", "ti-hover-enter-slots");
-	for (let i = 0; i < hoverEnter.length; i++) {
-		enterSlots.appendChild(buildHoverSlot(hoverEnter[i], i, "ti-hover-enter-slot", "Effect"));
-	}
-	section.appendChild(enterSlots);
-
-	// Drop container — accepts cards from both hover and idle (same "hover" group)
-	makeDropContainer(enterSlots, {
-		dropGroup: "hover",
-		onDrop(card) {
-			// If the card landed here, swap its category class
-			if (card.parentElement === enterSlots && card.classList.contains("ti-hover-idle-slot")) {
-				card.classList.replace("ti-hover-idle-slot", "ti-hover-enter-slot");
-			}
-			renumberSlots(enterSlots, "ti-hover-enter-slot", "Effect");
-		},
+	// ── Idle ───────────────────────────────────────────────────────
+	buildEffectCategory(section, {
+		heading: "Idle",
+		hint: "Plays by default. Stops when pointer enters the tile.",
+		configs: config.idle ?? [],
+		slotClass: "ti-idle-slot",
+		titlePrefix: "Effect",
+		dropGroup: "effect",
+		defaultEffect: { name: "float" },
+		addLabel: "Add Idle Effect",
 	});
 
-	const addEnterBtn = document.createElement("button");
-	addEnterBtn.type = "button";
-	addEnterBtn.classList.add("idle-anim__add");
-	addEnterBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Hover Effect';
-	addEnterBtn.addEventListener("click", () => {
-		const count = enterSlots.querySelectorAll(".ti-hover-enter-slot").length;
-		const slot = buildHoverSlot({ name: "scale" }, count, "ti-hover-enter-slot", "Effect");
-		slot.classList.remove("is-collapsed");
-		enterSlots.appendChild(slot);
+	// ── Hover ──────────────────────────────────────────────────────
+	buildEffectCategory(section, {
+		heading: "Hover",
+		hint: "Plays while pointer is over the tile.",
+		configs: config.hover ?? [],
+		slotClass: "ti-hover-slot",
+		titlePrefix: "Effect",
+		dropGroup: "effect",
+		defaultEffect: { name: "scale" },
+		addLabel: "Add Hover Effect",
 	});
-	section.appendChild(addEnterBtn);
 
-	// ── Click Animations ───────────────────────────────────────────
+	// ── Click ──────────────────────────────────────────────────────
 	const clickHeading = document.createElement("h3");
 	clickHeading.classList.add("ti-section-heading");
 	clickHeading.textContent = "Click";
 	section.appendChild(clickHeading);
 
+	const clickHint = document.createElement("p");
+	clickHint.classList.add("idle-anim__hint");
+	clickHint.textContent = "One-shot animation on click.";
+	section.appendChild(clickHint);
+
+	const clickConfigs = config.click ?? [];
 	const clickSlots = document.createElement("div");
 	clickSlots.classList.add("idle-anim__slots", "ti-click-slots");
 	for (let i = 0; i < clickConfigs.length; i++) {
@@ -659,7 +748,6 @@ function buildSectionContent(doc) {
 	}
 	section.appendChild(clickSlots);
 
-	// Drop container — click slots isolated
 	makeDropContainer(clickSlots, {
 		dropGroup: "click",
 		onDrop() {
@@ -679,14 +767,25 @@ function buildSectionContent(doc) {
 	});
 	section.appendChild(addClickBtn);
 
+	// ── Preview ────────────────────────────────────────────────────
+	const actions = document.createElement("div");
+	actions.classList.add("idle-anim__actions");
+
+	const previewBtn = document.createElement("button");
+	previewBtn.type = "button";
+	previewBtn.classList.add("idle-anim__preview");
+	previewBtn.innerHTML = '<i class="fa-solid fa-play"></i> Preview';
+
+	actions.append(previewBtn);
+	section.appendChild(actions);
 
 	return section;
 }
 
-function readAllHoverSlots(section, slotClass) {
+function readAllEffectSlots(section, slotClass) {
 	const configs = [];
 	for (const slot of section.querySelectorAll(`.${slotClass}`)) {
-		const config = readHoverSlot(slot);
+		const config = readEffectSlot(slot);
 		if (config) configs.push(config);
 	}
 	return configs;
@@ -701,12 +800,24 @@ function readAllClickConfigs(section) {
 	return configs;
 }
 
+/**
+ * Read the full unified config from all four category sections.
+ */
+function readFormConfig(section) {
+	return {
+		always: readAllEffectSlots(section, "ti-always-slot"),
+		idle: readAllEffectSlots(section, "ti-idle-slot"),
+		hover: readAllEffectSlots(section, "ti-hover-slot"),
+		click: readAllClickConfigs(section),
+	};
+}
+
 // ── Public API ─────────────────────────────────────────────────────────
 
 /**
- * Render the interaction section into the Animations tab of a TileConfig dialog.
+ * Render the unified animation section into the Animations tab of a TileConfig dialog.
  */
-export function renderInteractionSection(app, html) {
+export function renderAnimationSection(app, html) {
 	const root = asHTMLElement(html);
 	if (!root) return;
 
@@ -719,43 +830,61 @@ export function renderInteractionSection(app, html) {
 	// Don't rebuild if already present
 	if (tabPanel.querySelector(".eidolon-tile-interactions")) return;
 
-	// Prevent "An invalid form control is not focusable" errors:
-	// Our number inputs have min/max constraints and may be hidden inside
-	// collapsed slots or inactive tabs when the native form submits.
+	// Prevent "An invalid form control is not focusable" errors
 	const parentForm = tabPanel.closest("form");
 	if (parentForm) parentForm.noValidate = true;
-
-	// Add a divider before our section
-	const divider = document.createElement("hr");
-	divider.classList.add("ti-divider");
-	tabPanel.appendChild(divider);
 
 	const section = buildSectionContent(doc);
 	tabPanel.appendChild(section);
 
 	app.setPosition?.({ height: "auto" });
 
-	// Save interaction data when the native form submits ("Update Tile")
+	// Wire preview button
+	const previewBtn = tabPanel.querySelector(".idle-anim__preview");
+	previewBtn?.addEventListener("click", () => {
+		const tile = doc.object;
+		if (!tile) return;
+
+		if (previewAnimator) {
+			previewAnimator.detach();
+			previewAnimator = null;
+			previewBtn.classList.remove("is-active");
+			previewBtn.innerHTML = '<i class="fa-solid fa-play"></i> Preview';
+			return;
+		}
+
+		const formConfig = readFormConfig(section);
+		const hasEffects = formConfig.always.length > 0 || formConfig.idle.length > 0 || formConfig.hover.length > 0;
+		if (!hasEffects) return;
+
+		previewAnimator = new TileAnimator(tile, formConfig);
+		previewAnimator.start("idle");
+		previewBtn.classList.add("is-active");
+		previewBtn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop';
+	});
+
+	// Save unified animation data when the native form submits
 	if (parentForm) {
 		parentForm.addEventListener("submit", () => {
-			const hoverIdle = readAllHoverSlots(section, "ti-hover-idle-slot");
-			const hoverEnter = readAllHoverSlots(section, "ti-hover-enter-slot");
-			const click = readAllClickConfigs(section);
+			// Stop preview if running
+			if (previewAnimator) {
+				previewAnimator.detach();
+				previewAnimator = null;
+			}
 
-			const hasHover = hoverIdle.length > 0 || hoverEnter.length > 0;
-			const hasData = hasHover || click.length > 0;
+			const formConfig = readFormConfig(section);
+			const hasData = formConfig.always.length > 0 || formConfig.idle.length > 0 || formConfig.hover.length > 0 || formConfig.click.length > 0;
 
-			// Clear existing flag, then set new data
-			doc.update({ [`flags.${MODULE_ID}.-=${FLAG_KEY}`]: null }).then(() => {
+			// Clear all three flags, then write new unified flag
+			const clearOps = {
+				[`flags.${MODULE_ID}.-=${NEW_FLAG_KEY}`]: null,
+				[`flags.${MODULE_ID}.-=${OLD_INTERACTION_FLAG}`]: null,
+				[`flags.${MODULE_ID}.-=${OLD_IDLE_FLAG}`]: null,
+			};
+
+			doc.update(clearOps).then(() => {
 				if (hasData) {
-					const flagData = {};
-					if (hasHover) {
-						flagData.hover = {};
-						if (hoverIdle.length > 0) flagData.hover.idle = hoverIdle;
-						if (hoverEnter.length > 0) flagData.hover.enter = hoverEnter;
-					}
-					if (click.length > 0) flagData.click = click;
-					return doc.update({ [`flags.${MODULE_ID}.${FLAG_KEY}`]: flagData });
+					return doc.update({ [`flags.${MODULE_ID}.${NEW_FLAG_KEY}`]: formConfig });
 				}
 			});
 		});

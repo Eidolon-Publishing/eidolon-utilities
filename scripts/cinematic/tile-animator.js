@@ -12,6 +12,7 @@
  */
 
 import { resolveEasing } from "../tween/core/easing.js";
+import { getInterpolator } from "../tween/core/color-interpolation.js";
 
 // ── Behaviour Registry ───────────────────────────────────────────────────
 
@@ -954,9 +955,116 @@ registerBehaviour("none", () => {
 	return { update() {}, detach() {} };
 });
 
+// ── Tween-as-Behaviour Wrappers ─────────────────────────────────────────
+
+/**
+ * tween-prop — ping-pong a mesh property between `from` and `to`.
+ * Params: attribute ("alpha"|"rotation"), from, to, period (ms), easing
+ */
+registerBehaviour("tween-prop", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const attribute = opts.attribute ?? "alpha";
+	const from = opts.from ?? 0.85;
+	const to = opts.to ?? 1.0;
+	const period = opts.period ?? 1500;
+	const easingFn = resolveEasing(opts.easing ?? "easeInOutCosine");
+
+	// Map attribute name to mesh property
+	const propMap = { alpha: "alpha", rotation: "angle" };
+	const meshProp = propMap[attribute] ?? attribute;
+
+	const originalValue = mesh[meshProp];
+	let elapsed = 0;
+
+	return {
+		update(dt) {
+			elapsed += dt;
+			// Triangle wave 0→1→0 over period (in frame ticks, ~16.67ms per tick)
+			const periodTicks = period / 16.667;
+			const t = Math.abs(((elapsed / periodTicks) % 2) - 1);
+			const eased = easingFn(t);
+			mesh[meshProp] = from + (to - from) * eased;
+		},
+		detach() {
+			mesh[meshProp] = originalValue;
+		},
+	};
+});
+
+/**
+ * tween-tint — ping-pong mesh.tint between two colors.
+ * Params: fromColor, toColor, mode (oklch/hsl/rgb), period (ms), easing
+ */
+registerBehaviour("tween-tint", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const fromHex = opts.fromColor ?? "#ffffff";
+	const toHex = opts.toColor ?? "#ffcc88";
+	const mode = opts.mode ?? "oklch";
+	const period = opts.period ?? 3000;
+	const easingFn = resolveEasing(opts.easing ?? "easeInOutCosine");
+	const interpolate = getInterpolator(mode);
+
+	const Color = foundry.utils.Color;
+	const fromColor = Color.from(fromHex);
+	const toColor = Color.from(toHex);
+	const originalTint = mesh.tint;
+	let elapsed = 0;
+
+	return {
+		update(dt) {
+			elapsed += dt;
+			const periodTicks = period / 16.667;
+			const t = Math.abs(((elapsed / periodTicks) % 2) - 1);
+			const eased = easingFn(t);
+			const hex = interpolate(fromColor, toColor, eased);
+			mesh.tint = Color.from(hex).valueOf();
+		},
+		detach() {
+			mesh.tint = originalTint;
+		},
+	};
+});
+
+/**
+ * tween-scale — ping-pong mesh.scale.x/y between two factors.
+ * Params: fromScale, toScale, period (ms), easing
+ */
+registerBehaviour("tween-scale", (placeable, opts = {}) => {
+	const mesh = placeable.mesh;
+	if (!mesh) return { update() {}, detach() {} };
+
+	const fromScale = opts.fromScale ?? 0.95;
+	const toScale = opts.toScale ?? 1.05;
+	const period = opts.period ?? 2000;
+	const easingFn = resolveEasing(opts.easing ?? "easeInOutCosine");
+
+	const originalScaleX = mesh.scale.x;
+	const originalScaleY = mesh.scale.y;
+	let elapsed = 0;
+
+	return {
+		update(dt) {
+			elapsed += dt;
+			const periodTicks = period / 16.667;
+			const t = Math.abs(((elapsed / periodTicks) % 2) - 1);
+			const eased = easingFn(t);
+			const s = fromScale + (toScale - fromScale) * eased;
+			mesh.scale.set(originalScaleX * s, originalScaleY * s);
+		},
+		detach() {
+			mesh.scale.set(originalScaleX, originalScaleY);
+		},
+	};
+});
+
 // ── Config Normalization ─────────────────────────────────────────────────
 
 const DEFAULT_CONFIG = {
+	always: [],
 	idle: ["float", "glow"],
 	hover: ["scale"],
 	dim: ["none"],
@@ -964,7 +1072,7 @@ const DEFAULT_CONFIG = {
 
 /**
  * Normalize animation config from various shorthand forms into a consistent
- * { idle: string[], hover: string[], dim: string[] } shape.
+ * { always: Array, idle: Array, hover: Array, dim: Array } shape.
  *
  * Accepts:
  *   - undefined/null → defaults
@@ -973,7 +1081,7 @@ const DEFAULT_CONFIG = {
  *   - { idle: [{ name: "pulse", minAlpha: 0.3 }] } → parameterized behaviours
  *
  * @param {object|undefined} raw
- * @returns {{ idle: Array<string|object>, hover: Array<string|object>, dim: Array<string|object> }}
+ * @returns {{ always: Array<string|object>, idle: Array<string|object>, hover: Array<string|object>, dim: Array<string|object> }}
  */
 export function normalizeConfig(raw) {
 	if (!raw) return { ...DEFAULT_CONFIG };
@@ -987,6 +1095,7 @@ export function normalizeConfig(raw) {
 	};
 
 	return {
+		always: normalize(raw.always, DEFAULT_CONFIG.always),
 		idle: normalize(raw.idle, DEFAULT_CONFIG.idle),
 		hover: normalize(raw.hover, DEFAULT_CONFIG.hover),
 		dim: normalize(raw.dim, DEFAULT_CONFIG.dim),
@@ -1006,6 +1115,7 @@ export class TileAnimator {
 	#config;
 	#currentState = null;
 	#activeBehaviours = [];
+	#alwaysBehaviours = [];
 	#tickerFn = null;
 	#canonicalState = null;
 	#blendFrom = null;
@@ -1037,11 +1147,17 @@ export class TileAnimator {
 		const tileId = this.#placeable.document?.id ?? "?";
 		const c = this.#canonicalState;
 		if (c) console.log(`%c[TileAnimator ${tileId}] start("${state}") canonical: pos=(${c.x.toFixed(2)}, ${c.y.toFixed(2)}) scale=(${c.scaleX.toFixed(4)}, ${c.scaleY.toFixed(4)}) alpha=${c.alpha.toFixed(4)} angle=${c.angle.toFixed(2)}`, "color: #FFAA44; font-weight: bold");
+
+		// Start always behaviours (persist across state transitions)
+		this.#attachAlwaysBehaviours();
+
 		this.#attachBehaviours(state);
 		this.#tickerFn = (dt) => {
 			// During blend: restore canonical before updates so behaviours
 			// compute on a clean slate (prevents blend feedback loop)
 			if (this.#blendFrom) this.#restoreCanonical();
+			// Always behaviours run first, then state behaviours layer on top
+			for (const b of this.#alwaysBehaviours) b.update(dt);
 			for (const b of this.#activeBehaviours) b.update(dt);
 			this.#applyBlend(dt);
 		};
@@ -1147,6 +1263,7 @@ export class TileAnimator {
 	 */
 	detach() {
 		this.#detachBehaviours();
+		this.#detachAlwaysBehaviours();
 		this.#restoreCanonical();
 		this.#blendFrom = null;
 		if (this.#tickerFn) {
@@ -1260,5 +1377,24 @@ export class TileAnimator {
 	#detachBehaviours() {
 		for (const b of this.#activeBehaviours) b.detach();
 		this.#activeBehaviours = [];
+	}
+
+	#attachAlwaysBehaviours() {
+		const entries = this.#config.always ?? [];
+		for (const entry of entries) {
+			const name = typeof entry === "string" ? entry : entry.name;
+			const opts = typeof entry === "string" ? undefined : entry;
+			const factory = getBehaviour(name);
+			if (!factory) {
+				console.warn(`TileAnimator: unknown always behaviour "${name}"`);
+				continue;
+			}
+			this.#alwaysBehaviours.push(factory(this.#placeable, opts));
+		}
+	}
+
+	#detachAlwaysBehaviours() {
+		for (const b of this.#alwaysBehaviours) b.detach();
+		this.#alwaysBehaviours = [];
 	}
 }
