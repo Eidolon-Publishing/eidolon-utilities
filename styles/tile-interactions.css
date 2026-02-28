@@ -19,14 +19,44 @@
 /* ── Section headings ────────────────────────────────────────────── */
 
 .ti-section-heading {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
 	margin: 0;
 	padding: 0.2rem 0;
+	border-bottom: 1px solid var(--color-border-light-tertiary, #555);
+}
+
+.ti-section-heading h3 {
+	margin: 0;
 	font-size: 0.8rem;
 	font-weight: bold;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	opacity: 0.65;
-	border-bottom: 1px solid var(--color-border-light-tertiary, #555);
+	flex: 1;
+}
+
+.ti-section-heading__add {
+	flex: none;
+	width: 1.4rem;
+	height: 1.4rem;
+	padding: 0;
+	line-height: 1.4rem;
+	text-align: center;
+	font-size: 0.7rem;
+	background: none;
+	border: 1px solid transparent;
+	color: var(--color-text-light-6, #aaa);
+	cursor: pointer;
+	border-radius: 3px;
+	opacity: 0.6;
+}
+
+.ti-section-heading__add:hover {
+	opacity: 1;
+	border-color: var(--color-border-light-tertiary, #555);
+	color: var(--color-text-hyperlink, #ff6400);
 }
 
 /* ── Macro picker ───────────────────────────────────────────────── */

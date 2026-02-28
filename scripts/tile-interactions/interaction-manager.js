@@ -355,20 +355,29 @@ function onPointerMove(event) {
 
 	hoveredPlaceableId = hitId;
 
-	// Cursor management
-	if (hitId && (hit.animConfig || hit.clickConfig?.length || hit.macroUuid)) {
+	// Cursor + click only on the token layer — other layers need normal select/edit
+	const onTokenLayer = canvas.tokens?.active;
+
+	// Cursor management: show pointer if explicitly opted in, or if has click/macro (backward compat)
+	const cursorFlag = hit?.animConfig?.cursor;
+	const showCursor = onTokenLayer && hitId && (cursorFlag === true || (cursorFlag !== false && (hit.clickConfig?.length || hit.macroUuid)));
+	const board = document.getElementById("board");
+	if (showCursor) {
 		if (savedCursor === null) {
-			savedCursor = document.body.style.cursor;
+			savedCursor = board?.style.cursor ?? "";
 		}
-		document.body.style.cursor = "pointer";
+		if (board) board.style.cursor = "pointer";
 	} else if (savedCursor !== null) {
-		document.body.style.cursor = savedCursor;
+		if (board) board.style.cursor = savedCursor;
 		savedCursor = null;
 	}
 }
 
 function onPointerDown(event) {
 	if (event.button !== 0) return;
+
+	// Only fire click-to-macro on the token layer — other layers need normal select/edit
+	if (!canvas.tokens?.active) return;
 
 	const pt = canvasToLocal(event);
 	if (!pt) return;
@@ -393,7 +402,8 @@ function onPointerLeave() {
 		hoveredPlaceableId = null;
 	}
 	if (savedCursor !== null) {
-		document.body.style.cursor = savedCursor;
+		const board = document.getElementById("board");
+		if (board) board.style.cursor = savedCursor;
 		savedCursor = null;
 	}
 }
@@ -439,7 +449,8 @@ export function rebuild() {
 	clickingPlaceables.clear();
 	hoveredPlaceableId = null;
 	if (savedCursor !== null) {
-		document.body.style.cursor = savedCursor;
+		const boardEl = document.getElementById("board");
+		if (boardEl) boardEl.style.cursor = savedCursor;
 		savedCursor = null;
 	}
 
@@ -561,7 +572,8 @@ function removePlaceable(doc) {
 	if (hoveredPlaceableId === placeableId) {
 		hoveredPlaceableId = null;
 		if (savedCursor !== null) {
-			document.body.style.cursor = savedCursor;
+			const board = document.getElementById("board");
+			if (board) board.style.cursor = savedCursor;
 			savedCursor = null;
 		}
 	}

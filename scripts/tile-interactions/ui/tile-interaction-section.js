@@ -635,19 +635,36 @@ function renumberSlots(container, slotClass, prefix) {
  * Build a category section (Always / Idle / Hover) with heading, hint,
  * slots container, drop zone, and add button.
  */
-function buildEffectCategory(section, { heading, hint, configs, slotClass, titlePrefix, dropGroup, defaultEffect, addLabel }) {
+function buildEffectCategory(section, { heading, hint, configs, slotClass, titlePrefix, dropGroup, defaultEffect }) {
+	const headingRow = document.createElement("div");
+	headingRow.classList.add("ti-section-heading");
+
 	const h = document.createElement("h3");
-	h.classList.add("ti-section-heading");
 	h.textContent = heading;
-	section.appendChild(h);
+	headingRow.appendChild(h);
+
+	const slotsContainer = document.createElement("div");
+	slotsContainer.classList.add("idle-anim__slots", `${slotClass}s`);
+
+	const addBtn = document.createElement("button");
+	addBtn.type = "button";
+	addBtn.classList.add("ti-section-heading__add");
+	addBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+	addBtn.title = `Add ${heading.toLowerCase()} effect`;
+	addBtn.addEventListener("click", () => {
+		const count = slotsContainer.querySelectorAll(`.${slotClass}`).length;
+		const slot = buildEffectSlot(defaultEffect, count, slotClass, titlePrefix);
+		slot.classList.remove("is-collapsed");
+		slotsContainer.appendChild(slot);
+	});
+	headingRow.appendChild(addBtn);
+	section.appendChild(headingRow);
 
 	const hintP = document.createElement("p");
 	hintP.classList.add("idle-anim__hint");
 	hintP.textContent = hint;
 	section.appendChild(hintP);
 
-	const slotsContainer = document.createElement("div");
-	slotsContainer.classList.add("idle-anim__slots", `${slotClass}s`);
 	for (let i = 0; i < configs.length; i++) {
 		slotsContainer.appendChild(buildEffectSlot(configs[i], i, slotClass, titlePrefix));
 	}
@@ -670,18 +687,6 @@ function buildEffectCategory(section, { heading, hint, configs, slotClass, title
 		},
 	});
 
-	const addBtn = document.createElement("button");
-	addBtn.type = "button";
-	addBtn.classList.add("idle-anim__add");
-	addBtn.innerHTML = `<i class="fa-solid fa-plus"></i> ${addLabel}`;
-	addBtn.addEventListener("click", () => {
-		const count = slotsContainer.querySelectorAll(`.${slotClass}`).length;
-		const slot = buildEffectSlot(defaultEffect, count, slotClass, titlePrefix);
-		slot.classList.remove("is-collapsed");
-		slotsContainer.appendChild(slot);
-	});
-	section.appendChild(addBtn);
-
 	return slotsContainer;
 }
 
@@ -702,7 +707,6 @@ function buildSectionContent(doc) {
 		titlePrefix: "Effect",
 		dropGroup: "effect",
 		defaultEffect: { name: "embers" },
-		addLabel: "Add Effect",
 	});
 
 	// ── Idle ───────────────────────────────────────────────────────
@@ -714,7 +718,6 @@ function buildSectionContent(doc) {
 		titlePrefix: "Effect",
 		dropGroup: "effect",
 		defaultEffect: { name: "float" },
-		addLabel: "Add Idle Effect",
 	});
 
 	// ── Hover ──────────────────────────────────────────────────────
@@ -726,23 +729,39 @@ function buildSectionContent(doc) {
 		titlePrefix: "Effect",
 		dropGroup: "effect",
 		defaultEffect: { name: "scale" },
-		addLabel: "Add Hover Effect",
 	});
 
 	// ── Click ──────────────────────────────────────────────────────
-	const clickHeading = document.createElement("h3");
-	clickHeading.classList.add("ti-section-heading");
-	clickHeading.textContent = "Click";
-	section.appendChild(clickHeading);
+	const clickHeadingRow = document.createElement("div");
+	clickHeadingRow.classList.add("ti-section-heading");
+
+	const clickH = document.createElement("h3");
+	clickH.textContent = "Click";
+	clickHeadingRow.appendChild(clickH);
+
+	const clickConfigs = config.click ?? [];
+	const clickSlots = document.createElement("div");
+	clickSlots.classList.add("idle-anim__slots", "ti-click-slots");
+
+	const addClickBtn = document.createElement("button");
+	addClickBtn.type = "button";
+	addClickBtn.classList.add("ti-section-heading__add");
+	addClickBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+	addClickBtn.title = "Add click animation";
+	addClickBtn.addEventListener("click", () => {
+		const count = clickSlots.querySelectorAll(".ti-click-slot").length;
+		const slot = buildClickSlot(CLICK_TILE_SCALE_DEFAULTS, count);
+		slot.classList.remove("is-collapsed");
+		clickSlots.appendChild(slot);
+	});
+	clickHeadingRow.appendChild(addClickBtn);
+	section.appendChild(clickHeadingRow);
 
 	const clickHint = document.createElement("p");
 	clickHint.classList.add("idle-anim__hint");
 	clickHint.textContent = "One-shot animation on click.";
 	section.appendChild(clickHint);
 
-	const clickConfigs = config.click ?? [];
-	const clickSlots = document.createElement("div");
-	clickSlots.classList.add("idle-anim__slots", "ti-click-slots");
 	for (let i = 0; i < clickConfigs.length; i++) {
 		clickSlots.appendChild(buildClickSlot(clickConfigs[i], i));
 	}
@@ -755,24 +774,26 @@ function buildSectionContent(doc) {
 		},
 	});
 
-	const addClickBtn = document.createElement("button");
-	addClickBtn.type = "button";
-	addClickBtn.classList.add("idle-anim__add");
-	addClickBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Animation';
-	addClickBtn.addEventListener("click", () => {
-		const count = clickSlots.querySelectorAll(".ti-click-slot").length;
-		const slot = buildClickSlot(CLICK_TILE_SCALE_DEFAULTS, count);
-		slot.classList.remove("is-collapsed");
-		clickSlots.appendChild(slot);
-	});
-	section.appendChild(addClickBtn);
+	// ── Interaction Options ────────────────────────────────────────
+	const optionsHeading = document.createElement("div");
+	optionsHeading.classList.add("ti-section-heading");
+	const optionsH = document.createElement("h3");
+	optionsH.textContent = "Options";
+	optionsHeading.appendChild(optionsH);
+	section.appendChild(optionsHeading);
+
+	const cursorGroup = document.createElement("div");
+	cursorGroup.classList.add("form-group");
+	const cursorLabel = document.createElement("label");
+	cursorLabel.textContent = "Pointer cursor on hover";
+	const cursorCheck = document.createElement("input");
+	cursorCheck.type = "checkbox";
+	cursorCheck.classList.add("ti-cursor-check");
+	cursorCheck.checked = config.cursor ?? false;
+	cursorGroup.append(cursorLabel, cursorCheck);
+	section.appendChild(cursorGroup);
 
 	// ── Click Macro ────────────────────────────────────────────────
-	const macroHeading = document.createElement("h3");
-	macroHeading.classList.add("ti-section-heading");
-	macroHeading.textContent = "Click Macro";
-	section.appendChild(macroHeading);
-
 	const macroHint = document.createElement("p");
 	macroHint.classList.add("idle-anim__hint");
 	macroHint.textContent = "Execute a macro when clicked. Drag a macro here or paste its UUID.";
@@ -858,6 +879,7 @@ function readAllClickConfigs(section) {
  */
 function readFormConfig(section) {
 	const macroValue = section.querySelector(".ti-macro__uuid")?.value?.trim() || null;
+	const cursorChecked = section.querySelector(".ti-cursor-check")?.checked ?? false;
 	const config = {
 		always: readAllEffectSlots(section, "ti-always-slot"),
 		idle: readAllEffectSlots(section, "ti-idle-slot"),
@@ -865,6 +887,7 @@ function readFormConfig(section) {
 		click: readAllClickConfigs(section),
 	};
 	if (macroValue) config.macro = macroValue;
+	if (cursorChecked) config.cursor = true;
 	return config;
 }
 
@@ -929,7 +952,7 @@ export function renderAnimationSection(app, html) {
 			}
 
 			const formConfig = readFormConfig(section);
-			const hasData = formConfig.always.length > 0 || formConfig.idle.length > 0 || formConfig.hover.length > 0 || formConfig.click.length > 0 || !!formConfig.macro;
+			const hasData = formConfig.always.length > 0 || formConfig.idle.length > 0 || formConfig.hover.length > 0 || formConfig.click.length > 0 || !!formConfig.macro || !!formConfig.cursor;
 
 			// Clear all three flags, then write new unified flag
 			const clearOps = {

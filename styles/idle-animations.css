@@ -147,18 +147,6 @@
 	font-style: italic;
 }
 
-/* ── Add button ──────────────────────────────────────────────────── */
-
-.idle-anim__add {
-	width: 100%;
-	border-style: dashed;
-	opacity: 0.8;
-}
-
-.idle-anim__add:hover {
-	opacity: 1;
-}
-
 /* ── Actions ─────────────────────────────────────────────────────── */
 
 .idle-anim__actions {
