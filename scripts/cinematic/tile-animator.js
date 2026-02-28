@@ -195,7 +195,8 @@ registerBehaviour("glow", (placeable, opts = {}) => {
 		update(dt) {
 			elapsed += dt;
 			const t = (Math.sin(elapsed * pulseSpeed) + 1) / 2;
-			glow.alpha = alpha * (0.5 + 0.5 * t);
+			glow.visible = mesh.visible !== false;
+			glow.alpha = alpha * (0.5 + 0.5 * t) * (mesh.alpha ?? 1);
 		},
 		detach() {
 			if (glow.parent) glow.parent.removeChild(glow);
@@ -340,6 +341,8 @@ registerBehaviour("borderTrace", (placeable, opts = {}) => {
 	return {
 		update(dt) {
 			offset = (offset + dt * speed) % perimeter;
+			gfx.visible = mesh.visible !== false;
+			gfx.alpha = alpha * (mesh.alpha ?? 1);
 			gfx.clear();
 			gfx.lineStyle(lineWidth, color, 1);
 
@@ -395,6 +398,8 @@ registerBehaviour("shimmer", (placeable, opts = {}) => {
 	return {
 		update(dt) {
 			offset = (offset + dt * speed) % cycleLength;
+			gfx.visible = mesh.visible !== false;
+			gfx.alpha = alpha * (mesh.alpha ?? 1);
 			gfx.clear();
 
 			if (offset < diagonal) {

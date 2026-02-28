@@ -98,6 +98,18 @@
         </button>
       </div>
     </label>
+    <label class="cinematic-editor__config-item">
+      <span>Idle</span>
+      <input type="text" data-action="change-gate-anim-idle" value="{{activeSegmentGate.animation.idle}}" placeholder="float,glow" style="width:100px" title="Comma-separated behaviour names" />
+    </label>
+    <label class="cinematic-editor__config-item">
+      <span>Hover</span>
+      <input type="text" data-action="change-gate-anim-hover" value="{{activeSegmentGate.animation.hover}}" placeholder="scale" style="width:100px" title="Comma-separated behaviour names" />
+    </label>
+    <label class="cinematic-editor__config-item">
+      <span>Dim</span>
+      <input type="text" data-action="change-gate-anim-dim" value="{{activeSegmentGate.animation.dim}}" placeholder="none" style="width:100px" title="Comma-separated behaviour names" />
+    </label>
     {{/if}}
     {{/if}}
 
