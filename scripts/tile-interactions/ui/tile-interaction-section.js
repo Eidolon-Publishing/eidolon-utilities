@@ -5,6 +5,7 @@
 
 import { asHTMLElement } from "../../common/ui/foundry-compat.js";
 import { buildSelectGroup, buildNumberGroup, buildColorGroup } from "../../common/ui/form-builders.js";
+import { makeDraggable, makeDropContainer } from "../../common/ui/drag-reorder.js";
 import { ensureTileConfigTab } from "../../common/ui/tile-config-tab.js";
 import { listEasingNames } from "../../tween/core/easing.js";
 import { listInterpolationModes } from "../../tween/core/color-interpolation.js";
@@ -307,6 +308,9 @@ function buildHoverSlot(config, index, slotClass, titlePrefix) {
 		if (container) renumberSlots(container, slotClass, titlePrefix);
 	});
 
+	// Drag & drop — idle and hover share "hover" group for cross-category drag
+	makeDraggable(card, { dropGroup: "hover" });
+
 	return card;
 }
 
@@ -497,6 +501,9 @@ function buildClickSlot(config, index) {
 		if (container) renumberSlots(container, "ti-click-slot", "Animation");
 	});
 
+	// Drag & drop — click slots are isolated (different data model)
+	makeDraggable(card, { dropGroup: "click" });
+
 	return card;
 }
 
@@ -558,7 +565,7 @@ function buildSectionContent(doc) {
 	// ── Hover: Idle (default state) ────────────────────────────────
 	const idleHeading = document.createElement("h3");
 	idleHeading.classList.add("ti-section-heading");
-	idleHeading.textContent = "Hover \u2014 Idle";
+	idleHeading.textContent = "Idle";
 	section.appendChild(idleHeading);
 
 	const idleHint = document.createElement("p");
@@ -572,6 +579,18 @@ function buildSectionContent(doc) {
 		idleSlots.appendChild(buildHoverSlot(hoverIdle[i], i, "ti-hover-idle-slot", "Effect"));
 	}
 	section.appendChild(idleSlots);
+
+	// Drop container — accepts cards from both idle and hover (same "hover" group)
+	makeDropContainer(idleSlots, {
+		dropGroup: "hover",
+		onDrop(card) {
+			// If the card landed here, swap its category class
+			if (card.parentElement === idleSlots && card.classList.contains("ti-hover-enter-slot")) {
+				card.classList.replace("ti-hover-enter-slot", "ti-hover-idle-slot");
+			}
+			renumberSlots(idleSlots, "ti-hover-idle-slot", "Effect");
+		},
+	});
 
 	const addIdleBtn = document.createElement("button");
 	addIdleBtn.type = "button";
@@ -588,7 +607,7 @@ function buildSectionContent(doc) {
 	// ── Hover: Enter (on-hover state) ──────────────────────────────
 	const enterHeading = document.createElement("h3");
 	enterHeading.classList.add("ti-section-heading");
-	enterHeading.textContent = "Hover \u2014 On Enter";
+	enterHeading.textContent = "Hover";
 	section.appendChild(enterHeading);
 
 	const enterHint = document.createElement("p");
@@ -602,6 +621,18 @@ function buildSectionContent(doc) {
 		enterSlots.appendChild(buildHoverSlot(hoverEnter[i], i, "ti-hover-enter-slot", "Effect"));
 	}
 	section.appendChild(enterSlots);
+
+	// Drop container — accepts cards from both hover and idle (same "hover" group)
+	makeDropContainer(enterSlots, {
+		dropGroup: "hover",
+		onDrop(card) {
+			// If the card landed here, swap its category class
+			if (card.parentElement === enterSlots && card.classList.contains("ti-hover-idle-slot")) {
+				card.classList.replace("ti-hover-idle-slot", "ti-hover-enter-slot");
+			}
+			renumberSlots(enterSlots, "ti-hover-enter-slot", "Effect");
+		},
+	});
 
 	const addEnterBtn = document.createElement("button");
 	addEnterBtn.type = "button";
@@ -618,7 +649,7 @@ function buildSectionContent(doc) {
 	// ── Click Animations ───────────────────────────────────────────
 	const clickHeading = document.createElement("h3");
 	clickHeading.classList.add("ti-section-heading");
-	clickHeading.textContent = "Click Animations";
+	clickHeading.textContent = "Click";
 	section.appendChild(clickHeading);
 
 	const clickSlots = document.createElement("div");
@@ -627,6 +658,14 @@ function buildSectionContent(doc) {
 		clickSlots.appendChild(buildClickSlot(clickConfigs[i], i));
 	}
 	section.appendChild(clickSlots);
+
+	// Drop container — click slots isolated
+	makeDropContainer(clickSlots, {
+		dropGroup: "click",
+		onDrop() {
+			renumberSlots(clickSlots, "ti-click-slot", "Animation");
+		},
+	});
 
 	const addClickBtn = document.createElement("button");
 	addClickBtn.type = "button";
@@ -640,17 +679,6 @@ function buildSectionContent(doc) {
 	});
 	section.appendChild(addClickBtn);
 
-	// ── Save button ────────────────────────────────────────────────
-	const actions = document.createElement("div");
-	actions.classList.add("idle-anim__actions");
-
-	const saveBtn = document.createElement("button");
-	saveBtn.type = "button";
-	saveBtn.classList.add("idle-anim__save");
-	saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> Save Interactions';
-
-	actions.appendChild(saveBtn);
-	section.appendChild(actions);
 
 	return section;
 }
@@ -691,6 +719,12 @@ export function renderInteractionSection(app, html) {
 	// Don't rebuild if already present
 	if (tabPanel.querySelector(".eidolon-tile-interactions")) return;
 
+	// Prevent "An invalid form control is not focusable" errors:
+	// Our number inputs have min/max constraints and may be hidden inside
+	// collapsed slots or inactive tabs when the native form submits.
+	const parentForm = tabPanel.closest("form");
+	if (parentForm) parentForm.noValidate = true;
+
 	// Add a divider before our section
 	const divider = document.createElement("hr");
 	divider.classList.add("ti-divider");
@@ -701,30 +735,29 @@ export function renderInteractionSection(app, html) {
 
 	app.setPosition?.({ height: "auto" });
 
-	// Wire save button
-	const saveBtn = section.querySelector(".idle-anim__save");
-	saveBtn?.addEventListener("click", async () => {
-		const hoverIdle = readAllHoverSlots(section, "ti-hover-idle-slot");
-		const hoverEnter = readAllHoverSlots(section, "ti-hover-enter-slot");
-		const click = readAllClickConfigs(section);
+	// Save interaction data when the native form submits ("Update Tile")
+	if (parentForm) {
+		parentForm.addEventListener("submit", () => {
+			const hoverIdle = readAllHoverSlots(section, "ti-hover-idle-slot");
+			const hoverEnter = readAllHoverSlots(section, "ti-hover-enter-slot");
+			const click = readAllClickConfigs(section);
 
-		const hasHover = hoverIdle.length > 0 || hoverEnter.length > 0;
-		const hasData = hasHover || click.length > 0;
+			const hasHover = hoverIdle.length > 0 || hoverEnter.length > 0;
+			const hasData = hasHover || click.length > 0;
 
-		// Clear first, then set (same pattern as idle animations)
-		await doc.update({ [`flags.${MODULE_ID}.-=${FLAG_KEY}`]: null });
-
-		if (hasData) {
-			const flagData = {};
-			if (hasHover) {
-				flagData.hover = {};
-				if (hoverIdle.length > 0) flagData.hover.idle = hoverIdle;
-				if (hoverEnter.length > 0) flagData.hover.enter = hoverEnter;
-			}
-			if (click.length > 0) flagData.click = click;
-			await doc.update({ [`flags.${MODULE_ID}.${FLAG_KEY}`]: flagData });
-		}
-
-		ui.notifications?.info("Tile interactions saved.");
-	});
+			// Clear existing flag, then set new data
+			doc.update({ [`flags.${MODULE_ID}.-=${FLAG_KEY}`]: null }).then(() => {
+				if (hasData) {
+					const flagData = {};
+					if (hasHover) {
+						flagData.hover = {};
+						if (hoverIdle.length > 0) flagData.hover.idle = hoverIdle;
+						if (hoverEnter.length > 0) flagData.hover.enter = hoverEnter;
+					}
+					if (click.length > 0) flagData.click = click;
+					return doc.update({ [`flags.${MODULE_ID}.${FLAG_KEY}`]: flagData });
+				}
+			});
+		});
+	}
 }

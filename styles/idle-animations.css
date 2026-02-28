@@ -29,7 +29,7 @@
 	display: flex;
 	align-items: center;
 	gap: 0.35rem;
-	cursor: pointer;
+	cursor: grab;
 	user-select: none;
 }
 
@@ -174,4 +174,31 @@
 .idle-anim__preview.is-active {
 	background: color-mix(in srgb, var(--color-warm-1, #cf9f4a) 24%, transparent);
 	border-color: var(--color-warm-1, #cf9f4a);
+}
+
+/* ── Drag & drop reordering ──────────────────────────────────────── */
+
+.idle-anim__slot.is-dragging {
+	opacity: 0.4;
+}
+
+.idle-anim__slot--insert-before {
+	box-shadow: 0 -2px 0 0 var(--color-border-highlight, #d9a441);
+}
+
+.idle-anim__slot--insert-after {
+	box-shadow: 0 2px 0 0 var(--color-border-highlight, #d9a441);
+}
+
+.idle-anim__slots--drag-over {
+	outline: 2px dashed var(--color-border-highlight, #d9a441);
+	outline-offset: -2px;
+	border-radius: 4px;
+}
+
+.idle-anim__slots--drag-active:empty {
+	min-height: 2rem;
+	border: 2px dashed var(--color-border-light-tertiary, #555);
+	border-radius: 4px;
+	opacity: 0.6;
 }
