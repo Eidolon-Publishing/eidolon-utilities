@@ -183,8 +183,10 @@ registerBehaviour("glow", (placeable, opts = {}) => {
 
 	const glow = PIXI.Sprite.from(mesh.texture);
 	glow.anchor.set(0.5, 0.5);
-	glow.width = w;
-	glow.height = h;
+	// Match mesh scale directly — the texture is smaller than doc dimensions
+	// and mesh.scale bridges the gap. Using width/height would set an initial
+	// scale that the update() ratio logic then overrides to 1.0.
+	glow.scale.set(mesh.scale.x, mesh.scale.y);
 	glow.position.set(w / 2, h / 2);
 	glow.angle = doc.rotation ?? 0;
 	glow.alpha = alpha;
@@ -197,8 +199,6 @@ registerBehaviour("glow", (placeable, opts = {}) => {
 
 	placeable.addChildAt(glow, 0);
 
-	const originalScaleX = mesh.scale.x;
-	const originalScaleY = mesh.scale.y;
 	const originalAngle = mesh.angle;
 	let elapsed = 0;
 
@@ -208,7 +208,7 @@ registerBehaviour("glow", (placeable, opts = {}) => {
 			const t = (Math.sin(elapsed * pulseSpeed) + 1) / 2;
 			glow.visible = mesh.visible !== false;
 			glow.alpha = alpha * (0.5 + 0.5 * t) * (mesh.alpha ?? 1);
-			glow.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
+			glow.scale.set(mesh.scale.x, mesh.scale.y);
 			glow.angle = (doc.rotation ?? 0) + (mesh.angle - originalAngle);
 		},
 		detach() {
@@ -277,10 +277,12 @@ registerBehaviour("spin", (placeable, opts = {}) => {
 
 	const speed = opts.speed ?? 0.5;
 	const originalAngle = mesh.angle;
+	let elapsed = 0;
 
 	return {
 		update(dt) {
-			mesh.angle += dt * speed;
+			elapsed += dt;
+			mesh.angle = originalAngle + elapsed * speed;
 		},
 		detach() {
 			mesh.angle = originalAngle;
@@ -519,9 +521,12 @@ registerBehaviour("tiltFollow", (placeable, opts = {}) => {
  * Params: offsetX (0), offsetY (20), durationFrames (20), easing ("easeOutCubic"), delay (0)
  * Use `delay` for stagger: [{ name: "slideReveal", delay: 0 }, { name: "slideReveal", delay: 5 }]
  */
-registerBehaviour("slideReveal", (placeable, opts = {}) => {
+registerBehaviour("slideReveal", (placeable, opts = {}, canonical) => {
 	const mesh = placeable.mesh;
 	if (!mesh) return { update() {}, detach() {} };
+
+	// During state transitions, skip entrance — tile is already visible
+	if (canonical) return { update() {}, detach() {} };
 
 	const offsetX = opts.offsetX ?? 0;
 	const offsetY = opts.offsetY ?? 20;
@@ -886,16 +891,20 @@ registerBehaviour("frostEdge", (placeable, opts = {}) => {
 });
 
 /**
- * shadowLift — drop shadow that deepens + offsets on attach (button lifts off the page).
+ * shadowLift — drop shadow via DropShadowFilter on the mesh (button lifts off the page).
+ * Uses a PIXI filter on canvas.primary so the shadow renders BELOW the tile content.
  * Params: offsetY (6), blur (6), alpha (0.35), color (0x000000), durationFrames (12), easing ("easeOutCubic")
  */
 registerBehaviour("shadowLift", (placeable, opts = {}) => {
 	const mesh = placeable.mesh;
 	if (!mesh) return { update() {}, detach() {} };
 
-	const doc = placeable.document;
-	const w = Math.abs(doc.width);
-	const h = Math.abs(doc.height);
+	const DropShadowFilter = PIXI.DropShadowFilter ?? PIXI.filters?.DropShadowFilter ?? globalThis.PIXI?.filters?.DropShadowFilter;
+	if (!DropShadowFilter) {
+		console.warn("shadowLift: DropShadowFilter not available in this PIXI build");
+		return { update() {}, detach() {} };
+	}
+
 	const targetOffsetY = opts.offsetY ?? 6;
 	const blurStrength = opts.blur ?? 6;
 	const targetAlpha = opts.alpha ?? 0.35;
@@ -903,40 +912,37 @@ registerBehaviour("shadowLift", (placeable, opts = {}) => {
 	const durationFrames = opts.durationFrames ?? 12;
 	const easingFn = resolveEasing(opts.easing ?? "easeOutCubic");
 
-	const shadow = new PIXI.Graphics();
-	const padding = 4;
-	shadow.beginFill(color, 1);
-	shadow.drawRoundedRect(-padding, -padding, w + padding * 2, h + padding * 2, 4);
-	shadow.endFill();
-	shadow.alpha = 0;
+	const filter = new DropShadowFilter();
+	filter.blur = blurStrength;
+	filter.alpha = 0;
+	filter.color = color;
+	filter.quality = 3;
+	filter.distance = 0;
+	filter.rotation = 90; // straight down
 
-	const BlurFilter = PIXI.BlurFilter ?? PIXI.filters?.BlurFilter;
-	if (BlurFilter) shadow.filters = [new BlurFilter(blurStrength)];
+	// Append to existing filters (preserve any Foundry-applied filters)
+	const existingFilters = mesh.filters ? [...mesh.filters] : [];
+	mesh.filters = [...existingFilters, filter];
 
-	placeable.addChildAt(shadow, 0);
-
-	const originalScaleX = mesh.scale.x;
-	const originalScaleY = mesh.scale.y;
-	const originalAngle = mesh.angle;
 	let frame = 0;
 
 	return {
 		update(dt) {
-			shadow.visible = mesh.visible !== false;
-			shadow.scale.set(mesh.scale.x / originalScaleX, mesh.scale.y / originalScaleY);
-			shadow.angle = (doc.rotation ?? 0) + (mesh.angle - originalAngle);
-
 			if (frame < durationFrames) {
 				frame += dt;
 				const progress = Math.min(frame / durationFrames, 1);
 				const eased = easingFn(progress);
-				shadow.position.y = targetOffsetY * eased;
-				shadow.alpha = targetAlpha * eased * (mesh.alpha ?? 1);
+				filter.distance = targetOffsetY * eased;
+				filter.alpha = targetAlpha * eased;
 			}
 		},
 		detach() {
-			if (shadow.parent) shadow.parent.removeChild(shadow);
-			shadow.destroy({ children: true });
+			// Remove just our filter, preserve others
+			if (mesh.filters) {
+				mesh.filters = mesh.filters.filter(f => f !== filter);
+				if (mesh.filters.length === 0) mesh.filters = null;
+			}
+			filter.destroy();
 		},
 	};
 });
@@ -1002,6 +1008,11 @@ export class TileAnimator {
 	#activeBehaviours = [];
 	#tickerFn = null;
 	#canonicalState = null;
+	#blendFrom = null;
+	#blendElapsed = 0;
+
+	/** Frames over which state transitions are blended (easeOutCubic). */
+	static BLEND_FRAMES = 8;
 
 	/**
 	 * @param {PlaceableObject} placeable
@@ -1023,9 +1034,16 @@ export class TileAnimator {
 	 */
 	start(state = "idle") {
 		this.#captureCanonical();
+		const tileId = this.#placeable.document?.id ?? "?";
+		const c = this.#canonicalState;
+		if (c) console.log(`%c[TileAnimator ${tileId}] start("${state}") canonical: pos=(${c.x.toFixed(2)}, ${c.y.toFixed(2)}) scale=(${c.scaleX.toFixed(4)}, ${c.scaleY.toFixed(4)}) alpha=${c.alpha.toFixed(4)} angle=${c.angle.toFixed(2)}`, "color: #FFAA44; font-weight: bold");
 		this.#attachBehaviours(state);
 		this.#tickerFn = (dt) => {
+			// During blend: restore canonical before updates so behaviours
+			// compute on a clean slate (prevents blend feedback loop)
+			if (this.#blendFrom) this.#restoreCanonical();
 			for (const b of this.#activeBehaviours) b.update(dt);
+			this.#applyBlend(dt);
 		};
 		canvas.app.ticker.add(this.#tickerFn);
 	}
@@ -1034,15 +1052,30 @@ export class TileAnimator {
 	 * Transition to a new state. Behaviours shared between old and new state
 	 * (matched by name) are kept alive — only the diff is detached/attached.
 	 * Mesh is restored to canonical before constructing new behaviours so they
-	 * always capture clean "original" values (no drift).
+	 * always capture clean "original" values (no drift). A short blend smooths
+	 * the visual transition so the canonical restore isn't visible.
 	 * No-op if already in the requested state.
 	 * @param {string} state
 	 */
 	setState(state) {
 		if (state === this.#currentState) return;
 
+		const tileId = this.#placeable.document?.id ?? "?";
+		const mesh = this.#placeable.mesh;
 		const oldEntries = this.#config[this.#currentState] ?? this.#config.idle ?? ["none"];
 		const newEntries = this.#config[state] ?? this.#config.idle ?? ["none"];
+
+		const oldNames = oldEntries.map(e => typeof e === "string" ? e : e?.name);
+		const newNames = newEntries.map(e => typeof e === "string" ? e : e?.name);
+		console.log(`%c[TileAnimator ${tileId}] setState: ${this.#currentState} → ${state}`, "color: #44DDFF; font-weight: bold");
+		console.log(`  old behaviours: [${oldNames.join(", ")}]  →  new: [${newNames.join(", ")}]`);
+		if (mesh) {
+			console.log(`  mesh BEFORE detach: pos=(${mesh.position.x.toFixed(2)}, ${mesh.position.y.toFixed(2)}) scale=(${mesh.scale.x.toFixed(4)}, ${mesh.scale.y.toFixed(4)}) alpha=${mesh.alpha.toFixed(4)} angle=${mesh.angle.toFixed(2)}`);
+		}
+		if (this.#canonicalState) {
+			const c = this.#canonicalState;
+			console.log(`  canonical: pos=(${c.x.toFixed(2)}, ${c.y.toFixed(2)}) scale=(${c.scaleX.toFixed(4)}, ${c.scaleY.toFixed(4)}) alpha=${c.alpha.toFixed(4)} angle=${c.angle.toFixed(2)}`);
+		}
 
 		// Map old behaviour names → running instances
 		const oldByName = new Map();
@@ -1064,13 +1097,22 @@ export class TileAnimator {
 			}
 		}
 
+		console.log(`  reused: [${[...reused].join(", ")}]  detaching: [${[...oldByName.keys()].filter(n => !reused.has(n)).join(", ")}]`);
+
+		// Capture current mesh state for blend BEFORE any detach/restore
+		this.#captureBlendStart();
+
 		// Detach non-reused old behaviours (overlay cleanup, etc.)
 		for (const [name, instance] of oldByName) {
-			if (!reused.has(name)) instance.detach();
+			if (!reused.has(name)) {
+				instance.detach();
+				if (mesh) console.log(`  mesh AFTER detach("${name}"): scale=(${mesh.scale.x.toFixed(4)}, ${mesh.scale.y.toFixed(4)}) alpha=${mesh.alpha.toFixed(4)}`);
+			}
 		}
 
 		// Restore mesh to canonical state before creating new behaviours
 		this.#restoreCanonical();
+		if (mesh) console.log(`  mesh AFTER canonical restore: scale=(${mesh.scale.x.toFixed(4)}, ${mesh.scale.y.toFixed(4)}) alpha=${mesh.alpha.toFixed(4)}`);
 
 		// Second pass: build new active list
 		for (const entry of newEntries) {
@@ -1078,6 +1120,7 @@ export class TileAnimator {
 			if (oldByName.has(name) && reused.has(name)) {
 				newActive.push(oldByName.get(name));
 				reused.delete(name); // consume to prevent duplicate reuse
+				console.log(`  → reuse "${name}"`);
 			} else {
 				const opts = typeof entry === "string" ? undefined : entry;
 				const factory = getBehaviour(name);
@@ -1085,8 +1128,14 @@ export class TileAnimator {
 					console.warn(`TileAnimator: unknown behaviour "${name}"`);
 					continue;
 				}
-				newActive.push(factory(this.#placeable, opts));
+				newActive.push(factory(this.#placeable, opts, this.#canonicalState));
+				if (mesh) console.log(`  → create "${name}" — mesh after factory: scale=(${mesh.scale.x.toFixed(4)}, ${mesh.scale.y.toFixed(4)}) alpha=${mesh.alpha.toFixed(4)} pos=(${mesh.position.x.toFixed(2)}, ${mesh.position.y.toFixed(2)})`);
 			}
+		}
+
+		if (this.#blendFrom) {
+			const f = this.#blendFrom;
+			console.log(`  blend FROM: pos=(${f.x.toFixed(2)}, ${f.y.toFixed(2)}) scale=(${f.scaleX.toFixed(4)}, ${f.scaleY.toFixed(4)}) alpha=${f.alpha.toFixed(4)}`);
 		}
 
 		this.#currentState = state;
@@ -1099,6 +1148,7 @@ export class TileAnimator {
 	detach() {
 		this.#detachBehaviours();
 		this.#restoreCanonical();
+		this.#blendFrom = null;
 		if (this.#tickerFn) {
 			canvas.app?.ticker?.remove(this.#tickerFn);
 			this.#tickerFn = null;
@@ -1132,6 +1182,64 @@ export class TileAnimator {
 		mesh.angle = c.angle;
 		mesh.alpha = c.alpha;
 		mesh.tint = c.tint;
+	}
+
+	/**
+	 * Snapshot the current (animated) mesh values so the transition blend
+	 * can lerp FROM here toward the new state's computed values.
+	 */
+	#captureBlendStart() {
+		const mesh = this.#placeable.mesh;
+		if (!mesh) return;
+		this.#blendFrom = {
+			x: mesh.position.x,
+			y: mesh.position.y,
+			scaleX: mesh.scale.x,
+			scaleY: mesh.scale.y,
+			angle: mesh.angle,
+			alpha: mesh.alpha,
+		};
+		this.#blendElapsed = 0;
+	}
+
+	/**
+	 * After behaviours compute the new state's mesh values, blend from the
+	 * pre-transition snapshot toward those values over BLEND_FRAMES using
+	 * easeOutCubic. This hides the canonical-restore snap entirely.
+	 */
+	#applyBlend(dt) {
+		if (!this.#blendFrom) return;
+		this.#blendElapsed += dt;
+		const t = Math.min(this.#blendElapsed / TileAnimator.BLEND_FRAMES, 1);
+		if (t >= 1) {
+			const tileId = this.#placeable.document?.id ?? "?";
+			console.log(`%c[TileAnimator ${tileId}] blend complete`, "color: #88FF88");
+			this.#blendFrom = null;
+			return;
+		}
+		const eased = 1 - (1 - t) ** 3; // easeOutCubic
+		const mesh = this.#placeable.mesh;
+		if (!mesh) return;
+		const f = this.#blendFrom;
+
+		// Log first 3 frames of blend
+		if (this.#blendElapsed <= dt * 3) {
+			const tileId = this.#placeable.document?.id ?? "?";
+			const frame = Math.round(this.#blendElapsed / dt);
+			console.log(`  [blend ${tileId} f${frame}] t=${t.toFixed(3)} eased=${eased.toFixed(3)} | behaviour→scale=(${mesh.scale.x.toFixed(4)},${mesh.scale.y.toFixed(4)}) alpha=${mesh.alpha.toFixed(4)} | blendFrom→scale=(${f.scaleX.toFixed(4)},${f.scaleY.toFixed(4)}) alpha=${f.alpha.toFixed(4)}`);
+		}
+
+		mesh.position.x = f.x + (mesh.position.x - f.x) * eased;
+		mesh.position.y = f.y + (mesh.position.y - f.y) * eased;
+		mesh.scale.x = f.scaleX + (mesh.scale.x - f.scaleX) * eased;
+		mesh.scale.y = f.scaleY + (mesh.scale.y - f.scaleY) * eased;
+		mesh.angle = f.angle + (mesh.angle - f.angle) * eased;
+		mesh.alpha = f.alpha + (mesh.alpha - f.alpha) * eased;
+
+		// Log result for first 3 frames
+		if (this.#blendElapsed <= dt * 3) {
+			console.log(`  [blend result] scale=(${mesh.scale.x.toFixed(4)},${mesh.scale.y.toFixed(4)}) alpha=${mesh.alpha.toFixed(4)} pos=(${mesh.position.x.toFixed(2)},${mesh.position.y.toFixed(2)})`);
+		}
 	}
 
 	#attachBehaviours(state) {
