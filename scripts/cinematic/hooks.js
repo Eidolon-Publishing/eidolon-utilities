@@ -376,6 +376,12 @@ function getSegmentOrder(data) {
  * Apply landing states for all segments in order (used when cinematic already seen).
  */
 function applyAllSegmentLandingStates(data, targets) {
+	// Apply cinematic-level setup first (covers targets not addressed by per-segment states)
+	if (data.setup) {
+		try { applyState(data.setup, targets); } catch (err) {
+			console.warn(`[${MODULE_ID}] Cinematic: error applying cinematic-level setup:`, err);
+		}
+	}
 	const order = getSegmentOrder(data);
 	for (const name of order) {
 		const seg = data.segments[name];
@@ -388,6 +394,12 @@ function applyAllSegmentLandingStates(data, targets) {
 			try { applyState(seg.landing, targets); } catch (err) {
 				console.warn(`[${MODULE_ID}] Cinematic: error applying landing for segment "${name}":`, err);
 			}
+		}
+	}
+	// Apply cinematic-level landing last (final state for targets not covered by segments)
+	if (data.landing) {
+		try { applyState(data.landing, targets); } catch (err) {
+			console.warn(`[${MODULE_ID}] Cinematic: error applying cinematic-level landing:`, err);
 		}
 	}
 	canvas.perception.update({ refreshLighting: true, refreshVision: true });
@@ -482,6 +494,16 @@ async function playCinematic(sceneId, cinematicName = "default", _visitedChain =
 		if (savedCurrentIdx >= 0) {
 			startIdx = savedCurrentIdx;
 			console.log(`[${MODULE_ID}] Cinematic "${cinematicName}": resuming from segment "${savedProgress.currentSegment}" (${savedCompleted.length} completed)`);
+		}
+	}
+
+	// Apply cinematic-level setup (covers targets not addressed by per-segment setup)
+	if (data.setup) {
+		try {
+			applyState(data.setup, targets);
+			canvas.perception.update({ refreshLighting: true, refreshVision: true });
+		} catch (err) {
+			console.error(`[${MODULE_ID}] Cinematic "${cinematicName}": error applying cinematic-level setup:`, err);
 		}
 	}
 
