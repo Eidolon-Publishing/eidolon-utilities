@@ -122,6 +122,7 @@ let savedCursor = null;
 /** Bound listener references for cleanup. */
 let boundPointerMove = null;
 let boundPointerDown = null;
+let boundPointerLeave = null;
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -351,6 +352,23 @@ function onPointerDown(event) {
 	handleClick(hit);
 }
 
+/**
+ * Reset hover state when the pointer leaves the board element.
+ * This handles cases where another window (e.g. MATT journal) opens on top
+ * and pointermove events stop reaching #board, leaving the tile stuck in hover.
+ */
+function onPointerLeave() {
+	if (hoveredTileId) {
+		const prevAnimator = activeHoverAnimators.get(hoveredTileId);
+		if (prevAnimator) prevAnimator.setState("idle");
+		hoveredTileId = null;
+	}
+	if (savedCursor !== null) {
+		document.body.style.cursor = savedCursor;
+		savedCursor = null;
+	}
+}
+
 // ── Public API ─────────────────────────────────────────────────────────
 
 /**
@@ -380,6 +398,10 @@ export function rebuild() {
 		board?.removeEventListener("pointerdown", boundPointerDown);
 		boundPointerDown = null;
 	}
+	if (boundPointerLeave) {
+		board?.removeEventListener("pointerleave", boundPointerLeave);
+		boundPointerLeave = null;
+	}
 
 	// Scan tiles
 	const tiles = canvas.tiles?.placeables;
@@ -408,8 +430,10 @@ export function rebuild() {
 
 	boundPointerMove = onPointerMove;
 	boundPointerDown = onPointerDown;
+	boundPointerLeave = onPointerLeave;
 	board?.addEventListener("pointermove", boundPointerMove);
 	board?.addEventListener("pointerdown", boundPointerDown);
+	board?.addEventListener("pointerleave", boundPointerLeave);
 }
 
 /**
@@ -477,6 +501,10 @@ export function removeTile(doc) {
 			board?.removeEventListener("pointerdown", boundPointerDown);
 			boundPointerDown = null;
 		}
+		if (boundPointerLeave) {
+			board?.removeEventListener("pointerleave", boundPointerLeave);
+			boundPointerLeave = null;
+		}
 	}
 }
 
@@ -492,6 +520,8 @@ function ensureListeners() {
 
 	boundPointerMove = onPointerMove;
 	boundPointerDown = onPointerDown;
+	boundPointerLeave = onPointerLeave;
 	board.addEventListener("pointermove", boundPointerMove);
 	board.addEventListener("pointerdown", boundPointerDown);
+	board.addEventListener("pointerleave", boundPointerLeave);
 }
