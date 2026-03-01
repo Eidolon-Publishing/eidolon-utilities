@@ -9,6 +9,7 @@ import "../styles/placeable-picker.css";
 import "../styles/canvas-popup.css";
 import "../styles/idle-animations.css";
 import "../styles/tile-interactions.css";
+import "../styles/door-links.css";
 
 // Feature modules - preserve existing load order
 import "../scripts/time-triggers/index.js";
@@ -24,3 +25,5 @@ import "../scripts/canvas-popup/index.js";
 import "../scripts/idle-animations/index.js";
 // Tile interactions - must come after tween and cinematic (needs TileAnimator + executors)
 import "../scripts/tile-interactions/index.js";
+// Door links - standalone, hooks into wall config and door state changes
+import "../scripts/door-links/index.js";
