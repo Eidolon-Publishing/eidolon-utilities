@@ -1,0 +1,235 @@
+/* ── Door Links: V12 tab panel ────────────────────────────────────── */
+
+.tab[data-tab="eidolon-door-links"] {
+	max-height: 60vh;
+	overflow-y: auto;
+	padding-right: 2px;
+}
+
+/* ── Door Links: V13 fieldset ────────────────────────────────────── */
+
+fieldset.dl-fieldset {
+	margin-top: 0.25rem;
+	min-width: 0; /* prevent fieldset from expanding beyond parent */
+}
+
+.eidolon-door-links {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: 0.25rem 0;
+	min-width: 0;
+	overflow: hidden;
+}
+
+/* ── Behavior sections ────────────────────────────────────────────── */
+
+.dl-behavior-section {
+	border: 1px solid var(--color-border-light-tertiary, #555);
+	border-radius: 4px;
+	padding: 0.5rem;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.dl-behavior-section__header {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin-bottom: 0.25rem;
+	padding-bottom: 0.25rem;
+	border-bottom: 1px solid var(--color-border-light-tertiary, #555);
+}
+
+.dl-behavior-section__header > i {
+	font-size: 0.85rem;
+	opacity: 0.7;
+	width: 1.2em;
+	text-align: center;
+}
+
+.dl-behavior-section__title {
+	font-weight: bold;
+	font-size: 0.85rem;
+	flex: 1;
+}
+
+.dl-behavior-section__count {
+	font-size: 0.75rem;
+	opacity: 0.6;
+}
+
+.dl-behavior-section__desc {
+	font-size: 0.72rem;
+	opacity: 0.55;
+	margin: 0 0 0.35rem 0;
+	font-style: italic;
+}
+
+/* ── Wall entries ─────────────────────────────────────────────────── */
+
+.dl-behavior-section__walls {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	margin-bottom: 0.35rem;
+}
+
+.dl-wall-entry {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.2rem 0.35rem;
+	border-radius: 3px;
+	background: rgba(255, 255, 255, 0.03);
+	min-width: 0; /* allow flex children to shrink below content size */
+}
+
+.dl-wall-entry:hover {
+	background: rgba(255, 255, 255, 0.06);
+}
+
+.dl-wall-entry--selected {
+	border: 1px solid var(--color-text-hyperlink, #ff6400);
+	background: rgba(255, 100, 0, 0.08);
+}
+
+.dl-wall-entry__info {
+	flex: 1;
+	min-width: 0; /* allow text truncation in flex */
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+}
+
+.dl-wall-entry__coords {
+	font-family: monospace;
+	font-size: 0.72rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.dl-wall-entry__defaults {
+	opacity: 0.45;
+	font-size: 0.65rem;
+	font-family: monospace;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.dl-wall-entry__actions {
+	display: flex;
+	gap: 0.2rem;
+	flex-shrink: 0;
+	align-self: center;
+}
+
+.dl-wall-entry__btn {
+	width: 1.4rem;
+	height: 1.4rem;
+	padding: 0;
+	line-height: 1.4rem;
+	text-align: center;
+	font-size: 0.7rem;
+	background: none;
+	border: 1px solid transparent;
+	color: var(--color-text-light-6, #aaa);
+	cursor: pointer;
+	border-radius: 3px;
+	opacity: 0.6;
+}
+
+.dl-wall-entry__btn:hover {
+	opacity: 1;
+	border-color: var(--color-border-light-tertiary, #555);
+}
+
+.dl-wall-entry__btn--remove:hover {
+	color: var(--color-level-error, #cc3333);
+}
+
+/* ── Header action buttons (small icons in title bar) ────────────── */
+
+.dl-behavior-section__header-actions {
+	display: flex;
+	gap: 0.15rem;
+	margin-left: auto;
+}
+
+.dl-header-btn {
+	width: 1.5rem;
+	height: 1.5rem;
+	padding: 0;
+	line-height: 1.5rem;
+	text-align: center;
+	font-size: 0.72rem;
+	background: none;
+	border: 1px solid transparent;
+	color: var(--color-text-light-6, #aaa);
+	cursor: pointer;
+	border-radius: 3px;
+	opacity: 0.55;
+}
+
+.dl-header-btn:hover {
+	opacity: 1;
+	color: var(--color-text-hyperlink, #ff6400);
+	border-color: var(--color-border-light-tertiary, #555);
+}
+
+/* ── Action buttons (standalone, e.g. re-capture) ────────────────── */
+
+.dl-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.2rem 0.5rem;
+	font-size: 0.72rem;
+	cursor: pointer;
+	border: 1px solid var(--color-border-light-tertiary, #555);
+	border-radius: 3px;
+	background: none;
+	color: var(--color-text-light-6, #aaa);
+}
+
+.dl-btn:hover {
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--color-text-hyperlink, #ff6400);
+	border-color: var(--color-text-hyperlink, #ff6400);
+}
+
+.dl-btn--recapture {
+	align-self: flex-start;
+	margin-top: 0.25rem;
+}
+
+.dl-btn--recapture:hover {
+	color: var(--color-level-warning, #e8a500);
+	border-color: var(--color-level-warning, #e8a500);
+}
+
+/* ── Wall type indicators (left border, colors match Foundry's _getWallColor()) ── */
+
+.dl-pill--wall { border-left: 3px solid #FFFFBB; }
+.dl-pill--invisible { border-left: 3px solid #77E7E8; }
+.dl-pill--terrain { border-left: 3px solid #81B90C; }
+.dl-pill--window { border-left: 3px solid #c7d8ff; }
+.dl-pill--ethereal { border-left: 3px solid #CA81FF; }
+.dl-pill--door { border-left: 3px solid #6666EE; }
+.dl-pill--door-open { border-left: 3px solid #66CC66; }
+.dl-pill--door-locked { border-left: 3px solid #EE4444; }
+.dl-pill--secret { border-left: 3px solid #A612D4; }
+.dl-pill--secret-open { border-left: 3px solid #7C1A9B; }
+
+/* ── Empty state ──────────────────────────────────────────────────── */
+
+.dl-behavior-section__walls:empty::after {
+	content: "No walls linked.";
+	display: block;
+	font-size: 0.72rem;
+	opacity: 0.4;
+	font-style: italic;
+	padding: 0.25rem 0;
+}
