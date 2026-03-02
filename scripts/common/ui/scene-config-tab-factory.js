@@ -187,7 +187,8 @@ export function createSceneConfigTabFactory(options = {}) {
       nav?.querySelector?.("a[data-group]")?.dataset?.group ??
       nav?.querySelector?.("[data-group]")?.dataset?.group ??
       body?.querySelector?.(".tab[data-group]")?.dataset?.group ??
-      "main";
+      app._tabs?.[0]?._group ??
+      null;
 
     if (!nav || !body) {
       log("Missing navigation elements", {
@@ -203,7 +204,7 @@ export function createSceneConfigTabFactory(options = {}) {
     if (!tabButton) {
       tabButton = document.createElement("a");
       tabButton.dataset.action = "tab";
-      tabButton.dataset.group = groupName;
+      if (groupName) tabButton.dataset.group = groupName;
       tabButton.dataset.tab = tabId;
       const referenceTab = nav.querySelector("a[data-tab]");
       if (referenceTab?.classList?.contains("item")) {
@@ -224,7 +225,7 @@ export function createSceneConfigTabFactory(options = {}) {
       tab = document.createElement("div");
       tab.classList.add("tab");
       tab.dataset.tab = tabId;
-      tab.dataset.group = groupName;
+      if (groupName) tab.dataset.group = groupName;
       const footer = findFooterElement(body);
       body.insertBefore(tab, footer ?? null);
       if (typeof onTabCreate === "function") {
@@ -233,11 +234,23 @@ export function createSceneConfigTabFactory(options = {}) {
       log("Created tab container", { tabId, group: groupName });
     }
 
-    // Determine active state from DOM classes
+    // Determine active state: check stored state first, then DOM classes
     const isActiveInitial =
-      tabButton.classList?.contains("active") || tab.classList.contains("active");
+      app._eidolonActiveTab === tabId ||
+      tabButton.classList?.contains("active") ||
+      tab.classList.contains("active");
 
     if (isActiveInitial) {
+      // Deactivate Foundry's natively-active tab so ours takes over
+      nav.querySelectorAll("[data-tab].active").forEach((btn) => {
+        if (btn !== tabButton) btn.classList.remove("active");
+      });
+      body.querySelectorAll(".tab[data-tab].active").forEach((panel) => {
+        if (panel !== tab) {
+          panel.classList.remove("active");
+          panel.setAttribute("hidden", "true");
+        }
+      });
       tabButton.classList.add("active");
       tab.classList.add("active");
       tab.removeAttribute("hidden");
@@ -270,10 +283,23 @@ export function createSceneConfigTabFactory(options = {}) {
     // Click handler — use public API
     if (!tabButton.dataset.eidolonEnsureSceneTabVisibility) {
       tabButton.addEventListener("click", () => {
+        app._eidolonActiveTab = tabId;
         setActiveTab(app, tabId, groupName);
         requestAnimationFrame(ensureTabVisible);
       });
       tabButton.dataset.eidolonEnsureSceneTabVisibility = "true";
+    }
+
+    // Watch native tab clicks to clear our stored state
+    const navWatchAttr = `data-eidolon-nav-watched-${tabId}`;
+    if (!nav.hasAttribute(navWatchAttr)) {
+      nav.addEventListener("click", (e) => {
+        const clicked = e.target.closest("[data-tab]");
+        if (clicked && clicked.dataset.tab !== tabId) {
+          delete app._eidolonActiveTab;
+        }
+      });
+      nav.setAttribute(navWatchAttr, "true");
     }
 
     // Render content

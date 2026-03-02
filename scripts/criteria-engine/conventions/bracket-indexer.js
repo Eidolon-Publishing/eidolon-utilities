@@ -18,6 +18,11 @@ import { getTileConventions, getIndexingHooks, registerTileConvention } from "..
 
 const DEFAULT_VALUE = "Standard";
 
+/** Keys whose auto-generated label needs special formatting. */
+const LABEL_MAP = {
+	nolights: "No Lights"
+};
+
 const log = (...args) => console.log(`${MODULE_ID} | criteria indexer:`, ...args);
 
 // ── Default convention registration ────────────────────────────────────────
@@ -89,7 +94,7 @@ function buildCriteriaDefinitions(criterionOrder, valuesByKey) {
 
 		const criterion = createSceneCriterion(key);
 		criterion.key = key;
-		criterion.label = key.charAt(0).toUpperCase() + key.slice(1);
+		criterion.label = LABEL_MAP[key] ?? key.charAt(0).toUpperCase() + key.slice(1);
 		criterion.values = values.length ? values : [DEFAULT_VALUE];
 		criterion.default = criterion.values.includes(fallbackDefault)
 			? fallbackDefault
@@ -179,6 +184,12 @@ function resolveConventions(inline) {
  * Falls back to indexing hooks for tiles that don't match any convention.
  */
 export async function indexScene(scene, options = {}) {
+	// Allow indexScene({force: true}) without explicit scene argument
+	if (scene != null && typeof scene === "object" && !scene.id && !scene.tiles) {
+		options = { ...scene, ...options };
+		scene = null;
+	}
+
 	const {
 		dryRun = false,
 		force = false
@@ -226,6 +237,23 @@ export async function indexScene(scene, options = {}) {
 			throw new Error(`Expected 3+ bracket tags, found ${sampleTags.length}.`);
 		}
 		tagCount = sampleTags.length;
+
+		// Detect "No Lights" in the effect position — if present, remap to "nolights"
+		// so it doesn't merge with weather effects from the Weather tile.
+		if (tagCount === 3 && primaryConvention.positionMap?.[2] === "effect") {
+			const hasNoLights = files.some((f) => {
+				const t = parseFileTags(f?.name);
+				return t?.[2] === "No Lights";
+			});
+			if (hasNoLights) {
+				primaryConvention = {
+					...primaryConvention,
+					positionMap: { ...primaryConvention.positionMap, 2: "nolights" }
+				};
+				conventions.set(tag, primaryConvention);
+			}
+		}
+
 		break;
 	}
 

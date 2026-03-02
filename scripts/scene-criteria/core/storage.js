@@ -15,14 +15,18 @@ export function getSceneCriteria(scene) {
   return sanitizeCriteria(stored);
 }
 
-export async function setSceneCriteria(scene, criteria) {
-  if (!scene?.setFlag) return;
+export async function setSceneCriteria(scene, criteria, updateOptions = {}) {
+  if (!scene?.update) return;
   const sanitized = sanitizeCriteria(criteria);
-  await scene.setFlag(MODULE_ID, FLAG_SCENE_CRITERIA, sanitized);
-  await scene.setFlag(MODULE_ID, FLAG_SCENE_CRITERIA_VERSION, CURRENT_SCENE_CRITERIA_VERSION);
-
-  const currentState = getSceneCriteriaState(scene, sanitized);
-  await scene.setFlag(MODULE_ID, FLAG_SCENE_STATE, currentState);
+  const currentState = sanitizeSceneCriteriaState(
+    duplicateData(scene?.getFlag?.(MODULE_ID, FLAG_SCENE_STATE) ?? {}),
+    sanitized
+  );
+  await scene.update({
+    [`flags.${MODULE_ID}.${FLAG_SCENE_CRITERIA}`]: sanitized,
+    [`flags.${MODULE_ID}.${FLAG_SCENE_CRITERIA_VERSION}`]: CURRENT_SCENE_CRITERIA_VERSION,
+    [`flags.${MODULE_ID}.${FLAG_SCENE_STATE}`]: currentState
+  }, updateOptions);
 }
 
 export function getSceneCriteriaState(scene, criteriaOverride = null) {
