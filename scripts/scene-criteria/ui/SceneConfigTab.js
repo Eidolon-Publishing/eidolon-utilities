@@ -214,7 +214,8 @@ async function mutateCriteria(scene, mutator) {
   if (result === false) return false;
 
   try {
-    await setSceneCriteria(scene, criteria);
+    // Suppress sheet re-render — the caller re-renders the tab content itself
+    await setSceneCriteria(scene, criteria, { render: false });
     return true;
   } catch (error) {
     notifyPersistError(error);

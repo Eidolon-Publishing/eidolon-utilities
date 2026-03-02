@@ -47,14 +47,14 @@ export function findTabBody(root, nav) {
  * Determine the tab group name from DOM attributes.
  * @param {HTMLElement|null} nav
  * @param {HTMLElement|null} body
- * @returns {string}
+ * @returns {string|null}
  */
 export function getTabGroup(nav, body) {
 	return (
 		nav?.dataset?.group
 		?? nav?.querySelector?.("[data-group]")?.dataset?.group
 		?? body?.querySelector?.(".tab[data-group]")?.dataset?.group
-		?? "main"
+		?? null
 	);
 }
 
@@ -103,7 +103,7 @@ export function createTabButton(nav, group, tabId) {
 
 	button.dataset.action = "tab";
 	button.dataset.tab = tabId;
-	button.dataset.group = group;
+	if (group) button.dataset.group = group;
 	button.setAttribute("aria-selected", "false");
 	button.setAttribute("aria-pressed", "false");
 
@@ -121,7 +121,7 @@ export function createTabPanel(body, group, tabId) {
 	const panel = document.createElement("div");
 	panel.classList.add("tab");
 	panel.dataset.tab = tabId;
-	panel.dataset.group = group;
+	if (group) panel.dataset.group = group;
 	panel.dataset.applicationPart = tabId;
 	panel.setAttribute("hidden", "true");
 

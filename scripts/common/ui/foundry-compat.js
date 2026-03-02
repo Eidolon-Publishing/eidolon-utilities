@@ -36,9 +36,46 @@ export function setActiveTab(app, tabId, group, opts = {}) {
   if (typeof app?.activateTab === "function") {
     // AppV1: activateTab(tabName, { group, triggerCallback })
     const options = { ...opts };
-    if (group != null) options.group = group;
+    if (group != null) {
+      // Validate that the group exists in _tabs before passing it —
+      // DOM data-group may not match the internal Tabs group (timing, modules, etc.)
+      const groupExists =
+        Array.isArray(app._tabs) && app._tabs.some((t) => t._group === group);
+      if (groupExists) {
+        options.group = group;
+      }
+      // If group not found, omit it — activateTab's default will be used
+    }
     if (options.triggerCallback == null) options.triggerCallback = true;
-    app.activateTab(tabId, options);
+    try {
+      app.activateTab(tabId, options);
+    } catch {
+      // activateTab failed — fall back to manual DOM tab switching
+      _manualTabActivation(app, tabId);
+    }
+  }
+}
+
+/** DOM-only tab activation fallback when activateTab throws. */
+function _manualTabActivation(app, tabId) {
+  const root = app.element?.[0] ?? app.element;
+  if (!(root instanceof HTMLElement)) return;
+  // Deactivate sibling tabs
+  const nav = root.querySelector("nav.sheet-tabs") ?? root.querySelector("nav.tabs");
+  if (nav) {
+    nav.querySelectorAll("[data-tab]").forEach((btn) => btn.classList.remove("active"));
+  }
+  root.querySelectorAll(".tab[data-tab]").forEach((tab) => {
+    tab.classList.remove("active");
+    tab.setAttribute("hidden", "true");
+  });
+  // Activate target
+  const button = nav?.querySelector(`[data-tab="${tabId}"]`);
+  const panel = root.querySelector(`.tab[data-tab="${tabId}"]`);
+  button?.classList.add("active");
+  if (panel) {
+    panel.classList.add("active");
+    panel.removeAttribute("hidden");
   }
 }
 
