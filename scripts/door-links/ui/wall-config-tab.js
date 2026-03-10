@@ -352,7 +352,17 @@ function buildDoorLinksContent(doc, scene, refreshFn) {
 	const container = document.createElement("div");
 	container.classList.add(CONTAINER_CLASS);
 
-	const links = getDoorLinks(doc);
+	// Prune stale IDs (walls that no longer exist in this scene)
+	const rawLinks = getDoorLinks(doc);
+	let pruned = false;
+	const links = {};
+	for (const [behavior, ids] of Object.entries(rawLinks)) {
+		const valid = ids.filter((id) => scene.walls.has(id));
+		if (valid.length !== ids.length) pruned = true;
+		if (valid.length > 0) links[behavior] = valid;
+	}
+	if (pruned) setDoorLinks(doc, links);
+
 	const behaviors = getAllBehaviors();
 
 	const onLinksChanged = () => {
@@ -480,8 +490,41 @@ function injectAsTab(app, root, doc, scene) {
 }
 
 /**
+ * Fallback injection for V12 when no tab navigation exists (e.g. MATT not active).
+ * Appends a <fieldset> to the form, similar to the V13 fieldset strategy.
+ */
+function injectAsFormSection(app, root, doc, scene) {
+	const form = root.querySelector("form");
+	if (!form) return false;
+
+	// Don't rebuild
+	if (form.querySelector(`.${CONTAINER_CLASS}`)) return true;
+
+	const fieldset = document.createElement("fieldset");
+	fieldset.classList.add("dl-fieldset");
+
+	const legend = document.createElement("legend");
+	legend.textContent = "Door Links";
+	fieldset.appendChild(legend);
+
+	const refresh = () => {
+		fieldset.querySelector(`.${CONTAINER_CLASS}`)?.remove();
+		fieldset.appendChild(buildDoorLinksContent(doc, scene, refresh));
+	};
+
+	fieldset.appendChild(buildDoorLinksContent(doc, scene, refresh));
+
+	const footer = form.querySelector(":scope > footer") ?? form.querySelector(".form-footer");
+	form.insertBefore(fieldset, footer ?? null);
+
+	form.noValidate = true;
+	app.setPosition?.({ height: "auto" });
+	return true;
+}
+
+/**
  * Render the door-links section into a WallConfig dialog.
- * Detects V12 (tabbed) vs V13 (flat) and injects accordingly.
+ * Tries V13 flat layout → V12 tabbed layout → V12 form fieldset fallback.
  *
  * @param {object} app  Foundry Application instance (WallConfig)
  * @param {HTMLElement|object} html
@@ -496,8 +539,9 @@ export function renderDoorLinksTab(app, html) {
 	const scene = doc.parent;
 	if (!scene) return;
 
-	// Try V13 flat layout first, fall back to V12 tabbed layout
-	const injected = injectAsFieldset(app, root, doc, scene) || injectAsTab(app, root, doc, scene);
+	const injected = injectAsFieldset(app, root, doc, scene)
+		|| injectAsTab(app, root, doc, scene)
+		|| injectAsFormSection(app, root, doc, scene);
 	if (!injected) return;
 
 	// Clean up highlights when the config dialog closes

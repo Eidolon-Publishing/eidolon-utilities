@@ -454,7 +454,12 @@ export function sanitizeLightCriteriaState(state) {
 }
 
 /**
- * Deep-clone a light config and strip internal fields (`_id`, `id`, own module flags).
+ * Deep-clone a light config and strip everything except the `config` subtree
+ * (and `hidden` for No Lights mappings).
+ *
+ * The full document includes positional fields (x, y, elevation, rotation),
+ * state fields (vision, walls), and other modules' flags — none of which
+ * belong in a criteria mapping. Only the lighting configuration matters.
  * @param {object} payload
  * @returns {object|null} Sanitized config, or null if invalid.
  */
@@ -462,20 +467,11 @@ export function sanitizeLightConfigPayload(payload) {
   const duplicated = duplicateData(payload);
   if (!duplicated || typeof duplicated !== "object") return null;
 
-  if ("_id" in duplicated) delete duplicated._id;
-  if ("id" in duplicated) delete duplicated.id;
-
-  const flags = duplicated.flags;
-  if (flags && typeof flags === "object") {
-    const moduleFlags = flags[MODULE_ID];
-    if (moduleFlags && typeof moduleFlags === "object") {
-      delete moduleFlags[FLAG_LIGHT_CRITERIA];
-      if (Object.keys(moduleFlags).length === 0) {
-        delete flags[MODULE_ID];
-      }
-    }
-    if (Object.keys(flags).length === 0) {
-      delete duplicated.flags;
+  // Keep only lighting-relevant top-level keys
+  const ALLOWED_KEYS = new Set(["config", "hidden", "vision"]);
+  for (const key of Object.keys(duplicated)) {
+    if (!ALLOWED_KEYS.has(key)) {
+      delete duplicated[key];
     }
   }
 

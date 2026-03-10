@@ -1,0 +1,19 @@
+<div class="global-visibility">
+  <p class="global-visibility__hint">Set visibility for all regions on this scene.</p>
+
+  <div class="global-visibility__field">
+    <label for="global-visibility-select">Visibility</label>
+    <select id="global-visibility-select" data-role="visibility-select">
+      {{#each options}}
+      <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <footer class="global-visibility__footer">
+    <button type="button" class="global-visibility__btn" data-action="cancel">Cancel</button>
+    <button type="button" class="global-visibility__btn global-visibility__btn--primary" data-action="apply">
+      <i class="fa-solid fa-eye"></i> Apply to All
+    </button>
+  </footer>
+</div>

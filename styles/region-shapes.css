@@ -1,0 +1,263 @@
+/* ── Region Shape Drag & Drop ────────────────────────────────────── */
+
+/* Drag handle icon inside shape fieldset legends */
+.rs-drag-handle {
+	cursor: grab;
+	opacity: 0.4;
+	margin-right: 0.3rem;
+	font-size: 0.75rem;
+	transition: opacity 0.15s ease;
+}
+
+.rs-drag-handle:hover {
+	opacity: 0.9;
+}
+
+.rs-drag-handle:active {
+	cursor: grabbing;
+}
+
+/* Dragging state on the source fieldset */
+fieldset.rs-shape-fieldset.is-dragging {
+	opacity: 0.4;
+}
+
+/* Insert indicators — golden lines matching idle-animations pattern */
+fieldset.rs-shape--insert-before {
+	box-shadow: 0 -2px 0 0 var(--color-border-highlight, #d9a441);
+}
+
+fieldset.rs-shape--insert-after {
+	box-shadow: 0 2px 0 0 var(--color-border-highlight, #d9a441);
+}
+
+/* Active drop zone highlight on all tracked containers during drag */
+.rs-drag-active {
+	outline: 2px dashed var(--color-border-highlight, #d9a441);
+	outline-offset: -2px;
+	border-radius: 4px;
+}
+
+/* Empty region placeholder when drag is active */
+.rs-drag-active:not(:has(fieldset[data-shape-index])) {
+	min-height: 2rem;
+	border: 2px dashed var(--color-border-light-tertiary, #555);
+	border-radius: 4px;
+	opacity: 0.6;
+}
+
+/* Container highlight when hovering over it */
+.rs-drop-over {
+	outline: 2px dashed var(--color-border-highlight, #d9a441);
+	outline-offset: -2px;
+	border-radius: 4px;
+}
+
+/* ── Merge Shapes Button ─────────────────────────────────────── */
+
+/* Disabled state for merge button when < 2 non-hole shapes */
+.region-element-controls a.control.disabled {
+	opacity: 0.35;
+	pointer-events: none;
+}
+
+/* ── Overlap Resolver Window ─────────────────────────────────── */
+
+.overlap-resolver {
+	padding: 0.5rem;
+}
+
+.overlap-resolver__hint {
+	font-size: 0.8rem;
+	opacity: 0.7;
+	margin: 0 0 0.5rem;
+}
+
+.overlap-resolver__list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.overlap-resolver__item {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.35rem 0.5rem;
+	border: 1px solid var(--color-border-light-tertiary, #555);
+	border-radius: 4px;
+	margin-bottom: 0.25rem;
+	background: var(--color-cool-5, rgba(0, 0, 0, 0.15));
+	cursor: grab;
+	transition: opacity 0.15s ease;
+}
+
+.overlap-resolver__item:active {
+	cursor: grabbing;
+}
+
+.overlap-resolver__item.is-dragging {
+	opacity: 0.3;
+}
+
+.overlap-resolver__item.or--insert-before {
+	box-shadow: 0 -2px 0 0 var(--color-border-highlight, #d9a441);
+}
+
+.overlap-resolver__item.or--insert-after {
+	box-shadow: 0 2px 0 0 var(--color-border-highlight, #d9a441);
+}
+
+.overlap-resolver__handle {
+	opacity: 0.4;
+	font-size: 0.75rem;
+	flex-shrink: 0;
+}
+
+.overlap-resolver__item:hover .overlap-resolver__handle {
+	opacity: 0.9;
+}
+
+.overlap-resolver__swatch {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border-radius: 3px;
+	border: 1px solid rgba(255, 255, 255, 0.25);
+	flex-shrink: 0;
+}
+
+.overlap-resolver__name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-size: 0.85rem;
+}
+
+.overlap-resolver__badge {
+	font-size: 0.7rem;
+	opacity: 0.5;
+	flex-shrink: 0;
+}
+
+.overlap-resolver__eye {
+	all: unset;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--color-text-light-highlight, #eee);
+	cursor: pointer;
+	opacity: 0.4;
+	width: 1.2rem;
+	height: 1.2rem;
+	font-size: 0.75rem;
+	flex-shrink: 0;
+	transition: opacity 0.15s ease;
+}
+
+.overlap-resolver__eye:hover {
+	opacity: 1;
+}
+
+.overlap-resolver__item.is-excluded {
+	opacity: 0.35;
+}
+
+.overlap-resolver__item.is-excluded .overlap-resolver__eye {
+	opacity: 0.7;
+}
+
+.overlap-resolver__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+	padding-top: 0.5rem;
+	border-top: 1px solid var(--color-border-light-tertiary, #555);
+}
+
+.overlap-resolver__btn {
+	padding: 0.3rem 0.75rem;
+	border: 1px solid var(--color-border-light-tertiary, #555);
+	border-radius: 4px;
+	background: var(--color-cool-5, rgba(0, 0, 0, 0.15));
+	color: var(--color-text-light-highlight, #eee);
+	cursor: pointer;
+	font-size: 0.8rem;
+}
+
+.overlap-resolver__btn:hover {
+	background: var(--color-cool-4, rgba(0, 0, 0, 0.25));
+}
+
+.overlap-resolver__btn--primary {
+	background: var(--color-shadow-primary, #4b4a44);
+	border-color: var(--color-border-highlight, #d9a441);
+}
+
+.overlap-resolver__btn--primary:hover {
+	background: var(--color-border-highlight, #d9a441);
+	color: var(--color-text-dark-primary, #1a1a1a);
+}
+
+/* ── Global Visibility Window ───────────────────────────────── */
+
+.global-visibility {
+	padding: 0.5rem;
+}
+
+.global-visibility__hint {
+	font-size: 0.8rem;
+	opacity: 0.7;
+	margin: 0 0 0.75rem;
+}
+
+.global-visibility__field {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.global-visibility__field label {
+	font-size: 0.85rem;
+	flex-shrink: 0;
+}
+
+.global-visibility__field select {
+	flex: 1;
+}
+
+.global-visibility__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+	padding-top: 0.5rem;
+	border-top: 1px solid var(--color-border-light-tertiary, #555);
+}
+
+.global-visibility__btn {
+	padding: 0.3rem 0.75rem;
+	border: 1px solid var(--color-border-light-tertiary, #555);
+	border-radius: 4px;
+	background: var(--color-cool-5, rgba(0, 0, 0, 0.15));
+	color: var(--color-text-light-highlight, #eee);
+	cursor: pointer;
+	font-size: 0.8rem;
+}
+
+.global-visibility__btn:hover {
+	background: var(--color-cool-4, rgba(0, 0, 0, 0.25));
+}
+
+.global-visibility__btn--primary {
+	background: var(--color-shadow-primary, #4b4a44);
+	border-color: var(--color-border-highlight, #d9a441);
+}
+
+.global-visibility__btn--primary:hover {
+	background: var(--color-border-highlight, #d9a441);
+	color: var(--color-text-dark-primary, #1a1a1a);
+}

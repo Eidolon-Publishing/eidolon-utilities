@@ -1,6 +1,6 @@
 {
   "name": "eidolon-utilities",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
+    "clipper-lib": "^6.4.2",
     "dotenv": "^16.6.1",
     "vite": "^6.0.0",
     "vitest": "^2.1.0"
