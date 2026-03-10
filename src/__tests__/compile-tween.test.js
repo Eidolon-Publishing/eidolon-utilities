@@ -29,14 +29,14 @@ function makeTargets(entries = {}) {
 describe("compileTween", () => {
 	// ── Basic field routing ──────────────────────────────────────────────
 
-	it("routes duration to opts.durationMS", () => {
+	it("routes duration to params (unknown field in v5)", () => {
 		const targets = makeTargets({ "tag:Map": "Scene.x.Tile.y" });
 		const result = compileTween(
 			{ type: "tile-prop", target: "tag:Map", attribute: "alpha", value: 1, duration: 3000 },
 			targets,
 		);
-		expect(result.opts.durationMS).toBe(3000);
-		expect(result.opts.duration).toBeUndefined();
+		expect(result.params.duration).toBe(3000);
+		expect(result.opts.durationMS).toBeUndefined();
 	});
 
 	it("routes attribute and value to params for tile-prop", () => {
@@ -103,24 +103,26 @@ describe("compileTween", () => {
 		expect(result).toBeNull();
 	});
 
-	// ── Detach flag ─────────────────────────────────────────────────────
+	// ── Detach (removed in v5) ──────────────────────────────────────────
 
-	it("passes through detach flag", () => {
+	it("routes detach to params as unknown field (v5 removed top-level detach)", () => {
 		const targets = makeTargets({ "tag:Map": "Scene.x.Tile.y" });
 		const result = compileTween(
 			{ type: "tile-prop", target: "tag:Map", attribute: "alpha", value: 1, duration: 1000, detach: true },
 			targets,
 		);
-		expect(result.detach).toBe(true);
+		expect(result.detach).toBeUndefined();
+		expect(result.params.detach).toBe(true);
 	});
 
-	it("defaults detach to false", () => {
+	it("omits detach from result when not in input", () => {
 		const targets = makeTargets({ "tag:Map": "Scene.x.Tile.y" });
 		const result = compileTween(
 			{ type: "tile-prop", target: "tag:Map", attribute: "alpha", value: 1, duration: 1000 },
 			targets,
 		);
-		expect(result.detach).toBe(false);
+		expect(result.detach).toBeUndefined();
+		expect(result.params.detach).toBeUndefined();
 	});
 
 	// ── Unknown fields route to params ──────────────────────────────────
@@ -157,7 +159,7 @@ describe("compileTween", () => {
 		expect(result.params.toColor).toBe("#ff0000");
 		expect(result.params.toAlpha).toBe(0.8);
 		expect(result.params.mode).toBe("oklch");
-		expect(result.opts.durationMS).toBe(2000);
+		expect(result.params.duration).toBe(2000);
 	});
 
 	// ── light-state params routing ──────────────────────────────────────
@@ -169,12 +171,12 @@ describe("compileTween", () => {
 			targets,
 		);
 		expect(result.params.enabled).toBe(true);
-		expect(result.opts.durationMS).toBe(1500);
+		expect(result.params.duration).toBe(1500);
 	});
 
 	// ── Return shape ────────────────────────────────────────────────────
 
-	it("returns correct shape with type, params, opts, detach", () => {
+	it("returns correct shape with type, params, opts", () => {
 		const targets = makeTargets({ "tag:Map": "Scene.x.Tile.y" });
 		const result = compileTween(
 			{ type: "tile-prop", target: "tag:Map", attribute: "alpha", value: 1, duration: 1000 },
@@ -183,6 +185,6 @@ describe("compileTween", () => {
 		expect(result).toHaveProperty("type");
 		expect(result).toHaveProperty("params");
 		expect(result).toHaveProperty("opts");
-		expect(result).toHaveProperty("detach");
+		expect(result).not.toHaveProperty("detach");
 	});
 });

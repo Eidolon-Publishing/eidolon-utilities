@@ -417,7 +417,8 @@ function enhanceAmbientLightConfig(app, root) {
 
   windowContent.prepend(switcherRegion);
 
-  windowContent.appendChild(fieldset);
+  // Don't append fieldset to DOM — v12 CSS overrides `hidden` attribute.
+  // Store it detached; the manager dialog will insert it on demand.
   fieldset.hidden = true;
   ensureManagerHeaderButton(app, {
     fieldset,
@@ -1169,9 +1170,8 @@ function openManagerDialog(app, { fieldset, homeContainer }) {
   };
 
   const onClose = () => {
-    if (homeContainer instanceof HTMLElement) {
-      homeContainer.appendChild(fieldset);
-    }
+    // Detach fieldset from dialog — don't re-append to light config (v12 CSS ignores hidden)
+    fieldset.remove();
     fieldset.hidden = true;
     managerDialogs.delete(app);
     requestAnimationFrame(() => {

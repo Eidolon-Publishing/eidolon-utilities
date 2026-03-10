@@ -21,12 +21,17 @@ describe("CinematicState", () => {
 		it("returns the correct empty shape", () => {
 			const empty = CinematicState.empty();
 			expect(empty).toEqual({
-				version: 2,
-				trigger: "canvasReady",
-				tracking: true,
-				setup: {},
-				landing: {},
-				timeline: [],
+				version: 5,
+				cinematics: {
+					"default": {
+						trigger: "canvasReady",
+						tracking: true,
+						entry: "main",
+						segments: {
+							"main": { timeline: [] },
+						},
+					},
+				},
 			});
 		});
 
@@ -48,7 +53,7 @@ describe("CinematicState", () => {
 			const state = new CinematicState(null);
 			const next = state.addStep();
 			expect(next.timeline).toHaveLength(1);
-			expect(next.timeline[0]).toEqual({ tweens: [] });
+			expect(next.timeline[0]).toEqual({ duration: 1000, tweens: [] });
 		});
 
 		it("inserts at specific index", () => {
@@ -57,7 +62,7 @@ describe("CinematicState", () => {
 			state = state.addDelay(-1, 500); // index 1
 			state = state.addStep(1); // insert at index 1
 			expect(state.timeline).toHaveLength(3);
-			expect(state.timeline[1]).toEqual({ tweens: [] });
+			expect(state.timeline[1]).toEqual({ duration: 1000, tweens: [] });
 			expect(state.timeline[2]).toEqual({ delay: 500 });
 		});
 	});
@@ -82,17 +87,23 @@ describe("CinematicState", () => {
 	// ── addAwait ─────────────────────────────────────────────────────────
 
 	describe("addAwait", () => {
-		it("appends an await entry with default click config", () => {
+		it("is deprecated and returns same state (no-op)", () => {
+			const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
 			const state = new CinematicState(null);
 			const next = state.addAwait();
-			expect(next.timeline).toHaveLength(1);
-			expect(next.timeline[0]).toEqual({ await: { event: "click" } });
+			expect(next).toBe(state);
+			expect(next.timeline).toHaveLength(0);
+			expect(spy).toHaveBeenCalledOnce();
+			spy.mockRestore();
 		});
 
-		it("uses custom config", () => {
+		it("returns same state even with custom config", () => {
+			const spy = vi.spyOn(console, "warn").mockImplementation(() => {});
 			const state = new CinematicState(null);
 			const next = state.addAwait(-1, { event: "signal", name: "fog-done" });
-			expect(next.timeline[0].await).toEqual({ event: "signal", name: "fog-done" });
+			expect(next).toBe(state);
+			expect(next.timeline).toHaveLength(0);
+			spy.mockRestore();
 		});
 	});
 
@@ -133,7 +144,7 @@ describe("CinematicState", () => {
 			// Move delay (index 1) to index 0
 			state = state.moveEntry(1, 0);
 			expect(state.timeline[0]).toEqual({ delay: 500 });
-			expect(state.timeline[1]).toEqual({ tweens: [] });
+			expect(state.timeline[1]).toEqual({ duration: 1000, tweens: [] });
 		});
 
 		it("returns same state for identical indices", () => {
@@ -283,7 +294,8 @@ describe("CinematicState", () => {
 			let state = new CinematicState(null);
 			state = state.addStep();
 			const json = state.toJSON();
-			json.timeline.push({ delay: 999 });
+			// toJSON returns the active cinematic; timeline is nested in segments
+			json.segments.main.timeline.push({ delay: 999 });
 			expect(state.timeline).toHaveLength(1);
 		});
 	});

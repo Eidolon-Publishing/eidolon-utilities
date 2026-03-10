@@ -1,0 +1,24 @@
+<div class="overlap-resolver">
+  <p class="overlap-resolver__hint">Drag to reorder. Top = highest priority (kept intact). Lower regions are cookie-cut.</p>
+
+  <ol class="overlap-resolver__list" data-role="region-list">
+    {{#each regions}}
+    <li class="overlap-resolver__item {{#if excluded}}is-excluded{{/if}}" draggable="true" data-index="{{@index}}">
+      <span class="overlap-resolver__handle"><i class="fa-solid fa-grip-vertical fa-fw"></i></span>
+      <span class="overlap-resolver__swatch" style="background-color: {{color}};"></span>
+      <span class="overlap-resolver__name">{{name}}</span>
+      <span class="overlap-resolver__badge">{{shapeCount}} shape{{#unless isSingle}}s{{/unless}}</span>
+      <button type="button" class="overlap-resolver__eye" data-action="toggle-exclude" data-index="{{@index}}" title="{{#if excluded}}Include in resolution{{else}}Exclude from resolution{{/if}}">
+        <i class="fa-solid {{#if excluded}}fa-eye-slash{{else}}fa-eye{{/if}} fa-fw"></i>
+      </button>
+    </li>
+    {{/each}}
+  </ol>
+
+  <footer class="overlap-resolver__footer">
+    <button type="button" class="overlap-resolver__btn" data-action="cancel">Cancel</button>
+    <button type="button" class="overlap-resolver__btn overlap-resolver__btn--primary" data-action="resolve">
+      <i class="fa-solid fa-scissors"></i> Remove Overlap
+    </button>
+  </footer>
+</div>
