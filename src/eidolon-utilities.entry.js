@@ -12,6 +12,7 @@ import "../styles/tile-interactions.css";
 import "../styles/door-links.css";
 import "../styles/region-shapes.css";
 import "../styles/soft-light.css";
+import "../styles/directional-teleport.css";
 
 // Feature modules - preserve existing load order
 import "../scripts/time-triggers/index.js";
@@ -35,3 +36,5 @@ import "../scripts/region-shapes/index.js";
 import "../scripts/soft-vision/index.js";
 // Soft light - per-light radial desaturation/darkening (standalone, shader patching)
 import "../scripts/soft-light/index.js";
+// Directional teleport - region behavior for edge-biased token teleportation
+import "../scripts/directional-teleport/index.js";

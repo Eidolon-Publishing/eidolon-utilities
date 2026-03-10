@@ -1,0 +1,126 @@
+/* Directional Teleport — pill-set direction picker */
+
+.eidutil-direction-pills {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px;
+	min-height: 30px;
+}
+
+.eidutil-pill-box {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px;
+	flex: 1;
+}
+
+.eidutil-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 6px 2px 8px;
+	border-radius: 12px;
+	background: var(--color-cool-5, #4b4a44);
+	color: var(--color-text-light-highlight, #f0f0e0);
+	font-size: 11px;
+	line-height: 20px;
+	white-space: nowrap;
+	user-select: none;
+}
+
+.eidutil-pill i:first-child {
+	font-size: 10px;
+	opacity: 0.8;
+}
+
+.eidutil-pill-remove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	cursor: pointer;
+	opacity: 0.6;
+	transition: opacity 0.15s, background 0.15s;
+	margin-left: 2px;
+}
+
+.eidutil-pill-remove:hover {
+	opacity: 1;
+	background: rgba(255, 255, 255, 0.15);
+}
+
+.eidutil-pill-remove i {
+	font-size: 9px;
+}
+
+.eidutil-pill-empty-hint {
+	color: var(--color-text-dark-5, #7a7971);
+	font-size: 11px;
+	font-style: italic;
+}
+
+.eidutil-pill-add-wrapper {
+	position: relative;
+}
+
+.eidutil-pill-add {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 12px;
+	border: 1px dashed var(--color-border-light-2, #7a7971);
+	cursor: pointer;
+	opacity: 0.6;
+	transition: opacity 0.15s, border-color 0.15s;
+}
+
+.eidutil-pill-add:hover {
+	opacity: 1;
+	border-color: var(--color-text-light-highlight, #f0f0e0);
+}
+
+.eidutil-pill-add i {
+	font-size: 10px;
+}
+
+.eidutil-pill-dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 100;
+	background: var(--color-cool-5, #4b4a44);
+	border: 1px solid var(--color-border-light-2, #7a7971);
+	border-radius: 4px;
+	padding: 2px 0;
+	min-width: 100px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+	margin-top: 4px;
+}
+
+.eidutil-pill-option {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px;
+	cursor: pointer;
+	font-size: 12px;
+	color: var(--color-text-light-highlight, #f0f0e0);
+	transition: background 0.1s;
+}
+
+.eidutil-pill-option:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.eidutil-pill-option i {
+	width: 14px;
+	text-align: center;
+	font-size: 11px;
+	opacity: 0.8;
+}

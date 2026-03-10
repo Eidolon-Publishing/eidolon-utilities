@@ -1,0 +1,13 @@
+{
+	"EIDUTIL.directionalTeleport.typeLabel": "Directional Teleport",
+	"EIDUTIL.TYPES.directionalTeleport.FIELDS.destination.label": "Destination",
+	"EIDUTIL.TYPES.directionalTeleport.FIELDS.destination.hint": "The destination Region the Token is teleported to.",
+	"EIDUTIL.TYPES.directionalTeleport.FIELDS.choice.label": "Allow Choice",
+	"EIDUTIL.TYPES.directionalTeleport.FIELDS.choice.hint": "Allow the User that moved the Token to choose whether to teleport it.",
+	"EIDUTIL.TYPES.directionalTeleport.FIELDS.directions.label": "Directions",
+	"EIDUTIL.TYPES.directionalTeleport.FIELDS.directions.hint": "Which sides of this region trigger the teleport. Empty = any direction. Enter mode: triggers when entering from these sides. Exit mode: triggers when exiting toward these sides.",
+	"EIDUTIL.TYPES.directionalTeleport.FIELDS.event.label": "Trigger Event",
+	"EIDUTIL.TYPES.directionalTeleport.FIELDS.event.hint": "When to trigger the teleport: on entering or exiting this region.",
+	"EIDUTIL.TYPES.directionalTeleport.Confirm": "Do you want to teleport {token}?",
+	"EIDUTIL.TYPES.directionalTeleport.ConfirmGM": "Do you want to teleport {token} to {region} in {scene}?"
+}
