@@ -121,7 +121,7 @@ export function captureDefaultState(wallDoc) {
 		sight: wallDoc.sight ?? 20,
 		sound: wallDoc.sound ?? 20,
 	};
-	return wallDoc.update({ [`flags.${MODULE_ID}.${FLAG_DOOR_LINK_DEFAULT}`]: state });
+	return wallDoc.update({ [`flags.${MODULE_ID}.${FLAG_DOOR_LINK_DEFAULT}`]: state }, { render: false });
 }
 
 /**

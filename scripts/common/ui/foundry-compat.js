@@ -80,6 +80,39 @@ function _manualTabActivation(app, tabId) {
 }
 
 /**
+ * HTML-escape a string, compatible with both v12 and v13.
+ * v13 exposes `foundry.utils.escapeHTML`; v12 does not, so we fall back to Handlebars.
+ * @param {string} str
+ * @returns {string}
+ */
+export function escapeHTML(str) {
+  if (typeof str !== "string") return "";
+  if (typeof foundry?.utils?.escapeHTML === "function") return foundry.utils.escapeHTML(str);
+  if (typeof Handlebars?.Utils?.escapeExpression === "function") return Handlebars.Utils.escapeExpression(str);
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+}
+
+/**
+ * Count how many leading path segments two folder paths share.
+ * Paths use " / " as separator (Foundry folder convention).
+ * Returns 0 when either path is empty or there is no common prefix.
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
+ */
+export function sharedPathDepth(a, b) {
+  if (!a || !b) return 0;
+  const partsA = a.split(" / ");
+  const partsB = b.split(" / ");
+  let depth = 0;
+  for (let i = 0; i < Math.min(partsA.length, partsB.length); i++) {
+    if (partsA[i] === partsB[i]) depth++;
+    else break;
+  }
+  return depth;
+}
+
+/**
  * Read form data using FormDataExtended, resolving the class across v12 (global) and v13 (namespaced).
  * Returns an expanded plain object of the form's current values.
  * @param {HTMLFormElement} form

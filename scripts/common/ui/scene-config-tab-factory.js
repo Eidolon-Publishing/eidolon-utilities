@@ -221,7 +221,9 @@ export function createSceneConfigTabFactory(options = {}) {
 
     // Create or find tab panel
     let tab = body.querySelector(`.tab[data-tab="${tabId}"]`);
+    let isNewTab = false;
     if (!tab) {
+      isNewTab = true;
       tab = document.createElement("div");
       tab.classList.add("tab");
       tab.dataset.tab = tabId;
@@ -329,7 +331,8 @@ export function createSceneConfigTabFactory(options = {}) {
       });
     }
 
-    app.setPosition?.({ height: "auto" });
+    // Only resize on initial tab creation — re-renders should not shrink the window
+    if (isNewTab) app.setPosition?.({ height: "auto" });
   }
 
   // ── v13 AppV2 path ──────────────────────────────────────────────────

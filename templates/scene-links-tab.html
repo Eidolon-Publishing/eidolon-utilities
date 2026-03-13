@@ -1,0 +1,66 @@
+<div class="scene-links-container">
+  <p class="notes scene-links-description">{{description}}</p>
+
+  {{#if hasLinks}}
+    <ol class="scene-links-list">
+      {{#each links}}
+        <li class="scene-link-entry{{#if isMissing}} scene-link-entry--missing{{/if}}" data-target="{{target}}">
+          <div class="scene-link-entry__details">
+            <span class="scene-link-entry__label">{{label}}</span>
+            <span class="scene-link-entry__target">{{sceneName}}</span>
+          </div>
+          <div class="scene-link-entry__controls">
+            <button
+              type="button"
+              class="icon"
+              data-action="navigate"
+              data-target="{{target}}"
+              aria-label="{{../labels.navigate}}"
+              title="{{../labels.navigate}}"
+              {{#if isMissing}}disabled{{/if}}
+            >
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <button
+              type="button"
+              class="icon"
+              data-action="edit"
+              data-target="{{target}}"
+              aria-label="{{../labels.edit}}"
+              title="{{../labels.edit}}"
+            >
+              <i class="fa-solid fa-pencil"></i>
+            </button>
+            <button
+              type="button"
+              class="icon"
+              data-action="remove"
+              data-target="{{target}}"
+              aria-label="{{../labels.remove}}"
+              title="{{../labels.remove}}"
+            >
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </li>
+      {{/each}}
+    </ol>
+  {{else}}
+    <p class="notes scene-links-empty">{{labels.noLinks}}</p>
+  {{/if}}
+
+  <button type="button" class="scene-links-add" data-action="add">
+    <i class="fa-solid fa-plus"></i> {{labels.addLink}}
+  </button>
+
+  {{#if hasLinks}}
+    <hr />
+    <div class="form-group scene-links-sync-criteria">
+      <label class="checkbox">
+        <input type="checkbox" data-action="toggle-sync-criteria" {{#if syncCriteria}}checked{{/if}} />
+        {{labels.syncCriteria}}
+      </label>
+      <p class="notes scene-links-sync-criteria__hint">{{labels.syncCriteriaHint}}</p>
+    </div>
+  {{/if}}
+</div>
