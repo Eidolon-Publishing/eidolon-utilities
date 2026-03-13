@@ -1,0 +1,17 @@
+<form class="scene-links-remove-form">
+  <p>Remove link to <strong>{{targetName}}</strong>?</p>
+
+  {{#if hasReverseLink}}
+    <div class="form-group">
+      <label class="checkbox">
+        <input type="checkbox" name="removeReverse" checked />
+        {{labels.alsoRemoveReverse}}
+      </label>
+    </div>
+  {{/if}}
+
+  <footer class="sheet-footer">
+    <button type="button" data-action="cancel">{{labels.cancel}}</button>
+    <button type="submit">{{labels.remove}}</button>
+  </footer>
+</form>

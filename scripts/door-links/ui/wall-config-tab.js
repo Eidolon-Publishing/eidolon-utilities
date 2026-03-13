@@ -9,7 +9,7 @@
  *   - V13: Injects a <fieldset> into the scrollable body
  */
 
-import { asHTMLElement } from "../../common/ui/foundry-compat.js";
+import { asHTMLElement, setActiveTab } from "../../common/ui/foundry-compat.js";
 import { ensureTileConfigTab } from "../../common/ui/tile-config-tab.js";
 import { getAllBehaviors } from "../core/behavior-registry.js";
 import { getDoorLinks, setDoorLinks, ensureDefaultState, captureDefaultState, getDefaultState } from "../core/flag-utils.js";
@@ -472,6 +472,11 @@ function injectAsTab(app, root, doc, scene) {
 	const tabPanel = ensureTileConfigTab(app, root, TAB_ID, TAB_LABEL, TAB_ICON);
 	if (!tabPanel) return false;
 
+	// Restore active tab if we previously marked it
+	if (app._eidolonActiveTab === TAB_ID) {
+		setActiveTab(app, TAB_ID);
+	}
+
 	// Don't rebuild
 	if (tabPanel.querySelector(`.${CONTAINER_CLASS}`)) return true;
 
@@ -479,6 +484,7 @@ function injectAsTab(app, root, doc, scene) {
 	if (parentForm) parentForm.noValidate = true;
 
 	const refresh = () => {
+		app._eidolonActiveTab = TAB_ID;
 		tabPanel.querySelector(`.${CONTAINER_CLASS}`)?.remove();
 		tabPanel.appendChild(buildDoorLinksContent(doc, scene, refresh));
 	};

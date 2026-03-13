@@ -10,6 +10,7 @@ import "../styles/canvas-popup.css";
 import "../styles/idle-animations.css";
 import "../styles/tile-interactions.css";
 import "../styles/door-links.css";
+import "../styles/scene-links.css";
 import "../styles/region-shapes.css";
 import "../styles/soft-light.css";
 import "../styles/directional-teleport.css";
@@ -30,6 +31,8 @@ import "../scripts/idle-animations/index.js";
 import "../scripts/tile-interactions/index.js";
 // Door links - standalone, hooks into wall config and door state changes
 import "../scripts/door-links/index.js";
+// Scene links - standalone, hooks into scene config for cross-scene navigation
+import "../scripts/scene-links/index.js";
 // Region shapes - standalone, drag & drop shapes between RegionConfig windows
 import "../scripts/region-shapes/index.js";
 // Soft vision - custom vision mode with blur + soft fade (standalone, client-side only)
