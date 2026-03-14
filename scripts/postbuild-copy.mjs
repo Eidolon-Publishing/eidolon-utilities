@@ -22,6 +22,7 @@ async function main() {
   console.log("Copied: module.json -> dist/module.json");
 
   await copyToDist("templates");
+  await copyToDist("lang");
 
   // --- Back to repo root (so Foundry loads the fresh bundle) ---
   const JS = "eidolon-utilities.js";

@@ -220,6 +220,9 @@ export async function updatePlaceables(state, scene, options = {}) {
 	);
 	const dependencyIndex = getPlaceableDependencyIndex(scene, collectionsByType);
 
+	// Phase 1: Compute all updates upfront (fast, no I/O)
+	const pendingUpdates = [];
+
 	for (const type of PLACEABLE_TYPES) {
 		const collection = collectionsByType.get(type) ?? [];
 		const typeMetrics = {
@@ -260,12 +263,20 @@ export async function updatePlaceables(state, scene, options = {}) {
 		}
 
 		if (updates.length > 0) {
+			pendingUpdates.push({ type, updates, typeMetrics });
+		}
+	}
+
+	// Phase 2: Apply all types in parallel (one server round-trip each,
+	// overlapping network I/O + coalescing canvas re-renders into one frame)
+	if (pendingUpdates.length > 0) {
+		await Promise.all(pendingUpdates.map(async ({ type, updates, typeMetrics }) => {
 			typeMetrics.chunks = await updateDocumentsInChunks(scene, type, updates, options.chunkSize);
 			typeMetrics.updated = updates.length;
 			metrics.updated += updates.length;
 			metrics.chunks += typeMetrics.chunks;
 			console.log(`${MODULE_ID} | Updated ${updates.length} ${type}(s)`);
-		}
+		}));
 	}
 
 	metrics.durationMs = nowMs() - start;

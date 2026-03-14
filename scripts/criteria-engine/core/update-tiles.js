@@ -149,10 +149,110 @@ export async function updateTiles(state, scene, options = {}) {
 	}
 
 	if (tileUpdates.length > 0) {
+		// Collect old texture sources before applying updates
+		const previousTextureSources = new Map(); // normalizedPath -> rawPath
+		const newTextureSources = [];
+		for (const update of tileUpdates) {
+			if (update.texture?.src) {
+				newTextureSources.push(update.texture.src);
+				const tile = scene.tiles.get(update._id);
+				const rawSrc = tile?.texture?.src ?? tile?._source?.texture?.src;
+				if (rawSrc) {
+					previousTextureSources.set(normalizeFilePath(rawSrc), rawSrc);
+				}
+			}
+		}
+
+		// Pre-load new textures sequentially to avoid a CPU spike from
+		// decoding many 8K images in parallel. Once cached, Tile.draw()
+		// fetches them instantly instead of triggering concurrent decodes.
+		if (newTextureSources.length > 1) {
+			const preloaded = await preloadTexturesThrottled(newTextureSources);
+			if (preloaded > 0) {
+				log(`Pre-loaded ${preloaded}/${newTextureSources.length} texture(s)`);
+			}
+		}
+
 		metrics.chunks = await updateDocumentsInChunks(scene, "Tile", tileUpdates, options.chunkSize);
 		metrics.updated = tileUpdates.length;
+
+		// Schedule cleanup of old textures no longer used by any tile.
+		// Delayed to let Foundry finish drawing with new textures first.
+		if (previousTextureSources.size > 0) {
+			scheduleTextureCleanup(scene, previousTextureSources);
+		}
 	}
 
 	metrics.durationMs = nowMs() - start;
 	return metrics;
+}
+
+// ── Texture pre-loading ───────────────────────────────────────────────────
+
+const PRELOAD_CONCURRENCY = 2;
+
+async function preloadTexturesThrottled(sources) {
+	const queue = [...sources];
+	let loaded = 0;
+	const renderer = canvas?.app?.renderer;
+
+	async function worker() {
+		while (queue.length > 0) {
+			const src = queue.shift();
+			try {
+				const texture = await loadTexture(src);
+				// Force GPU upload now so it doesn't all happen on one
+				// frame when the tiles re-render with new textures.
+				if (renderer && texture?.baseTexture?.valid) {
+					renderer.texture.bind(texture.baseTexture);
+				}
+				loaded++;
+				// Yield a frame between GPU uploads to keep the UI responsive
+				await new Promise((r) => requestAnimationFrame(r));
+			} catch (_e) {
+				// Missing/broken file — Tile.draw() will handle the fallback
+			}
+		}
+	}
+
+	const workers = Math.min(PRELOAD_CONCURRENCY, queue.length);
+	await Promise.all(Array.from({ length: workers }, worker));
+	return loaded;
+}
+
+// ── Texture cleanup ───────────────────────────────────────────────────────
+
+const TEXTURE_CLEANUP_DELAY_MS = 3000;
+
+function scheduleTextureCleanup(scene, previousSources) {
+	const sceneId = scene.id;
+	setTimeout(async () => {
+		// Scene may have changed since the timeout was scheduled
+		const currentScene = game.scenes?.get(sceneId);
+		if (!currentScene) return;
+
+		// Collect all texture sources still in use by any tile on the scene
+		const activeSources = new Set();
+		const collection = currentScene.getEmbeddedCollection("Tile") ?? [];
+		for (const tile of collection) {
+			const src = tile.texture?.src ?? tile._source?.texture?.src;
+			if (src) activeSources.add(normalizeFilePath(src));
+		}
+
+		let released = 0;
+		for (const [normalized, raw] of previousSources) {
+			if (!activeSources.has(normalized)) {
+				try {
+					await PIXI.Assets.unload(raw);
+					released++;
+				} catch (_e) {
+					// Already unloaded or never cached
+				}
+			}
+		}
+
+		if (released > 0) {
+			log(`Released ${released} unused texture(s) from GPU/CPU memory`);
+		}
+	}, TEXTURE_CLEANUP_DELAY_MS);
 }

@@ -66,7 +66,7 @@ export function parseFileTags(filename) {
 	return tags.length ? tags : null;
 }
 
-export function buildFileIndex(files, positionMap, defaultValue = DEFAULT_VALUE) {
+export function buildFileIndex(files, positionMap, defaultValue = DEFAULT_VALUE, valueOverrides = null) {
 	if (!files?.length) return [];
 
 	return files.map((file) => {
@@ -76,8 +76,13 @@ export function buildFileIndex(files, positionMap, defaultValue = DEFAULT_VALUE)
 		const criteria = {};
 		for (const [pos, key] of Object.entries(positionMap)) {
 			const value = tags[Number(pos)];
-			if (value != null && value !== defaultValue) {
-				criteria[key] = value;
+			if (value == null) continue;
+			// valueOverrides: { position: { "Value": "targetKey" } }
+			// Redirects a specific value from its default key to a different one.
+			const overrideKey = valueOverrides?.[pos]?.[value];
+			const resolvedKey = overrideKey ?? key;
+			if (value !== defaultValue || overrideKey) {
+				criteria[resolvedKey] = overrideKey ? value : value;
 			}
 		}
 		return criteria;
@@ -106,11 +111,11 @@ function buildCriteriaDefinitions(criterionOrder, valuesByKey) {
 
 // ── Per-tile indexing ──────────────────────────────────────────────────────
 
-async function indexTile(tile, positionMap, valuesByKey, { dryRun = false } = {}) {
+async function indexTile(tile, positionMap, valuesByKey, { dryRun = false, valueOverrides = null } = {}) {
 	const files = tile.getFlag("monks-active-tiles", "files");
 	if (!files?.length) return null;
 
-	const fileIndex = buildFileIndex(files, positionMap);
+	const fileIndex = buildFileIndex(files, positionMap, DEFAULT_VALUE, valueOverrides);
 	const tileCriteria = buildTileCriteriaFromFileIndex(fileIndex, { files });
 
 	for (const file of files) {
@@ -118,8 +123,11 @@ async function indexTile(tile, positionMap, valuesByKey, { dryRun = false } = {}
 		if (!tags) continue;
 		for (const [pos, key] of Object.entries(positionMap)) {
 			const value = tags[Number(pos)];
-			if (value != null && valuesByKey[key]) {
-				valuesByKey[key].add(value);
+			if (value == null) continue;
+			const overrideKey = valueOverrides?.[pos]?.[value];
+			const resolvedKey = overrideKey ?? key;
+			if (valuesByKey[resolvedKey]) {
+				valuesByKey[resolvedKey].add(value);
 			}
 		}
 	}
@@ -205,7 +213,10 @@ export async function indexScene(scene, options = {}) {
 		);
 	}
 
-	// Use inline conventions if provided, otherwise read from the registry
+	// Use inline conventions if provided, otherwise read from the registry.
+	// When the caller passes explicit conventions, skip auto-detection heuristics
+	// (e.g. nolights remapping) — the caller has full control.
+	const callerConventions = Boolean(options.conventions);
 	const conventions = resolveConventions(options.conventions);
 	const taggerOpts = { sceneId: scene.id };
 
@@ -240,7 +251,8 @@ export async function indexScene(scene, options = {}) {
 
 		// Detect "No Lights" in the effect position — if present, remap to "nolights"
 		// so it doesn't merge with weather effects from the Weather tile.
-		if (tagCount === 3 && primaryConvention.positionMap?.[2] === "effect") {
+		// Skip this heuristic when the caller provided explicit conventions.
+		if (!callerConventions && tagCount === 3 && primaryConvention.positionMap?.[2] === "effect") {
 			const hasNoLights = files.some((f) => {
 				const t = parseFileTags(f?.name);
 				return t?.[2] === "No Lights";
@@ -271,9 +283,31 @@ export async function indexScene(scene, options = {}) {
 		if (!criterionOrder.includes(key)) criterionOrder.push(key);
 	}
 
+	// Include keys introduced by valueOverrides in criterion order,
+	// seeded with the default value (the override key won't receive it
+	// naturally since the default flows to the original key).
+	for (const [, convention] of conventions) {
+		if (!convention.valueOverrides) continue;
+		for (const overrides of Object.values(convention.valueOverrides)) {
+			for (const targetKey of Object.values(overrides)) {
+				if (!criterionOrder.includes(targetKey)) criterionOrder.push(targetKey);
+			}
+		}
+	}
+
 	const valuesByKey = {};
 	for (const key of criterionOrder) {
 		valuesByKey[key] = new Set();
+	}
+
+	// Seed override target keys with "Standard" default
+	for (const [, convention] of conventions) {
+		if (!convention.valueOverrides) continue;
+		for (const overrides of Object.values(convention.valueOverrides)) {
+			for (const targetKey of Object.values(overrides)) {
+				if (valuesByKey[targetKey]) valuesByKey[targetKey].add(DEFAULT_VALUE);
+			}
+		}
 	}
 
 	// Ensure weather effect key is tracked even if not in primary map
@@ -298,7 +332,7 @@ export async function indexScene(scene, options = {}) {
 		const results = [];
 
 		for (const tile of tiles) {
-			const result = await indexTile(tile, posMap, valuesByKey, { dryRun });
+			const result = await indexTile(tile, posMap, valuesByKey, { dryRun, valueOverrides: convention.valueOverrides });
 			if (result) results.push(result);
 		}
 

@@ -41,3 +41,5 @@ import "../scripts/soft-vision/index.js";
 import "../scripts/soft-light/index.js";
 // Directional teleport - region behavior for edge-biased token teleportation
 import "../scripts/directional-teleport/index.js";
+// Better Roofs multi-link - comma-separated occlusionLinkId support
+import "../scripts/betterroofs-multilink/index.js";
