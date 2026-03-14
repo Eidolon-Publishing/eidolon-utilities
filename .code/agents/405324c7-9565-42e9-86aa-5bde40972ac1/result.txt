@@ -1,0 +1,557 @@
+[2026-02-19T00:22:56] OpenAI Codex v0.0.0 (research preview)
+[2026-02-19T00:22:56] binary: /home/talanor/.cache/just-every/code/0.6.70/code-x86_64-unknown-linux-musl
+--------
+workdir: /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: auto
+--------
+[2026-02-19T00:22:56] User instructions:
+Create a comprehensive implementation plan (no code changes) to improve the timeline / sequencer / executor architecture in this Foundry module. Focus on production-ready behavior and maintainability.
+
+Context:
+- Repo: eidolon-utilities
+- Current relevant system includes:
+  - scripts/tween/core/timeline/TweenTimeline.js
+  - scripts/tween/core/timeline/TimelineHandle.js
+  - scripts/tween/core/timeline/schema.js
+  - scripts/tween/core/executors/sequence.js
+  - scripts/tween/core/registry.js
+  - scripts/tween/hooks.js
+- The timeline is a step/delay executor with named timeline registry, socket broadcast for sequence sync, and error policies (abort/continue).
+- Known concerns from prior review to account for:
+  1) Cancellation is not immediate for in-flight step entries because step execution awaits Promise.all(stepPromises) and executors do not receive abort signals.
+  2) Error outcomes collapse to boolean false, making cancellation vs runtime-failure indistinguishable.
+  3) errorPolicy='continue' appears to apply to entry execution, but hook callbacks (beforeAll/before/after) can still abort timeline if they throw.
+  4) Sequence JSON validates structure but not semantic params per registered tween validator before run.
+
+What to produce:
+- A concrete implementation plan (not code) with ordered phases and rationale.
+- API contract recommendations for cancellation/error semantics and backward compatibility strategy.
+- File-level change map (which files should change and why).
+- Test strategy (unit/integration/manual in Foundry context) with specific scenarios.
+- Risk assessment + migration/rollout approach.
+- Keep the plan practical and concise, but comprehensive enough for direct implementation.
+
+Constraints:
+- Do not overengineer.
+- Prefer simple, direct design with obvious edge cases covered.
+- Assume we will implement next after choosing a plan.
+
+[Running in read-only mode - no modifications allowed]
+
+[2026-02-19T00:22:59] thinking
+
+**Planning skill usage**
+[2026-02-19T00:22:59] exec cat /home/talanor/.code/skills/.system/plan/SKILL.md in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:22:59] cat /home/talanor/.code/skills/.system/plan/SKILL.md succeeded in 1ms:
+---
+name: plan
+description: Generate a plan for how an agent should accomplish a complex coding task. Use when a user asks for a plan, and optionally when they want to save, find, read, update, or delete plan files in $CODEX_HOME/plans (default ~/.codex/plans).
+metadata:
+  short-description: Generate a plan for a complex task
+---
+
+# Plan
+
+## Overview
+
+Draft structured plans that clarify intent, scope, requirements, action items, testing/validation, and risks.
+
+Optionally, save plans to disk as markdown files with YAML frontmatter and free-form content. When drafting in chat, output only the plan body without frontmatter; add frontmatter only when saving to disk. Only write to the plans folder; do not modify the repository codebase.
+
+This skill can also be used to draft codebase or system overviews.
+
+## Core rules
+
+- Resolve the plans directory as `$CODEX_HOME/plans` or `~/.codex/plans` when `CODEX_HOME` is not set.
+[2026-02-19T00:22:59] tokens used: 6,871
+[2026-02-19T00:23:02] exec sed -n '1,260p' scripts/tween/core/timeline/TweenTimeline.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:02] sed -n '1,260p' scripts/tween/core/timeline/TweenTimeline.js succeeded in 8ms:
+import { getTweenType } from "../registry.js";
+import { emitSocket } from "../../../common/socket.js";
+import { ErrorPolicy, SOCKET_TYPE_SEQUENCE, SOCKET_TYPE_SEQUENCE_CANCEL } from "./constants.js";
+import { TimelineHandle } from "./TimelineHandle.js";
+
+// ── Named timeline registry ────────────────────────────────────────────
+
+/** @type {Map<string, TimelineHandle>} */
+const namedTimelines = new Map();
+
+/**
+ * Register a named timeline handle. If one already exists with the same
+ * name, it is cancelled first (matches CanvasAnimation.terminateAnimation pattern).
+ * Auto-cleans on finish.
+ * @param {string} name
+ * @param {TimelineHandle} handle
+ */
+export function registerTimeline(name, handle) {
+	const existing = namedTimelines.get(name);
+	if (existing && !existing.cancelled) {
+[2026-02-19T00:23:02] exec sed -n '1,260p' scripts/tween/core/timeline/TimelineHandle.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:02] sed -n '1,260p' scripts/tween/core/timeline/TimelineHandle.js succeeded in 3ms:
+/**
+ * Handle returned by TweenTimeline.run(). Wraps an AbortController
+ * and a completion promise for external cancellation and await.
+ */
+export class TimelineHandle {
+	#controller;
+	#resolve;
+	#finished;
+
+	/**
+	 * @param {AbortController} controller
+	 */
+	constructor(controller) {
+		this.#controller = controller;
+		this.#finished = new Promise((resolve) => {
+			this.#resolve = resolve;
+		});
+	}
+
+	/** @returns {Promise<boolean>} Resolves true (completed) or false (cancelled). */
+[2026-02-19T00:23:02] exec sed -n '1,260p' scripts/tween/core/timeline/schema.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:02] sed -n '1,260p' scripts/tween/core/timeline/schema.js succeeded in 3ms:
+import { ErrorPolicy } from "./constants.js";
+import { TweenTimeline } from "./TweenTimeline.js";
+
+/**
+ * Validate a sequence JSON structure. Throws on structural errors.
+ * Does NOT validate individual tween type existence (types may register late).
+ *
+ * @param {object} data
+ * @param {string} [data.name]
+ * @param {"abort"|"continue"} [data.errorPolicy]
+ * @param {Array<Array|{ delay: number }>} data.timeline
+ */
+export function validateSequenceJSON(data) {
+	if (!data || typeof data !== "object") {
+		throw new Error("Sequence JSON: data must be an object.");
+	}
+	if (!Array.isArray(data.timeline)) {
+		throw new Error("Sequence JSON: 'timeline' must be an array.");
+	}
+	if (data.name != null && typeof data.name !== "string") {
+[2026-02-19T00:23:02] tokens used: 8,871
+[2026-02-19T00:23:05] exec sed -n '1,320p' scripts/tween/core/executors/sequence.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:05] sed -n '1,320p' scripts/tween/core/executors/sequence.js succeeded in 7ms:
+import { registerTweenType } from "../registry.js";
+import { validateSequenceJSON, compileSequence } from "../timeline/schema.js";
+
+/**
+ * Validate sequence tween parameters (JSON structure check only).
+ * @param {object} params  Sequence JSON data
+ */
+function validate(params) {
+	validateSequenceJSON(params);
+}
+
+/**
+ * Execute a sequence tween by compiling JSON into a TweenTimeline and running it.
+ * Broadcast is disabled since the dispatcher already broadcast the message.
+ *
+ * @param {object} params  Sequence JSON data
+ * @param {object} opts
+ * @param {boolean} [opts.commit]
+ * @param {number}  [opts.startEpochMS]
+ * @returns {Promise<boolean>}
+[2026-02-19T00:23:05] tokens used: 12,653
+[2026-02-19T00:23:07] exec sed -n '1,320p' scripts/tween/core/registry.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:07] sed -n '1,320p' scripts/tween/core/registry.js succeeded in 5ms:
+const tweenTypes = new Map();
+
+/**
+ * Register a tween type with its executor and optional validator.
+ * @param {object} def
+ * @param {string} def.type       Unique tween type name (e.g. "light-color")
+ * @param {(params: object, opts: object) => Promise<boolean>} def.execute
+ * @param {(params: object) => void} [def.validate]  Throws on invalid params
+ */
+export function registerTweenType({ type, execute, validate }) {
+	if (tweenTypes.has(type)) {
+		console.warn(`[tween-registry] Type "${type}" already registered, overwriting.`);
+	}
+	tweenTypes.set(type, { type, execute, validate: validate ?? (() => {}) });
+}
+
+/**
+ * Lookup a registered tween type.
+ * @param {string} type
+ * @returns {{ type: string, execute: Function, validate: Function } | undefined}
+[2026-02-19T00:23:07] tokens used: 13,179
+[2026-02-19T00:23:09] exec sed -n '1,320p' scripts/tween/hooks.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:09] sed -n '1,320p' scripts/tween/hooks.js succeeded in 4ms:
+import { MODULE_ID } from "../time-triggers/core/constants.js";
+import { registerSocketHandler, initializeSocket } from "../common/socket.js";
+import { SOCKET_TYPE_TWEEN } from "./core/constants.js";
+import { SOCKET_TYPE_SEQUENCE, SOCKET_TYPE_SEQUENCE_CANCEL, ErrorPolicy } from "./core/timeline/constants.js";
+import { registerLightColorTween } from "./core/executors/light-color.js";
+import { registerLightStateTween } from "./core/executors/light-state.js";
+import { registerSequenceTween } from "./core/executors/sequence.js";
+import { dispatchTween, handleTweenSocketMessage } from "./core/dispatcher.js";
+import { listTweenTypes } from "./core/registry.js";
+import { TweenTimeline, cancelTimeline, getTimeline } from "./core/timeline/TweenTimeline.js";
+import { compileSequence } from "./core/timeline/schema.js";
+
+// Register tween types synchronously at module load time
+registerLightColorTween();
+registerLightStateTween();
+registerSequenceTween();
+
+// Register socket handlers
+registerSocketHandler(SOCKET_TYPE_TWEEN, handleTweenSocketMessage);
+registerSocketHandler(SOCKET_TYPE_SEQUENCE, handleSequenceSocketMessage);
+[2026-02-19T00:23:09] tokens used: 13,663
+[2026-02-19T00:23:11] exec sed -n '260,620p' scripts/tween/core/timeline/TweenTimeline.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:11] sed -n '260,620p' scripts/tween/core/timeline/TweenTimeline.js succeeded in 7ms:
+	/**
+	 * Execute the timeline.
+	 * @param {object} [opts]
+	 * @param {boolean} [opts.commit]     Default true for GM, false for socket receivers
+	 * @param {number}  [opts.startEpochMS]  For socket sync
+	 * @param {boolean} [opts.broadcast]  Default game.user.isGM, gates socket emission
+	 * @returns {TimelineHandle}
+	 */
+	run(opts = {}) {
+		this.#finalizeCurrentStep();
+
+		const controller = new AbortController();
+		const handle = new TimelineHandle(controller);
+
+		// Register named timeline (cancels previous with same name)
+		if (this.#name) {
+			registerTimeline(this.#name, handle);
+		}
+
+		const broadcast = opts.broadcast ?? game.user.isGM;
+[2026-02-19T00:23:11] tokens used: 14,561
+
+[2026-02-19T00:23:12] thinking
+
+**Reviewing constants and signatures**
+[2026-02-19T00:23:12] exec sed -n '1,220p' scripts/tween/core/timeline/constants.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:12] sed -n '1,220p' scripts/tween/core/timeline/constants.js succeeded in 15ms:
+export const SOCKET_TYPE_SEQUENCE = "tween-sequence";
+export const SOCKET_TYPE_SEQUENCE_CANCEL = "tween-sequence-cancel";
+
+export const ErrorPolicy = Object.freeze({
+	ABORT: "abort",
+	CONTINUE: "continue",
+});
+[2026-02-19T00:23:12] tokens used: 16,577
+
+[2026-02-19T00:23:14] thinking
+
+**Inspecting dispatcher and executor types**
+[2026-02-19T00:23:14] exec sed -n '1,320p' scripts/tween/core/dispatcher.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:14] sed -n '1,320p' scripts/tween/core/dispatcher.js succeeded in 1ms:
+import { MODULE_ID } from "../../time-triggers/core/constants.js";
+import { emitSocket } from "../../common/socket.js";
+import { SOCKET_TYPE_TWEEN } from "./constants.js";
+import { getTweenType, listTweenTypes } from "./registry.js";
+
+/**
+ * Dispatch a tween: validate, broadcast to other clients, and execute locally.
+ *
+ * @param {string} type        Registered tween type name (e.g. "light-color")
+ * @param {object} params      Type-specific parameters (e.g. { uuid, toColor })
+ * @param {object} [opts]
+ * @param {number} [opts.durationMS=2000]
+ * @param {string} [opts.easing="easeInOutCosine"]
+ * @param {boolean} [opts.commit=true]  Whether the GM persists the final state
+ * @returns {Promise<boolean>} Whether the local animation completed
+ */
+export async function dispatchTween(type, params, opts = {}) {
+	if (!game.user.isGM) {
+		ui.notifications.warn("Only the GM can dispatch tweens.");
+		return false;
+[2026-02-19T00:23:14] tokens used: 16,941
+
+[2026-02-19T00:23:16] thinking
+
+**Inspecting executor signal handling**
+[2026-02-19T00:23:16] exec sed -n '1,320p' scripts/tween/core/executors/light-color.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:16] sed -n '1,320p' scripts/tween/core/executors/light-color.js succeeded in 9ms:
+import { registerTweenType } from "../registry.js";
+import { resolveEasing } from "../easing.js";
+import { getInterpolator, listInterpolationModes } from "../color-interpolation.js";
+
+/**
+ * Validate light-color tween parameters.
+ * @param {object} params
+ * @param {string|string[]} params.uuid  AmbientLight document UUID(s)
+ * @param {string} [params.toColor] Target CSS color (e.g. "#ff0000")
+ * @param {number} [params.toAlpha] Target alpha (0–1)
+ * @param {string} [params.mode]  Interpolation mode: "hsl", "rgb", "oklch"
+ */
+function validate(params) {
+	const uuids = Array.isArray(params.uuid) ? params.uuid : [params.uuid];
+	if (uuids.some((id) => !id || typeof id !== "string")) {
+		throw new Error("light-color tween: 'uuid' is required (string or array of AmbientLight document UUIDs).");
+	}
+	if (params.toColor == null && params.toAlpha == null) {
+		throw new Error("light-color tween: at least one of 'toColor' or 'toAlpha' is required.");
+	}
+[2026-02-19T00:23:16] tokens used: 17,789
+
+[2026-02-19T00:23:18] thinking
+
+**Considering alternative executor**
+[2026-02-19T00:23:18] exec sed -n '1,320p' scripts/tween/core/executors/light-state.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:18] sed -n '1,320p' scripts/tween/core/executors/light-state.js succeeded in 1ms:
+import { registerTweenType } from "../registry.js";
+import { resolveEasing } from "../easing.js";
+import { debugLog } from "../../../time-triggers/core/debug.js";
+
+/**
+ * Snapshot of a light's DB state captured before animation starts.
+ * Survives across concurrent tweens on the same document so a new tween
+ * can restore clean state after terminating its predecessor.
+ * @type {WeakMap<object, { hidden: boolean, alpha: number }>}
+ */
+const dbSnapshot = new WeakMap();
+
+/**
+ * Validate light-state tween parameters.
+ * @param {object} params
+ * @param {string|string[]} params.uuid  AmbientLight document UUID(s)
+ * @param {boolean} params.enabled Target state: true = fade in (unhide), false = fade out (hide)
+ */
+function validate(params) {
+	const uuids = Array.isArray(params.uuid) ? params.uuid : [params.uuid];
+[2026-02-19T00:23:18] tokens used: 19,933
+
+[2026-02-19T00:23:20] thinking
+
+**Planning API docs addition**
+[2026-02-19T00:23:20] exec rg -n 'Timeline|sequence|errorPolicy|cancelTimeline|onCancel|onComplete' README.md scripts docs -g '*.md' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:20] rg -n 'Timeline|sequence|errorPolicy|cancelTimeline|onCancel|onComplete' README.md scripts docs -g '*.md' exited 2 in 315ms:
+ERROR
+rg: README.md: No such file or directory (os error 2)
+rg: docs: No such file or directory (os error 2)
+[2026-02-19T00:23:20] tokens used: 22,287
+
+[2026-02-19T00:23:22] thinking
+
+**Listing root directory files**
+[2026-02-19T00:23:22] exec ls -la in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:22] ls -la succeeded in 17ms:
+total 432
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:23 .
+drwxr-xr-x 2 talanor talanor      0 Feb 18 18:36 ..
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:23 .code
+-rwxr-xr-x 1 talanor talanor     41 Feb 18 15:11 .env
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:16 .git
+-rwxr-xr-x 1 talanor talanor     47 Feb 18 15:11 .gitignore
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:15 dist
+-rwxr-xr-x 1 talanor talanor   6680 Feb 19 01:15 eidolon-utilities.css
+-rwxr-xr-x 1 talanor talanor 178493 Feb 19 01:15 eidolon-utilities.js
+-rwxr-xr-x 1 talanor talanor 144237 Feb 19 00:12 eidolon-utilities.zip
+-rwxr-xr-x 1 talanor talanor    860 Feb 19 00:12 module.json
+drwxr-xr-x 2 talanor talanor      0 Feb 18 15:00 node_modules
+-rwxr-xr-x 1 talanor talanor  78503 Feb 18 14:48 package-lock.json
+-rwxr-xr-x 1 talanor talanor    569 Feb 19 00:12 package.json
+drwxr-xr-x 2 talanor talanor      0 Feb 19 00:12 release
+drwxr-xr-x 2 talanor talanor      0 Feb 18 14:49 scripts
+drwxr-xr-x 2 talanor talanor      0 Feb 18 14:47 src
+drwxr-xr-x 2 talanor talanor      0 Feb 17 12:51 styles
+drwxr-xr-x 2 talanor talanor      0 Feb 18 17:31 templates
+[2026-02-19T00:23:22] tokens used: 22,566
+
+[2026-02-19T00:23:24] thinking
+
+**Checking for existing tests**
+[2026-02-19T00:23:24] exec rg -n "describe\\(|it\\(|vitest|jest|mocha|timeline" scripts src package.json in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:24] rg -n "describe\\(|it\\(|vitest|jest|mocha|timeline" scripts src package.json succeeded in 114ms:
+package.json:9:    "test": "node ./node_modules/vitest/vitest.mjs",
+package.json:10:    "test:run": "node ./node_modules/vitest/vitest.mjs run",
+package.json:16:    "vitest": "^2.1.0"
+scripts/release.mjs:21:  const [major, minor, patch] = current.split(".").map(Number);
+scripts/release.mjs:30:      process.exit(1);
+scripts/release.mjs:39:    process.exit(1);
+scripts/release.mjs:80:  process.exit(1);
+scripts/postbuild-copy.mjs:43:  process.exit(1);
+src/__tests__/time-utils.test.js:1:import { describe, it, expect } from "vitest";
+src/__tests__/time-utils.test.js:9:describe("escapeHtml", () => {
+src/__tests__/time-utils.test.js:10:  it("escapes HTML entities", () => {
+src/__tests__/time-utils.test.js:15:  it("escapes ampersands", () => {
+src/__tests__/time-utils.test.js:19:  it("escapes quotes", () => {
+src/__tests__/time-utils.test.js:23:  it("returns empty string for non-string", () => {
+src/__tests__/time-utils.test.js:30:  it("handles empty string", () => {
+src/__tests__/time-utils.test.js:35:describe("parseTriggerTimeToSeconds", () => {
+src/__tests__/time-utils.test.js:36:  it("parses HH:MM format", () => {
+src/__tests__/time-utils.test.js:43:  it("parses HH:MM:SS format", () => {
+src/__tests__/time-utils.test.js:50:  it("handles single-digit hours", () => {
+src/__tests__/time-utils.test.js:55:  it("trims whitespace", () => {
+[2026-02-19T00:23:24] tokens used: 23,314
+
+[2026-02-19T00:24:20] thinking
+
+**Planning comprehensive implementation**
+[2026-02-19T00:24:20] codex
+
+Using the `plan` skill because you asked for a comprehensive implementation plan.
+
+# Plan
+
+Improve the timeline/sequence/executor stack by making cancellation cooperative and immediate, making outcomes explicit (completed vs cancelled vs failed), aligning `errorPolicy` behavior across entries and hooks, and adding semantic validation for sequence entries before execution. The approach is incremental and backward-compatible so existing callers still work while new contracts are adopted.
+
+## Requirements
+
+- Cancellation must stop in-flight work as quickly as executors can cooperate.
+- Timeline outcomes must distinguish `cancelled` from `failed`.
+- `errorPolicy` must have clear, consistent behavior for hooks and entries.
+- Sequence validation must include semantic param validation against registered tween validators before run.
+- Existing external API consumers should not break immediately.
+
+## Scope
+
+- In: Timeline runtime contracts, sequence compilation/validation, executor interface evolution, API surface in tween hooks, tests, docs/migration notes.
+- Out: New tween features, redesign of unrelated animation systems, major socket protocol rewrite.
+
+## Ordered Phases
+
+1. Phase 1: Define runtime contracts and compatibility layer.  
+Rationale: Locking the contract first avoids piecemeal behavior drift.
+- Define a `TimelineOutcome` model with statuses: `completed`, `cancelled`, `failed`.
+- Define failure shape: `{ status: "failed", error, phase, stepIndex?, entryType? }`.
+- Define cancellation shape: `{ status: "cancelled", reason? }`.
+- Keep `TimelineHandle.finished` behavior (`Promise<boolean>`) for compatibility.
+- Add new `TimelineHandle.result` (`Promise<TimelineOutcome>`) as the canonical API.
+- Document deprecation path for boolean-only consumers.
+
+2. Phase 2: Propagate cancellation into executors (cooperative abort).  
+Rationale: Immediate cancellation requires signal propagation, not only top-level checks.
+- Extend executor options contract to include optional `signal: AbortSignal`.
+- Update timeline execution to pass `signal` to each entry execute call.
+- Update built-in executors to observe `signal` and terminate local animation early when aborted.
+- Ensure delays and step-level waits short-circuit on abort without waiting for unrelated promises.
+- Preserve behavior for third-party executors that ignore `signal` (best-effort cancellation).
+
+3. Phase 3: Unify error semantics for hooks and entries.  
+Rationale: `errorPolicy="continue"` should not unpredictably abort due to hook throws.
+- Apply `errorPolicy` consistently to `beforeAll`, `before`, `after`, and entry execution.
+- Define concrete behavior:
+  - `abort`: first thrown/rejected hook or entry fails timeline (`failed`).
+  - `continue`: record error and continue to next safe unit.
+- For `before` hook failure under `continue`, skip that step’s entries and move to next segment.
+- For `after` hook failure under `continue`, record and continue.
+- For `beforeAll` failure under `continue`, record and continue timeline.
+- Add centralized error recorder utility inside timeline engine to avoid repeated ad hoc catch logic.
+
+4. Phase 4: Add semantic sequence validation pass.  
+Rationale: Structural validity is insufficient; bad params should fail early and clearly.
+- Keep `validateSequenceJSON` as structural validator.
+- Add `validateSequenceSemantics` that checks:
+  - tween type exists in registry (or explicit mode for deferred registration).
+  - `tweenDef.validate(entry.params)` succeeds.
+- Run semantic validation in sequence executor before compile/run.
+- Run semantic validation in socket sequence handler before local execution.
+- Return explicit validation failures mapped to `failed` outcomes (not `cancelled`).
+
+5. Phase 5: Harden timeline lifecycle and socket outcome behavior.  
+Rationale: Named timelines and cross-client sync need deterministic lifecycle rules.
+- Ensure named timeline replacement cancellation emits explicit cancellation reason (e.g., `replaced-by-name`).
+- Keep socket cancel message flow unchanged initially, but ensure local result is `cancelled`, not generic false.
+- Avoid double-notification race when cancellation and failure overlap; first terminal outcome wins.
+- Ensure `onComplete` runs only on `completed`; `onCancel` runs only on `cancelled`; add optional `onError` for `failed` (non-breaking addition).
+
+6. Phase 6: Add tests (unit + integration-style mocks) and validate manually in Foundry.  
+Rationale: These are behavioral changes with regression risk; tests must pin semantics.
+- Unit tests for timeline core:
+  - `finished` boolean compatibility and `result` status mapping.
+  - cancel during long-running step returns `cancelled` promptly.
+  - `abort` policy fails on hook throw and entry reject.
+  - `continue` policy records hook/entry errors and proceeds per rules.
+- Unit tests for schema/sequence:
+  - structural-only validation still works.
+  - semantic validation catches unknown type and invalid params.
+- Integration-style tests with mocked registry/socket:
+  - named timeline replacement cancels prior handle.
+  - sequence socket handler validates semantics before run.
+- Manual Foundry validation:
+  - GM + one player client synchronized sequence start.
+  - mid-step cancel from GM propagates and stops visibly.
+  - invalid sequence payload logs clear validation error and does not partially run.
+  - hook throw behavior matches `abort` vs `continue`.
+
+7. Phase 7: Rollout and migration.  
+Rationale: Keep production stable while guiding consumers to richer API.
+- Release with compatibility maintained (`finished: Promise<boolean>` unchanged).
+- Expose new result semantics in API docs and changelog.
+- Add console deprecation warning only when code reads `finished` without using `result` in internal module paths (optional, low-noise).
+- After one release cycle, consider tightening deprecations if ecosystem usage is known.
+
+## API Contract Recommendations
+
+- `TimelineHandle.finished: Promise<boolean>`  
+Compatibility contract: `true` only for `completed`; `false` for `cancelled` and `failed`.
+- `TimelineHandle.result: Promise<TimelineOutcome>`  
+New authoritative contract for production consumers.
+- `TimelineHandle.cancel(reason?)`  
+Allow optional reason for diagnostics and future policy hooks.
+- Executor signature:
+  - Current: `execute(params, opts) => Promise<boolean>`
+  - Recommended: keep return compatible, add optional richer return later.
+  - Immediate addition: `opts.signal?: AbortSignal`.
+- Error callbacks:
+  - Keep `onComplete` and `onCancel`.
+  - Add `onError((outcome) => void)` for failed terminal state.
+- `errorPolicy` semantics apply uniformly to hooks and entries; no hidden exceptions.
+
+## File-Level Change Map
+
+- `scripts/tween/core/timeline/TimelineHandle.js`  
+Add `result` promise plumbing, terminal outcome resolution, cancel reason support, preserve `finished`.
+- `scripts/tween/core/timeline/TweenTimeline.js`  
+Core engine changes: outcome model, cooperative cancellation propagation, unified hook/entry policy handling, terminal callback routing, deterministic lifecycle.
+- `scripts/tween/core/timeline/schema.js`  
+Add semantic validator and integrate it into compile/sequence paths with clear error messaging.
+- `scripts/tween/core/executors/sequence.js`  
+Invoke semantic validation and return richer timeline result internally while preserving public boolean behavior.
+- `scripts/tween/core/registry.js`  
+Potential light typing/documentation updates for executor opts to include `signal`; no major logic change.
+- `scripts/tween/hooks.js`  
+Expose any new API additions (`result` behavior docs, optional `onError` usage), ensure socket sequence handling uses semantic validation path.
+- `scripts/tween/core/executors/light-color.js`  
+Cooperative cancellation support via `signal` and animation termination path.
+- `scripts/tween/core/executors/light-state.js`  
+Same as above; ensure cancellation preserves consistent light source state cleanup.
+- `scripts/tween/core/timeline/constants.js`  
+Optional addition of terminal status constants to avoid string drift.
+- `src/__tests__/...` (new test files)  
+Add timeline/sequence focused tests with mocks.
+
+## Test Strategy
+
+- Unit: fast Vitest tests for outcome semantics, policy matrix, and validation.
+- Integration-like: mock registry + fake executors with controlled delays/rejections and abort handling.
+- Manual Foundry checks:
+  - Cross-client synchronized sequence.
+  - Mid-step cancellation responsiveness.
+  - Continue-policy resilience with intentionally throwing hooks.
+  - Invalid entry params blocked before animation starts.
+
+## Risks and Mitigations
+
+- Risk: Third-party executors ignore `signal`, causing non-immediate cancellation.  
+Mitigation: Contract marks `signal` optional but recommended; built-ins comply first; timeline still aborts future segments immediately.
+- Risk: Behavior change under `continue` for hook failures could surprise existing users.  
+Mitigation: Document exact semantics and include migration note with examples.
+- Risk: Added outcome complexity increases maintenance burden.  
+Mitigation: Keep boolean compatibility and centralize status transitions in one place.
+- Risk: Socket timing race between cancel and failure.  
+Mitigation: first terminal outcome wins, with idempotent handle resolution.
+
+## Migration and Rollout
+
+- Ship as backward-compatible minor release.
+- Keep boolean API working; recommend moving callers to `result`.
+- Provide concise upgrade notes with old/new behavior table.
+- Monitor logs for validation and cancellation edge cases in first production cycle.
+
+If you want, I can next produce a direct implementation checklist issue-by-issue (ready to paste into GitHub issues) from this plan.
+[2026-02-19T00:24:20] tokens used: 28,633

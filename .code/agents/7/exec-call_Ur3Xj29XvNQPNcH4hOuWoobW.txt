@@ -1,0 +1,375 @@
+eidolon-utilities.css:1:.time-trigger-controls{display:flex;gap:.5rem;align-items:center;justify-content:center}#eidolon-utilities-time-trigger:not(.minimized){height:auto!important}.time-trigger-controls .icon{display:inline-flex;align-items:center;justify-content:center}.time-trigger-window{display:flex;flex-direction:column;gap:.5rem;align-items:center;text-align:center;padding:.75rem}.time-trigger-window__time{display:flex;align-items:center;gap:.5rem}.time-trigger-window__time-display{display:flex;align-items:center}.time-trigger-window__time-value{font-size:1.5rem;font-weight:600;margin:0;font-variant-numeric:tabular-nums}.time-trigger-window__realtime-toggle{display:inline-flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border:1px solid #888;border-radius:.25rem;background:#0000001a;color:inherit;cursor:pointer;transition:background-color .2s ease,color .2s ease,border-color .2s ease}.time-trigger-window__realtime-toggle:hover{background:#0003}.time-trigger-window__realtime-toggle.is-active{color:#2ecc71;border-color:currentColor;background:#2ecc7126}.time-trigger-window__buttons{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:.25rem}.time-trigger-window__buttons .time-button{display:inline-flex;width:auto;flex:0 0 auto;white-space:nowrap;padding:.25rem .5rem;font-size:.875rem;line-height:1.2}.time-trigger-time-input__fields{display:flex;align-items:center;gap:.5rem}.time-trigger-time-input__separator{font-weight:600}.time-trigger-time-input__fields input[type=number]{width:3.5rem}.time-trigger-time-input__fields select{width:auto}.time-trigger-form .form-body{display:flex;flex-direction:column;gap:.75rem}.time-trigger-form .form-group{gap:.5rem}.time-trigger-form .form-group>label{flex:0 0 7.5rem}.time-trigger-form .form-group>label+*{flex:1 1 auto}.time-trigger-form .form-group .form-fields{align-items:center;gap:.5rem}.time-trigger-form .form-group select,.time-trigger-form .form-group input[type=text]{width:100%}.time-trigger-form .form-group.stacked{align-items:flex-start;gap:.25rem}.time-trigger-form .form-group.stacked>label{flex:1 1 auto}.time-trigger-form .file-picker.icon-only{display:inline-flex;align-items:center;justify-content:center;width:2.25rem;aspect-ratio:1;padding:.25rem;font-size:1rem}.time-trigger-form .file-picker.icon-only i{margin:0}.scene-criteria-container{display:flex;flex-direction:column;gap:.75rem}.scene-criteria-summary{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem}.scene-criteria-summary__item{display:inline-flex;align-items:center;border:1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, .2));border-radius:999px;padding:.15rem .6rem;font-size:.75rem}.scene-criteria-management{gap:.5rem}.scene-criteria-heading{display:flex;align-items:center;justify-content:space-between;gap:.5rem}.scene-criteria-list{display:flex;flex-direction:column;gap:.75rem}.scene-criteria-add{width:2rem;height:2rem;display:inline-flex;align-items:center;justify-content:center}.scene-criteria-category-list{display:flex;flex-direction:column;gap:.5rem;margin:0;padding:0;list-style:none}.scene-criterion{border:1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, .15));border-radius:.35rem;background:var(--color-bg-overlay, rgba(0, 0, 0, .15));padding:.5rem .75rem}.scene-criterion__row{display:flex;align-items:center;justify-content:space-between;gap:.75rem}.scene-criterion__details{display:flex;flex-direction:column;gap:.25rem;flex:1 1 auto;min-width:0}.scene-criterion__name{font-weight:600;color:var(--color-text-primary, inherit);word-break:break-word}.scene-criterion__values-preview{display:flex;flex-direction:column;gap:.35rem}.scene-criterion__count{font-size:.75rem;opacity:.8}.scene-criterion__value-list{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}.scene-criterion__value-chip{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:999px;background:var(--color-chip-bg, var(--color-bg-alt, rgba(255, 255, 255, .12)));border:1px solid var(--color-chip-border, var(--color-border-light-primary, rgba(255, 255, 255, .25)));color:var(--color-chip-text, var(--color-text-primary, inherit));font-size:.75rem;line-height:1.2;max-width:12rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.scene-criterion__value-chip--current{background:#2e7d3238;border-color:#4caf50b3;color:var(--color-text-primary, inherit);font-weight:600}.scene-criterion__value-empty{font-style:italic;color:var(--color-text-light-secondary, rgba(0, 0, 0, .5))}.scene-criterion__controls{display:flex;align-items:center;gap:.35rem}.scene-criterion__controls .icon{display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;border:1px solid transparent;border-radius:.25rem;background:#0000001a;color:var(--color-text-light-primary, inherit);transition:background-color .2s ease,border-color .2s ease}.scene-criterion__controls .icon:hover{background:#0000002e;border-color:var(--color-border-light-primary, rgba(255, 255, 255, .25))}.scene-criterion__controls .icon:disabled{opacity:.4;cursor:not-allowed}.scene-criterion-editor{display:flex;flex-direction:column;gap:.75rem}.scene-criterion-editor .form-group{display:grid;grid-template-columns:130px minmax(0,1fr);align-items:center;column-gap:.75rem;row-gap:.35rem;margin:0}.scene-criterion-editor .form-group>label{margin:0}.scene-criterion-editor .form-group>.form-control,.scene-criterion-editor .form-group>.form-fields{width:100%;min-width:0;margin:0}.scene-criterion-editor .form-group.stacked{display:block}.scene-criterion-editor .form-group.stacked>label{display:block;margin-bottom:.35rem}.scene-criterion-editor__values-group{gap:.5rem}.scene-criterion-editor__key-wrap{display:flex;flex-wrap:nowrap;align-items:center;gap:.5rem;width:100%}.scene-criterion-editor__key-input{flex:1 1 auto;min-width:0;width:100%}.scene-criterion-editor__key-wrap .scene-criterion-editor__reset-key{flex:0 0 auto;width:2rem;height:2rem;display:inline-flex;align-items:center;justify-content:center;padding:0}.scene-criterion-editor__reset-key{flex:0 0 auto;white-space:nowrap}.scene-criterion-editor__values{display:flex;flex-direction:column;gap:.5rem}.scene-criterion-editor__value{display:flex;align-items:center;gap:.5rem}.scene-criterion-editor__value .icon{width:2rem;height:2rem;display:inline-flex;align-items:center;justify-content:center}.scene-criterion-editor__add{display:inline-flex;align-items:center;gap:.5rem;width:auto}.scene-criterion-editor__footer{display:flex;justify-content:flex-end;gap:.5rem}.scene-criterion-editor__cancel,.scene-criterion-editor__save{min-width:6rem}.scene-criterion-editor__empty{margin:0}.eidolon-light-criteria-main-switcher{margin-bottom:.75rem}.eidolon-light-criteria-main-switcher__empty{margin:0}.eidolon-light-criteria{display:flex;flex-direction:column;gap:.75rem;margin-top:1rem;padding:.75rem 1rem 1rem;border:1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, .15));border-radius:.5rem;background:var(--color-bg-overlay, rgba(0, 0, 0, .12))}.eidolon-light-criteria legend{font-weight:600;padding:0 .25rem}.eidolon-light-criteria__controls{display:flex;flex-wrap:wrap;gap:.5rem}.eidolon-light-criteria__button{width:auto;display:inline-flex;align-items:center;gap:.5rem;padding-inline:.85rem}.eidolon-light-criteria__button.secondary{background:var(--color-bg-alt, rgba(255, 255, 255, .12))}.eidolon-light-criteria__status{margin-bottom:0}.eidolon-light-criteria__warning{margin:0}.eidolon-light-criteria__switcher{display:flex;flex-direction:column;gap:.35rem}.eidolon-light-criteria__switcher-label{font-weight:500}.eidolon-light-criteria__switcher-controls{display:flex;align-items:stretch;gap:.5rem}.eidolon-light-criteria__action-stack{display:flex;flex-direction:row;align-items:stretch;gap:0;overflow:visible}.eidolon-light-criteria__select{flex:1 1 auto;min-width:0}.eidolon-light-criteria__creation{display:flex;flex-direction:column;gap:.75rem;padding:.75rem;border-radius:.5rem;border:1px dashed var(--color-border-light-tertiary, rgba(255, 255, 255, .2));background:#0000001a}.eidolon-light-criteria__category-list{display:flex;flex-direction:column;gap:.5rem}.eidolon-light-criteria__category{display:flex;flex-direction:column;gap:.35rem;font-weight:500}.eidolon-light-criteria__category-name{font-weight:500}.eidolon-light-criteria__category-select{width:100%}.eidolon-light-criteria__creation-actions{display:flex;align-items:center;gap:.5rem}.eidolon-light-criteria-manager-host .eidolon-light-criteria{margin-top:0}.eidolon-light-criteria.is-manager{border:0;background:transparent;padding:0;gap:.75rem}.eidolon-light-criteria.is-manager>legend,.eidolon-light-criteria.is-manager>.notes{display:none}.eidolon-light-criteria-manager{display:flex;flex-direction:column;gap:.9rem}.eidolon-light-criteria-manager__section{display:flex;flex-direction:column;gap:.55rem;border:1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, .14));border-radius:.5rem;padding:.65rem .75rem;background:var(--color-bg-overlay, rgba(0, 0, 0, .08))}.eidolon-light-criteria-manager__header{font-size:.8rem;letter-spacing:.03em;text-transform:uppercase;color:var(--color-text-secondary, rgba(255, 255, 255, .75))}.eidolon-light-criteria-manager__warnings{display:flex;flex-direction:column;gap:.4rem}.eidolon-light-criteria-manager__empty{margin:0}.eidolon-light-criteria.is-manager .eidolon-light-criteria__status{margin:0;font-weight:500}.eidolon-light-criteria.is-manager .eidolon-light-criteria__controls{margin-top:.1rem}.eidolon-light-criteria__button.icon-only{width:2.2rem;min-width:2.2rem;justify-content:center;gap:0;padding-inline:0;padding-block:.3rem;border:1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, .18));border-radius:0}.eidolon-light-criteria__action-stack>.eidolon-light-criteria__button.icon-only+.eidolon-light-criteria__button.icon-only{margin-left:-1px}.eidolon-light-criteria__action-stack>.eidolon-light-criteria__button.icon-only:first-child{border-top-left-radius:.45rem;border-bottom-left-radius:.45rem}.eidolon-light-criteria__action-stack>.eidolon-light-criteria__button.icon-only:last-child{border-top-right-radius:.45rem;border-bottom-right-radius:.45rem}.eidolon-light-criteria__button.icon-only i{margin:0}.eidolon-light-criteria__button.danger{color:var(--color-text-danger, #ef5350)}.eidolon-criteria-switcher-window .window-content{padding:.75rem}.criteria-switcher{display:flex;flex-direction:column;gap:.75rem}.criteria-switcher__header{display:flex;flex-direction:column;gap:.2rem;padding-bottom:.5rem;border-bottom:1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, .2))}.criteria-switcher__scene{margin:0;font-weight:600}.criteria-switcher__subtitle{margin:0;color:var(--color-text-secondary, inherit);font-size:.82rem}.criteria-switcher__grid{display:flex;flex-direction:column;gap:.5rem}.criteria-switcher__control{display:flex;flex-direction:column;gap:.25rem}.criteria-switcher__label{font-size:.78rem;font-weight:600;color:var(--color-text-secondary, inherit)}.criteria-switcher__select{width:100%}.criteria-switcher__footer{display:flex;justify-content:flex-end;gap:.5rem;flex-wrap:wrap}.criteria-switcher__button{width:auto}.criteria-switcher__status{margin:0;padding:.4rem .5rem;border:1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, .2));border-radius:4px;font-size:.78rem}.criteria-switcher__status[data-mode=applying]{border-color:var(--color-border-highlight, #d9a441)}.criteria-switcher__status[data-mode=error]{border-color:var(--color-level-error-border, #c53030)}.criteria-switcher__empty{margin:0;font-size:.85rem}.eidolon-tile-criteria{margin-top:.75rem;display:flex;flex-direction:column;gap:.6rem}.eidolon-tile-criteria__tree-panel{display:flex;flex-direction:column;gap:.35rem}.eidolon-tile-criteria__editor-header h4{margin:0;font-size:.9rem}.eidolon-tile-criteria__root{margin:0;font-size:.75rem}.eidolon-tile-criteria__library-tree{max-height:20rem;overflow:auto;padding-right:.2rem}.eidolon-tile-criteria__filter-row{display:flex;align-items:center;gap:.35rem}.eidolon-tile-criteria__filter-input{width:100%}.eidolon-tile-criteria__filter-error{margin:0;color:var(--color-level-error, #c53030)}.eidolon-tile-criteria__tree{margin:0;padding-left:1rem;list-style:none;display:flex;flex-direction:column;gap:.25rem}.eidolon-tile-criteria__tree-branch{display:flex;flex-direction:column;gap:.25rem}.eidolon-tile-criteria__folder-row{display:inline-flex;align-items:center;gap:.35rem;padding:.1rem 0}.eidolon-tile-criteria__folder-row i{color:var(--color-text-secondary, inherit)}.eidolon-tile-criteria__tree-folder-label{font-size:.76rem;font-weight:600;color:var(--color-text-secondary, inherit)}.eidolon-tile-criteria__tree-file{list-style:none;display:block}.eidolon-tile-criteria__document-list{margin:0;padding-left:0}.eidolon-tile-criteria__file-row{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.4rem;align-items:flex-start;border:1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, .2));border-radius:4px;padding:.25rem .4rem;background:color-mix(in srgb,var(--color-bg-option, transparent) 40%,transparent)}.eidolon-tile-criteria__file-row.is-selected{border-color:var(--color-warm-1, #cf9f4a)}.eidolon-tile-criteria__indicator{width:.5rem;height:.5rem;border-radius:50%;background:var(--color-text-light-6, #777)}.eidolon-tile-criteria__indicator[data-kind=default]{background:var(--color-warm-1, #cf9f4a)}.eidolon-tile-criteria__indicator[data-kind=mapped]{background:var(--color-level-success, #3e8c3e)}.eidolon-tile-criteria__file-title{min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:left;font-size:.78rem;line-height:1.2}.eidolon-tile-criteria__badges{display:inline-flex;align-items:center;gap:.2rem;overflow:hidden}.eidolon-tile-criteria__badge{border:1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, .2));border-radius:999px;padding:.04rem .4rem;font-size:.68rem;white-space:nowrap}.eidolon-tile-criteria__badge[data-kind=default]{border-color:var(--color-warm-1, #cf9f4a)}.eidolon-tile-criteria__badge[data-kind=rule]{border-color:var(--color-border-highlight-alt, rgba(0, 0, 0, .28))}.eidolon-tile-criteria__dialog-content{display:flex;flex-direction:column;gap:.6rem}.eidolon-tile-criteria__editor-header{display:flex;flex-direction:column;gap:.15rem}.eidolon-tile-criteria__editor-header p{margin:0;font-size:.75rem}.eidolon-tile-criteria__editor-controls{display:flex;flex-wrap:wrap;gap:.4rem}.eidolon-tile-criteria__editor-action{width:auto}.eidolon-tile-criteria__rule-editors{display:flex;flex-direction:column;gap:.5rem}.eidolon-tile-criteria__rule-editor{border:1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, .2));border-radius:6px;padding:.45rem;display:flex;flex-direction:column;gap:.45rem}.eidolon-tile-criteria__rule-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:.35rem}.eidolon-tile-criteria__rule-field{display:flex;flex-direction:column;gap:.2rem}.eidolon-tile-criteria__criterion-label{font-size:.73rem;color:var(--color-text-secondary, inherit);font-weight:600}.eidolon-tile-criteria__rule-remove{width:auto;align-self:flex-start}.eidolon-tile-criteria__actions{display:flex;gap:.5rem;flex-wrap:wrap}.eidolon-tile-criteria__button{width:auto}.eidolon-tile-criteria__status{margin:0;padding:.4rem .5rem;border:1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, .2));border-radius:4px}.eidolon-tile-criteria__status[data-mode=error]{border-color:var(--color-level-error-border, #c53030)}
+eidolon-utilities.js:2527:const ue = S, $a = "criteria", uo = "state", ml = "criteriaVersion", hl = 1, Pa = "showSceneCriteriaTab";
+eidolon-utilities.js:2537:      name: f("EIDOLON.SceneCriteria.ShowTabSettingName", "Show Scene Criteria Tab"),
+eidolon-utilities.js:2539:        "EIDOLON.SceneCriteria.ShowTabSettingHint",
+eidolon-utilities.js:2540:        "Enable the Scene Config > Criteria tab for scene criteria authoring."
+eidolon-utilities.js:2552:l(pl, "registerSceneCriteriaSettings");
+eidolon-utilities.js:2559:    console.error(`${ue} | Failed to read Scene Criteria tab setting`, t);
+eidolon-utilities.js:2563:l(Ba, "getShowSceneCriteriaTabSetting");
+eidolon-utilities.js:2566:  const e = f("EIDOLON.SceneCriteria.ReloadPromptTitle", "Reload Required"), t = `<p>${f(
+eidolon-utilities.js:2567:    "EIDOLON.SceneCriteria.ReloadPromptBody",
+eidolon-utilities.js:2568:    "Changes to the Scene Criteria tab visibility require a reload. Reload now?"
+eidolon-utilities.js:2594:      "EIDOLON.SceneCriteria.ReloadNotice",
+eidolon-utilities.js:2595:      "Please reload the world to apply Scene Criteria tab visibility changes."
+eidolon-utilities.js:2599:l(yl, "promptReloadForSceneCriteriaTab");
+eidolon-utilities.js:2606:l(Me, "getSceneCriteria");
+eidolon-utilities.js:2614:l(Ji, "setSceneCriteria");
+eidolon-utilities.js:2620:l(Jt, "getSceneCriteriaState");
+eidolon-utilities.js:2626:l(Tl, "setSceneCriteriaState");
+eidolon-utilities.js:2646:l(qa, "sanitizeCriteria$1");
+eidolon-utilities.js:2671:l(Ua, "sanitizeSceneCriteriaState");
+eidolon-utilities.js:2680:l(bl, "getSceneCriteriaCategories");
+eidolon-utilities.js:2713:      "EIDOLON.SceneCriteria.PersistError",
+eidolon-utilities.js:2778:      const a = li(f("EIDOLON.SceneCriteria.ValuePlaceholder", "Allowed value")), c = li(f("EIDOLON.SceneCriteria.RemoveValue", "Remove Value"));
+eidolon-utilities.js:2796:            "EIDOLON.SceneCriteria.ValueListEmpty",
+eidolon-utilities.js:2828:        label: f("EIDOLON.SceneCriteria.CategoryNameLabel", "Criterion Label"),
+eidolon-utilities.js:2829:        key: f("EIDOLON.SceneCriteria.CriteriaKey", "Key"),
+eidolon-utilities.js:2830:        values: f("EIDOLON.SceneCriteria.ValuesLabel", "Allowed Values"),
+eidolon-utilities.js:2831:        default: f("EIDOLON.SceneCriteria.DefaultValue", "Default Value"),
+eidolon-utilities.js:2833:          "EIDOLON.SceneCriteria.ValueListEmpty",
+eidolon-utilities.js:2836:        addValue: f("EIDOLON.SceneCriteria.AddValue", "Add Value"),
+eidolon-utilities.js:2837:        removeValue: f("EIDOLON.SceneCriteria.RemoveValue", "Remove Value"),
+eidolon-utilities.js:2838:        valuePlaceholder: f("EIDOLON.SceneCriteria.ValuePlaceholder", "Allowed value"),
+eidolon-utilities.js:2839:        resetAutoKey: f("EIDOLON.SceneCriteria.ResetAutoKey", "Reset to Auto"),
+eidolon-utilities.js:2840:        save: this.isNew ? f("EIDOLON.SceneCriteria.CreateCategory", "Add Criterion") : f("EIDOLON.SceneCriteria.SaveCategory", "Save Criterion"),
+eidolon-utilities.js:2841:        cancel: f("EIDOLON.SceneCriteria.CancelEdit", "Cancel")
+eidolon-utilities.js:2860:  const n = qr(this.criterion, 0, /* @__PURE__ */ new Set()) ?? fo(f("EIDOLON.SceneCriteria.DefaultCategoryName", "New Criterion"));
+eidolon-utilities.js:2875:  const r = ((u = (s = i.value) == null ? void 0 : s.trim) == null ? void 0 : u.call(s)) ?? "", o = Array.from(n.querySelectorAll('input[name="criterionValues"]')).map((d) => d instanceof HTMLInputElement ? d.value.trim() : "").filter((d, g, p) => d && p.indexOf(d) === g), a = i.dataset.emptyLabel || f("EIDOLON.SceneCriteria.ValueListEmpty", "No values have been added to this criterion.");
+eidolon-utilities.js:2903:      title: f("EIDOLON.SceneCriteria.EditCategory", "Edit Criterion"),
+eidolon-utilities.js:2925:    return (t = console.debug) == null ? void 0 : t.call(console, `${ue} | Criteria`, ...e);
+eidolon-utilities.js:2929:    return (t = console.groupCollapsed) == null ? void 0 : t.call(console, `${ue} | Criteria`, ...e);
+eidolon-utilities.js:2937:  tabLabel: /* @__PURE__ */ l(() => f("EIDOLON.SceneCriteria.TabLabel", "Criteria"), "tabLabel"),
+eidolon-utilities.js:2946:l(wl, "registerSceneCriteriaConfigHook");
+eidolon-utilities.js:2952:l(Il, "renderCriteriaTab");
+eidolon-utilities.js:2956:  jr.group("renderCriteriaTabContent", { sceneId: (i == null ? void 0 : i.id) ?? null });
+eidolon-utilities.js:2960:        "EIDOLON.SceneCriteria.Unavailable",
+eidolon-utilities.js:2968:      t.innerHTML = `<p class="notes">${f("EIDOLON.SceneCriteria.CategoryListEmpty", "No criteria configured for this scene.")}</p>`;
+eidolon-utilities.js:2973:        "EIDOLON.SceneCriteria.Description",
+eidolon-utilities.js:2977:        list: f("EIDOLON.SceneCriteria.CategoryListLabel", "Scene Criteria"),
+eidolon-utilities.js:2979:          "EIDOLON.SceneCriteria.CategoryListEmpty",
+eidolon-utilities.js:2982:        add: f("EIDOLON.SceneCriteria.AddCategory", "Add Criterion"),
+eidolon-utilities.js:2983:        edit: f("EIDOLON.SceneCriteria.EditCategory", "Edit Criterion"),
+eidolon-utilities.js:2984:        remove: f("EIDOLON.SceneCriteria.RemoveCategory", "Remove Criterion"),
+eidolon-utilities.js:2985:        moveUp: f("EIDOLON.SceneCriteria.MoveUp", "Move Up"),
+eidolon-utilities.js:2986:        moveDown: f("EIDOLON.SceneCriteria.MoveDown", "Move Down"),
+eidolon-utilities.js:2987:        values: f("EIDOLON.SceneCriteria.ValuesLabel", "Allowed Values"),
+eidolon-utilities.js:2988:        unnamed: f("EIDOLON.SceneCriteria.UnnamedCategory", "Unnamed Criterion")
+eidolon-utilities.js:2999:          displayName: ((y = (p = d.label) == null ? void 0 : p.trim) == null ? void 0 : y.call(p)) || f("EIDOLON.SceneCriteria.UnnamedCategory", "Unnamed Criterion"),
+eidolon-utilities.js:3010:      hasCriteria: a.length > 0
+eidolon-utilities.js:3014:    console.error(`${ue} | Failed to render criteria tab`, a), t.innerHTML = `<p class="notes">${f("EIDOLON.SceneCriteria.CategoryListEmpty", "No criteria configured for this scene.")}</p>`;
+eidolon-utilities.js:3019:l(xt, "renderCriteriaTabContent");
+eidolon-utilities.js:3028:        f("EIDOLON.SceneCriteria.DefaultCategoryName", "New Criterion")
+eidolon-utilities.js:3073:l(Ol, "bindCriteriaTabEvents");
+eidolon-utilities.js:3083:l(sr, "mutateCriteria");
+eidolon-utilities.js:3101:l(lr, "reindexCriteriaOrder");
+eidolon-utilities.js:3104:  if ((n = (t = game.i18n) == null ? void 0 : t.has) != null && n.call(t, "EIDOLON.SceneCriteria.ValueCountLabel"))
+eidolon-utilities.js:3106:      return game.i18n.format("EIDOLON.SceneCriteria.ValueCountLabel", { count: e });
+eidolon-utilities.js:3121:l(Ml, "registerSceneCriteriaHooks");
+eidolon-utilities.js:3123:const Y = S, Ka = "criteriaEngineVersion", Bt = "fileIndex", qt = "tileCriteria", go = {
+eidolon-utilities.js:3244:const Rl = /* @__PURE__ */ l((...e) => console.log(`${Y} | criteria tiles:`, ...e), "log$1");
+eidolon-utilities.js:3319:l(es, "sanitizeCriteria");
+eidolon-utilities.js:3349:l(ts, "buildTileCriteriaFromFileIndex");
+eidolon-utilities.js:3372:l(mn, "normalizeTileCriteria");
+eidolon-utilities.js:3398:    const c = o.getFlag("monks-active-tiles", "files");
+eidolon-utilities.js:3406:      "monks-active-tiles",
+eidolon-utilities.js:3412:    ), await o.setFlag("monks-active-tiles", "fileindex", s + 1), i.push({
+eidolon-utilities.js:3432:    if (r.getFlag("monks-active-tiles", "variables.state") !== "unchecked") continue;
+eidolon-utilities.js:3440:const vt = S, Ut = "lightCriteria", po = Object.freeze({
+eidolon-utilities.js:3467:l(rs, "getLightCriteriaState");
+eidolon-utilities.js:3475:l(os, "setLightCriteriaState");
+eidolon-utilities.js:3478:    throw new TypeError("updateLightCriteriaState requires an updater function.");
+eidolon-utilities.js:3482:l(xn, "updateLightCriteriaState");
+eidolon-utilities.js:3516:l(Ko, "upsertLightCriteriaMapping");
+eidolon-utilities.js:3569:l(Pl, "retargetLightCriteriaMapping");
+eidolon-utilities.js:3586:l(Bl, "removeLightCriteriaMapping");
+eidolon-utilities.js:3594:l(dn, "storeCurrentCriteriaSelection");
+eidolon-utilities.js:3611:l(ql, "convertLightCriteriaStateToPresets");
+eidolon-utilities.js:3651:l(Ul, "migrateLightCriteriaCategoriesToKeys");
+eidolon-utilities.js:3684:l(hn, "sanitizeLightCriteriaState");
+eidolon-utilities.js:3712:l(Qi, "sanitizeCriteriaMappingEntry");
+eidolon-utilities.js:3737:l(Hn, "sanitizeCriteriaCategories");
+eidolon-utilities.js:3743:l(Yt, "computeCriteriaMappingKey");
+eidolon-utilities.js:3774:  if (n != null && n.lightCriteria) {
+eidolon-utilities.js:3775:    const r = ql(n.lightCriteria);
+eidolon-utilities.js:3861:l(Ql, "buildCriteriaDefinitions");
+eidolon-utilities.js:3863:  const r = e.getFlag("monks-active-tiles", "files");
+eidolon-utilities.js:3890:  if (!o.length) throw new Error("No Map tile found.");
+eidolon-utilities.js:3891:  if (o.length > 1) throw new Error(`Expected 1 Map tile, found ${o.length}.`);
+eidolon-utilities.js:3892:  const a = o[0], c = a.getFlag("monks-active-tiles", "files");
+eidolon-utilities.js:3893:  if (!(c != null && c.length)) throw new Error("Map tile has no MATT files.");
+eidolon-utilities.js:3933:    tiles: C,
+eidolon-utilities.js:3963:      hasCriteria: i,
+eidolon-utilities.js:3964:      sceneName: ((r = m(this, Te)) == null ? void 0 : r.name) ?? f("EIDOLON.CriteriaSwitcher.NoScene", "No active scene"),
+eidolon-utilities.js:3967:          "EIDOLON.CriteriaSwitcher.Subtitle",
+eidolon-utilities.js:3971:          "EIDOLON.CriteriaSwitcher.Empty",
+eidolon-utilities.js:3974:        reset: f("EIDOLON.CriteriaSwitcher.Reset", "Reset Defaults"),
+eidolon-utilities.js:3975:        close: f("EIDOLON.CriteriaSwitcher.Close", "Close"),
+eidolon-utilities.js:3976:        applying: f("EIDOLON.CriteriaSwitcher.Applying", "Applying changes..."),
+eidolon-utilities.js:3977:        ready: f("EIDOLON.CriteriaSwitcher.Ready", "Ready")
+eidolon-utilities.js:4040:          "EIDOLON.CriteriaSwitcher.ApplyError",
+eidolon-utilities.js:4059:        o.textContent = f("EIDOLON.CriteriaSwitcher.Applying", "Applying changes...");
+eidolon-utilities.js:4062:        o.textContent = `${f("EIDOLON.CriteriaSwitcher.Error", "Error")}: ${i}`;
+eidolon-utilities.js:4066:        o.textContent = `${f("EIDOLON.CriteriaSwitcher.Ready", "Ready")}: ${L(this, se, Kr).call(this)}`;
+eidolon-utilities.js:4074:}, "#formatStateSummary"), l(De, "CriteriaSwitcherApplication"), $e(De, "APP_ID", `${Y}-criteria-switcher`), $e(De, "DEFAULT_OPTIONS", foundry.utils.mergeObject(
+eidolon-utilities.js:4083:      title: f("EIDOLON.CriteriaSwitcher.Title", "Criteria Switcher"),
+eidolon-utilities.js:4114:l(Yi, "getCriteriaSwitcher");
+eidolon-utilities.js:4123:l(hs, "openCriteriaSwitcher");
+eidolon-utilities.js:4128:l(ps, "closeCriteriaSwitcher");
+eidolon-utilities.js:4132:l(To, "toggleCriteriaSwitcher");
+eidolon-utilities.js:4139:  getCriteria(e) {
+eidolon-utilities.js:4143:  setCriteria(e, t) {
+eidolon-utilities.js:4150:  openCriteriaSwitcher: hs,
+eidolon-utilities.js:4151:  closeCriteriaSwitcher: ps,
+eidolon-utilities.js:4152:  toggleCriteriaSwitcher: To,
+eidolon-utilities.js:4159:  return ((t = e == null ? void 0 : e.getFlag) == null ? void 0 : t.call(e, "monks-active-tiles", "files")) ?? [];
+eidolon-utilities.js:4174:l(nc, "createDefaultTileCriteria");
+eidolon-utilities.js:4183:l(ic, "getTileCriteria");
+eidolon-utilities.js:4189:l(Yo, "setTileCriteria");
+eidolon-utilities.js:4190:const Jr = "__eidolon_any__", Nt = "eidolon-tile-criteria", rc = "fa-solid fa-sliders", Ts = Symbol.for("eidolon.tileCriteriaUiState");
+eidolon-utilities.js:4222:  return ((t = e == null ? void 0 : e.getFlag) == null ? void 0 : t.call(e, "monks-active-tiles", "files")) ?? [];
+eidolon-utilities.js:4243:l(uc, "getCriteriaDefinitions");
+eidolon-utilities.js:4324:      message: f("EIDOLON.TileCriteria.Ready", "Ready")
+eidolon-utilities.js:4362:l(mc, "exportTileCriteria");
+eidolon-utilities.js:4365:  return n.classList.add("eidolon-tile-criteria__badge"), n.dataset.kind = t, n.textContent = e, n;
+eidolon-utilities.js:4400:      error: (r == null ? void 0 : r.message) ?? f("EIDOLON.TileCriteria.InvalidRegex", "Invalid regex."),
+eidolon-utilities.js:4423:  r.classList.add("eidolon-tile-criteria__rule-editor");
+eidolon-utilities.js:4425:  o.classList.add("eidolon-tile-criteria__rule-grid");
+eidolon-utilities.js:4428:    u.classList.add("eidolon-tile-criteria__rule-field");
+eidolon-utilities.js:4430:    d.classList.add("eidolon-tile-criteria__criterion-label"), d.textContent = s.label, u.appendChild(d);
+eidolon-utilities.js:4438:  return a.type = "button", a.classList.add("control", "ui-control", "eidolon-tile-criteria__rule-remove"), a.textContent = f("EIDOLON.TileCriteria.RemoveRule", "Remove"), a.addEventListener("click", () => {
+eidolon-utilities.js:4446:  return (e == null ? void 0 : e.app) ?? (e == null ? void 0 : e.tile) ?? null;
+eidolon-utilities.js:4463:  o.classList.add("eidolon-tile-criteria__dialog-content");
+eidolon-utilities.js:4465:  a.classList.add("eidolon-tile-criteria__editor-header");
+eidolon-utilities.js:4469:  s.classList.add("notes"), s.textContent = `#${r.index + 1} · ${r.path || f("EIDOLON.TileCriteria.UnknownPath", "Unknown path")}`, a.appendChild(s), o.appendChild(a);
+eidolon-utilities.js:4471:  u.classList.add("eidolon-tile-criteria__editor-controls");
+eidolon-utilities.js:4473:  d.type = "button", d.classList.add("control", "ui-control", "eidolon-tile-criteria__editor-action"), i.defaultIndex === r.index ? (d.textContent = f("EIDOLON.TileCriteria.IsDefault", "Default Target"), d.disabled = !0) : (d.textContent = f("EIDOLON.TileCriteria.SetDefault", "Set As Default"), d.addEventListener("click", () => {
+eidolon-utilities.js:4477:  g.type = "button", g.classList.add("control", "ui-control", "eidolon-tile-criteria__editor-action", "secondary"), g.textContent = f("EIDOLON.TileCriteria.ClearFileRules", "Clear File Rules"), g.addEventListener("click", () => {
+eidolon-utilities.js:4481:  p.classList.add("eidolon-tile-criteria__rule-editors");
+eidolon-utilities.js:4493:      "EIDOLON.TileCriteria.NoRulesForFile",
+eidolon-utilities.js:4499:  return T.type = "button", T.classList.add("control", "ui-control", "eidolon-tile-criteria__editor-action"), T.textContent = f("EIDOLON.TileCriteria.AddRule", "Add Rule"), T.disabled = !i.criteriaDefinitions.length, T.addEventListener("click", () => {
+eidolon-utilities.js:4531:  const c = f("EIDOLON.TileCriteria.EditorTitle", "Edit Tile Criteria Rules"), s = '<div class="eidolon-tile-criteria-editor-host"></div>', u = f("EIDOLON.TileCriteria.CloseEditor", "Close"), d = (y = (p = foundry == null ? void 0 : foundry.applications) == null ? void 0 : p.api) == null ? void 0 : y.DialogV2;
+eidolon-utilities.js:4539:        const h = bc(T), C = (b = h == null ? void 0 : h.querySelector) == null ? void 0 : b.call(h, ".eidolon-tile-criteria-editor-host");
+eidolon-utilities.js:4564:    d.classList.add("eidolon-tile-criteria__tree-branch");
+eidolon-utilities.js:4566:    g.classList.add("document", "folder", "update", "eidolon-tile-criteria__folder-row");
+eidolon-utilities.js:4570:    y.classList.add("eidolon-tile-criteria__tree-folder-label"), y.textContent = u.label, y.title = u.label, g.appendChild(y), d.appendChild(g);
+eidolon-utilities.js:4572:    T.classList.add("eidolon-tile-criteria__tree"), T.dataset.folder = u.label, Es(u.node, t, n, T), T.childElementCount > 0 && d.appendChild(T), i.appendChild(d);
+eidolon-utilities.js:4577:  c.classList.add("document-list", "eidolon-tile-criteria__document-list");
+eidolon-utilities.js:4580:    y.classList.add("document", "update", "eidolon-tile-criteria__tree-file");
+eidolon-utilities.js:4582:    T.type = "button", T.classList.add("eidolon-tile-criteria__file-row");
+eidolon-utilities.js:4588:    C.classList.add("eidolon-tile-criteria__indicator"), C.dataset.kind = g ? "default" : p.length ? "mapped" : "unmapped", T.appendChild(C);
+eidolon-utilities.js:4590:    b.classList.add("eidolon-tile-criteria__file-title"), b.textContent = hc(h), b.title = h, T.appendChild(b);
+eidolon-utilities.js:4592:    I.classList.add("eidolon-tile-criteria__badges"), g && I.appendChild(rn(f("EIDOLON.TileCriteria.DefaultBadge", "Default"), "default"));
+eidolon-utilities.js:4596:    p.length > A.length && I.appendChild(rn(`+${p.length - A.length}`, "meta")), p.length || I.appendChild(rn(f("EIDOLON.TileCriteria.Unmapped", "Unmapped"), "meta")), I.appendChild(rn(`#${u.index + 1}`, "meta")), T.appendChild(I), y.appendChild(T), c.appendChild(y);
+eidolon-utilities.js:4603:  n.classList.add("eidolon-tile-criteria__tree-panel");
+eidolon-utilities.js:4605:  r.classList.add("eidolon-tile-criteria__filter-row");
+eidolon-utilities.js:4607:  if (o.type = "text", o.classList.add("eidolon-tile-criteria__filter-input"), o.placeholder = f("EIDOLON.TileCriteria.FilterPlaceholder", "Regex filter (path)"), o.value = e.filterQuery, o.autocomplete = "off", o.addEventListener("keydown", (s) => {
+eidolon-utilities.js:4617:      const g = t.section.querySelector(".eidolon-tile-criteria__filter-input");
+eidolon-utilities.js:4628:    s.classList.add("notes", "eidolon-tile-criteria__filter-error"), s.textContent = `${f("EIDOLON.TileCriteria.InvalidRegex", "Invalid regex")}: ${i.error}`, n.appendChild(s);
+eidolon-utilities.js:4631:  a.classList.add("eidolon-tile-criteria__library-tree");
+eidolon-utilities.js:4639:      s.classList.add("eidolon-tile-criteria__tree"), Es(dc(c), e, t, s), a.appendChild(s);
+eidolon-utilities.js:4642:      s.classList.add("notes"), s.textContent = f("EIDOLON.TileCriteria.NoMatches", "No variants match this filter."), a.appendChild(s);
+eidolon-utilities.js:4646:    s.classList.add("notes"), s.textContent = f("EIDOLON.TileCriteria.NoVariants", "No MATT variants found"), a.appendChild(s);
+eidolon-utilities.js:4656:    "EIDOLON.TileCriteria.Description",
+eidolon-utilities.js:4660:  r.classList.add("eidolon-tile-criteria__actions");
+eidolon-utilities.js:4662:  o.type = "button", o.classList.add("eidolon-tile-criteria__button", "control", "ui-control"), o.textContent = f("EIDOLON.TileCriteria.Save", "Save Rules"), o.addEventListener("click", async () => {
+eidolon-utilities.js:4668:          message: f("EIDOLON.TileCriteria.Invalid", "Invalid rules. Select valid target variants.")
+eidolon-utilities.js:4672:      await Yo(e.tile, s);
+eidolon-utilities.js:4674:      e.state = Qr(e.tile), e.state.filterQuery = u, Number.isInteger(d) && (e.state.selectedFileIndex = d), e.state.status = {
+eidolon-utilities.js:4676:        message: f("EIDOLON.TileCriteria.Saved", "Tile criteria rules saved.")
+eidolon-utilities.js:4679:      console.error(`${Y} | Failed to save tile criteria`, s), n.status = {
+eidolon-utilities.js:4681:        message: (s == null ? void 0 : s.message) ?? "Failed to save tile criteria rules."
+eidolon-utilities.js:4686:  a.type = "button", a.classList.add("eidolon-tile-criteria__button", "secondary", "control", "ui-control"), a.textContent = f("EIDOLON.TileCriteria.Clear", "Clear Rules"), a.addEventListener("click", async () => {
+eidolon-utilities.js:4688:      await Yo(e.tile, null);
+eidolon-utilities.js:4690:      e.state = Qr(e.tile), e.state.filterQuery = s, Number.isInteger(u) && (e.state.selectedFileIndex = u), e.state.status = {
+eidolon-utilities.js:4692:        message: f("EIDOLON.TileCriteria.Cleared", "Tile criteria rules cleared.")
+eidolon-utilities.js:4695:      console.error(`${Y} | Failed to clear tile criteria`, s), n.status = {
+eidolon-utilities.js:4697:        message: (s == null ? void 0 : s.message) ?? "Failed to clear tile criteria rules."
+eidolon-utilities.js:4702:  c.classList.add("eidolon-tile-criteria__status", "notes"), c.dataset.mode = n.status.mode, c.textContent = n.status.message, t.appendChild(c);
+eidolon-utilities.js:4707:  n.classList.add("eidolon-tile-criteria");
+eidolon-utilities.js:4712:    tile: e,
+eidolon-utilities.js:4802:  o instanceof HTMLElement || (o = Nc(n, r), n.appendChild(o)), Mc(o, f("EIDOLON.TileCriteria.TabLabel", "Criteria Rules"));
+eidolon-utilities.js:4804:  return a instanceof HTMLElement || (a = Ac(i, r)), o.dataset.eidolonTileCriteriaBound || (o.addEventListener("click", () => {
+eidolon-utilities.js:4808:  }), o.dataset.eidolonTileCriteriaBound = "true"), ur(e, r, o, a), requestAnimationFrame(() => {
+eidolon-utilities.js:4812:l(Dc, "ensureTileCriteriaTab");
+eidolon-utilities.js:4820:    (s = n.querySelector(".eidolon-tile-criteria")) == null || s.remove();
+eidolon-utilities.js:4832:l(_c, "registerTileCriteriaConfigControls");
+eidolon-utilities.js:4873:    const n = t.find((i) => (i == null ? void 0 : i.name) === "tiles") ?? t.find((i) => (i == null ? void 0 : i.name) === "tokens" || (i == null ? void 0 : i.name) === "token") ?? t[0];
+eidolon-utilities.js:4874:    n && (Rc(n, "eidolonCriteriaSwitcher") || kc(n, {
+eidolon-utilities.js:4875:      name: "eidolonCriteriaSwitcher",
+eidolon-utilities.js:4876:      title: "Criteria Switcher",
+eidolon-utilities.js:4891:    (t = (e = game.keybindings) == null ? void 0 : e.register) == null || t.call(e, Y, "toggleCriteriaSwitcher", {
+eidolon-utilities.js:4892:      name: "Toggle Criteria Switcher",
+eidolon-utilities.js:4906:    e && (e.api || (e.api = {}), e.api.criteria = tc, console.log(`${Y} | Criteria engine API registered`));
+eidolon-utilities.js:4909:l(Hc, "registerCriteriaEngineHooks");
+eidolon-utilities.js:4913:  Hooks.on("renderAmbientLightConfig", Pc), E("LightCriteria | AmbientLightConfig controls registered");
+eidolon-utilities.js:4915:l($c, "registerAmbientLightCriteriaControls");
+eidolon-utilities.js:4918:  Kt("LightCriteria | renderAmbientLightConfig", {
+eidolon-utilities.js:4943:  E("LightCriteria | Resolved ambient light", {
+eidolon-utilities.js:4955:  })), E("LightCriteria | Loaded mapping state", {
+eidolon-utilities.js:4972:  C.textContent = f("EIDOLON.LightCriteria.Legend", "Scene Criteria Lighting"), h.appendChild(C);
+eidolon-utilities.js:4975:    "EIDOLON.LightCriteria.Description",
+eidolon-utilities.js:4982:    "EIDOLON.LightCriteria.SetBase",
+eidolon-utilities.js:4987:    "EIDOLON.LightCriteria.CreateMapping",
+eidolon-utilities.js:4988:    "Add Criteria Mapping"
+eidolon-utilities.js:4997:  j.htmlFor = ee, j.textContent = f("EIDOLON.LightCriteria.SelectLabel", "Criteria Mapping"), F.appendChild(j);
+eidolon-utilities.js:5005:  w.type = "button", w.dataset.action = "apply-selected-mapping", w.classList.add("eidolon-light-criteria__button", "secondary", "icon-only"), w.dataset.tooltip = f("EIDOLON.LightCriteria.ApplyButton", "Apply"), w.setAttribute("aria-label", f("EIDOLON.LightCriteria.ApplyButton", "Apply")), w.innerHTML = '<i class="fa-solid fa-play" inert=""></i>', Z.appendChild(w);
+eidolon-utilities.js:5007:  $.type = "button", $.dataset.action = "update-selected-mapping", $.classList.add("eidolon-light-criteria__button", "secondary", "icon-only"), $.dataset.tooltip = f("EIDOLON.LightCriteria.UpdateButton", "Save Changes"), $.setAttribute(
+eidolon-utilities.js:5009:    f("EIDOLON.LightCriteria.UpdateButton", "Save Changes")
+eidolon-utilities.js:5012:  k.type = "button", k.dataset.action = "edit-selected-mapping-criteria", k.classList.add("eidolon-light-criteria__button", "secondary", "icon-only"), k.dataset.tooltip = f("EIDOLON.LightCriteria.EditCriteriaButton", "Edit Criteria"), k.setAttribute(
+eidolon-utilities.js:5014:    f("EIDOLON.LightCriteria.EditCriteriaButton", "Edit Criteria")
+eidolon-utilities.js:5017:  x.type = "button", x.dataset.action = "remove-selected-mapping", x.classList.add("eidolon-light-criteria__button", "secondary", "icon-only", "danger"), x.dataset.tooltip = f("EIDOLON.LightCriteria.RemoveMapping", "Remove Mapping"), x.setAttribute(
+eidolon-utilities.js:5019:    f("EIDOLON.LightCriteria.RemoveMapping", "Remove Mapping")
+eidolon-utilities.js:5025:    "EIDOLON.LightCriteria.ActiveRequiresBase",
+eidolon-utilities.js:5030:      "EIDOLON.LightCriteria.NoCategoriesWarning",
+eidolon-utilities.js:5031:      "This scene has no criteria configured. Add criteria under Scene -> Criteria to enable criteria-driven lighting."
+eidolon-utilities.js:5036:      "EIDOLON.LightCriteria.NoValuesWarning",
+eidolon-utilities.js:5037:      "Criteria exist, but none define selectable values. Add values in Scene -> Criteria."
+eidolon-utilities.js:5044:    "EIDOLON.LightCriteria.CreateDescription",
+eidolon-utilities.js:5053:    z.classList.add("eidolon-light-criteria__category-name"), z.textContent = (Zt = (mt = N.name) == null ? void 0 : mt.trim) != null && Zt.call(mt) ? N.name.trim() : f("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category"), U.appendChild(z);
+eidolon-utilities.js:5058:      "EIDOLON.LightCriteria.IgnoreCategory",
+eidolon-utilities.js:5071:    "EIDOLON.LightCriteria.SaveMapping",
+eidolon-utilities.js:5076:    "EIDOLON.LightCriteria.Cancel",
+eidolon-utilities.js:5089:  }), E("LightCriteria | Controls injected", {
+eidolon-utilities.js:5108:      editCriteriaButton: k,
+eidolon-utilities.js:5126:          "EIDOLON.LightCriteria.SelectMappingWarning",
+eidolon-utilities.js:5133:        editCriteriaButton: k,
+eidolon-utilities.js:5144:            "EIDOLON.LightCriteria.BaseUnavailable",
+eidolon-utilities.js:5163:          "EIDOLON.LightCriteria.BaseApplied",
+eidolon-utilities.js:5170:        editCriteriaButton: k,
+eidolon-utilities.js:5181:          "EIDOLON.LightCriteria.MappingUnavailable",
+eidolon-utilities.js:5188:        editCriteriaButton: k,
+eidolon-utilities.js:5209:        "EIDOLON.LightCriteria.MappingApplied",
+eidolon-utilities.js:5216:      editCriteriaButton: k,
+eidolon-utilities.js:5233:          "EIDOLON.LightCriteria.SelectMappingWarning",
+eidolon-utilities.js:5243:        v = await Wo(o ?? r, Ce), E("LightCriteria | Base lighting updated", {
+eidolon-utilities.js:5249:            "EIDOLON.LightCriteria.BaseUpdated",
+eidolon-utilities.js:5259:              "EIDOLON.LightCriteria.MappingUnavailable",
+eidolon-utilities.js:5270:        ), E("LightCriteria | Mapping updated", {
+eidolon-utilities.js:5277:        E("LightCriteria | Mapping updated", {
+eidolon-utilities.js:5285:            "EIDOLON.LightCriteria.MappingUpdated",
+eidolon-utilities.js:5298:          "EIDOLON.LightCriteria.MappingUpdateError",
+eidolon-utilities.js:5307:        editCriteriaButton: k,
+eidolon-utilities.js:5319:    editCriteriaButton: k,
+eidolon-utilities.js:5327:      v = await Wo(o ?? r, ie), E("LightCriteria | Base lighting stored", {
+eidolon-utilities.js:5333:          "EIDOLON.LightCriteria.BaseStored",
+eidolon-utilities.js:5343:        editCriteriaButton: k,
+eidolon-utilities.js:5351:          "EIDOLON.LightCriteria.BaseError",
+eidolon-utilities.js:5364:          "EIDOLON.LightCriteria.RequiresBase",
+eidolon-utilities.js:5374:          "EIDOLON.LightCriteria.NoCategoriesAvailable",
+eidolon-utilities.js:5401:          "EIDOLON.LightCriteria.SelectMappingForCriteriaEdit",
+eidolon-utilities.js:5412:          "EIDOLON.LightCriteria.MappingUnavailable",
+eidolon-utilities.js:5438:          "EIDOLON.LightCriteria.SelectionRequired",
+eidolon-utilities.js:5460:        ), E("LightCriteria | Mapping criteria retargeted", {
+eidolon-utilities.js:5468:            "EIDOLON.LightCriteria.MappingCriteriaUpdated",
+eidolon-utilities.js:5478:        ), E("LightCriteria | Mapping saved from editor", {
+eidolon-utilities.js:5484:            "EIDOLON.LightCriteria.MappingSaved",
+eidolon-utilities.js:5494:        editCriteriaButton: k,
+eidolon-utilities.js:5502:          "EIDOLON.LightCriteria.MappingError",
+eidolon-utilities.js:5519:      editCriteriaButton: k,
+eidolon-utilities.js:5524:      f("EIDOLON.LightCriteria.MappingRemoved", "Removed selected mapping.")
+eidolon-utilities.js:5545:    "EIDOLON.LightCriteria.EditCriteriaDescription",
+eidolon-utilities.js:5548:    "EIDOLON.LightCriteria.CreateDescription",
+eidolon-utilities.js:5552:  p instanceof HTMLButtonElement && (p.textContent = s === "retarget" ? f("EIDOLON.LightCriteria.SaveCriteriaChanges", "Save Criteria Changes") : f("EIDOLON.LightCriteria.SaveMapping", "Save Mapping")), i.hidden = !1, n.setAttribute("aria-expanded", "true"), bo(t, i), requestAnimationFrame(() => {
+eidolon-utilities.js:5563:      window: { title: f("EIDOLON.LightCriteria.ConflictTitle", "Replace Existing Mapping?") },
+eidolon-utilities.js:5565:        "EIDOLON.LightCriteria.ConflictBody",
+eidolon-utilities.js:5572:    title: f("EIDOLON.LightCriteria.ConflictTitle", "Replace Existing Mapping?"),
+eidolon-utilities.js:5574:      "EIDOLON.LightCriteria.ConflictBody",
+eidolon-utilities.js:5582:l(qc, "confirmCriteriaConflict");
+eidolon-utilities.js:5588:      window: { title: f("EIDOLON.LightCriteria.RemoveTitle", "Remove Mapping?") },
+eidolon-utilities.js:5590:        "EIDOLON.LightCriteria.RemoveBody",
+eidolon-utilities.js:5597:    title: f("EIDOLON.LightCriteria.RemoveTitle", "Remove Mapping?"),
+eidolon-utilities.js:5599:      "EIDOLON.LightCriteria.RemoveBody",
+eidolon-utilities.js:5615:    o = document.createElement("button"), o.type = "button", o.classList.add("header-control", "icon"), o.dataset.eidolonAction = "open-light-criteria-manager", o.dataset.tooltip = f("EIDOLON.LightCriteria.OpenManager", "Open Scene Criteria Lighting"), o.setAttribute("aria-label", f("EIDOLON.LightCriteria.OpenManager", "Open Scene Criteria Lighting")), o.innerHTML = '<i class="fa-solid fa-sliders" inert=""></i>';
+eidolon-utilities.js:5645:  }, "onClose"), a = f("EIDOLON.LightCriteria.ManagerTitle", "Scene Criteria Lighting"), c = '<div class="eidolon-light-criteria-manager-host"></div>', s = f("EIDOLON.LightCriteria.Close", "Close"), u = (T = (y = foundry == null ? void 0 : foundry.applications) == null ? void 0 : y.api) == null ? void 0 : T.DialogV2;
+eidolon-utilities.js:5712:  if (d.classList.add("eidolon-light-criteria-manager__header"), d.textContent = f("EIDOLON.LightCriteria.ManagerHeader", "Base State"), s.appendChild(d), r && s.appendChild(r), i && s.appendChild(i), a.length) {
+eidolon-utilities.js:5719:  g.classList.add("eidolon-light-criteria-manager__header"), g.textContent = f("EIDOLON.LightCriteria.ManagerAuthoring", "Create or Update Mapping"), u.appendChild(g), o && u.appendChild(o), e.innerHTML = "", t && e.appendChild(t), n && e.appendChild(n), e.appendChild(c), bo(e, o);
+eidolon-utilities.js:5733:    "EIDOLON.LightCriteria.CreateDescription",
+eidolon-utilities.js:5737:  o instanceof HTMLButtonElement && (o.textContent = f("EIDOLON.LightCriteria.SaveMapping", "Save Mapping")), bo(e, t), requestAnimationFrame(() => {
+eidolon-utilities.js:5748:      "EIDOLON.LightCriteria.StatusBaseSaved",
+eidolon-utilities.js:5751:      "EIDOLON.LightCriteria.StatusBaseMissing",
+eidolon-utilities.js:5756:      "EIDOLON.LightCriteria.StatusMappingCount",
+eidolon-utilities.js:5766:    "EIDOLON.LightCriteria.CreateDisabledNoCategories",
+eidolon-utilities.js:5769:    "EIDOLON.LightCriteria.CreateDisabledNoBase",
+eidolon-utilities.js:5791:    typeof C != "string" || !C || (foundry.utils.setProperty(a, p, C), E("LightCriteria | Captured color-picker value", {
+eidolon-utilities.js:5804:    foundry.utils.setProperty(a, p, _), E("LightCriteria | Captured range-picker value", {
+eidolon-utilities.js:5813:  return E("LightCriteria | Captured form config", {
+eidolon-utilities.js:5826:      E("LightCriteria | Applying field", {
+eidolon-utilities.js:5866:  a instanceof HTMLInputElement && a.value !== i && (a.value = i, ke(a)), (p = e.ui) != null && p.commit ? e.ui.commit() : (e.dispatchEvent(new Event("input", { bubbles: !0, cancelable: !0 })), e.dispatchEvent(new Event("change", { bubbles: !0, cancelable: !0 }))), E("LightCriteria | Color picker applied", {
+eidolon-utilities.js:5888:  E("LightCriteria | Range picker applied", {
+eidolon-utilities.js:5914:  editCriteriaButton: i,
+eidolon-utilities.js:5928:    const r = typeof n.name == "string" && n.name.trim() ? n.name.trim() : f("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category");
+eidolon-utilities.js:5940:    "EIDOLON.LightCriteria.SelectPlaceholder",
+eidolon-utilities.js:5945:    "EIDOLON.LightCriteria.BaseOption",
+eidolon-utilities.js:5966:    return f("EIDOLON.LightCriteria.UnnamedMapping", "Unnamed Mapping");
+eidolon-utilities.js:5971:    return `${t.get(r) ?? f("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category")}: ${a}`;
+eidolon-utilities.js:5973:  return i.length === 0 ? f("EIDOLON.LightCriteria.UnnamedMapping", "Unnamed Mapping") : i.join(" • ");
+eidolon-utilities.js:6008:  E("LightCriteria | Color state after apply", {
+eidolon-utilities.js:6098:l(ou, "registerLightCriteriaHooks");
+styles/tile-criteria.css:1:.eidolon-tile-criteria {
+styles/tile-criteria.css:8:.eidolon-tile-criteria__tree-panel {
+styles/tile-criteria.css:14:.eidolon-tile-criteria__editor-header h4 {
+styles/tile-criteria.css:19:.eidolon-tile-criteria__root {
+styles/tile-criteria.css:24:.eidolon-tile-criteria__library-tree {
+styles/tile-criteria.css:30:.eidolon-tile-criteria__filter-row {
+styles/tile-criteria.css:36:.eidolon-tile-criteria__filter-input {
+styles/tile-criteria.css:40:.eidolon-tile-criteria__filter-error {
+styles/tile-criteria.css:45:.eidolon-tile-criteria__tree {
+styles/tile-criteria.css:54:.eidolon-tile-criteria__tree-branch {
+styles/tile-criteria.css:60:.eidolon-tile-criteria__folder-row {
+styles/tile-criteria.css:67:.eidolon-tile-criteria__folder-row i {
+styles/tile-criteria.css:71:.eidolon-tile-criteria__tree-folder-label {
+styles/tile-criteria.css:77:.eidolon-tile-criteria__tree-file {
+styles/tile-criteria.css:82:.eidolon-tile-criteria__document-list {
+styles/tile-criteria.css:87:.eidolon-tile-criteria__file-row {
+styles/tile-criteria.css:99:.eidolon-tile-criteria__file-row.is-selected {
+styles/tile-criteria.css:103:.eidolon-tile-criteria__indicator {
+styles/tile-criteria.css:110:.eidolon-tile-criteria__indicator[data-kind="default"] {
+styles/tile-criteria.css:114:.eidolon-tile-criteria__indicator[data-kind="mapped"] {
+styles/tile-criteria.css:118:.eidolon-tile-criteria__file-title {
+styles/tile-criteria.css:127:.eidolon-tile-criteria__badges {
+styles/tile-criteria.css:134:.eidolon-tile-criteria__badge {
+styles/tile-criteria.css:142:.eidolon-tile-criteria__badge[data-kind="default"] {
+styles/tile-criteria.css:146:.eidolon-tile-criteria__badge[data-kind="rule"] {
+styles/tile-criteria.css:150:.eidolon-tile-criteria__dialog-content {
+styles/tile-criteria.css:156:.eidolon-tile-criteria__editor-header {
+styles/tile-criteria.css:162:.eidolon-tile-criteria__editor-header p {
+styles/tile-criteria.css:167:.eidolon-tile-criteria__editor-controls {
+styles/tile-criteria.css:173:.eidolon-tile-criteria__editor-action {
+styles/tile-criteria.css:177:.eidolon-tile-criteria__rule-editors {
+styles/tile-criteria.css:183:.eidolon-tile-criteria__rule-editor {
+styles/tile-criteria.css:192:.eidolon-tile-criteria__rule-grid {
+styles/tile-criteria.css:198:.eidolon-tile-criteria__rule-field {
+styles/tile-criteria.css:204:.eidolon-tile-criteria__criterion-label {
+styles/tile-criteria.css:210:.eidolon-tile-criteria__rule-remove {
+styles/tile-criteria.css:215:.eidolon-tile-criteria__actions {
+styles/tile-criteria.css:221:.eidolon-tile-criteria__button {
+styles/tile-criteria.css:225:.eidolon-tile-criteria__status {
+styles/tile-criteria.css:232:.eidolon-tile-criteria__status[data-mode="error"] {
+src/eidolon-utilities.entry.js:6:import "../styles/tile-criteria.css";
+templates/criteria-switcher.html:7:  {{#if hasCriteria}}
+templates/scene-criteria-tab.html:23:      {{#if hasCriteria}}
+src/__tests__/criteria-storage.test.js:3:  sanitizeCriteria,
+src/__tests__/criteria-storage.test.js:5:  sanitizeSceneCriteriaState
+src/__tests__/criteria-storage.test.js:49:describe("sanitizeCriteria", () => {
+src/__tests__/criteria-storage.test.js:51:    const criteria = sanitizeCriteria([
+src/__tests__/criteria-storage.test.js:63:describe("sanitizeSceneCriteriaState", () => {
+src/__tests__/criteria-storage.test.js:70:    const state = sanitizeSceneCriteriaState(
+src/__tests__/criteria-engine-core.test.js:5:  buildTileCriteriaFromFileIndex,
+src/__tests__/criteria-engine-core.test.js:8:} from "../../scripts/criteria-engine/core/tiles.js";
+src/__tests__/criteria-engine-core.test.js:10:  convertLightCriteriaStateToPresets,
+src/__tests__/criteria-engine-core.test.js:11:  migrateLightCriteriaCategoriesToKeys
+src/__tests__/criteria-engine-core.test.js:61:describe("tile select-one strategy", () => {
+src/__tests__/criteria-engine-core.test.js:62:  it("builds tile criteria variants from fileIndex", () => {
+src/__tests__/criteria-engine-core.test.js:63:    const tileCriteria = buildTileCriteriaFromFileIndex([
+src/__tests__/criteria-engine-core.test.js:69:    expect(tileCriteria).toEqual({
+src/__tests__/criteria-engine-core.test.js:81:    const tileCriteria = {
+src/__tests__/criteria-engine-core.test.js:92:    expect(selectTileFileIndex(tileCriteria, state, [{}, {}, {}])).toBe(1);
+src/__tests__/criteria-engine-core.test.js:96:    const tileCriteria = {
+src/__tests__/criteria-engine-core.test.js:105:    expect(selectTileFileIndex(tileCriteria, { mood: "Night", variant: "No Lights" }, [{}, {}, {}])).toBe(2);
+src/__tests__/criteria-engine-core.test.js:106:    expect(selectTileFileIndex(tileCriteria, { mood: "Day", variant: "No Lights" }, [{}, {}, {}])).toBe(0);
+src/__tests__/criteria-engine-core.test.js:116:    const tileCriteria = buildTileCriteriaFromFileIndex(
+src/__tests__/criteria-engine-core.test.js:131:    expect(selectTileFileIndex(tileCriteria, { mood: "Night" }, reorderedFiles)).toBe(0);
+src/__tests__/criteria-engine-core.test.js:132:    expect(selectTileFileIndex(tileCriteria, { mood: "Night", effect: "Fog" }, reorderedFiles)).toBe(1);
+src/__tests__/criteria-engine-core.test.js:160:    const presets = convertLightCriteriaStateToPresets(state);
+src/__tests__/criteria-engine-core.test.js:186:    const sceneCriteria = [
+src/__tests__/criteria-engine-core.test.js:191:    const migrated = migrateLightCriteriaCategoriesToKeys(state, sceneCriteria);

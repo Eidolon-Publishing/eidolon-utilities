@@ -1,0 +1,365 @@
+
+> eidolon-utilities@1.2.0 e2e
+> node ./node_modules/@playwright/test/cli.js test
+
+
+Running 5 tests using 1 worker
+··××T××T××T
+
+  1) [gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: page.waitForFunction: Test timeout of 90000ms exceeded.
+
+       at helpers/foundry-auth.mjs:109
+
+      107 |
+      108 | export async function waitForFoundryReady(page) {
+    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });
+          |              ^
+      110 | }
+      111 |
+      112 | async function hasJoinControls(page) {
+        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)
+        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)
+        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-state-sync.gm.spec.mjs:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: page.waitForFunction: Test timeout of 90000ms exceeded.
+
+       at helpers/foundry-auth.mjs:109
+
+      107 |
+      108 | export async function waitForFoundryReady(page) {
+    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });
+          |              ^
+      110 | }
+      111 |
+      112 | async function hasJoinControls(page) {
+        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)
+        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)
+        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-state-sync.gm.spec.mjs:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: page.waitForFunction: Test timeout of 90000ms exceeded.
+
+       at helpers/foundry-auth.mjs:109
+
+      107 |
+      108 | export async function waitForFoundryReady(page) {
+    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });
+          |              ^
+      110 | }
+      111 |
+      112 | async function hasJoinControls(page) {
+        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)
+        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)
+        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-state-sync.gm.spec.mjs:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry2/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/criteria-state-sync.gm-GM--5afc9--state-is-visible-to-player-gm-retry2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: page.waitForFunction: Test timeout of 90000ms exceeded.
+
+       at helpers/foundry-auth.mjs:109
+
+      107 |
+      108 | export async function waitForFoundryReady(page) {
+    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });
+          |              ^
+      110 | }
+      111 |
+      112 | async function hasJoinControls(page) {
+        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)
+        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)
+        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.gm.spec.mjs:5:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: page.waitForFunction: Test timeout of 90000ms exceeded.
+
+       at helpers/foundry-auth.mjs:109
+
+      107 |
+      108 | export async function waitForFoundryReady(page) {
+    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });
+          |              ^
+      110 | }
+      111 |
+      112 | async function hasJoinControls(page) {
+        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)
+        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)
+        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.gm.spec.mjs:5:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: page.waitForFunction: Test timeout of 90000ms exceeded.
+
+       at helpers/foundry-auth.mjs:109
+
+      107 |
+      108 | export async function waitForFoundryReady(page) {
+    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });
+          |              ^
+      110 | }
+      111 |
+      112 | async function hasJoinControls(page) {
+        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)
+        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)
+        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.gm.spec.mjs:5:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry2/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/criteria-switcher.gm-GM-ca-a24bc-ria-switcher-via-module-API-gm-retry2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: page.waitForFunction: Test timeout of 90000ms exceeded.
+
+       at helpers/foundry-auth.mjs:109
+
+      107 |
+      108 | export async function waitForFoundryReady(page) {
+    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });
+          |              ^
+      110 | }
+      111 |
+      112 | async function hasJoinControls(page) {
+        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)
+        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)
+        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.player.spec.mjs:5:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: page.waitForFunction: Test timeout of 90000ms exceeded.
+
+       at helpers/foundry-auth.mjs:109
+
+      107 |
+      108 | export async function waitForFoundryReady(page) {
+    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });
+          |              ^
+      110 | }
+      111 |
+      112 | async function hasJoinControls(page) {
+        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)
+        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)
+        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.player.spec.mjs:5:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: page.waitForFunction: Test timeout of 90000ms exceeded.
+
+       at helpers/foundry-auth.mjs:109
+
+      107 |
+      108 | export async function waitForFoundryReady(page) {
+    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });
+          |              ^
+      110 | }
+      111 |
+      112 | async function hasJoinControls(page) {
+        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)
+        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)
+        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.player.spec.mjs:5:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry2/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry2/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry2/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry2/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/criteria-switcher.player-P-8fa76-ria-switcher-via-module-API-player-retry2/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player 
+    [gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API 
+    [player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API 
+  2 passed (17.7m)
+::error file=tests/e2e/criteria-state-sync.gm.spec.mjs,title=[gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player::  1) [gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player %0A    Test timeout of 90000ms exceeded.
+::error file=tests/e2e/helpers/foundry-auth.mjs,title=[gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player,line=109,col=14::  1) [gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player %0A    Error: page.waitForFunction: Test timeout of 90000ms exceeded.%0A%0A       at helpers/foundry-auth.mjs:109%0A%0A      107 |%0A      108 | export async function waitForFoundryReady(page) {%0A    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });%0A          |              ^%0A      110 | }%0A      111 |%0A      112 | async function hasJoinControls(page) {%0A        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)%0A        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)%0A        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-state-sync.gm.spec.mjs:7:3
+::error file=tests/e2e/criteria-state-sync.gm.spec.mjs,title=[gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player::  1) [gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Test timeout of 90000ms exceeded.
+::error file=tests/e2e/helpers/foundry-auth.mjs,title=[gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player,line=109,col=14::  1) [gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: page.waitForFunction: Test timeout of 90000ms exceeded.%0A%0A       at helpers/foundry-auth.mjs:109%0A%0A      107 |%0A      108 | export async function waitForFoundryReady(page) {%0A    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });%0A          |              ^%0A      110 | }%0A      111 |%0A      112 | async function hasJoinControls(page) {%0A        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)%0A        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)%0A        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-state-sync.gm.spec.mjs:7:3
+::error file=tests/e2e/criteria-state-sync.gm.spec.mjs,title=[gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player::  1) [gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Test timeout of 90000ms exceeded.
+::error file=tests/e2e/helpers/foundry-auth.mjs,title=[gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player,line=109,col=14::  1) [gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: page.waitForFunction: Test timeout of 90000ms exceeded.%0A%0A       at helpers/foundry-auth.mjs:109%0A%0A      107 |%0A      108 | export async function waitForFoundryReady(page) {%0A    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });%0A          |              ^%0A      110 | }%0A      111 |%0A      112 | async function hasJoinControls(page) {%0A        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)%0A        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)%0A        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-state-sync.gm.spec.mjs:7:3
+::error file=tests/e2e/criteria-switcher.gm.spec.mjs,title=[gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API::  2) [gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API %0A    Test timeout of 90000ms exceeded.
+::error file=tests/e2e/helpers/foundry-auth.mjs,title=[gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API,line=109,col=14::  2) [gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API %0A    Error: page.waitForFunction: Test timeout of 90000ms exceeded.%0A%0A       at helpers/foundry-auth.mjs:109%0A%0A      107 |%0A      108 | export async function waitForFoundryReady(page) {%0A    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });%0A          |              ^%0A      110 | }%0A      111 |%0A      112 | async function hasJoinControls(page) {%0A        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)%0A        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)%0A        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.gm.spec.mjs:5:3
+::error file=tests/e2e/criteria-switcher.gm.spec.mjs,title=[gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API::  2) [gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Test timeout of 90000ms exceeded.
+::error file=tests/e2e/helpers/foundry-auth.mjs,title=[gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API,line=109,col=14::  2) [gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: page.waitForFunction: Test timeout of 90000ms exceeded.%0A%0A       at helpers/foundry-auth.mjs:109%0A%0A      107 |%0A      108 | export async function waitForFoundryReady(page) {%0A    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });%0A          |              ^%0A      110 | }%0A      111 |%0A      112 | async function hasJoinControls(page) {%0A        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)%0A        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)%0A        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.gm.spec.mjs:5:3
+::error file=tests/e2e/criteria-switcher.gm.spec.mjs,title=[gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API::  2) [gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Test timeout of 90000ms exceeded.
+::error file=tests/e2e/helpers/foundry-auth.mjs,title=[gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API,line=109,col=14::  2) [gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: page.waitForFunction: Test timeout of 90000ms exceeded.%0A%0A       at helpers/foundry-auth.mjs:109%0A%0A      107 |%0A      108 | export async function waitForFoundryReady(page) {%0A    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });%0A          |              ^%0A      110 | }%0A      111 |%0A      112 | async function hasJoinControls(page) {%0A        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)%0A        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)%0A        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.gm.spec.mjs:5:3
+::error file=tests/e2e/criteria-switcher.player.spec.mjs,title=[player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API::  3) [player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API %0A    Test timeout of 90000ms exceeded.
+::error file=tests/e2e/helpers/foundry-auth.mjs,title=[player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API,line=109,col=14::  3) [player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API %0A    Error: page.waitForFunction: Test timeout of 90000ms exceeded.%0A%0A       at helpers/foundry-auth.mjs:109%0A%0A      107 |%0A      108 | export async function waitForFoundryReady(page) {%0A    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });%0A          |              ^%0A      110 | }%0A      111 |%0A      112 | async function hasJoinControls(page) {%0A        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)%0A        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)%0A        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.player.spec.mjs:5:3
+::error file=tests/e2e/criteria-switcher.player.spec.mjs,title=[player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API::  3) [player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Test timeout of 90000ms exceeded.
+::error file=tests/e2e/helpers/foundry-auth.mjs,title=[player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API,line=109,col=14::  3) [player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API %0A%0A    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: page.waitForFunction: Test timeout of 90000ms exceeded.%0A%0A       at helpers/foundry-auth.mjs:109%0A%0A      107 |%0A      108 | export async function waitForFoundryReady(page) {%0A    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });%0A          |              ^%0A      110 | }%0A      111 |%0A      112 | async function hasJoinControls(page) {%0A        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)%0A        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)%0A        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.player.spec.mjs:5:3
+::error file=tests/e2e/criteria-switcher.player.spec.mjs,title=[player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API::  3) [player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Test timeout of 90000ms exceeded.
+::error file=tests/e2e/helpers/foundry-auth.mjs,title=[player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API,line=109,col=14::  3) [player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API %0A%0A    Retry #2 ───────────────────────────────────────────────────────────────────────────────────────%0A    Error: page.waitForFunction: Test timeout of 90000ms exceeded.%0A%0A       at helpers/foundry-auth.mjs:109%0A%0A      107 |%0A      108 | export async function waitForFoundryReady(page) {%0A    > 109 |   await page.waitForFunction(() => Boolean(globalThis.game?.ready), null, { timeout: 120_000 });%0A          |              ^%0A      110 | }%0A      111 |%0A      112 | async function hasJoinControls(page) {%0A        at waitForFoundryReady (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/foundry-auth.mjs:109:14)%0A        at assertFoundrySession (/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/helpers/session-assertions.mjs:8:9)%0A        at /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/tests/e2e/criteria-switcher.player.spec.mjs:5:3
+::notice title=🎭 Playwright Run Summary::  3 failed%0A    [gm] › tests/e2e/criteria-state-sync.gm.spec.mjs:6:1 › GM-applied criteria state is visible to player %0A    [gm] › tests/e2e/criteria-switcher.gm.spec.mjs:4:1 › GM can open criteria switcher via module API %0A    [player] › tests/e2e/criteria-switcher.player.spec.mjs:4:1 › Player cannot open criteria switcher via module API %0A  2 passed (17.7m)

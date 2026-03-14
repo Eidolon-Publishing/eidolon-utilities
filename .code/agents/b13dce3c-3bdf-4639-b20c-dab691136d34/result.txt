@@ -1,0 +1,609 @@
+[2026-02-19T00:53:44] OpenAI Codex v0.0.0 (research preview)
+[2026-02-19T00:53:44] binary: /home/talanor/.cache/just-every/code/0.6.70/code-x86_64-unknown-linux-musl
+--------
+workdir: /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+model: gpt-5.1-codex-mini
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: auto
+--------
+[2026-02-19T00:53:44] User instructions:
+Context: FoundryVTT module planning request. Need a practical architecture + UX plan grounded in existing code and constraints.
+
+Agent: Create a comprehensive implementation plan (no code changes) for redesigning the Scene Config Criteria tab in the Foundry module `eidolon-utilities` so it delivers professional, next-gen, low-friction UX while retaining full pattern-matching capabilities and behavioral parity with `map-ui-presets`.
+
+Context:
+- We are planning a future merge where legacy "variants" naming from map-ui-presets is replaced by generic scene criteria dimensions.
+- User constraints/preferences:
+  1) Keep screen real estate compact in community workflows.
+  2) Floating window remains preferred for day-to-day state control.
+  3) Scene Config should focus on criteria setup/authoring.
+- Therefore this plan should focus specifically on Scene Config Criteria tab architecture and UX, not a multi-tab enterprise control center.
+
+What to preserve from map-ui-presets reference behavior:
+- Criteria/state model: scene-level criteria definitions + current state.
+- Rule matcher semantics: exact criteria matching, multi-rule merge layering by specificity then index order.
+- Placeable presets model: base + rules.
+- Compatibility with existing map-ui-presets scenes and data migration path.
+
+Repository hints:
+- Primary repo: /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+- Reference repo: /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets
+- Key files to inspect first:
+  - eidolon-utilities: `scripts/object-variants/ui/SceneConfigTab.js`, `scripts/object-variants/core/storage.js`, `scripts/common/ui/scene-config-tab-factory.js`, `scripts/light-presets/ui/AmbientLightConfigControls.js`, `templates/object-variants-scene-tab.html`
+  - map-ui-presets: `src/indexer.js`, `src/state.js`, `src/resolver.js`, `src/placeables.js`, `src/map-switcher.js`
+
+Deliverable format requirements:
+1) Provide a staged implementation plan (phases) with explicit goals.
+2) For each phase include: scope, UX decisions, technical tasks, risks, and validation/test strategy.
+3) Include concrete data model recommendations for renaming/migrating "variants" -> generic "criteria" without breaking existing content.
+4) Include a UI interaction model for a single Scene Config tab that is compact and low-friction but feature-complete.
+5) Include acceptance criteria (definition of done) and rollout strategy (including migration safety).
+6) Keep suggestions practical and maintainable (avoid overengineering).
+
+Do not implement code; planning only.
+
+Files to consider: /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/object-variants/ui/SceneConfigTab.js, /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js
+
+[Running in read-only mode - no modifications allowed]
+
+[2026-02-19T00:53:47] thinking
+
+**Preparing to review plan skill**
+[2026-02-19T00:53:47] exec cat /home/talanor/.code/skills/.system/plan/SKILL.md in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:47] cat /home/talanor/.code/skills/.system/plan/SKILL.md succeeded in 1ms:
+---
+name: plan
+description: Generate a plan for how an agent should accomplish a complex coding task. Use when a user asks for a plan, and optionally when they want to save, find, read, update, or delete plan files in $CODEX_HOME/plans (default ~/.codex/plans).
+metadata:
+  short-description: Generate a plan for a complex task
+---
+
+# Plan
+
+## Overview
+
+Draft structured plans that clarify intent, scope, requirements, action items, testing/validation, and risks.
+
+Optionally, save plans to disk as markdown files with YAML frontmatter and free-form content. When drafting in chat, output only the plan body without frontmatter; add frontmatter only when saving to disk. Only write to the plans folder; do not modify the repository codebase.
+
+This skill can also be used to draft codebase or system overviews.
+
+## Core rules
+
+- Resolve the plans directory as `$CODEX_HOME/plans` or `~/.codex/plans` when `CODEX_HOME` is not set.
+[2026-02-19T00:53:47] tokens used: 7,057
+
+[2026-02-19T00:53:49] thinking
+
+**Preparing to gather context files**
+[2026-02-19T00:53:49] exec sed -n '1,200p' scripts/object-variants/ui/SceneConfigTab.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:49] sed -n '1,200p' scripts/object-variants/ui/SceneConfigTab.js succeeded in 1ms:
+import { createSceneConfigTabFactory } from "../../common/ui/scene-config-tab-factory.js";
+import { createApplicationFactory } from "../../common/ui/application-factories.js";
+import {
+  getSceneFromApplication,
+  hasSceneDocument,
+  localize
+} from "../../time-triggers/core/utils.js";
+import {
+  createObjectVariantCategory,
+  getObjectVariantCategories,
+  notifyPersistError,
+  setObjectVariantCategories
+} from "../core/storage.js";
+import { MODULE_ID } from "../core/constants.js";
+import CategoryEditorApplication from "./CategoryEditorApplication.js";
+
+const OBJECT_VARIANTS_SCENE_TEMPLATE = `modules/${MODULE_ID}/templates/object-variants-scene-tab.html`;
+
+const logger = {
+  log: (...args) => console.debug?.(`${MODULE_ID} | ObjectVariants`, ...args),
+[2026-02-19T00:53:49] tokens used: 8,997
+
+[2026-02-19T00:53:52] thinking
+
+**Continuing to review mutate function**
+[2026-02-19T00:53:52] exec sed -n '200,400p' scripts/object-variants/ui/SceneConfigTab.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:52] sed -n '200,400p' scripts/object-variants/ui/SceneConfigTab.js succeeded in 7ms:
+
+async function mutateVariantCategories(scene, mutator) {
+  const categories = getObjectVariantCategories(scene);
+  const result = mutator(categories);
+  if (result === false) return false;
+
+  try {
+    await setObjectVariantCategories(scene, categories);
+    return true;
+  } catch (error) {
+    notifyPersistError(error);
+    return false;
+  }
+}
+
+function openCategoryEditor(app, options = {}) {
+  const providedScene = options.scene ?? null;
+  const scene =
+    providedScene && hasSceneDocument(providedScene)
+      ? providedScene
+[2026-02-19T00:53:52] tokens used: 11,106
+
+[2026-02-19T00:53:54] thinking
+
+**Inspecting resolver files**
+[2026-02-19T00:53:54] exec sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:54] sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js succeeded in 8ms:
+/**
+ * Document-agnostic multi-merge resolver (Combinatorial Matcher Layer 1).
+ *
+ * For any placeable whose properties change based on scene state — lights,
+ * walls, sounds, standalone tiles. All matching rules contribute; deltas
+ * are layered by specificity ascending onto a base config.
+ *
+ * @module resolver
+ */
+
+/**
+ * Check whether every key in `criteria` equals the corresponding value in `state`.
+ * An empty/nullish criteria object is a universal match.
+ *
+ * @param {Object|null|undefined} criteria
+ * @param {Object} state
+ * @returns {boolean}
+ */
+function criteriaMatch(criteria, state) {
+	if (!criteria) return true;
+[2026-02-19T00:53:54] tokens used: 11,833
+
+[2026-02-19T00:53:55] thinking
+
+**Inspecting state data model**
+[2026-02-19T00:53:55] exec sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:55] sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js succeeded in 10ms:
+import { MODULE_ID, CURRENT_SCHEMA_VERSION, SCHEMA_VERSION, getSceneVersion } from "./constants.js";
+import { updateTiles } from "./tiles.js";
+import { updateLights } from "./lights.js";
+import { updatePlaceables } from "./placeables.js";
+
+/**
+ * Get the current map state from scene flags.
+ *
+ * @param {Scene} [scene] - Foundry Scene document. Defaults to viewed scene.
+ * @returns {Object|null} State object e.g. { mood, effect, variant, stage } or null.
+ */
+export function getState(scene) {
+	scene = scene ?? game.scenes.viewed;
+	if (!scene) return null;
+
+	return scene.getFlag(MODULE_ID, "state") ?? null;
+}
+
+/**
+ * Save new state to scene flags and update all tiles + lights.
+[2026-02-19T00:53:55] tokens used: 12,857
+
+[2026-02-19T00:54:00] thinking
+
+**Outlining staged migration plan**
+
+I’m organizing a detailed plan for migrating variant names to criteria, including data model updates and UI adjustments. I’ll reference relevant files like `SceneConfigTab.js` and `storage.js` with approximate line numbers, cover scope, UX decisions, technical tasks, risks, validation, acceptance criteria, and rollout strategy—all aligned with the instructions but without coding yet.
+[2026-02-19T00:54:00] exec sed -n '1,200p' scripts/object-variants/core/storage.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:00] sed -n '1,200p' scripts/object-variants/core/storage.js succeeded in 7ms:
+import { FLAG_OBJECT_VARIANTS, MODULE_ID } from "./constants.js";
+import { duplicateData, localize } from "../../time-triggers/core/utils.js";
+
+export function getObjectVariantCategories(scene) {
+  const stored = scene?.getFlag?.(MODULE_ID, FLAG_OBJECT_VARIANTS);
+  if (!stored) return [];
+
+  const duplicated = duplicateData(stored);
+  if (!Array.isArray(duplicated)) return [];
+
+  return duplicated
+    .map((entry) => sanitizeCategory(entry))
+    .filter((category) => category !== null);
+}
+
+export async function setObjectVariantCategories(scene, categories) {
+  if (!scene?.setFlag) return;
+  const sanitized = Array.isArray(categories)
+    ? categories.map((entry) => sanitizeCategory(entry)).filter((entry) => entry !== null)
+    : [];
+[2026-02-19T00:54:00] tokens used: 14,367
+
+[2026-02-19T00:54:02] thinking
+
+**Preparing to inspect template file**
+[2026-02-19T00:54:02] exec sed -n '1,200p' templates/object-variants-scene-tab.html in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:02] sed -n '1,200p' templates/object-variants-scene-tab.html succeeded in 8ms:
+<div class="object-variants-container">
+  <p class="notes object-variants-description">{{description}}</p>
+
+  <div class="form-group stacked object-variants-management">
+    <label>{{labels.categories}}</label>
+    <div class="object-variants-list">
+      {{#if hasCategories}}
+        <ul class="object-variants-category-list">
+          {{#each categories}}
+            <li class="object-variant" data-category-id="{{id}}">
+              <div class="object-variant__row">
+                <div class="object-variant__details">
+                  <div class="object-variant__name" data-unnamed="{{#if isUnnamed}}true{{else}}false{{/if}}">
+                    {{displayName}}
+                  </div>
+                  <div class="object-variant__values-preview">
+                    {{#if hasValues}}
+                      <div class="object-variant__value-list" role="list">
+                        {{#each valueChips}}
+                          <span class="object-variant__value-chip" role="listitem">{{this}}</span>
+[2026-02-19T00:54:02] tokens used: 28,874
+
+[2026-02-19T00:54:05] thinking
+
+**Outlining phased plan with data model and UI details**
+[2026-02-19T00:54:05] exec sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/constants.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:05] sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/constants.js succeeded in 4ms:
+export const MODULE_ID = "map-ui-presets";
+
+/**
+ * Schema versions for scene flag format.
+ *
+ * The version is stored on the scene at flags.map-ui-presets.version.
+ * Absent or 1 = legacy (bracket-filename matching, moods/effects/variants light presets).
+ * 2 = criteria-based (Layer 1 matcher, fileIndex on tiles, responds/presetIndex on lights).
+ */
+export const SCHEMA_VERSION = {
+	/** Bracket-filename parsing, hardcoded mood/effect/variant dimensions */
+	LEGACY: 1,
+	/** Criteria-based matching with generic dimensions */
+	CRITERIA: 2,
+};
+
+/** The version that new scenes get when set up via setCriteria / Layer 2 */
+export const CURRENT_SCHEMA_VERSION = SCHEMA_VERSION.CRITERIA;
+
+/**
+[2026-02-19T00:54:05] tokens used: 44,287
+
+[2026-02-19T00:54:07] thinking
+
+**Checking criteria storage in code**
+[2026-02-19T00:54:07] exec sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/placeables.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:07] sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/placeables.js succeeded in 7ms:
+/**
+ * Generic placeable property resolution.
+ *
+ * Iterates document types that can carry `presets` flags (base + rules),
+ * resolves each via resolveRules(), and batches updates per type.
+ *
+ * Tile is excluded — tile updates go through updateTilesCriteria() which
+ * handles MATT file selection. When tiles need both file selection AND
+ * preset rules, a merge step will be added.
+ */
+
+import { MODULE_ID } from "./constants.js";
+import { resolveRules } from "./resolver.js";
+import { buildLightControlsMap } from "./lights-legacy.js";
+
+/** Document types that can carry presets. */
+const PLACEABLE_TYPES = ["AmbientLight", "Wall", "AmbientSound"];
+
+/**
+ * Update all preset-driven placeables on the scene to match the given state.
+[2026-02-19T00:54:07] tokens used: 60,081
+
+[2026-02-19T00:54:08] thinking
+
+**Planning data model and architecture inspection**
+[2026-02-19T00:54:08] exec sed -n '1,200p' scripts/common/ui/scene-config-tab-factory.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:08] sed -n '1,200p' scripts/common/ui/scene-config-tab-factory.js succeeded in 1ms:
+import { asHTMLElement, isAppV2, setActiveTab } from "./foundry-compat.js";
+
+const V13_PATCHED_SYMBOL = Symbol.for("eidolon.sceneConfig.v13PatchedTabs");
+
+/**
+ * Create a SceneConfig tab factory that manages DOM injection and visibility hooks.
+ * @param {object} options
+ * @param {string} options.tabId Unique identifier for the tab.
+ * @param {string|Function} [options.tabLabel] Label or callback returning label markup.
+ * @param {(app: Application) => Scene|null} options.getScene Resolves the scene for the config.
+ * @param {(app: Application, scene: Scene|null) => boolean} [options.isApplicable] Optional guard.
+ * @param {(context: object) => (void|Function)} options.renderContent Renders the tab and returns optional cleanup.
+ * @param {object} [options.logger] Optional logger with `log`, `group`, and `groupEnd` functions.
+ * @param {Function} [options.onButtonCreate] Invoked when the tab button is created.
+ * @param {Function} [options.onTabCreate] Invoked when the tab container is created.
+ * @param {Function} [options.onAfterRender] Invoked after render completes.
+ * @param {string} [options.debugNamespace="SceneConfigTab"] Label used in log output.
+ * @param {string} [options.moduleId="eidolon-utilities"] Module ID for template paths.
+ */
+export function createSceneConfigTabFactory(options = {}) {
+[2026-02-19T00:54:08] tokens used: 62,061
+
+[2026-02-19T00:54:15] thinking
+
+**Outlining phased plan for Scene Config Criteria tab**
+
+I’m focusing on creating a detailed phased plan for the new Scene Config Criteria tab, covering scope, UX, technical tasks, risks, tests, data model updates, UI interaction, acceptance criteria, and rollout. I’ll also reference existing map repo behaviors, ensure backward compatibility by renaming variants to criteria, and consider searching the map repo for "variants" to confirm legacy data handling.
+[2026-02-19T00:54:15] exec /bin/sh -c 'cd /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets && rg -n "variants" src' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:15] /bin/sh -c 'cd /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets && rg -n "variants" src' succeeded in 60ms:
+src/indexer.js:47: * Convert legacy light presets (moods/effects/variants/combinations)
+src/indexer.js:56: *   Array ordering: effects, moods, variants — at same specificity (1),
+src/indexer.js:60: * @param {Object} presets - Legacy preset structure with default/moods/effects/variants/combinations
+src/indexer.js:95:	if (presets.variants) {
+src/indexer.js:96:		for (const [name, snapshot] of Object.entries(presets.variants)) {
+src/indexer.js:114:			if (combo.variants?.length) dims.variant = combo.variants;
+src/map-switcher.js:42:		ui.notifications.warn("No map variants found on Map tile");
+src/api.js:19:	 * LEGACY (1) = bracket-filename matching, moods/effects/variants light presets.
+src/indexer.test.js:36:	it("handles compound variants like 'No Lights - No Arch'", () => {
+src/indexer.test.js:214:	it("orders rules: effects, moods, variants (preserving legacy priority)", () => {
+src/indexer.test.js:223:			variants: {
+src/indexer.test.js:237:	it("handles light with only default and moods (no effects/variants/combinations)", () => {
+src/indexer.test.js:260:					variants: [],
+src/indexer.test.js:281:					variants: [],
+src/indexer.test.js:346:					variants: ["No Arch"],
+src/lights.js:5: * - Version 1 (legacy): moods/effects/variants/combinations cascade via lights-legacy.js
+src/constants.js:7: * Absent or 1 = legacy (bracket-filename matching, moods/effects/variants light presets).
+src/lights-legacy.js:4: * Uses the moods/effects/variants/combinations flag structure with a
+src/lights-legacy.js:13: * Resolve a light using the legacy moods/effects/variants/combinations flags.
+src/lights-legacy.js:33:	if (variant && presets.variants?.[variant]) {
+[2026-02-19T00:54:15] tokens used: 64,979
+
+[2026-02-19T00:54:18] thinking
+
+**Inspecting indexer data structure**
+[2026-02-19T00:54:18] exec sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:18] sed -n '1,200p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js succeeded in 7ms:
+/**
+ * Bracket Convention Indexer (Layer 2).
+ *
+ * Reads bracket-tagged MATT filenames and produces the data structures
+ * that the Layer 1 resolvers (findFileIndex, resolveRules) consume.
+ *
+ * `buildFileIndex` is a pure helper (testable without Foundry).
+ * `indexScene` is the main entry point (requires Foundry + Tagger).
+ *
+ * @module indexer
+ */
+
+import { MODULE_ID, SCHEMA_VERSION, getSceneVersion } from "./constants.js";
+import { parseFileTags } from "./tiles-legacy.js";
+
+const DEFAULT_VALUE = "Standard";
+
+const log = (...args) => console.log("map-ui-presets | indexer:", ...args);
+
+// ── Legacy Light Preset Conversion ────────────────────────────────
+[2026-02-19T00:54:18] tokens used: 65,846
+
+[2026-02-19T00:54:21] thinking
+
+**Planning scene config tab redesign**
+[2026-02-19T00:54:21] exec /bin/sh -c "nl -ba scripts/object-variants/ui/SceneConfigTab.js | sed -n '1,200p'" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:21] /bin/sh -c "nl -ba scripts/object-variants/ui/SceneConfigTab.js | sed -n '1,200p'" succeeded in 17ms:
+     1	import { createSceneConfigTabFactory } from "../../common/ui/scene-config-tab-factory.js";
+     2	import { createApplicationFactory } from "../../common/ui/application-factories.js";
+     3	import {
+     4	  getSceneFromApplication,
+     5	  hasSceneDocument,
+     6	  localize
+     7	} from "../../time-triggers/core/utils.js";
+     8	import {
+     9	  createObjectVariantCategory,
+    10	  getObjectVariantCategories,
+    11	  notifyPersistError,
+    12	  setObjectVariantCategories
+    13	} from "../core/storage.js";
+    14	import { MODULE_ID } from "../core/constants.js";
+    15	import CategoryEditorApplication from "./CategoryEditorApplication.js";
+    16	
+    17	const OBJECT_VARIANTS_SCENE_TEMPLATE = `modules/${MODULE_ID}/templates/object-variants-scene-tab.html`;
+    18	
+    19	const logger = {
+    20	  log: (...args) => console.debug?.(`${MODULE_ID} | ObjectVariants`, ...args),
+[2026-02-19T00:54:21] tokens used: 74,297
+
+[2026-02-19T00:54:23] thinking
+
+**Requesting more lines for completion**
+[2026-02-19T00:54:23] exec /bin/sh -c "nl -ba scripts/object-variants/ui/SceneConfigTab.js | sed -n '200,400p'" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:23] /bin/sh -c "nl -ba scripts/object-variants/ui/SceneConfigTab.js | sed -n '200,400p'" succeeded in 16ms:
+   200	
+   201	async function mutateVariantCategories(scene, mutator) {
+   202	  const categories = getObjectVariantCategories(scene);
+   203	  const result = mutator(categories);
+   204	  if (result === false) return false;
+   205	
+   206	  try {
+   207	    await setObjectVariantCategories(scene, categories);
+   208	    return true;
+   209	  } catch (error) {
+   210	    notifyPersistError(error);
+   211	    return false;
+   212	  }
+   213	}
+   214	
+   215	function openCategoryEditor(app, options = {}) {
+   216	  const providedScene = options.scene ?? null;
+   217	  const scene =
+   218	    providedScene && hasSceneDocument(providedScene)
+   219	      ? providedScene
+[2026-02-19T00:54:23] tokens used: 77,218
+
+[2026-02-19T00:54:29] thinking
+
+**Organizing multi-phase plan details**
+
+I'm gathering the key elements for a detailed plan titled "Scene Criteria Plan," including references to code files with line numbers, phased scopes, UX and technical tasks, risks, and validation steps. I'll also mention data model renaming, compatibility with map modules, and the use of the plan skill to structure everything clearly.
+[2026-02-19T00:54:29] exec /bin/sh -c 'nl -ba /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:29] /bin/sh -c 'nl -ba /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js' succeeded in 17ms:
+     1	/**
+     2	 * Document-agnostic multi-merge resolver (Combinatorial Matcher Layer 1).
+     3	 *
+     4	 * For any placeable whose properties change based on scene state — lights,
+     5	 * walls, sounds, standalone tiles. All matching rules contribute; deltas
+     6	 * are layered by specificity ascending onto a base config.
+     7	 *
+     8	 * @module resolver
+     9	 */
+    10	
+    11	/**
+    12	 * Check whether every key in `criteria` equals the corresponding value in `state`.
+    13	 * An empty/nullish criteria object is a universal match.
+    14	 *
+    15	 * @param {Object|null|undefined} criteria
+    16	 * @param {Object} state
+    17	 * @returns {boolean}
+    18	 */
+    19	function criteriaMatch(criteria, state) {
+    20		if (!criteria) return true;
+[2026-02-19T00:54:29] tokens used: 78,600
+
+[2026-02-19T00:54:30] thinking
+
+**Preparing to reference state file lines**
+[2026-02-19T00:54:30] exec /bin/sh -c "nl -ba /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js | sed -n '1,200p'" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:30] /bin/sh -c "nl -ba /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js | sed -n '1,200p'" succeeded in 20ms:
+     1	import { MODULE_ID, CURRENT_SCHEMA_VERSION, SCHEMA_VERSION, getSceneVersion } from "./constants.js";
+     2	import { updateTiles } from "./tiles.js";
+     3	import { updateLights } from "./lights.js";
+     4	import { updatePlaceables } from "./placeables.js";
+     5	
+     6	/**
+     7	 * Get the current map state from scene flags.
+     8	 *
+     9	 * @param {Scene} [scene] - Foundry Scene document. Defaults to viewed scene.
+    10	 * @returns {Object|null} State object e.g. { mood, effect, variant, stage } or null.
+    11	 */
+    12	export function getState(scene) {
+    13		scene = scene ?? game.scenes.viewed;
+    14		if (!scene) return null;
+    15	
+    16		return scene.getFlag(MODULE_ID, "state") ?? null;
+    17	}
+    18	
+    19	/**
+    20	 * Save new state to scene flags and update all tiles + lights.
+[2026-02-19T00:54:31] tokens used: 80,023
+
+[2026-02-19T00:54:46] thinking
+
+**Outlining multi-phase architecture plan**
+
+I’m putting together a detailed plan using the plan skill to cover phases from discovery to rollout, focusing on upgrading scene criteria with references to key files and lines. The plan will include scope, UX decisions, technical tasks, risks, and validation for each phase, plus sections on data model migration, UI interaction, acceptance criteria, and rollout strategy—all emphasizing preserving existing behaviors and low-friction integration.
+[2026-02-19T00:54:46] exec sed -n '1,200p' scripts/object-variants/core/constants.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:46] sed -n '1,200p' scripts/object-variants/core/constants.js succeeded in 7ms:
+import { MODULE_ID as BASE_MODULE_ID } from "../../time-triggers/core/constants.js";
+
+export const MODULE_ID = BASE_MODULE_ID;
+export const FLAG_OBJECT_VARIANTS = "objectVariants";
+[2026-02-19T00:54:46] tokens used: 94,266
+
+[2026-02-19T00:54:47] thinking
+
+**Considering line numbering for output**
+[2026-02-19T00:54:47] exec /bin/sh -c 'nl -ba scripts/object-variants/core/constants.js' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:47] /bin/sh -c 'nl -ba scripts/object-variants/core/constants.js' succeeded in 17ms:
+     1	import { MODULE_ID as BASE_MODULE_ID } from "../../time-triggers/core/constants.js";
+     2	
+     3	export const MODULE_ID = BASE_MODULE_ID;
+     4	export const FLAG_OBJECT_VARIANTS = "objectVariants";
+[2026-02-19T00:54:47] tokens used: 94,425
+
+[2026-02-19T00:55:10] thinking
+
+**Outlining multi-phase Scene Config tab plan**
+
+I'm mapping out a detailed multi-phase plan for the Scene Config Criteria tab, carefully referencing relevant files like `storage.js`, `state.js`, and `SceneConfigTab.js`. The plan includes phase-specific goals, technical tasks, UX considerations, risks, validation steps, and rollout strategy, while ensuring compatibility with existing map rules and data migration paths. I'll highlight key file lines and emphasize the UI interaction model, data model recommendations, acceptance criteria, and placeable presets semantics. Let's craft this thorough plan using the plan skill to guide the user's implementation approach.
+[2026-02-19T00:55:10] codex
+
+Using the `plan` skill to structure a phased Scene Config Criteria redesign that preserves the existing rule semantics and data paths.
+
+**Scene Config Criteria Plan**
+
+This plan lays out a practical, single-tab redesign for the Scene Config Criteria experience to replace the legacy “variants” tab while keeping the floating window workflow, compact layout, and rule model (base + ordered rules) from `map-ui-presets`.
+
+## Phase 1: Requirements & Reference Alignment
+- **Goal:** Document the current “variants” tab behavior/data and map-UI rule semantics as the foundation for the redesign.
+- **Scope:** Review `scripts/object-variants/ui/SceneConfigTab.js:27-235` plus `scripts/object-variants/core/storage.js:1-41` to catalog how the current tab renders category/value lists, launches the CategoryEditor, and persists scene flags, then compare with `map-ui-presets/src/resolver.js:11-90` and `src/state.js:6-107` for required matcher semantics.
+- **UX decisions:** Keep the idea of a compact, floating Scene Config tab; limit the scope to defining criteria dimensions and values, not a multi-tab “control center.”
+- **Technical tasks:** Capture data flow diagrams (SceneConfig tab → storage → scene flags), list the behavioral guarantees from `resolveRules` (specificity+index ordering), and note how `applyState`/`updatePlaceables` currently expect `{ base, rules }`.
+- **Risks:** Missing a subtle requirement from `map-ui-presets` (e.g., empty criteria universally matching) could break compatibility; ensure documentation explicitly calls out these semantics.
+- **Validation/test:** Peer review the documented behavior against the source files noted above; optionally include a table mapping existing flags to new terminology.
+
+## Phase 2: Criteria Data Model & Storage Migration
+- **Goal:** Define how scene criteria (the renamed “variants”) will be stored, validated, and migrated without breaking existing modules/scenes.
+- **Scope:** Design a new schema stored under `scene.flags.eidolon-utilities.criteria` (or similar) that mirrors the map module’s `{ base, rules }` expectations while also retaining the existing `objectVariants` array during a transitional period.
+- **UX decisions:** Present new terminology (e.g., “Scene Criteria Dimensions”) in the tab and keep any naming visible to users consistent with the new schema.
+- **Technical tasks:** 
+  - Propose a migration script to translate `scene.flags.eidolon-utilities.objectVariants` → `{ criteria: [...], rules: ... }`, ensuring each category becomes a dimension with values.
+  - Define flag versioning so `state.js` helpers (e.g., `setCriteria`, `getCriteria`) continue to work.
+  - Add graceful fallbacks that read legacy flags for scenes imported from `map-ui-presets` and merge them into the new criteria structure.
+- **Risks:** A migration that overwrites existing presets or loses ordering would break scenes; plan for a reversible migration stub and avoid auto-deletion until multiple validation runs pass.
+- **Validation/test:** Run the migration manually on sample scenes (legacy “variants” + criteria scenes) to confirm flags are preserved and `applyState` still resolves correctly to `resolveRules`.
+
+## Phase 3: Scene Config Tab Architecture & UX
+- **Goal:** Replace the current tab (`SceneConfigTab.js:27-235`) with a single, criteria-focused interface that balances compactness with the necessary controls to author dimensions and their values.
+- **Scope:** Build a new tab that still registers via `createSceneConfigTabFactory`, but now renders a compact criteria dashboard (summary + editable list) and surfaces the CategoryEditor-equivalent controls in-context.
+- **UX decisions:** 
+  - Use a vertical layout: top summary of “Active Criteria Dimensions,” middle grid/table listing each dimension with value chips, and bottom contextual actions (add dimension, reorder, preview).
+  - Keep controls minimal (inline edit, quick add value, toggles for “optional” vs “required”) so that the floating window stays lightweight.
+  - Avoid a full “control center”; defer to the existing floating Scene Config window for state application (the tab should author definitions, not manage live state toggles).
+- **Technical tasks:** 
+  - Draft new Handlebars template(s) that include dimension metadata (name, description, value count) and hooks for inline editing, value chips, and reorder/drop spaces.
+  - Reuse and extend `CategoryEditorApplication` logic or replace it with inline editors so editing/drilling into criteria does not require a second modal unless needed.
+  - Implement event bindings in the new tab to add/delete dimensions/values, keep `setCriteria` in sync, and show immediate feedback.
+- **Risks:** Packing too many controls may hurt compactness; ensure design prioritizes lightweight interactions (e.g., inline chips vs. a full table).
+- **Validation/test:** Prototype the tab in a development Foundry scene, confirm it renders correctly inside the floating Scene Config window (via `createSceneConfigTabFactory`), and verify event handlers persist data.
+
+## Phase 4: Integration with Rule Resolution & State Application
+- **Goal:** Connect the redesigned tab and data model to the map rule resolver so that authored criteria drive the `base + rules` matcher layer per `map-ui-presets/src/resolver.js:43-90`.
+- **Scope:** Ensure criteria definitions flow into live scene updates by leveraging the same helpers used in `map-ui-presets` (`state.js`, `placeables.js`, etc.).
+- **UX decisions:** Provide visual cues in the tab showing that every dimension contributes to the rule set applied by the resolver (e.g., annotate each rule with its specificity/ordering).
+- **Technical tasks:** 
+  - Emit structured `{ criteria, delta }` rules when persisting dimensions so downstream resolution functions can layer them.
+  - Hook the tab to `map-ui-presets` state management (e.g., use `applyState` for live updates or expose events similar to `stateApplied`).
+  - Maintain compatibility with placeable flag structure (`presets.base`, `presets.rules` from `src/placeables.js:1-40`) so modules like `eidolon-utilities` can still consume them or publish them.
+- **Risks:** Misaligned ordering (specificity vs. index) when building rule list will break the resolver’s guarantees; include sanity checks in the plan.
+- **Validation/test:** Use canned criteria definitions and verify that `resolveRules` outputs match expectations (e.g., by replaying match logic from `map-ui-presets/src/indexer.js`); assert that live updates refresh placeables.
+
+## Phase 5: Acceptance & Rollout
+- **Goal:** Define the “done” bar and rollout/migration strategy to deploy the redesign safely.
+- **Scope:** Specify acceptance criteria and rollout/migration steps so the new tab replaces the old “variants” experience without disrupting existing scenes.
+- **UX decisions:** The rollout should show the new tab to all users once migrations/settings are in place; do not hide functionality behind flags.
+- **Technical tasks:** 
+  - Prepare documentation describing the new tab, migration path, and how the criteria feed into the resolver.
+  - Add automated validation (unit tests or manual checks) for new helpers (if any) and update translation/localization strings as needed.
+- **Risks:** Surface regressions if the migration runs on already-working scenes; plan to ship with a fallback that keeps the old data intact until validation passes.
+- **Validation/test:** Final regression pass includes manually editing criteria in the Scene Config tab and confirming the new rule set drives lights/walls/sounds just like before; confirm legacy scenes still load their “variants” data via the migration layer.
+
+## Data Model & Migration Recommendations
+- Store criteria definitions under a dedicated flag (e.g., `scene.flags.eidolon-utilities.criteria`) that mirrors `map-ui-presets` (`setCriteria/getCriteria` in `src/state.js:82-107`) so downstream helpers can treat eidolon scenes as `map-ui-presets` scenes.
+- Maintain the existing `objectVariants` array (`scripts/object-variants/core/storage.js:1-41`) during migration by writing a translator that:
+  1. Converts each category → criterion with `id`, `name`, and `values`.
+  2. Derives `rules` entries (criteria + delta) to feed the resolver’s expected format (`{ base, rules }` per `src/resolver.js:43-90`).
+  3. Keeps `scene.flags.map-ui-presets` entries untouched so `map-ui-presets` consumers find their data.
+- Track schema version in scene flags (similar to `state.js:6-107`), and only mark a scene as “criteria” once migration succeeds—keep a “legacy flag read-only” path for fallback.
+
+## Scene Config UI Interaction Model
+- **Single tab layout:** top section is a scene summary (“3 dimensions defined, last updated…”), middle is a scrollable list/grid of dimensions with value chips/badges (each row shows name, optional description, actions), bottom has compact actions (Add Dimension, Bulk Import, Reset).
+- **Interaction flow:** 
+  1. Clicking “Add Dimension” inserts an inline form (name + description + value entry).
+  2. Each value chip supports inline editing/removal; empty inputs trigger contextual validation (you can’t save a dimension with zero values unless marked optional).
+  3. Drag handles or up/down buttons reorder dimensions to document intention (since rule order matters when specificity is equal).
+  4. Inline “Preview State” badge lets authors see which criteria rules are currently active (mirroring the `resolveRules` semantics from `resolver.js`).
+- **Compactness:** Keep controls to a single column; avoid modal popups unless editing a large dataset; present tooltips or microcopy that emphasize the tab’s role (criteria authoring, not runtime switching).
+- **Floating window fit:** ensure all interactions work inside Foundry’s floating Scene Config window (reuse `createSceneConfigTabFactory`), so users can leave the tab visible while working on other tabs or the map.
+
+## Acceptance Criteria
+- Scene Config tab renders a single “Criteria” tab (via `scripts/object-variants/ui/SceneConfigTab.js` equivalent) that authoritatively creates/updates criteria definitions without reverting to the old “variants” list.
+- Rule ordering, specificity, and merging behavior align with `map-ui-presets/src/resolver.js:43-90`; there is no regression in placeable updates that rely on `placeables.js:1-40`.
+- The data migration path moves existing “variant” categories (`scripts/object-variants/core/storage.js:1-41`) into the new criteria schema while keeping legacy flags readable until validation is complete.
+- UI stays compact and focused; all actions occur within the floating Scene Config tab (no extra modal unless justified), fulfilling the “low-friction criteria authoring” requirement.
+
+## Rollout Strategy
+1. Ship the new tab behind a feature flag for internal testing (optional), ensuring the old tab remains untouched until the new UX is validated.
+2. Run the migration/translator on a staging set of scenes (legacy “variant” + current criteria) and confirm they still resolve to `map-ui-presets` outputs.
+3. Once verified, flip the default to the new tab, document the migration path, and monitor for issues via QA or community beta testers (no code changes requested; just planning).
+[2026-02-19T00:55:10] tokens used: 98,006

@@ -1,0 +1,537 @@
+scripts/time-triggers/hooks.js:5:import { registerSceneConfigHook } from "./ui/SceneConfigTab.js";
+scripts/light-criteria/index.js:1:import { registerLightCriteriaHooks } from "./hooks.js";
+scripts/light-criteria/index.js:3:registerLightCriteriaHooks();
+scripts/criteria-engine/index.js:1:import { registerCriteriaEngineHooks } from "./hooks.js";
+scripts/criteria-engine/index.js:3:registerCriteriaEngineHooks();
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1:import { getSceneCriteria, getSceneCriteriaCategories } from "../../scene-criteria/core/storage.js";
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:4:  getLightCriteriaState,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:5:  setLightCriteriaState,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:7:  upsertLightCriteriaMapping,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:8:  retargetLightCriteriaMapping,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:9:  removeLightCriteriaMapping,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:11:  computeCriteriaMappingKey,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:12:  storeCurrentCriteriaSelection,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:13:  migrateLightCriteriaCategoriesToKeys
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:23:export function registerAmbientLightCriteriaControls() {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:25:  debugLog("LightCriteria | AmbientLightConfig controls registered");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:29:  debugGroup("LightCriteria | renderAmbientLightConfig", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:61:  debugLog("LightCriteria | Resolved ambient light", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:68:  const categoriesRaw = scene ? getSceneCriteriaCategories(scene) : [];
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:75:  const sceneCriteria = scene ? getSceneCriteria(scene) : [];
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:77:  let state = getLightCriteriaState(activeLight);
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:78:  const migratedState = migrateLightCriteriaCategoriesToKeys(state, sceneCriteria);
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:81:    void setLightCriteriaState(activeLight, migratedState).catch((error) => {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:82:      console.warn("eidolon-utilities | Failed to persist migrated light criteria keys", error);
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:86:  debugLog("LightCriteria | Loaded mapping state", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:110:  legend.textContent = localize("EIDOLON.LightCriteria.Legend", "Scene Criteria Lighting");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:116:    "EIDOLON.LightCriteria.Description",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:129:    "EIDOLON.LightCriteria.SetBase",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:139:    "EIDOLON.LightCriteria.CreateMapping",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:140:    "Add Criteria Mapping"
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:158:  switcherLabel.textContent = localize("EIDOLON.LightCriteria.SelectLabel", "Criteria Mapping");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:179:  applyMappingButton.dataset.tooltip = localize("EIDOLON.LightCriteria.ApplyButton", "Apply");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:180:  applyMappingButton.setAttribute("aria-label", localize("EIDOLON.LightCriteria.ApplyButton", "Apply"));
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:188:  updateMappingButton.dataset.tooltip = localize("EIDOLON.LightCriteria.UpdateButton", "Save Changes");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:191:    localize("EIDOLON.LightCriteria.UpdateButton", "Save Changes")
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:196:  const editCriteriaButton = document.createElement("button");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:197:  editCriteriaButton.type = "button";
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:198:  editCriteriaButton.dataset.action = "edit-selected-mapping-criteria";
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:199:  editCriteriaButton.classList.add("eidolon-light-criteria__button", "secondary", "icon-only");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:200:  editCriteriaButton.dataset.tooltip = localize("EIDOLON.LightCriteria.EditCriteriaButton", "Edit Criteria");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:201:  editCriteriaButton.setAttribute(
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:203:    localize("EIDOLON.LightCriteria.EditCriteriaButton", "Edit Criteria")
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:205:  editCriteriaButton.innerHTML = '<i class="fa-solid fa-sliders" inert=""></i>';
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:206:  actionStack.appendChild(editCriteriaButton);
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:212:  removeMappingButton.dataset.tooltip = localize("EIDOLON.LightCriteria.RemoveMapping", "Remove Mapping");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:215:    localize("EIDOLON.LightCriteria.RemoveMapping", "Remove Mapping")
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:227:    "EIDOLON.LightCriteria.ActiveRequiresBase",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:236:      "EIDOLON.LightCriteria.NoCategoriesWarning",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:237:      "This scene has no criteria configured. Add criteria under Scene -> Criteria to enable criteria-driven lighting."
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:244:      "EIDOLON.LightCriteria.NoValuesWarning",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:245:      "Criteria exist, but none define selectable values. Add values in Scene -> Criteria."
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:258:    "EIDOLON.LightCriteria.CreateDescription",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:275:      : localize("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:285:      "EIDOLON.LightCriteria.IgnoreCategory",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:309:    "EIDOLON.LightCriteria.SaveMapping",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:319:    "EIDOLON.LightCriteria.Cancel",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:346:  debugLog("LightCriteria | Controls injected", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:370:      editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:390:          "EIDOLON.LightCriteria.SelectMappingWarning",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:398:        editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:409:            "EIDOLON.LightCriteria.BaseUnavailable",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:417:      currentState = await storeCurrentCriteriaSelection(persistedLight ?? ambientLight, {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:437:          "EIDOLON.LightCriteria.BaseApplied",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:445:        editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:459:          "EIDOLON.LightCriteria.MappingUnavailable",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:469:        editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:478:    currentState = await storeCurrentCriteriaSelection(persistedLight ?? ambientLight, {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:499:        "EIDOLON.LightCriteria.MappingApplied",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:507:      editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:528:          "EIDOLON.LightCriteria.SelectMappingWarning",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:540:        debugLog("LightCriteria | Base lighting updated", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:546:            "EIDOLON.LightCriteria.BaseUpdated",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:556:              "EIDOLON.LightCriteria.MappingUnavailable",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:565:        currentState = await upsertLightCriteriaMapping(
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:571:        debugLog("LightCriteria | Mapping updated", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:584:        debugLog("LightCriteria | Mapping updated", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:592:            "EIDOLON.LightCriteria.MappingUpdated",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:608:      console.error("eidolon-utilities | Failed to update light criteria mapping", error);
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:611:          "EIDOLON.LightCriteria.MappingUpdateError",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:621:        editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:638:    editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:648:      debugLog("LightCriteria | Base lighting stored", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:654:          "EIDOLON.LightCriteria.BaseStored",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:671:        editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:676:      console.error("eidolon-utilities | Failed to store base light criteria state", error);
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:679:          "EIDOLON.LightCriteria.BaseError",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:692:          "EIDOLON.LightCriteria.RequiresBase",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:701:          "EIDOLON.LightCriteria.NoCategoriesAvailable",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:724:  editCriteriaButton.addEventListener("click", () => {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:729:          "EIDOLON.LightCriteria.SelectMappingForCriteriaEdit",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:740:          "EIDOLON.LightCriteria.MappingUnavailable",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:769:          "EIDOLON.LightCriteria.SelectionRequired",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:783:          replaceExisting = await confirmCriteriaConflict();
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:790:        currentState = await retargetLightCriteriaMapping(
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:798:        debugLog("LightCriteria | Mapping criteria retargeted", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:806:            "EIDOLON.LightCriteria.MappingCriteriaUpdated",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:811:        currentState = await upsertLightCriteriaMapping(
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:817:        debugLog("LightCriteria | Mapping saved from editor", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:823:            "EIDOLON.LightCriteria.MappingSaved",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:840:        editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:846:      console.error("eidolon-utilities | Failed to persist light criteria mapping", error);
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:849:          "EIDOLON.LightCriteria.MappingError",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:873:    currentState = await removeLightCriteriaMapping(persistedLight ?? ambientLight, selectedValue);
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:882:      editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:887:      localize("EIDOLON.LightCriteria.MappingRemoved", "Removed selected mapping.")
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:926:            "EIDOLON.LightCriteria.EditCriteriaDescription",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:930:            "EIDOLON.LightCriteria.CreateDescription",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:939:        ? localize("EIDOLON.LightCriteria.SaveCriteriaChanges", "Save Criteria Changes")
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:940:        : localize("EIDOLON.LightCriteria.SaveMapping", "Save Mapping");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:951:async function confirmCriteriaConflict() {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:955:      window: { title: localize("EIDOLON.LightCriteria.ConflictTitle", "Replace Existing Mapping?") },
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:957:        "EIDOLON.LightCriteria.ConflictBody",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:968:    title: localize("EIDOLON.LightCriteria.ConflictTitle", "Replace Existing Mapping?"),
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:970:      "EIDOLON.LightCriteria.ConflictBody",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:983:      window: { title: localize("EIDOLON.LightCriteria.RemoveTitle", "Remove Mapping?") },
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:985:        "EIDOLON.LightCriteria.RemoveBody",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:995:    title: localize("EIDOLON.LightCriteria.RemoveTitle", "Remove Mapping?"),
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:997:      "EIDOLON.LightCriteria.RemoveBody",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1019:    button.dataset.tooltip = localize("EIDOLON.LightCriteria.OpenManager", "Open Scene Criteria Lighting");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1020:    button.setAttribute("aria-label", localize("EIDOLON.LightCriteria.OpenManager", "Open Scene Criteria Lighting"));
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1070:  const title = localize("EIDOLON.LightCriteria.ManagerTitle", "Scene Criteria Lighting");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1072:  const closeLabel = localize("EIDOLON.LightCriteria.Close", "Close");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1169:  topHeader.textContent = localize("EIDOLON.LightCriteria.ManagerHeader", "Base State");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1184:  bottomHeader.textContent = localize("EIDOLON.LightCriteria.ManagerAuthoring", "Create or Update Mapping");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1213:      "EIDOLON.LightCriteria.CreateDescription",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1219:    saveButton.textContent = localize("EIDOLON.LightCriteria.SaveMapping", "Save Mapping");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1237:          "EIDOLON.LightCriteria.StatusBaseSaved",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1241:          "EIDOLON.LightCriteria.StatusBaseMissing",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1247:      "EIDOLON.LightCriteria.StatusMappingCount",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1263:        "EIDOLON.LightCriteria.CreateDisabledNoBase",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1267:        "EIDOLON.LightCriteria.CreateDisabledNoCategories",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1301:      debugLog("LightCriteria | Captured color-picker value", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1323:      debugLog("LightCriteria | Captured range-picker value", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1334:  debugLog("LightCriteria | Captured form config", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1348:    debugLog("LightCriteria | Applying field", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1440:  debugLog("LightCriteria | Color picker applied", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1488:  debugLog("LightCriteria | Range picker applied", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1525:  editCriteriaButton,
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1556:  if (editCriteriaButton instanceof HTMLButtonElement) {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1557:    editCriteriaButton.disabled =
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1576:        : localize("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1597:    "EIDOLON.LightCriteria.SelectPlaceholder",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1606:    "EIDOLON.LightCriteria.BaseOption",
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1649:    return localize("EIDOLON.LightCriteria.UnnamedMapping", "Unnamed Mapping");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1663:        localize("EIDOLON.LightCriteria.UnnamedCategory", "Unnamed Category");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1668:    return localize("EIDOLON.LightCriteria.UnnamedMapping", "Unnamed Mapping");
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1677:  const key = computeCriteriaMappingKey(categoriesSelection);
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1717:  debugLog("LightCriteria | Color state after apply", {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1757:      return await storeCurrentCriteriaSelection(lightDocument, {});
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1761:      return await storeCurrentCriteriaSelection(lightDocument, {
+scripts/light-criteria/ui/AmbientLightCriteriaControls.js:1771:    return await storeCurrentCriteriaSelection(lightDocument, {
+scripts/criteria-engine/hooks.js:3:import { canManageCriteria } from "./core/permissions.js";
+scripts/criteria-engine/hooks.js:4:import { invalidateTileCriteriaCaches } from "./core/tiles.js";
+scripts/criteria-engine/hooks.js:5:import { invalidatePlaceableCriteriaCaches } from "./core/placeables.js";
+scripts/criteria-engine/hooks.js:6:import { getCriteriaSwitcher, toggleCriteriaSwitcher } from "./ui/switcher-service.js";
+scripts/criteria-engine/hooks.js:7:import { registerTileCriteriaConfigControls } from "./ui/TileCriteriaConfigControls.js";
+scripts/criteria-engine/hooks.js:64:    if (hasTool(target, "eidolonCriteriaSwitcher")) return;
+scripts/criteria-engine/hooks.js:67:      name: "eidolonCriteriaSwitcher",
+scripts/criteria-engine/hooks.js:68:      title: "Criteria Switcher",
+scripts/criteria-engine/hooks.js:72:      visible: canManageCriteria(game.scenes?.viewed ?? null),
+scripts/criteria-engine/hooks.js:74:        toggleCriteriaSwitcher();
+scripts/criteria-engine/hooks.js:94:function registerCriteriaCacheInvalidationHooks() {
+scripts/criteria-engine/hooks.js:97:    invalidateTileCriteriaCaches(scene, tile);
+scripts/criteria-engine/hooks.js:102:    invalidatePlaceableCriteriaCaches(scene, doc);
+scripts/criteria-engine/hooks.js:114:    const touchesTileCriteria = hasOwnPath(change, `flags.${MODULE_ID}.${"tileCriteria"}`)
+scripts/criteria-engine/hooks.js:116:    if (!touchesTileCriteria) return;
+scripts/criteria-engine/hooks.js:132:      const touchesLightCriteria = documentName === "AmbientLight"
+scripts/criteria-engine/hooks.js:133:        && hasOwnPath(change, `flags.${MODULE_ID}.${"lightCriteria"}`);
+scripts/criteria-engine/hooks.js:135:      if (!touchesPresets && !touchesLightCriteria) return;
+scripts/criteria-engine/hooks.js:154:export function registerCriteriaEngineHooks() {
+scripts/criteria-engine/hooks.js:156:  registerTileCriteriaConfigControls();
+scripts/criteria-engine/hooks.js:157:  registerCriteriaCacheInvalidationHooks();
+scripts/criteria-engine/hooks.js:160:    game.keybindings?.register?.(MODULE_ID, "toggleCriteriaSwitcher", {
+scripts/criteria-engine/hooks.js:161:      name: "Toggle Criteria Switcher",
+scripts/criteria-engine/hooks.js:165:        if (!canManageCriteria(game.scenes?.viewed ?? null)) {
+scripts/criteria-engine/hooks.js:170:        toggleCriteriaSwitcher();
+scripts/criteria-engine/hooks.js:179:    const switcher = getCriteriaSwitcher();
+scripts/criteria-engine/hooks.js:193:    console.log(`${MODULE_ID} | Criteria engine API registered`);
+scripts/scene-criteria/hooks.js:1:import { registerSceneCriteriaConfigHook } from "./ui/SceneConfigTab.js";
+scripts/scene-criteria/hooks.js:2:import { registerSceneCriteriaSettings } from "./core/settings.js";
+scripts/scene-criteria/hooks.js:3:import { getShowSceneCriteriaTabSetting } from "./core/settings.js";
+scripts/scene-criteria/hooks.js:7:export function registerSceneCriteriaHooks() {
+scripts/scene-criteria/hooks.js:9:    registerSceneCriteriaSettings();
+scripts/scene-criteria/hooks.js:13:    if (!getShowSceneCriteriaTabSetting()) return;
+scripts/scene-criteria/hooks.js:15:    registerSceneCriteriaConfigHook();
+scripts/scene-criteria/index.js:1:import { registerSceneCriteriaHooks } from "./hooks.js";
+scripts/scene-criteria/index.js:3:registerSceneCriteriaHooks();
+scripts/light-criteria/hooks.js:1:import { registerAmbientLightCriteriaControls } from "./ui/AmbientLightCriteriaControls.js";
+scripts/light-criteria/hooks.js:3:export function registerLightCriteriaHooks() {
+scripts/light-criteria/hooks.js:4:  registerAmbientLightCriteriaControls();
+scripts/light-criteria/core/constants.js:4:export const FLAG_LIGHT_CRITERIA = "lightCriteria";
+scripts/light-criteria/core/storage.js:37:export function getLightCriteriaState(light) {
+scripts/light-criteria/core/storage.js:41:  return sanitizeLightCriteriaState(raw);
+scripts/light-criteria/core/storage.js:51:export async function setLightCriteriaState(light, state) {
+scripts/light-criteria/core/storage.js:52:  const sanitized = sanitizeLightCriteriaState(state);
+scripts/light-criteria/core/storage.js:80:export async function updateLightCriteriaState(light, updater) {
+scripts/light-criteria/core/storage.js:82:    throw new TypeError("updateLightCriteriaState requires an updater function.");
+scripts/light-criteria/core/storage.js:85:  const current = duplicateData(getLightCriteriaState(light));
+scripts/light-criteria/core/storage.js:87:  return setLightCriteriaState(light, updated);
+scripts/light-criteria/core/storage.js:101:  return updateLightCriteriaState(light, (state) => ({
+scripts/light-criteria/core/storage.js:116:export async function upsertLightCriteriaMapping(light, categories, config, { label } = {}) {
+scripts/light-criteria/core/storage.js:117:  const sanitizedCategories = sanitizeCriteriaCategories(categories);
+scripts/light-criteria/core/storage.js:126:  return updateLightCriteriaState(light, (state) => {
+scripts/light-criteria/core/storage.js:127:    const key = computeCriteriaMappingKey(sanitizedCategories);
+scripts/light-criteria/core/storage.js:137:    const nextEntry = sanitizeCriteriaMappingEntry({
+scripts/light-criteria/core/storage.js:173:export async function retargetLightCriteriaMapping(
+scripts/light-criteria/core/storage.js:185:  const sanitizedCategories = sanitizeCriteriaCategories(categories);
+scripts/light-criteria/core/storage.js:195:  return updateLightCriteriaState(light, (state) => {
+scripts/light-criteria/core/storage.js:202:    const nextKey = computeCriteriaMappingKey(sanitizedCategories);
+scripts/light-criteria/core/storage.js:212:    const next = sanitizeCriteriaMappingEntry({
+scripts/light-criteria/core/storage.js:264:export async function removeLightCriteriaMapping(light, mappingId) {
+scripts/light-criteria/core/storage.js:270:  return updateLightCriteriaState(light, (state) => {
+scripts/light-criteria/core/storage.js:295:export async function storeCurrentCriteriaSelection(light, selection) {
+scripts/light-criteria/core/storage.js:297:  return updateLightCriteriaState(light, (state) => ({
+scripts/light-criteria/core/storage.js:304: * Convert current light criteria mappings into a `{ base, rules[] }` resolver shape.
+scripts/light-criteria/core/storage.js:306:export function convertLightCriteriaStateToPresets(state) {
+scripts/light-criteria/core/storage.js:307:  const sanitized = sanitizeLightCriteriaState(state);
+scripts/light-criteria/core/storage.js:312:    const criteria = sanitizeCriteriaCategories(mapping?.categories);
+scripts/light-criteria/core/storage.js:334:export function migrateLightCriteriaCategoriesToKeys(state, sceneCriteria = []) {
+scripts/light-criteria/core/storage.js:338:  for (const criterion of sceneCriteria) {
+scripts/light-criteria/core/storage.js:347:  const sanitized = sanitizeLightCriteriaState(state);
+scripts/light-criteria/core/storage.js:374:      return sanitizeCriteriaMappingEntry({
+scripts/light-criteria/core/storage.js:377:        key: computeCriteriaMappingKey(categories)
+scripts/light-criteria/core/storage.js:393:  return sanitizeLightCriteriaState({
+scripts/light-criteria/core/storage.js:406:export function sanitizeLightCriteriaState(state) {
+scripts/light-criteria/core/storage.js:417:    const sanitized = sanitizeCriteriaMappingEntry(entry);
+scripts/light-criteria/core/storage.js:430:        ? mappings.find((mapping) => mapping.key === computeCriteriaMappingKey(current.categories))?.id ?? null
+scripts/light-criteria/core/storage.js:490:export function sanitizeCriteriaMappingEntry(entry) {
+scripts/light-criteria/core/storage.js:493:  const categories = sanitizeCriteriaCategories(entry.categories);
+scripts/light-criteria/core/storage.js:503:  const key = computeCriteriaMappingKey(categories);
+scripts/light-criteria/core/storage.js:527:  const categories = sanitizeCriteriaCategories(selection.categories);
+scripts/light-criteria/core/storage.js:543:export function sanitizeCriteriaCategories(categories) {
+scripts/light-criteria/core/storage.js:569:export function computeCriteriaMappingKey(categories) {
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:3:import { getSceneCriteria, getSceneCriteriaState } from "../../scene-criteria/core/storage.js";
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:7:export default class CriteriaSwitcherApplication extends HandlebarsApplicationMixin(ApplicationV2) {
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:13:      id: CriteriaSwitcherApplication.APP_ID,
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:19:        title: localize("EIDOLON.CriteriaSwitcher.Title", "Criteria Switcher"),
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:67:    this.#criteria = getSceneCriteria(this.#scene).sort((a, b) => a.order - b.order);
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:68:    this.#state = getSceneCriteriaState(this.#scene, this.#criteria);
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:73:    const hasCriteria = hasScene && this.#criteria.length > 0;
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:77:      hasCriteria,
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:78:      sceneName: this.#scene?.name ?? localize("EIDOLON.CriteriaSwitcher.NoScene", "No active scene"),
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:81:          "EIDOLON.CriteriaSwitcher.Subtitle",
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:85:          "EIDOLON.CriteriaSwitcher.Empty",
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:88:        reset: localize("EIDOLON.CriteriaSwitcher.Reset", "Reset Defaults"),
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:89:        close: localize("EIDOLON.CriteriaSwitcher.Close", "Close"),
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:90:        applying: localize("EIDOLON.CriteriaSwitcher.Applying", "Applying changes..."),
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:91:        ready: localize("EIDOLON.CriteriaSwitcher.Ready", "Ready")
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:184:          "EIDOLON.CriteriaSwitcher.ApplyError",
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:253:        node.textContent = localize("EIDOLON.CriteriaSwitcher.Applying", "Applying changes...");
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:256:        node.textContent = `${localize("EIDOLON.CriteriaSwitcher.Error", "Error")}: ${detail}`;
+scripts/criteria-engine/ui/CriteriaSwitcherApplication.js:260:        node.textContent = `${localize("EIDOLON.CriteriaSwitcher.Ready", "Ready")}: ${this.#formatStateSummary()}`;
+scripts/criteria-engine/ui/switcher-service.js:2:import { canManageCriteria } from "../core/permissions.js";
+scripts/criteria-engine/ui/switcher-service.js:3:import CriteriaSwitcherApplication from "./CriteriaSwitcherApplication.js";
+scripts/criteria-engine/ui/switcher-service.js:5:const createSwitcher = createApplicationFactory(CriteriaSwitcherApplication);
+scripts/criteria-engine/ui/switcher-service.js:17:export function getCriteriaSwitcher() {
+scripts/criteria-engine/ui/switcher-service.js:25:export function openCriteriaSwitcher(scene) {
+scripts/criteria-engine/ui/switcher-service.js:32:  if (!canManageCriteria(targetScene)) {
+scripts/criteria-engine/ui/switcher-service.js:37:  const existing = getCriteriaSwitcher();
+scripts/criteria-engine/ui/switcher-service.js:50:export function closeCriteriaSwitcher() {
+scripts/criteria-engine/ui/switcher-service.js:51:  const existing = getCriteriaSwitcher();
+scripts/criteria-engine/ui/switcher-service.js:58:export function toggleCriteriaSwitcher(scene) {
+scripts/criteria-engine/ui/switcher-service.js:59:  const existing = getCriteriaSwitcher();
+scripts/criteria-engine/ui/switcher-service.js:61:    closeCriteriaSwitcher();
+scripts/criteria-engine/ui/switcher-service.js:65:  return openCriteriaSwitcher(scene);
+scripts/criteria-engine/core/api.js:7:import { getSceneCriteria, setSceneCriteria } from "../../scene-criteria/core/storage.js";
+scripts/criteria-engine/core/api.js:10:  closeCriteriaSwitcher,
+scripts/criteria-engine/core/api.js:11:  openCriteriaSwitcher,
+scripts/criteria-engine/core/api.js:12:  toggleCriteriaSwitcher
+scripts/criteria-engine/core/api.js:23:  getCriteria(scene) {
+scripts/criteria-engine/core/api.js:24:    return getSceneCriteria(scene ?? game.scenes?.viewed);
+scripts/criteria-engine/core/api.js:27:  setCriteria(criteria, scene) {
+scripts/criteria-engine/core/api.js:28:    return setSceneCriteria(scene ?? game.scenes?.viewed, criteria);
+scripts/criteria-engine/core/api.js:35:  openCriteriaSwitcher,
+scripts/criteria-engine/core/api.js:36:  closeCriteriaSwitcher,
+scripts/criteria-engine/core/api.js:37:  toggleCriteriaSwitcher,
+scripts/criteria-engine/core/permissions.js:3:export function canManageCriteria(scene = null) {
+scripts/criteria-engine/core/permissions.js:30:export function requireCriteriaAccess(scene = null) {
+scripts/criteria-engine/core/permissions.js:31:  if (canManageCriteria(scene)) return;
+scripts/criteria-engine/core/tile-storage.js:4:  detectTileCriteriaConflicts,
+scripts/criteria-engine/core/tile-storage.js:5:  normalizeTileCriteria
+scripts/criteria-engine/core/tile-storage.js:12:export function createDefaultTileCriteria(files = []) {
+scripts/criteria-engine/core/tile-storage.js:25:export function getTileCriteria(tile, options = {}) {
+scripts/criteria-engine/core/tile-storage.js:30:  if (raw) return normalizeTileCriteria(raw, { files });
+scripts/criteria-engine/core/tile-storage.js:36:  return normalizeTileCriteria(legacy, { files });
+scripts/criteria-engine/core/tile-storage.js:39:export function parseTileCriteriaJson(jsonText, files = []) {
+scripts/criteria-engine/core/tile-storage.js:42:  return normalizeTileCriteria(parsed, { files });
+scripts/criteria-engine/core/tile-storage.js:45:export function stringifyTileCriteria(criteria, files = []) {
+scripts/criteria-engine/core/tile-storage.js:46:  const normalized = normalizeTileCriteria(criteria, { files });
+scripts/criteria-engine/core/tile-storage.js:47:  return JSON.stringify(normalized ?? createDefaultTileCriteria(files), null, 2);
+scripts/criteria-engine/core/tile-storage.js:50:export async function setTileCriteria(tile, criteria, options = {}) {
+scripts/criteria-engine/core/tile-storage.js:59:  const normalized = normalizeTileCriteria(criteria, { files });
+scripts/criteria-engine/core/tile-storage.js:72:    const conflictReport = detectTileCriteriaConflicts(normalized, { files });
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:3:import { getSceneCriteria } from "../../scene-criteria/core/storage.js";
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:6:  createDefaultTileCriteria,
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:7:  getTileCriteria,
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:8:  setTileCriteria
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:13:  detectTileCriteriaConflicts,
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:14:  normalizeTileCriteria,
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:21:const UI_STATE_KEY = Symbol.for("eidolon.tileCriteriaUiState");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:83:function getCriteriaDefinitions(tile, stored) {
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:85:  const criteria = getSceneCriteria(scene).sort((left, right) => left.order - right.order);
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:191:  const stored = getTileCriteria(tile, { allowLegacy: true }) ?? createDefaultTileCriteria(files);
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:193:  const criteriaDefinitions = getCriteriaDefinitions(tile, stored);
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:242:      message: localize("EIDOLON.TileCriteria.Ready", "Ready")
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:254:function sanitizeRuleCriteria(criteria) {
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:262:function buildTileCriteriaDraft(state) {
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:273:      const criteria = sanitizeRuleCriteria(rule.criteria);
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:304:  const normalized = normalizeTileCriteria(
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:319:function exportTileCriteria(state) {
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:320:  return buildTileCriteriaDraft(state)?.normalized ?? null;
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:324:  const draft = buildTileCriteriaDraft(state);
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:334:  const report = detectTileCriteriaConflicts(draft.normalized, { files: state.files });
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:422:      error: error?.message ?? localize("EIDOLON.TileCriteria.InvalidRegex", "Invalid regex."),
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:486:  remove.textContent = localize("EIDOLON.TileCriteria.RemoveRule", "Remove");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:531:  subtitle.textContent = `#${entry.index + 1} · ${entry.path || localize("EIDOLON.TileCriteria.UnknownPath", "Unknown path")}`;
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:543:    defaultButton.textContent = localize("EIDOLON.TileCriteria.IsDefault", "Default Target");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:546:    defaultButton.textContent = localize("EIDOLON.TileCriteria.SetDefault", "Set As Default");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:558:  clearRules.textContent = localize("EIDOLON.TileCriteria.ClearFileRules", "Clear File Rules");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:576:      "EIDOLON.TileCriteria.NoRulesForFile",
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:595:  addRule.textContent = localize("EIDOLON.TileCriteria.AddRule", "Add Rule");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:644:  const title = localize("EIDOLON.TileCriteria.EditorTitle", "Edit Tile Criteria Rules");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:646:  const closeLabel = localize("EIDOLON.TileCriteria.CloseEditor", "Close");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:728:      return localize("EIDOLON.TileCriteria.FilterModeUnmapped", "Unmapped");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:730:      return localize("EIDOLON.TileCriteria.FilterModeMapped", "Mapped");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:732:      return localize("EIDOLON.TileCriteria.FilterModeConflicts", "Clashes");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:735:      return localize("EIDOLON.TileCriteria.FilterModeAll", "All");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:803:          "EIDOLON.TileCriteria.ConflictFileHint",
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:810:          "EIDOLON.TileCriteria.WarningFileHint",
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:818:          "EIDOLON.TileCriteria.UnmappedHint",
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:858:      badges.appendChild(createBadge(localize("EIDOLON.TileCriteria.DefaultBadge", "Default"), "default"));
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:917:        "EIDOLON.TileCriteria.FilterModeUnavailable",
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:945:  filterInput.placeholder = localize("EIDOLON.TileCriteria.FilterPlaceholder", "Regex filter (path)");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:990:  const saveLabel = localize("EIDOLON.TileCriteria.Save", "Save Rules");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1004:  const clearLabel = localize("EIDOLON.TileCriteria.Clear", "Clear Rules");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1022:    error.textContent = `${localize("EIDOLON.TileCriteria.InvalidRegex", "Invalid regex")}: ${filter.error}`;
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1037:    empty.textContent = localize("EIDOLON.TileCriteria.NoVariants", "No MATT variants found");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1042:    empty.textContent = localize("EIDOLON.TileCriteria.NoMatches", "No variants match this filter.");
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1068:            "EIDOLON.TileCriteria.ConflictSaveBlocked",
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1076:      const normalized = exportTileCriteria(state);
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1080:          message: localize("EIDOLON.TileCriteria.Invalid", "Invalid rules. Select valid target variants.")
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1086:      await setTileCriteria(controller.tile, normalized);
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1098:        message: localize("EIDOLON.TileCriteria.Saved", "Tile criteria rules saved.")
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1114:      await setTileCriteria(controller.tile, null);
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1126:        message: localize("EIDOLON.TileCriteria.Cleared", "Tile criteria rules cleared.")
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1154:        "EIDOLON.TileCriteria.ConflictSummary",
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1160:        "EIDOLON.TileCriteria.WarningSummary",
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1169:      "EIDOLON.TileCriteria.ConflictHint",
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1340:function ensureTileCriteriaTab(app, root) {
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1353:  setTabButtonContent(tabButton, localize("EIDOLON.TileCriteria.TabLabel", "Criteria"));
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1360:  if (!tabButton.dataset.eidolonTileCriteriaBound) {
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1367:    tabButton.dataset.eidolonTileCriteriaBound = "true";
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1378:export function registerTileCriteriaConfigControls() {
+scripts/criteria-engine/ui/TileCriteriaConfigControls.js:1389:    const tabPanel = ensureTileCriteriaTab(app, root);
+scripts/criteria-engine/core/placeables.js:4:import { convertLightCriteriaStateToPresets } from "../../light-criteria/core/storage.js";
+scripts/criteria-engine/core/placeables.js:204:  const rawLightCriteria = type === "AmbientLight" ? (flags?.lightCriteria ?? null) : null;
+scripts/criteria-engine/core/placeables.js:207:  if (cached && cached.type === type && cached.rawPresets === rawPresets && cached.rawLightCriteria === rawLightCriteria) {
+scripts/criteria-engine/core/placeables.js:225:  if (!presets && type === "AmbientLight" && flags?.lightCriteria) {
+scripts/criteria-engine/core/placeables.js:226:    const converted = convertLightCriteriaStateToPresets(flags.lightCriteria);
+scripts/criteria-engine/core/placeables.js:229:      // Reuse the transformed payload while light criteria references remain unchanged.
+scripts/criteria-engine/core/placeables.js:241:    rawLightCriteria,
+scripts/criteria-engine/core/placeables.js:248:export function invalidatePlaceableCriteriaCaches(scene = null, doc = null) {
+scripts/criteria-engine/core/indexer.js:1:import { createSceneCriterion, setSceneCriteria } from "../../scene-criteria/core/storage.js";
+scripts/criteria-engine/core/indexer.js:10:import { buildTileCriteriaFromFileIndex } from "./tiles.js";
+scripts/criteria-engine/core/indexer.js:55:function buildCriteriaDefinitions(criterionOrder, valuesByKey) {
+scripts/criteria-engine/core/indexer.js:78:  const tileCriteria = buildTileCriteriaFromFileIndex(fileIndex, { files });
+scripts/criteria-engine/core/indexer.js:92:    await tile.setFlag(MODULE_ID, FLAG_TILE_CRITERIA, tileCriteria);
+scripts/criteria-engine/core/indexer.js:102: * Index bracket-tagged MATT tiles into per-tile `tileCriteria` selectors.
+scripts/criteria-engine/core/indexer.js:180:  const criteria = buildCriteriaDefinitions(criterionOrder, valuesByKey);
+scripts/criteria-engine/core/indexer.js:183:    await setSceneCriteria(scene, criteria);
+scripts/scene-criteria/core/storage.js:12:export function getSceneCriteria(scene) {
+scripts/scene-criteria/core/storage.js:15:  return sanitizeCriteria(stored);
+scripts/scene-criteria/core/storage.js:18:export async function setSceneCriteria(scene, criteria) {
+scripts/scene-criteria/core/storage.js:20:  const sanitized = sanitizeCriteria(criteria);
+scripts/scene-criteria/core/storage.js:24:  const currentState = getSceneCriteriaState(scene, sanitized);
+scripts/scene-criteria/core/storage.js:28:export function getSceneCriteriaState(scene, criteriaOverride = null) {
+scripts/scene-criteria/core/storage.js:29:  const criteria = Array.isArray(criteriaOverride) ? criteriaOverride : getSceneCriteria(scene);
+scripts/scene-criteria/core/storage.js:31:  return sanitizeSceneCriteriaState(rawState, criteria);
+scripts/scene-criteria/core/storage.js:34:export async function setSceneCriteriaState(scene, state, criteriaOverride = null) {
+scripts/scene-criteria/core/storage.js:36:  const criteria = Array.isArray(criteriaOverride) ? criteriaOverride : getSceneCriteria(scene);
+scripts/scene-criteria/core/storage.js:37:  const sanitized = sanitizeSceneCriteriaState(state, criteria);
+scripts/scene-criteria/core/storage.js:55:export function sanitizeCriteria(input) {
+scripts/scene-criteria/core/storage.js:114:export function sanitizeSceneCriteriaState(input, criteria = []) {
+scripts/scene-criteria/core/storage.js:131:export function getSceneCriteriaCategories(scene) {
+scripts/scene-criteria/core/storage.js:132:  const criteria = getSceneCriteria(scene);
+scripts/scene-criteria/core/storage.js:189:      "EIDOLON.SceneCriteria.PersistError",
+scripts/criteria-engine/core/state.js:2:  getSceneCriteria,
+scripts/criteria-engine/core/state.js:3:  getSceneCriteriaState,
+scripts/criteria-engine/core/state.js:4:  sanitizeSceneCriteriaState,
+scripts/criteria-engine/core/state.js:5:  setSceneCriteriaState
+scripts/criteria-engine/core/state.js:14:import { requireCriteriaAccess } from "./permissions.js";
+scripts/criteria-engine/core/state.js:28:  return getSceneCriteriaState(scene);
+scripts/criteria-engine/core/state.js:36:  requireCriteriaAccess(scene);
+scripts/criteria-engine/core/state.js:38:  const criteria = getSceneCriteria(scene);
+scripts/criteria-engine/core/state.js:44:  const current = getSceneCriteriaState(scene, criteria);
+scripts/criteria-engine/core/state.js:45:  const merged = sanitizeSceneCriteriaState({ ...current, ...(newState ?? {}) }, criteria);
+scripts/criteria-engine/core/state.js:53:    await setSceneCriteriaState(scene, merged, criteria);
+scripts/criteria-engine/core/state.js:64:  debugLog("Criteria apply telemetry", {
+scripts/criteria-engine/core/constants.js:7:export const FLAG_TILE_CRITERIA = "tileCriteria";
+scripts/criteria-engine/core/tiles.js:58:function getTileCriteriaDependencyKeys(tileCriteria) {
+scripts/criteria-engine/core/tiles.js:59:  const normalized = normalizeTileCriteria(tileCriteria, { files: null });
+scripts/criteria-engine/core/tiles.js:77:    const tileCriteria = tile.getFlag(MODULE_ID, FLAG_TILE_CRITERIA)
+scripts/criteria-engine/core/tiles.js:79:    if (!tileCriteria) continue;
+scripts/criteria-engine/core/tiles.js:83:    for (const key of getTileCriteriaDependencyKeys(tileCriteria)) {
+scripts/criteria-engine/core/tiles.js:246:function sanitizeCriteria(criteria) {
+scripts/criteria-engine/core/tiles.js:258:function serializeCriteria(criteria) {
+scripts/criteria-engine/core/tiles.js:259:  const entries = Object.entries(sanitizeCriteria(criteria)).sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey));
+scripts/criteria-engine/core/tiles.js:263:function getCriteriaSpecificity(criteria) {
+scripts/criteria-engine/core/tiles.js:264:  return Object.keys(sanitizeCriteria(criteria)).length;
+scripts/criteria-engine/core/tiles.js:267:function areCriteriaCompatible(leftCriteria, rightCriteria) {
+scripts/criteria-engine/core/tiles.js:268:  const left = sanitizeCriteria(leftCriteria);
+scripts/criteria-engine/core/tiles.js:269:  const right = sanitizeCriteria(rightCriteria);
+scripts/criteria-engine/core/tiles.js:300:export function detectTileCriteriaConflicts(tileCriteria, options = {}) {
+scripts/criteria-engine/core/tiles.js:302:  const normalized = normalizeTileCriteria(tileCriteria, { files });
+scripts/criteria-engine/core/tiles.js:312:    criteria: sanitizeCriteria(variant.criteria),
+scripts/criteria-engine/core/tiles.js:313:    specificity: getCriteriaSpecificity(variant.criteria),
+scripts/criteria-engine/core/tiles.js:314:    criteriaSignature: serializeCriteria(variant.criteria),
+scripts/criteria-engine/core/tiles.js:327:      if (!areCriteriaCompatible(left.criteria, right.criteria)) continue;
+scripts/criteria-engine/core/tiles.js:370:    criteria: sanitizeCriteria(entry.criteria),
+scripts/criteria-engine/core/tiles.js:378:export function buildTileCriteriaFromFileIndex(fileIndex, options = {}) {
+scripts/criteria-engine/core/tiles.js:385:      criteria: sanitizeCriteria(criteria),
+scripts/criteria-engine/core/tiles.js:417:export function normalizeTileCriteria(tileCriteria, options = {}) {
+scripts/criteria-engine/core/tiles.js:420:  if (Array.isArray(tileCriteria)) {
+scripts/criteria-engine/core/tiles.js:421:    return buildTileCriteriaFromFileIndex(tileCriteria, { files });
+scripts/criteria-engine/core/tiles.js:424:  if (!tileCriteria || typeof tileCriteria !== "object") return null;
+scripts/criteria-engine/core/tiles.js:426:  const variants = Array.isArray(tileCriteria.variants)
+scripts/criteria-engine/core/tiles.js:427:    ? tileCriteria.variants.map((entry) => normalizeTileVariant(entry, files)).filter(Boolean)
+scripts/criteria-engine/core/tiles.js:432:  let defaultTarget = normalizeTileTarget(tileCriteria.defaultTarget);
+scripts/criteria-engine/core/tiles.js:435:    const defaultFileIndex = Number(tileCriteria.defaultFileIndex);
+scripts/criteria-engine/core/tiles.js:456:export function selectTileFileIndex(tileCriteria, state, files) {
+scripts/criteria-engine/core/tiles.js:457:  const compiled = compileTileMatcher(tileCriteria, files);
+scripts/criteria-engine/core/tiles.js:488:function compileTileMatcher(tileCriteria, files) {
+scripts/criteria-engine/core/tiles.js:489:  const normalized = normalizeTileCriteria(tileCriteria, { files });
+scripts/criteria-engine/core/tiles.js:494:      const criteria = sanitizeCriteria(variant.criteria);
+scripts/criteria-engine/core/tiles.js:517:function getCompiledTileMatcher(tile, tileCriteria, files) {
+scripts/criteria-engine/core/tiles.js:519:  if (cached && cached.tileCriteria === tileCriteria && cached.files === files) {
+scripts/criteria-engine/core/tiles.js:523:  const compiled = compileTileMatcher(tileCriteria, files);
+scripts/criteria-engine/core/tiles.js:525:    tileCriteria,
+scripts/criteria-engine/core/tiles.js:532:export function invalidateTileCriteriaCaches(scene = null, tile = null) {
+scripts/criteria-engine/core/tiles.js:558:      noCriteria: 0,
+scripts/criteria-engine/core/tiles.js:586:    const tileCriteria = tile.getFlag(MODULE_ID, FLAG_TILE_CRITERIA)
+scripts/criteria-engine/core/tiles.js:588:    if (!tileCriteria) {
+scripts/criteria-engine/core/tiles.js:589:      metrics.skipped.noCriteria += 1;
+scripts/criteria-engine/core/tiles.js:599:    const compiled = getCompiledTileMatcher(tile, tileCriteria, files);
+scripts/scene-criteria/ui/CategoryEditorApplication.js:4:  getSceneCriteria,
+scripts/scene-criteria/ui/CategoryEditorApplication.js:7:  setSceneCriteria
+scripts/scene-criteria/ui/CategoryEditorApplication.js:35:        title: localize("EIDOLON.SceneCriteria.EditCategory", "Edit Criterion"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:55:      createSceneCriterion(localize("EIDOLON.SceneCriteria.DefaultCategoryName", "New Criterion"));
+scripts/scene-criteria/ui/CategoryEditorApplication.js:80:        label: localize("EIDOLON.SceneCriteria.CategoryNameLabel", "Criterion Label"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:81:        key: localize("EIDOLON.SceneCriteria.CriteriaKey", "Key"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:82:        values: localize("EIDOLON.SceneCriteria.ValuesLabel", "Allowed Values"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:83:        default: localize("EIDOLON.SceneCriteria.DefaultValue", "Default Value"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:85:          "EIDOLON.SceneCriteria.ValueListEmpty",
+scripts/scene-criteria/ui/CategoryEditorApplication.js:88:        addValue: localize("EIDOLON.SceneCriteria.AddValue", "Add Value"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:89:        removeValue: localize("EIDOLON.SceneCriteria.RemoveValue", "Remove Value"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:90:        valuePlaceholder: localize("EIDOLON.SceneCriteria.ValuePlaceholder", "Allowed value"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:91:        resetAutoKey: localize("EIDOLON.SceneCriteria.ResetAutoKey", "Reset to Auto"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:93:          ? localize("EIDOLON.SceneCriteria.CreateCategory", "Add Criterion")
+scripts/scene-criteria/ui/CategoryEditorApplication.js:94:          : localize("EIDOLON.SceneCriteria.SaveCategory", "Save Criterion"),
+scripts/scene-criteria/ui/CategoryEditorApplication.js:95:        cancel: localize("EIDOLON.SceneCriteria.CancelEdit", "Cancel")
+scripts/scene-criteria/ui/CategoryEditorApplication.js:224:    const placeholder = escapeHtml(localize("EIDOLON.SceneCriteria.ValuePlaceholder", "Allowed value"));
+scripts/scene-criteria/ui/CategoryEditorApplication.js:225:    const removeLabel = escapeHtml(localize("EIDOLON.SceneCriteria.RemoveValue", "Remove Value"));
+scripts/scene-criteria/ui/CategoryEditorApplication.js:252:        "EIDOLON.SceneCriteria.ValueListEmpty",
+scripts/scene-criteria/ui/CategoryEditorApplication.js:278:      localize("EIDOLON.SceneCriteria.ValueListEmpty", "No values have been added to this criterion.");
+scripts/scene-criteria/ui/CategoryEditorApplication.js:304:    const criteria = getSceneCriteria(this.scene).sort((a, b) => a.order - b.order);
+scripts/scene-criteria/ui/CategoryEditorApplication.js:316:      await setSceneCriteria(this.scene, criteria);
+scripts/scene-criteria/core/constants.js:8:export const SETTING_SHOW_SCENE_CRITERIA_TAB = "showSceneCriteriaTab";
+scripts/scene-criteria/ui/SceneConfigTab.js:8:import { getShowSceneCriteriaTabSetting } from "../core/settings.js";
+scripts/scene-criteria/ui/SceneConfigTab.js:11:  getSceneCriteria,
+scripts/scene-criteria/ui/SceneConfigTab.js:12:  getSceneCriteriaState,
+scripts/scene-criteria/ui/SceneConfigTab.js:14:  setSceneCriteria
+scripts/scene-criteria/ui/SceneConfigTab.js:22:  log: (...args) => console.debug?.(`${MODULE_ID} | Criteria`, ...args),
+scripts/scene-criteria/ui/SceneConfigTab.js:23:  group: (...args) => console.groupCollapsed?.(`${MODULE_ID} | Criteria`, ...args),
+scripts/scene-criteria/ui/SceneConfigTab.js:29:const sceneCriteriaConfigFactory = createSceneConfigTabFactory({
+scripts/scene-criteria/ui/SceneConfigTab.js:31:  tabLabel: () => localize("EIDOLON.SceneCriteria.TabLabel", "Criteria"),
+scripts/scene-criteria/ui/SceneConfigTab.js:33:  isApplicable: () => getShowSceneCriteriaTabSetting(),
+scripts/scene-criteria/ui/SceneConfigTab.js:34:  renderContent: ({ app, tab, scene }) => renderCriteriaTab(app, tab, scene),
+scripts/scene-criteria/ui/SceneConfigTab.js:38:export function registerSceneCriteriaConfigHook() {
+scripts/scene-criteria/ui/SceneConfigTab.js:39:  return sceneCriteriaConfigFactory.register();
+scripts/scene-criteria/ui/SceneConfigTab.js:42:function renderCriteriaTab(app, tabElement, scene) {
+scripts/scene-criteria/ui/SceneConfigTab.js:45:  void renderCriteriaTabContent(app, tabElement, activeScene);
+scripts/scene-criteria/ui/SceneConfigTab.js:48:async function renderCriteriaTabContent(app, tabElement, sceneOverride) {
+scripts/scene-criteria/ui/SceneConfigTab.js:50:  logger.group("renderCriteriaTabContent", { sceneId: scene?.id ?? null });
+scripts/scene-criteria/ui/SceneConfigTab.js:55:        "EIDOLON.SceneCriteria.Unavailable",
+scripts/scene-criteria/ui/SceneConfigTab.js:62:    const criteria = getSceneCriteria(scene).sort((a, b) => a.order - b.order);
+scripts/scene-criteria/ui/SceneConfigTab.js:63:    const state = getSceneCriteriaState(scene, criteria);
+scripts/scene-criteria/ui/SceneConfigTab.js:68:      tabElement.innerHTML = `<p class="notes">${localize("EIDOLON.SceneCriteria.CategoryListEmpty", "No criteria configured for this scene.")}</p>`;
+scripts/scene-criteria/ui/SceneConfigTab.js:74:        "EIDOLON.SceneCriteria.Description",
+scripts/scene-criteria/ui/SceneConfigTab.js:78:        list: localize("EIDOLON.SceneCriteria.CategoryListLabel", "Scene Criteria"),
+scripts/scene-criteria/ui/SceneConfigTab.js:80:          "EIDOLON.SceneCriteria.CategoryListEmpty",
+scripts/scene-criteria/ui/SceneConfigTab.js:83:        add: localize("EIDOLON.SceneCriteria.AddCategory", "Add Criterion"),
+scripts/scene-criteria/ui/SceneConfigTab.js:84:        edit: localize("EIDOLON.SceneCriteria.EditCategory", "Edit Criterion"),
+scripts/scene-criteria/ui/SceneConfigTab.js:85:        remove: localize("EIDOLON.SceneCriteria.RemoveCategory", "Remove Criterion"),
+scripts/scene-criteria/ui/SceneConfigTab.js:86:        moveUp: localize("EIDOLON.SceneCriteria.MoveUp", "Move Up"),
+scripts/scene-criteria/ui/SceneConfigTab.js:87:        moveDown: localize("EIDOLON.SceneCriteria.MoveDown", "Move Down"),
+scripts/scene-criteria/ui/SceneConfigTab.js:88:        values: localize("EIDOLON.SceneCriteria.ValuesLabel", "Allowed Values"),
+scripts/scene-criteria/ui/SceneConfigTab.js:89:        unnamed: localize("EIDOLON.SceneCriteria.UnnamedCategory", "Unnamed Criterion")
+scripts/scene-criteria/ui/SceneConfigTab.js:98:        displayName: criterion.label?.trim?.() || localize("EIDOLON.SceneCriteria.UnnamedCategory", "Unnamed Criterion"),
+scripts/scene-criteria/ui/SceneConfigTab.js:108:      hasCriteria: criteria.length > 0
+scripts/scene-criteria/ui/SceneConfigTab.js:112:    bindCriteriaTabEvents(app, tabElement, scene);
+scripts/scene-criteria/ui/SceneConfigTab.js:115:    tabElement.innerHTML = `<p class="notes">${localize("EIDOLON.SceneCriteria.CategoryListEmpty", "No criteria configured for this scene.")}</p>`;
+scripts/scene-criteria/ui/SceneConfigTab.js:121:function bindCriteriaTabEvents(app, tabElement, sceneOverride) {
+scripts/scene-criteria/ui/SceneConfigTab.js:131:          localize("EIDOLON.SceneCriteria.DefaultCategoryName", "New Criterion")
+scripts/scene-criteria/ui/SceneConfigTab.js:134:        onSave: () => renderCriteriaTabContent(app, tabElement, scene)
+scripts/scene-criteria/ui/SceneConfigTab.js:144:      const criterion = getSceneCriteria(scene).find((entry) => entry.id === criterionId);
+scripts/scene-criteria/ui/SceneConfigTab.js:149:        onSave: () => renderCriteriaTabContent(app, tabElement, scene)
+scripts/scene-criteria/ui/SceneConfigTab.js:159:      const didUpdate = await mutateCriteria(scene, (criteria) => {
+scripts/scene-criteria/ui/SceneConfigTab.js:163:        reindexCriteriaOrder(criteria);
+scripts/scene-criteria/ui/SceneConfigTab.js:167:        await renderCriteriaTabContent(app, tabElement, scene);
+scripts/scene-criteria/ui/SceneConfigTab.js:177:      const didUpdate = await mutateCriteria(scene, (criteria) => {
+scripts/scene-criteria/ui/SceneConfigTab.js:182:        reindexCriteriaOrder(criteria);
+scripts/scene-criteria/ui/SceneConfigTab.js:186:        await renderCriteriaTabContent(app, tabElement, scene);
+scripts/scene-criteria/ui/SceneConfigTab.js:196:      const didUpdate = await mutateCriteria(scene, (criteria) => {
+scripts/scene-criteria/ui/SceneConfigTab.js:201:        reindexCriteriaOrder(criteria);
+scripts/scene-criteria/ui/SceneConfigTab.js:205:        await renderCriteriaTabContent(app, tabElement, scene);
+scripts/scene-criteria/ui/SceneConfigTab.js:211:async function mutateCriteria(scene, mutator) {
+scripts/scene-criteria/ui/SceneConfigTab.js:212:  const criteria = getSceneCriteria(scene).sort((a, b) => a.order - b.order);
+scripts/scene-criteria/ui/SceneConfigTab.js:217:    await setSceneCriteria(scene, criteria);
+scripts/scene-criteria/ui/SceneConfigTab.js:244:function reindexCriteriaOrder(criteria) {
+scripts/scene-criteria/ui/SceneConfigTab.js:251:  if (game.i18n?.has?.("EIDOLON.SceneCriteria.ValueCountLabel")) {
+scripts/scene-criteria/ui/SceneConfigTab.js:253:      return game.i18n.format("EIDOLON.SceneCriteria.ValueCountLabel", { count });
+scripts/scene-criteria/core/settings.js:1:import { MODULE_ID, SETTING_SHOW_SCENE_CRITERIA_TAB } from "./constants.js";
+scripts/scene-criteria/core/settings.js:6:export function registerSceneCriteriaSettings() {
+scripts/scene-criteria/core/settings.js:15:  game.settings.register(MODULE_ID, SETTING_SHOW_SCENE_CRITERIA_TAB, {
+scripts/scene-criteria/core/settings.js:16:    name: localize("EIDOLON.SceneCriteria.ShowTabSettingName", "Show Scene Criteria Tab"),
+scripts/scene-criteria/core/settings.js:18:      "EIDOLON.SceneCriteria.ShowTabSettingHint",
+scripts/scene-criteria/core/settings.js:19:      "Enable the Scene Config > Criteria tab for scene criteria authoring."
+scripts/scene-criteria/core/settings.js:27:      promptReloadForSceneCriteriaTab();
+scripts/scene-criteria/core/settings.js:32:export function getShowSceneCriteriaTabSetting() {
+scripts/scene-criteria/core/settings.js:35:      return Boolean(game.settings.get(MODULE_ID, SETTING_SHOW_SCENE_CRITERIA_TAB));
+scripts/scene-criteria/core/settings.js:38:    console.error(`${MODULE_ID} | Failed to read Scene Criteria tab setting`, error);
+scripts/scene-criteria/core/settings.js:43:function promptReloadForSceneCriteriaTab() {
+scripts/scene-criteria/core/settings.js:44:  const title = localize("EIDOLON.SceneCriteria.ReloadPromptTitle", "Reload Required");
+scripts/scene-criteria/core/settings.js:46:    "EIDOLON.SceneCriteria.ReloadPromptBody",
+scripts/scene-criteria/core/settings.js:47:    "Changes to the Scene Criteria tab visibility require a reload. Reload now?"
+scripts/scene-criteria/core/settings.js:82:      "EIDOLON.SceneCriteria.ReloadNotice",
+scripts/scene-criteria/core/settings.js:83:      "Please reload the world to apply Scene Criteria tab visibility changes."

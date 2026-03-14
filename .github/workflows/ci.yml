@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:run
+
+  e2e_fast:
+    name: E2E Fast
+    needs: unit
+    runs-on: ubuntu-latest
+    if: ${{ secrets.E2E_FOUNDRY_URL != '' && secrets.E2E_GM_USERNAME != '' && secrets.E2E_GM_PASSWORD != '' && secrets.E2E_PLAYER_USERNAME != '' && secrets.E2E_PLAYER_PASSWORD != '' }}
+    env:
+      FOUNDRY_URL: ${{ secrets.E2E_FOUNDRY_URL }}
+      GM_USERNAME: ${{ secrets.E2E_GM_USERNAME }}
+      GM_PASSWORD: ${{ secrets.E2E_GM_PASSWORD }}
+      PLAYER_USERNAME: ${{ secrets.E2E_PLAYER_USERNAME }}
+      PLAYER_PASSWORD: ${{ secrets.E2E_PLAYER_PASSWORD }}
+      E2E_SCENE_NAME: E2E Criteria Harness
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npm run e2e:install
+
+      - name: Run E2E fast subset
+        run: npm run e2e:fast
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-fast-artifacts
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+

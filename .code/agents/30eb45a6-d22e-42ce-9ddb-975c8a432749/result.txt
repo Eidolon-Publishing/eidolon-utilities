@@ -1,0 +1,1060 @@
+[2026-02-19T00:53:44] OpenAI Codex v0.0.0 (research preview)
+[2026-02-19T00:53:44] binary: /home/talanor/.cache/just-every/code/0.6.70/code-x86_64-unknown-linux-musl
+--------
+workdir: /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+model: gpt-5.3-codex
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: auto
+--------
+[2026-02-19T00:53:44] User instructions:
+Context: FoundryVTT module planning request. Need a practical architecture + UX plan grounded in existing code and constraints.
+
+Agent: Create a comprehensive implementation plan (no code changes) for redesigning the Scene Config Criteria tab in the Foundry module `eidolon-utilities` so it delivers professional, next-gen, low-friction UX while retaining full pattern-matching capabilities and behavioral parity with `map-ui-presets`.
+
+Context:
+- We are planning a future merge where legacy "variants" naming from map-ui-presets is replaced by generic scene criteria dimensions.
+- User constraints/preferences:
+  1) Keep screen real estate compact in community workflows.
+  2) Floating window remains preferred for day-to-day state control.
+  3) Scene Config should focus on criteria setup/authoring.
+- Therefore this plan should focus specifically on Scene Config Criteria tab architecture and UX, not a multi-tab enterprise control center.
+
+What to preserve from map-ui-presets reference behavior:
+- Criteria/state model: scene-level criteria definitions + current state.
+- Rule matcher semantics: exact criteria matching, multi-rule merge layering by specificity then index order.
+- Placeable presets model: base + rules.
+- Compatibility with existing map-ui-presets scenes and data migration path.
+
+Repository hints:
+- Primary repo: /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+- Reference repo: /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets
+- Key files to inspect first:
+  - eidolon-utilities: `scripts/object-variants/ui/SceneConfigTab.js`, `scripts/object-variants/core/storage.js`, `scripts/common/ui/scene-config-tab-factory.js`, `scripts/light-presets/ui/AmbientLightConfigControls.js`, `templates/object-variants-scene-tab.html`
+  - map-ui-presets: `src/indexer.js`, `src/state.js`, `src/resolver.js`, `src/placeables.js`, `src/map-switcher.js`
+
+Deliverable format requirements:
+1) Provide a staged implementation plan (phases) with explicit goals.
+2) For each phase include: scope, UX decisions, technical tasks, risks, and validation/test strategy.
+3) Include concrete data model recommendations for renaming/migrating "variants" -> generic "criteria" without breaking existing content.
+4) Include a UI interaction model for a single Scene Config tab that is compact and low-friction but feature-complete.
+5) Include acceptance criteria (definition of done) and rollout strategy (including migration safety).
+6) Keep suggestions practical and maintainable (avoid overengineering).
+
+Do not implement code; planning only.
+
+Files to consider: /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/object-variants/ui/SceneConfigTab.js, /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js
+
+[Running in read-only mode - no modifications allowed]
+
+[2026-02-19T00:53:48] thinking
+
+**Preparing to use plan skill**
+[2026-02-19T00:53:48] codex
+
+I’ll use the `plan` skill here because you asked for a comprehensive implementation plan (no code changes), and I’ll ground it in the current `eidolon-utilities` and `map-ui-presets` codepaths.
+[2026-02-19T00:53:48] exec bash -lc "sed -n '1,220p' /home/talanor/.code/skills/.system/plan/SKILL.md" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:48] bash -lc "sed -n '1,220p' /home/talanor/.code/skills/.system/plan/SKILL.md" succeeded in 20ms:
+---
+name: plan
+description: Generate a plan for how an agent should accomplish a complex coding task. Use when a user asks for a plan, and optionally when they want to save, find, read, update, or delete plan files in $CODEX_HOME/plans (default ~/.codex/plans).
+metadata:
+  short-description: Generate a plan for a complex task
+---
+
+# Plan
+
+## Overview
+
+Draft structured plans that clarify intent, scope, requirements, action items, testing/validation, and risks.
+
+Optionally, save plans to disk as markdown files with YAML frontmatter and free-form content. When drafting in chat, output only the plan body without frontmatter; add frontmatter only when saving to disk. Only write to the plans folder; do not modify the repository codebase.
+
+This skill can also be used to draft codebase or system overviews.
+
+## Core rules
+
+- Resolve the plans directory as `$CODEX_HOME/plans` or `~/.codex/plans` when `CODEX_HOME` is not set.
+[2026-02-19T00:53:48] tokens used: 7,166
+
+[2026-02-19T00:53:50] thinking
+
+**Planning file inspection strategy**
+[2026-02-19T00:53:50] exec bash -lc 'ls -la' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:50] bash -lc 'ls -la' succeeded in 41ms:
+total 432
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:33 .
+drwxr-xr-x 2 talanor talanor      0 Feb 18 18:36 ..
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:23 .code
+-rwxr-xr-x 1 talanor talanor     41 Feb 18 15:11 .env
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:39 .git
+-rwxr-xr-x 1 talanor talanor     47 Feb 18 15:11 .gitignore
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:33 dist
+-rwxr-xr-x 1 talanor talanor   6680 Feb 19 01:15 eidolon-utilities.css
+-rwxr-xr-x 1 talanor talanor 178493 Feb 19 01:15 eidolon-utilities.js
+-rwxr-xr-x 1 talanor talanor 144237 Feb 19 00:12 eidolon-utilities.zip
+-rwxr-xr-x 1 talanor talanor    860 Feb 19 00:12 module.json
+drwxr-xr-x 2 talanor talanor      0 Feb 18 15:00 node_modules
+-rwxr-xr-x 1 talanor talanor  78503 Feb 18 14:48 package-lock.json
+-rwxr-xr-x 1 talanor talanor    569 Feb 19 00:12 package.json
+drwxr-xr-x 2 talanor talanor      0 Feb 19 00:12 release
+drwxr-xr-x 2 talanor talanor      0 Feb 18 14:49 scripts
+drwxr-xr-x 2 talanor talanor      0 Feb 18 14:47 src
+drwxr-xr-x 2 talanor talanor      0 Feb 17 12:51 styles
+drwxr-xr-x 2 talanor talanor      0 Feb 18 17:31 templates
+[2026-02-19T00:53:50] tokens used: 9,149
+
+[2026-02-19T00:53:53] thinking
+
+**Verifying source file locations**
+[2026-02-19T00:53:53] exec bash -lc "fd -H -I -t f 'SceneConfigTab.js|storage.js|scene-config-tab-factory.js|AmbientLightConfigControls.js|object-variants-scene-tab.html|indexer.js|state.js|resolver.js|placeables.js|map-switcher.js' /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:54] bash -lc "fd -H -I -t f 'SceneConfigTab.js|storage.js|scene-config-tab-factory.js|AmbientLightConfigControls.js|object-variants-scene-tab.html|indexer.js|state.js|resolver.js|placeables.js|map-switcher.js' /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets" succeeded in 577ms:
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/templates/object-variants-scene-tab.html
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/map-switcher.js
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/placeables.js
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/common/ui/scene-config-tab-factory.js
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/tween/core/executors/light-state.js
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/light-presets/ui/AmbientLightConfigControls.js
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/light-presets/core/storage.js
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/object-variants/ui/SceneConfigTab.js
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/object-variants/core/storage.js
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/time-triggers/ui/SceneConfigTab.js
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities/scripts/time-triggers/core/storage.js
+[2026-02-19T00:53:54] tokens used: 18,726
+
+[2026-02-19T00:53:57] thinking
+
+**Planning key file inspection**
+[2026-02-19T00:53:57] exec bash -lc "sed -n '1,260p' scripts/object-variants/ui/SceneConfigTab.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:57] bash -lc "sed -n '1,260p' scripts/object-variants/ui/SceneConfigTab.js" succeeded in 30ms:
+import { createSceneConfigTabFactory } from "../../common/ui/scene-config-tab-factory.js";
+import { createApplicationFactory } from "../../common/ui/application-factories.js";
+import {
+  getSceneFromApplication,
+  hasSceneDocument,
+  localize
+} from "../../time-triggers/core/utils.js";
+import {
+  createObjectVariantCategory,
+  getObjectVariantCategories,
+  notifyPersistError,
+  setObjectVariantCategories
+} from "../core/storage.js";
+import { MODULE_ID } from "../core/constants.js";
+import CategoryEditorApplication from "./CategoryEditorApplication.js";
+
+const OBJECT_VARIANTS_SCENE_TEMPLATE = `modules/${MODULE_ID}/templates/object-variants-scene-tab.html`;
+
+const logger = {
+  log: (...args) => console.debug?.(`${MODULE_ID} | ObjectVariants`, ...args),
+[2026-02-19T00:53:57] exec bash -lc "sed -n '1,260p' scripts/object-variants/core/storage.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:57] bash -lc "sed -n '1,260p' scripts/object-variants/core/storage.js" succeeded in 23ms:
+import { FLAG_OBJECT_VARIANTS, MODULE_ID } from "./constants.js";
+import { duplicateData, localize } from "../../time-triggers/core/utils.js";
+
+export function getObjectVariantCategories(scene) {
+  const stored = scene?.getFlag?.(MODULE_ID, FLAG_OBJECT_VARIANTS);
+  if (!stored) return [];
+
+  const duplicated = duplicateData(stored);
+  if (!Array.isArray(duplicated)) return [];
+
+  return duplicated
+    .map((entry) => sanitizeCategory(entry))
+    .filter((category) => category !== null);
+}
+
+export async function setObjectVariantCategories(scene, categories) {
+  if (!scene?.setFlag) return;
+  const sanitized = Array.isArray(categories)
+    ? categories.map((entry) => sanitizeCategory(entry)).filter((entry) => entry !== null)
+    : [];
+[2026-02-19T00:53:57] exec bash -lc "sed -n '1,260p' scripts/common/ui/scene-config-tab-factory.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:57] bash -lc "sed -n '1,260p' scripts/common/ui/scene-config-tab-factory.js" succeeded in 25ms:
+import { asHTMLElement, isAppV2, setActiveTab } from "./foundry-compat.js";
+
+const V13_PATCHED_SYMBOL = Symbol.for("eidolon.sceneConfig.v13PatchedTabs");
+
+/**
+ * Create a SceneConfig tab factory that manages DOM injection and visibility hooks.
+ * @param {object} options
+ * @param {string} options.tabId Unique identifier for the tab.
+ * @param {string|Function} [options.tabLabel] Label or callback returning label markup.
+ * @param {(app: Application) => Scene|null} options.getScene Resolves the scene for the config.
+ * @param {(app: Application, scene: Scene|null) => boolean} [options.isApplicable] Optional guard.
+ * @param {(context: object) => (void|Function)} options.renderContent Renders the tab and returns optional cleanup.
+ * @param {object} [options.logger] Optional logger with `log`, `group`, and `groupEnd` functions.
+ * @param {Function} [options.onButtonCreate] Invoked when the tab button is created.
+ * @param {Function} [options.onTabCreate] Invoked when the tab container is created.
+ * @param {Function} [options.onAfterRender] Invoked after render completes.
+ * @param {string} [options.debugNamespace="SceneConfigTab"] Label used in log output.
+ * @param {string} [options.moduleId="eidolon-utilities"] Module ID for template paths.
+ */
+export function createSceneConfigTabFactory(options = {}) {
+[2026-02-19T00:53:57] tokens used: 19,444
+[2026-02-19T00:53:59] exec bash -lc "sed -n '260,520p' scripts/common/ui/scene-config-tab-factory.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:53:59] bash -lc "sed -n '260,520p' scripts/common/ui/scene-config-tab-factory.js" succeeded in 26ms:
+      }
+    };
+
+    const scheduleEnsureTabVisible = () => {
+      ensureTabVisible();
+      requestAnimationFrame(ensureTabVisible);
+    };
+
+    // Click handler — use public API
+    if (!tabButton.dataset.eidolonEnsureSceneTabVisibility) {
+      tabButton.addEventListener("click", () => {
+        setActiveTab(app, tabId, groupName);
+        requestAnimationFrame(ensureTabVisible);
+      });
+      tabButton.dataset.eidolonEnsureSceneTabVisibility = "true";
+    }
+
+    // Render content
+    invokeCleanup(app, cleanupSymbol, log);
+
+[2026-02-19T00:53:59] tokens used: 26,540
+[2026-02-19T00:54:00] exec bash -lc "sed -n '1,300p' scripts/light-presets/ui/AmbientLightConfigControls.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:00] bash -lc "sed -n '1,300p' scripts/light-presets/ui/AmbientLightConfigControls.js" succeeded in 33ms:
+import { getObjectVariantCategories } from "../../object-variants/core/storage.js";
+import { localize } from "../../time-triggers/core/utils.js";
+import {
+  getLightPresetState,
+  storeDefaultPreset,
+  upsertLightPreset,
+  sanitizeLightConfigPayload,
+  computePresetKey,
+  storeCurrentPresetSelection
+} from "../core/storage.js";
+import { MODULE_ID, FLAG_LIGHT_PRESETS } from "../core/constants.js";
+import { debugGroup, debugGroupEnd, debugLog } from "../../time-triggers/core/debug.js";
+import { asHTMLElement, readFormData } from "../../common/ui/foundry-compat.js";
+
+const creationState = new WeakMap();
+const PRESET_SELECT_VALUE_DEFAULT = "__eidolon_default__";
+
+export function registerAmbientLightConfigControls() {
+  Hooks.on("renderAmbientLightConfig", handleAmbientLightConfigRender);
+  debugLog("LightPresets | AmbientLightConfig controls registered");
+[2026-02-19T00:54:00] tokens used: 28,047
+
+[2026-02-19T00:54:03] thinking
+
+**Assessing UI style through large file**
+[2026-02-19T00:54:03] exec bash -lc "sed -n '1,260p' templates/object-variants-scene-tab.html" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:03] bash -lc "sed -n '1,260p' templates/object-variants-scene-tab.html" succeeded in 21ms:
+<div class="object-variants-container">
+  <p class="notes object-variants-description">{{description}}</p>
+
+  <div class="form-group stacked object-variants-management">
+    <label>{{labels.categories}}</label>
+    <div class="object-variants-list">
+      {{#if hasCategories}}
+        <ul class="object-variants-category-list">
+          {{#each categories}}
+            <li class="object-variant" data-category-id="{{id}}">
+              <div class="object-variant__row">
+                <div class="object-variant__details">
+                  <div class="object-variant__name" data-unnamed="{{#if isUnnamed}}true{{else}}false{{/if}}">
+                    {{displayName}}
+                  </div>
+                  <div class="object-variant__values-preview">
+                    {{#if hasValues}}
+                      <div class="object-variant__value-list" role="list">
+                        {{#each valueChips}}
+                          <span class="object-variant__value-chip" role="listitem">{{this}}</span>
+[2026-02-19T00:54:03] tokens used: 31,292
+
+[2026-02-19T00:54:06] thinking
+
+**Inspecting map-ui-presets behavior**
+[2026-02-19T00:54:06] exec bash -lc "sed -n '1,260p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:06] bash -lc "sed -n '1,260p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js" succeeded in 31ms:
+import { MODULE_ID, CURRENT_SCHEMA_VERSION, SCHEMA_VERSION, getSceneVersion } from "./constants.js";
+import { updateTiles } from "./tiles.js";
+import { updateLights } from "./lights.js";
+import { updatePlaceables } from "./placeables.js";
+
+/**
+ * Get the current map state from scene flags.
+ *
+ * @param {Scene} [scene] - Foundry Scene document. Defaults to viewed scene.
+ * @returns {Object|null} State object e.g. { mood, effect, variant, stage } or null.
+ */
+export function getState(scene) {
+	scene = scene ?? game.scenes.viewed;
+	if (!scene) return null;
+
+	return scene.getFlag(MODULE_ID, "state") ?? null;
+}
+
+/**
+ * Save new state to scene flags and update all tiles + lights.
+[2026-02-19T00:54:06] tokens used: 32,174
+[2026-02-19T00:54:07] exec bash -lc "sed -n '1,260p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:07] bash -lc "sed -n '1,260p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js" succeeded in 27ms:
+/**
+ * Document-agnostic multi-merge resolver (Combinatorial Matcher Layer 1).
+ *
+ * For any placeable whose properties change based on scene state — lights,
+ * walls, sounds, standalone tiles. All matching rules contribute; deltas
+ * are layered by specificity ascending onto a base config.
+ *
+ * @module resolver
+ */
+
+/**
+ * Check whether every key in `criteria` equals the corresponding value in `state`.
+ * An empty/nullish criteria object is a universal match.
+ *
+ * @param {Object|null|undefined} criteria
+ * @param {Object} state
+ * @returns {boolean}
+ */
+function criteriaMatch(criteria, state) {
+	if (!criteria) return true;
+[2026-02-19T00:54:07] tokens used: 33,325
+[2026-02-19T00:54:09] exec bash -lc "sed -n '1,320p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/placeables.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:09] bash -lc "sed -n '1,320p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/placeables.js" succeeded in 26ms:
+/**
+ * Generic placeable property resolution.
+ *
+ * Iterates document types that can carry `presets` flags (base + rules),
+ * resolves each via resolveRules(), and batches updates per type.
+ *
+ * Tile is excluded — tile updates go through updateTilesCriteria() which
+ * handles MATT file selection. When tiles need both file selection AND
+ * preset rules, a merge step will be added.
+ */
+
+import { MODULE_ID } from "./constants.js";
+import { resolveRules } from "./resolver.js";
+import { buildLightControlsMap } from "./lights-legacy.js";
+
+/** Document types that can carry presets. */
+const PLACEABLE_TYPES = ["AmbientLight", "Wall", "AmbientSound"];
+
+/**
+ * Update all preset-driven placeables on the scene to match the given state.
+[2026-02-19T00:54:09] tokens used: 34,495
+[2026-02-19T00:54:10] exec bash -lc "sed -n '1,300p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:10] bash -lc "sed -n '1,300p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js" succeeded in 21ms:
+/**
+ * Bracket Convention Indexer (Layer 2).
+ *
+ * Reads bracket-tagged MATT filenames and produces the data structures
+ * that the Layer 1 resolvers (findFileIndex, resolveRules) consume.
+ *
+ * `buildFileIndex` is a pure helper (testable without Foundry).
+ * `indexScene` is the main entry point (requires Foundry + Tagger).
+ *
+ * @module indexer
+ */
+
+import { MODULE_ID, SCHEMA_VERSION, getSceneVersion } from "./constants.js";
+import { parseFileTags } from "./tiles-legacy.js";
+
+const DEFAULT_VALUE = "Standard";
+
+const log = (...args) => console.log("map-ui-presets | indexer:", ...args);
+
+// ── Legacy Light Preset Conversion ────────────────────────────────
+[2026-02-19T00:54:10] tokens used: 35,256
+
+[2026-02-19T00:54:12] thinking
+
+**Continuing criteria definitions creation**
+[2026-02-19T00:54:12] exec bash -lc "sed -n '300,620p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:12] bash -lc "sed -n '300,620p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js" succeeded in 28ms:
+			}
+
+			// Already converted (has base, no legacy default)
+			if (presets.base !== undefined && !presets.default) {
+				lightSummary.skipped++;
+				continue;
+			}
+
+			// No legacy format detected
+			if (!presets.default) {
+				lightSummary.skipped++;
+				continue;
+			}
+
+			const converted = convertLegacyPresets(presets);
+
+			if (!dryRun) {
+				await light.update({
+					[`flags.${MODULE_ID}._legacyPresets`]: presets,
+					[`flags.${MODULE_ID}.presets`]: converted,
+[2026-02-19T00:54:12] tokens used: 38,706
+
+[2026-02-19T00:54:14] thinking
+
+**Considering map-switcher and scene config**
+[2026-02-19T00:54:14] exec bash -lc "sed -n '1,320p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/map-switcher.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:14] bash -lc "sed -n '1,320p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/map-switcher.js" succeeded in 27ms:
+import { parseFileTags } from "./tiles.js";
+import { MODULE_ID, getSceneVersion, SCHEMA_VERSION } from "./constants.js";
+
+/**
+ * Toggle the Map Switcher window — close if open, open if closed.
+ * This is the entry point called by the keybinding and the API.
+ */
+export async function toggleMapSwitcher() {
+	const existingWindow = Object.values(ui.windows).find(w => w.id === "map-switcher-window");
+	if (existingWindow) {
+		await existingWindow.close();
+		return;
+	}
+
+	const scene = game.scenes.viewed;
+	if (!scene) return;
+
+	const version = getSceneVersion(scene);
+	const data = version >= SCHEMA_VERSION.CRITERIA ? buildV2Data(scene) : buildV1Data();
+	if (!data) return;
+[2026-02-19T00:54:14] tokens used: 39,534
+
+[2026-02-19T00:54:16] thinking
+
+**Reviewing object-variants architecture**
+[2026-02-19T00:54:16] exec bash -lc 'fd -t f . scripts/object-variants | sort' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:16] bash -lc 'fd -t f . scripts/object-variants | sort' succeeded in 72ms:
+scripts/object-variants/core/constants.js
+scripts/object-variants/core/storage.js
+scripts/object-variants/hooks.js
+scripts/object-variants/index.js
+scripts/object-variants/ui/CategoryEditorApplication.js
+scripts/object-variants/ui/SceneConfigTab.js
+[2026-02-19T00:54:16] tokens used: 43,006
+[2026-02-19T00:54:20] exec bash -lc "sed -n '1,240p' scripts/object-variants/ui/CategoryEditorApplication.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:20] bash -lc "sed -n '1,240p' scripts/object-variants/ui/CategoryEditorApplication.js" succeeded in 29ms:
+import { ApplicationV2, HandlebarsApplicationMixin } from "../../time-triggers/core/applications.js";
+import {
+  createObjectVariantCategory,
+  getObjectVariantCategories,
+  notifyPersistError,
+  sanitizeCategory,
+  setObjectVariantCategories
+} from "../core/storage.js";
+import { MODULE_ID } from "../core/constants.js";
+import { escapeHtml, localize } from "../../time-triggers/core/utils.js";
+
+export default class CategoryEditorApplication extends HandlebarsApplicationMixin(ApplicationV2) {
+  #state = null;
+  #isNew = false;
+
+  constructor(options = {}) {
+    const { scene, category, isNew, onSave, ...rest } = options ?? {};
+    super(rest);
+    this.scene = scene ?? null;
+    this.category = category ?? null;
+[2026-02-19T00:54:20] tokens used: 43,294
+[2026-02-19T00:54:21] exec bash -lc "sed -n '240,520p' scripts/object-variants/ui/CategoryEditorApplication.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:21] bash -lc "sed -n '240,520p' scripts/object-variants/ui/CategoryEditorApplication.js" succeeded in 26ms:
+    }
+
+    try {
+      await setObjectVariantCategories(this.scene, categories);
+      if (this.onSave) {
+        try {
+          await this.onSave(sanitized);
+        } catch (error) {
+          console.error(`${MODULE_ID} | Object variant editor onSave handler failed`, error);
+        }
+      }
+    } catch (error) {
+      notifyPersistError(error);
+    }
+  }
+}
+[2026-02-19T00:54:21] tokens used: 45,698
+[2026-02-19T00:54:25] exec bash -lc "sed -n '1,220p' scripts/object-variants/hooks.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:25] bash -lc "sed -n '1,220p' scripts/object-variants/hooks.js" succeeded in 28ms:
+import { registerObjectVariantSceneConfigHook } from "./ui/SceneConfigTab.js";
+
+export function registerObjectVariantHooks() {
+  registerObjectVariantSceneConfigHook();
+}
+[2026-02-19T00:54:25] tokens used: 46,001
+
+[2026-02-19T00:54:27] thinking
+
+**Considering light-presets storage**
+[2026-02-19T00:54:27] exec bash -lc "sed -n '1,320p' scripts/light-presets/core/storage.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:27] bash -lc "sed -n '1,320p' scripts/light-presets/core/storage.js" succeeded in 31ms:
+import { MODULE_ID, FLAG_LIGHT_PRESETS } from "./constants.js";
+import { duplicateData } from "../../time-triggers/core/utils.js";
+
+const EMPTY_STATE = Object.freeze({
+  default: null,
+  presets: [],
+  current: null
+});
+
+/**
+ * Read the full preset state from a light's module flags, sanitized.
+ * @param {AmbientLightDocument} light
+ * @returns {{ default: object|null, presets: object[], current: object|null }}
+ */
+export function getLightPresetState(light) {
+  const raw =
+    light?.getFlag?.(MODULE_ID, FLAG_LIGHT_PRESETS) ??
+    EMPTY_STATE;
+  return sanitizeLightPresetState(raw);
+}
+[2026-02-19T00:54:27] tokens used: 69,880
+
+[2026-02-19T00:54:29] thinking
+
+**Considering module rewrite and constants**
+[2026-02-19T00:54:29] exec bash -lc "sed -n '1,180p' scripts/object-variants/core/constants.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:29] bash -lc "sed -n '1,180p' scripts/object-variants/core/constants.js" succeeded in 29ms:
+import { MODULE_ID as BASE_MODULE_ID } from "../../time-triggers/core/constants.js";
+
+export const MODULE_ID = BASE_MODULE_ID;
+export const FLAG_OBJECT_VARIANTS = "objectVariants";
+[2026-02-19T00:54:29] tokens used: 72,909
+
+[2026-02-19T00:54:32] thinking
+
+**Inspecting time-trigger UI patterns**
+[2026-02-19T00:54:32] exec bash -lc "sed -n '1,300p' scripts/time-triggers/ui/SceneConfigTab.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:32] bash -lc "sed -n '1,300p' scripts/time-triggers/ui/SceneConfigTab.js" succeeded in 30ms:
+import TriggerFormApplication from "./TriggerFormApplication.js";
+import {
+  FLAG_TIME_TRIGGER_ACTIVE,
+  FLAG_TIME_TRIGGER_HIDE_WINDOW,
+  FLAG_TIME_TRIGGER_SHOW_PLAYER_WINDOW,
+  MODULE_ID
+} from "../core/constants.js";
+import { buildActionSummaryParts, executeTriggerAction, getActionLabel } from "../core/actions.js";
+import { getTimeTriggers, setTimeTriggers } from "../core/storage.js";
+import { debugGroup, debugGroupEnd, debugLog } from "../core/debug.js";
+import { getSceneFromApplication, hasSceneDocument, localize } from "../core/utils.js";
+import { formatTriggerTimeForDisplay } from "../core/time-format.js";
+import { onTimeFormatSettingChange } from "../core/settings.js";
+import { createSceneConfigTabFactory } from "../../common/ui/scene-config-tab-factory.js";
+import { createApplicationFactory } from "../../common/ui/application-factories.js";
+
+const triggerFormFactory = createApplicationFactory(TriggerFormApplication);
+const TIME_TRIGGER_SCENE_TEMPLATE = `modules/${MODULE_ID}/templates/time-trigger-scene-tab.html`;
+
+const timeTriggerSceneConfigFactory = createSceneConfigTabFactory({
+[2026-02-19T00:54:32] tokens used: 73,182
+
+[2026-02-19T00:54:34] thinking
+
+**Evaluating floating window for state control**
+[2026-02-19T00:54:34] exec bash -lc 'rg -n "objectVariants|variants|criteria|state|map switcher|floating" scripts templates src | head -n 200' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:35] bash -lc 'rg -n "objectVariants|variants|criteria|state|map switcher|floating" scripts templates src | head -n 200' succeeded in 133ms:
+src/eidolon-utilities.entry.js:3:import "../styles/object-variants.css";
+src/eidolon-utilities.entry.js:8:import "../scripts/object-variants/index.js";
+templates/object-variants-scene-tab.html:1:<div class="object-variants-container">
+templates/object-variants-scene-tab.html:2:  <p class="notes object-variants-description">{{description}}</p>
+templates/object-variants-scene-tab.html:4:  <div class="form-group stacked object-variants-management">
+templates/object-variants-scene-tab.html:6:    <div class="object-variants-list">
+templates/object-variants-scene-tab.html:8:        <ul class="object-variants-category-list">
+templates/object-variants-scene-tab.html:59:      <button type="button" class="object-variants-add-category" data-variant-action="add-category">
+templates/time-trigger-scene-tab.html:3:    <input type="checkbox" name="{{flags.active}}" {{#if states.isActive}}checked{{/if}}>
+templates/time-trigger-scene-tab.html:11:    <input type="checkbox" name="{{flags.hideWindow}}" {{#if states.hideWindow}}checked{{/if}}>
+templates/time-trigger-scene-tab.html:19:    <input type="checkbox" name="{{flags.showPlayerWindow}}" {{#if states.showPlayerWindow}}checked{{/if}}>
+scripts/tween/hooks.js:6:import { registerLightStateTween } from "./core/executors/light-state.js";
+scripts/common/ui/scene-config-tab-factory.js:234:    // Determine active state from DOM classes
+scripts/light-presets/core/storage.js:11: * Read the full preset state from a light's module flags, sanitized.
+scripts/light-presets/core/storage.js:23: * Replace the entire preset state on a light's module flags.
+scripts/light-presets/core/storage.js:24: * Clears the flag entirely when state is empty.
+scripts/light-presets/core/storage.js:26: * @param {object} state
+scripts/light-presets/core/storage.js:27: * @returns {Promise<object>} The sanitized state that was persisted.
+scripts/light-presets/core/storage.js:29:export async function setLightPresetState(light, state) {
+scripts/light-presets/core/storage.js:30:  const sanitized = sanitizeLightPresetState(state);
+[2026-02-19T00:54:35] tokens used: 76,369
+
+[2026-02-19T00:54:39] thinking
+
+**Investigating criteria UI location**
+[2026-02-19T00:54:39] exec bash -lc 'rg -n "SceneConfig|criteria|variants|state" /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src | head -n 200' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:39] bash -lc 'rg -n "SceneConfig|criteria|variants|state" /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src | head -n 200' succeeded in 64ms:
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js:5: * - Version 1 (legacy): moods/effects/variants/combinations cascade via lights-legacy.js
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js:6: * - Version 2 (criteria): resolveRules from resolver.js using base/rules presets
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js:21: * Update all preset-driven lights on the scene to match the given state.
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js:23: * @param {Object} state       - e.g. { mood: "Night", effect: "Standard", variant: "Standard" }
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js:26:export async function updateLights(state, scene) {
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js:30:	const { mood, effect, variant = "Standard" } = state;
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js:50:				update = resolveCriteriaBased(light, moduleFlags, state, hiddenIds);
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js:75:function resolveCriteriaBased(light, flags, state, hiddenIds) {
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js:79:	const resolved = resolveRules(presets.base, presets.rules ?? [], state);
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:8:import { getState, applyState, getVersion, setVersion, getCriteria, setCriteria } from "./state.js";
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:19:	 * LEGACY (1) = bracket-filename matching, moods/effects/variants light presets.
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:20:	 * CRITERIA (2) = generic criteria-based matching with findBestMatch.
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:27:	 * Apply a new state to the scene — saves flags, updates tiles + lights.
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:28:	 * @param {Object} state    - e.g. { mood: "Night", effect: "Standard", variant: "Standard" }
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:31:	applyState(state, scene) {
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:32:		return applyState(state, scene);
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:36:	 * Get the current scene state from flags.
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:48:	 * @param {Object} state   - e.g. { mood: "Night", effect: "Standard", variant: "Standard" }
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:51:	updateLights(state, scene) {
+/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/api.js:52:		return updateLights(state, scene);
+[2026-02-19T00:54:39] tokens used: 81,490
+
+[2026-02-19T00:54:41] thinking
+
+**Reviewing matcher semantics**
+[2026-02-19T00:54:41] exec bash -lc "sed -n '1,260p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/matcher.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:41] bash -lc "sed -n '1,260p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/matcher.js" succeeded in 32ms:
+/**
+ * Generic criteria-based matching engine (Layer 1).
+ *
+ * Works with abstract criteria — no knowledge of brackets, filenames, or
+ * any specific naming convention.
+ *
+ * @param {Object[]} entries   - Array of objects with criteria properties.
+ *                               e.g. [{ mood: "Night", effect: "Standard" }, ...]
+ * @param {Object}   state    - Current scene state. e.g. { mood: "Night", effect: "Fog", variant: "Standard" }
+ * @param {string[]} responds - Which criteria keys this element cares about.
+ *                               e.g. ["mood", "effect"]
+ * @param {string[]} fallback - Criteria to relax (in order) when no exact match.
+ *                               e.g. ["effect"] means try resetting effect to its default first.
+ * @param {Object}   defaults - Default values for each criterion.
+ *                               e.g. { mood: "Night", effect: "Standard" }
+ * @returns {number} Index into entries, or -1 if no match found.
+ */
+export function findBestMatch(entries, state, responds, fallback, defaults) {
+	if (!entries?.length || !responds?.length) return -1;
+
+[2026-02-19T00:54:41] tokens used: 90,124
+
+[2026-02-19T00:54:43] thinking
+
+**Reviewing scene config UI**
+[2026-02-19T00:54:43] exec bash -lc "fd -t f 'scene|criteria|config' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/templates" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:44] bash -lc "fd -t f 'scene|criteria|config' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/templates" succeeded in 74ms:
+[2026-02-19T00:54:44] tokens used: 91,615
+
+[2026-02-19T00:54:46] thinking
+
+**Inspecting style variants**
+[2026-02-19T00:54:46] exec bash -lc "sed -n '1,280p' styles/object-variants.css" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:46] bash -lc "sed -n '1,280p' styles/object-variants.css" succeeded in 28ms:
+.object-variants-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.object-variants-management {
+  gap: 0.5rem;
+}
+
+.object-variants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.object-variants-add-category {
+  align-self: flex-start;
+}
+
+[2026-02-19T00:54:46] tokens used: 91,834
+[2026-02-19T00:54:48] exec bash -lc "fd -t f 'README*|ARCHITECTURE*|CONTRIBUTING*' ." in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:48] bash -lc "fd -t f 'README*|ARCHITECTURE*|CONTRIBUTING*' ." succeeded in 110ms:
+[2026-02-19T00:54:48] tokens used: 93,240
+
+[2026-02-19T00:54:50] thinking
+
+**Noting lack of docs and next step**
+[2026-02-19T00:54:50] exec bash -lc "sed -n '1,200p' scripts/object-variants/index.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:50] bash -lc "sed -n '1,200p' scripts/object-variants/index.js" succeeded in 22ms:
+import { registerObjectVariantHooks } from "./hooks.js";
+
+registerObjectVariantHooks();
+[2026-02-19T00:54:50] tokens used: 93,473
+
+[2026-02-19T00:54:52] thinking
+
+**Checking UI preset flags**
+[2026-02-19T00:54:52] exec bash -lc "sed -n '1,220p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/constants.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:52] bash -lc "sed -n '1,220p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/constants.js" succeeded in 25ms:
+export const MODULE_ID = "map-ui-presets";
+
+/**
+ * Schema versions for scene flag format.
+ *
+ * The version is stored on the scene at flags.map-ui-presets.version.
+ * Absent or 1 = legacy (bracket-filename matching, moods/effects/variants light presets).
+ * 2 = criteria-based (Layer 1 matcher, fileIndex on tiles, responds/presetIndex on lights).
+ */
+export const SCHEMA_VERSION = {
+	/** Bracket-filename parsing, hardcoded mood/effect/variant dimensions */
+	LEGACY: 1,
+	/** Criteria-based matching with generic dimensions */
+	CRITERIA: 2,
+};
+
+/** The version that new scenes get when set up via setCriteria / Layer 2 */
+export const CURRENT_SCHEMA_VERSION = SCHEMA_VERSION.CRITERIA;
+
+/**
+[2026-02-19T00:54:52] tokens used: 93,700
+
+[2026-02-19T00:54:54] thinking
+
+**Inspecting map-ui-presets behavior**
+[2026-02-19T00:54:54] exec bash -lc "sed -n '1,220p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:54] bash -lc "sed -n '1,220p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights.js" succeeded in 32ms:
+/**
+ * Light update dispatcher.
+ *
+ * Reads the scene's schema version flag and routes to the appropriate engine:
+ * - Version 1 (legacy): moods/effects/variants/combinations cascade via lights-legacy.js
+ * - Version 2 (criteria): resolveRules from resolver.js using base/rules presets
+ *
+ * Both versions share the checkbox-driven hidden light logic (buildLightControlsMap).
+ *
+ * Note: applyState() no longer routes through this module for v2 scenes —
+ * it uses updatePlaceables() from placeables.js instead, which handles all
+ * document types generically. This module remains functional for direct
+ * api.updateLights() calls.
+ */
+
+import { MODULE_ID, SCHEMA_VERSION, getSceneVersion } from "./constants.js";
+import { resolveRules } from "./resolver.js";
+import { resolveLegacy, buildLightControlsMap } from "./lights-legacy.js";
+
+/**
+[2026-02-19T00:54:54] tokens used: 94,174
+
+[2026-02-19T00:54:59] thinking
+
+**Exploring UI and migration modules**
+[2026-02-19T00:54:59] exec bash -lc "sed -n '1,120p' scripts/time-triggers/core/constants.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:54:59] bash -lc "sed -n '1,120p' scripts/time-triggers/core/constants.js" succeeded in 28ms:
+export const MODULE_ID = "eidolon-utilities";
+export const FLAG_TIME_TRIGGER_ACTIVE = "timeTriggerActive";
+export const FLAG_TIME_TRIGGER_HIDE_WINDOW = "timeTriggerHideWindow";
+export const FLAG_TIME_TRIGGER_SHOW_PLAYER_WINDOW = "timeTriggerShowPlayerWindow";
+export const FLAG_TIME_TRIGGER_ALLOW_REAL_TIME = "timeTriggerAllowRealTime";
+export const FLAG_TIME_TRIGGERS = "timeTriggers";
+export const FLAG_TIME_TRIGGER_HISTORY = "timeTriggerHistory";
+export const SETTING_DEBUG = "debug";
+export const SETTING_TIME_FORMAT = "timeFormat";
+export const SETTING_MANAGE_TIME = "manageTime";
+export const SETTING_SECONDS_PER_ROUND = "secondsPerRound";
+export const TIME_FORMAT_12_HOUR = "12h";
+export const TIME_FORMAT_24_HOUR = "24h";
+export const TIME_DELTAS_MINUTES = [-30, -15, -5, 5, 15, 30];
+export const SECONDS_PER_DAY = 24 * 60 * 60;
+export const ACTION_PLAY_SOUND = "playSound";
+export const DEFAULT_SECONDS_PER_ROUND = 6;
+[2026-02-19T00:54:59] tokens used: 95,376
+
+[2026-02-19T00:55:02] thinking
+
+**Checking for existing migration hooks**
+[2026-02-19T00:55:02] exec bash -lc 'rg -n "migrat|version|schema" scripts | head -n 200' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:55:02] bash -lc 'rg -n "migrat|version|schema" scripts | head -n 200' succeeded in 114ms:
+scripts/release.mjs:3: * Bumps version in package.json + module.json, builds, and produces a
+scripts/release.mjs:11: *   node scripts/release.mjs 1.2.0   # explicit version
+scripts/release.mjs:27:      // Treat as explicit version if it looks like semver
+scripts/release.mjs:29:      console.error(`Invalid bump type: ${type}. Use patch, minor, major, or an explicit version.`);
+scripts/release.mjs:42:  // Read current version from package.json
+scripts/release.mjs:44:  const newVersion = bumpVersion(pkg.version, type);
+scripts/release.mjs:47:  console.log(`Bumping ${pkg.version} → ${newVersion}\n`);
+scripts/release.mjs:50:  pkg.version = newVersion;
+scripts/release.mjs:56:  mod.version = newVersion;
+scripts/tween/hooks.js:11:import { compileSequence } from "./core/timeline/schema.js";
+scripts/common/ui/foundry-compat.js:23: * Activate a tab on an application using the correct API for the Foundry version.
+scripts/tween/core/color-interpolation.js:7: * OKLab/OKLCH conversion matrices from Björn Ottosson's OKLab color space.
+scripts/tween/core/color-interpolation.js:85: * Uses Foundry's built-in HSL conversion.
+scripts/tween/core/executors/sequence.js:2:import { validateSequenceJSON, validateSequenceSemantics, compileSequence } from "../timeline/schema.js";
+[2026-02-19T00:55:02] tokens used: 95,934
+
+[2026-02-19T00:55:04] thinking
+
+**Planning preset structure inspection**
+[2026-02-19T00:55:04] exec bash -lc "sed -n '1,260p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights-legacy.js" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:55:04] bash -lc "sed -n '1,260p' /mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/lights-legacy.js" succeeded in 31ms:
+/**
+ * LEGACY light preset resolution — frozen from Update Lights (Core) macro.
+ *
+ * Uses the moods/effects/variants/combinations flag structure with a
+ * hardcoded priority cascade:
+ *   combination > variant > mood > effect > default
+ *
+ * This will be superseded by criteria-based matching (Layer 1) where
+ * lights carry responds/presetIndex/fallback flags and use findBestMatch.
+ */
+
+/**
+ * Resolve a light using the legacy moods/effects/variants/combinations flags.
+ *
+ * @param {AmbientLight} light    - Foundry light document
+ * @param {Object}       presets  - flags.map-ui-presets.presets
+ * @param {string}       mood
+ * @param {string}       effect
+ * @param {string}       variant
+ * @param {string[]}     hiddenIds - Light IDs forced hidden by checkbox tiles
+[2026-02-19T00:55:04] tokens used: 96,578
+
+[2026-02-19T00:55:06] thinking
+
+**Reviewing template and editor structure**
+[2026-02-19T00:55:06] exec bash -lc "sed -n '1,260p' templates/object-variants-category-editor.html" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:55:06] bash -lc "sed -n '1,260p' templates/object-variants-category-editor.html" succeeded in 34ms:
+<form class="object-variant-editor">
+  <div class="form-group">
+    <label for="object-variant-editor-name">{{labels.name}}</label>
+    <input
+      id="object-variant-editor-name"
+      class="form-control"
+      type="text"
+      name="categoryName"
+      value="{{name}}"
+      placeholder="{{labels.name}}"
+      autofocus
+    >
+  </div>
+
+  <div class="form-group stacked object-variant-editor__values-group">
+    <label>{{labels.values}}</label>
+    <div class="object-variant-editor__values">
+      {{#if hasValues}}
+        {{#each values}}
+          <div class="object-variant-editor__value">
+[2026-02-19T00:55:06] tokens used: 98,022
+
+[2026-02-19T00:55:10] thinking
+
+**Inspecting map-ui-presets data structure**
+[2026-02-19T00:55:10] exec bash -lc 'rg -n "FLAG_OBJECT_VARIANTS|getObjectVariantCategories|objectVariants|variant categories|categoryId" scripts templates | head -n 200' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:55:10] bash -lc 'rg -n "FLAG_OBJECT_VARIANTS|getObjectVariantCategories|objectVariants|variant categories|categoryId" scripts templates | head -n 200' succeeded in 123ms:
+scripts/object-variants/ui/SceneConfigTab.js:10:  getObjectVariantCategories,
+scripts/object-variants/ui/SceneConfigTab.js:60:    const categories = getObjectVariantCategories(scene);
+scripts/object-variants/ui/SceneConfigTab.js:68:      "Group scene assets into reusable variant categories and assign label values for quick reference."
+scripts/object-variants/ui/SceneConfigTab.js:76:      "No variant categories configured for this scene."
+scripts/object-variants/ui/SceneConfigTab.js:170:    const categoryId = button.dataset.categoryId;
+scripts/object-variants/ui/SceneConfigTab.js:171:    if (!categoryId) return;
+scripts/object-variants/ui/SceneConfigTab.js:174:        const index = categories.findIndex((category) => category.id === categoryId);
+scripts/object-variants/ui/SceneConfigTab.js:186:    const categoryId = button.dataset.categoryId;
+scripts/object-variants/ui/SceneConfigTab.js:187:    if (!categoryId) return;
+scripts/object-variants/ui/SceneConfigTab.js:189:      const categories = getObjectVariantCategories(scene);
+scripts/object-variants/ui/SceneConfigTab.js:190:      const category = categories.find((entry) => entry.id === categoryId);
+scripts/object-variants/ui/SceneConfigTab.js:202:  const categories = getObjectVariantCategories(scene);
+scripts/object-variants/core/constants.js:4:export const FLAG_OBJECT_VARIANTS = "objectVariants";
+scripts/light-presets/core/storage.js:293: * Normalize categories from either array or object form into `{ categoryId: value }`.
+scripts/light-presets/core/storage.js:301:      const categoryId = normalizeCategoryId(entry?.id ?? entry?.categoryId ?? entry?.category);
+scripts/light-presets/core/storage.js:303:      if (!categoryId || !value) continue;
+scripts/light-presets/core/storage.js:304:      sanitized[categoryId] = value;
+scripts/light-presets/core/storage.js:307:    for (const [categoryIdRaw, valueRaw] of Object.entries(categories)) {
+scripts/light-presets/core/storage.js:308:      const categoryId = normalizeCategoryId(categoryIdRaw);
+scripts/light-presets/core/storage.js:310:      if (!categoryId || !value) continue;
+[2026-02-19T00:55:10] tokens used: 98,870
+
+[2026-02-19T00:55:32] thinking
+
+**Planning detailed scene criteria architecture**
+[2026-02-19T00:55:32] exec bash -lc 'cat package.json' in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:55:32] bash -lc 'cat package.json' succeeded in 24ms:
+{
+  "name": "eidolon-utilities",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ./node_modules/vite/bin/vite.js",
+    "build": "node ./node_modules/vite/bin/vite.js build && node scripts/postbuild-copy.mjs",
+    "test": "node ./node_modules/vitest/vitest.mjs",
+    "test:run": "node ./node_modules/vitest/vitest.mjs run",
+    "package": "npm run build && cd dist && zip -r ../eidolon-utilities.zip .",
+    "release": "node scripts/release.mjs"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "vitest": "^2.1.0"
+  }
+}
+[2026-02-19T00:55:32] tokens used: 101,079
+
+[2026-02-19T00:55:34] thinking
+
+**Reviewing test coverage**
+[2026-02-19T00:55:34] exec bash -lc "fd -t f 'test|spec' src scripts | head -n 100" in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:55:34] bash -lc "fd -t f 'test|spec' src scripts | head -n 100" succeeded in 114ms:
+src/__tests__/time-utils.test.js
+src/__tests__/tween-timeline.test.js
+[2026-02-19T00:55:34] tokens used: 102,078
+
+[2026-02-19T00:56:37] thinking
+
+**Drafting detailed OV2 plan**
+[2026-02-19T00:56:37] codex
+
+# Plan
+
+Redesign the Scene Config Criteria tab as a compact authoring surface, while preserving `map-ui-presets` semantics and ensuring safe migration from both `eidolon-utilities` legacy `objectVariants` data and `map-ui-presets` criteria scenes. Keep day-to-day state manipulation in the floating window; this tab should be optimized for defining dimensions, values, defaults, and migration status.
+
+## Requirements
+- Preserve exact criteria/state behavior parity with `map-ui-presets` matching semantics from `src/resolver.js` and related state handling.
+- Preserve placeable preset model parity: `base` + ordered `rules`.
+- Keep Scene Config tab compact and authoring-focused.
+- Preserve compatibility with existing `map-ui-presets` scenes and provide a safe migration path.
+- Avoid overengineering and keep architecture maintainable.
+
+## Grounded Baseline
+- Current Scene tab is category-list CRUD only in `scripts/object-variants/ui/SceneConfigTab.js` and `templates/object-variants-scene-tab.html`.
+- Current object variant storage is array-based in `scripts/object-variants/core/storage.js` (`flags.eidolon-utilities.objectVariants`).
+- Current light preset authoring depends on those categories in `scripts/light-presets/ui/AmbientLightConfigControls.js`.
+- `map-ui-presets` canonical criteria/state model is in `src/state.js`.
+- `map-ui-presets` rule layering semantics are in `src/resolver.js`.
+- `map-ui-presets` placeable update model (`base` + `rules`) is in `src/placeables.js`.
+
+## Data Model Recommendation (Concrete)
+- Canonical scene flags in `eidolon-utilities`:
+- `flags.eidolon-utilities.sceneCriteriaVersion`: number, start at `1`.
+- `flags.eidolon-utilities.sceneCriteria`: ordered array of `{ key, label, values, default }`.
+- `flags.eidolon-utilities.sceneCriteriaState`: object map `{ [key]: value }`.
+- Canonical placeable flags in `eidolon-utilities`:
+- `flags.eidolon-utilities.presets`: `{ base: object, rules: [{ criteria: object, delta: object }] }`.
+- Compatibility read order for scene criteria:
+- Read `sceneCriteria` first.
+- If missing, adapt `flags.eidolon-utilities.objectVariants` to criteria.
+- If still missing, adapt `flags.map-ui-presets.criteria` and `flags.map-ui-presets.state`.
+- Key policy:
+- `key` is machine-stable and unique; editable only at creation (or explicit migration flow), not casual inline rename.
+- `label` is user-facing and freely editable.
+- Value policy:
+- Trimmed, deduped, non-empty strings.
+- `default` must always be in `values`.
+- State policy:
+- Ensure every criterion has a state value; repair missing values to criterion `default`.
+
+## UI Interaction Model (Single Compact Tab)
+- Top summary row:
+- `Criteria: N`, `Values: M`, `Incomplete: K`, plus actions `Add Criterion`, `Import`, `Repair`.
+- Criteria list:
+- Dense row per criterion with `label`, `key badge`, `default chip`, `value count`, `actions`.
+- Row expansion:
+- Inline editor with `Label`, `Key` (readonly after create), tokenized `Values`, `Default` dropdown.
+- Quick actions:
+- `Duplicate`, `Delete`, `Move Up`, `Move Down`.
+- Compact behavior:
+- Rows collapsed by default.
+- Auto-save on explicit row save action, not per keystroke.
+- Validation shown inline in-row, no global blocking modal unless destructive.
+- Migration affordance:
+- If data is coming from legacy source, show a non-intrusive banner: `Imported from legacy format; review keys/defaults`.
+- Scope boundary:
+- No embedded runtime state switcher controls here; keep that in floating window.
+
+## Phased Implementation
+
+## Phase 1: Domain Contract and Compatibility Adapters
+- Goal: Define and enforce one canonical criteria/state contract while reading legacy shapes.
+- Scope: Storage/read/write/sanitize utilities only; no UI redesign yet.
+- UX decisions: No visual change except optional tiny status note indicating source format.
+- Technical tasks:
+- Add new criteria storage module and sanitizer near `scripts/object-variants/core/storage.js`.
+- Implement adapter from `objectVariants` array to canonical criteria.
+- Implement adapter from `map-ui-presets` `criteria/state` flags to canonical criteria.
+- Add normalization rules for key uniqueness, value cleanup, and default repair.
+- Risks:
+- Key collisions during migration from category names.
+- Ambiguous defaults for categories with empty values.
+- Validation/test strategy:
+- Unit tests for adapters and sanitization, including malformed legacy data.
+- Fixture tests with representative `map-ui-presets` scene flags.
+
+## Phase 2: Scene Config Tab UX Redesign (Criteria Authoring)
+- Goal: Replace “variant categories list” with compact criterion authoring UI.
+- Scope: `scripts/object-variants/ui/SceneConfigTab.js`, `templates/object-variants-scene-tab.html`, and related styles.
+- UX decisions:
+- Dense single-list architecture with expand/collapse, no modal-heavy workflow for simple edits.
+- Keep interactions keyboard-friendly (`Enter` add value, `Backspace` remove empty token, tab order predictable).
+- Technical tasks:
+- Rework tab render context around canonical criteria objects.
+- Introduce row-level edit state and inline validation messages.
+- Add import/repair actions surfaced in top toolbar.
+- Keep AppV1/AppV2 compatibility via existing `scene-config-tab-factory.js`.
+- Risks:
+- Overcrowding on small windows.
+- Event listener leaks from repeated re-renders.
+- Validation/test strategy:
+- Manual UX pass in Foundry on small and standard window sizes.
+- Interaction smoke tests for add/edit/delete/reorder/default-change flows.
+
+## Phase 3: Behavioral Parity for Rule Semantics and Preset Model
+- Goal: Ensure downstream systems behave like `map-ui-presets` resolver semantics.
+- Scope: Criteria contract integration with preset-consuming codepaths, especially light presets.
+- UX decisions:
+- Scene tab displays compatibility status but does not become a rule editor.
+- Technical tasks:
+- Adopt/align rule resolver behavior to `resolveRules` semantics (exact match, specificity ascending, index tiebreak).
+- Ensure placeable preset structure uses `base + rules`.
+- Add compatibility adapter for existing eidolon light preset data to canonical rules model.
+- Risks:
+- Existing light presets currently snapshot full configs; delta conversion may produce subtle diffs.
+- Cross-module expectations if both modules are active.
+- Validation/test strategy:
+- Golden tests comparing resolved output against `map-ui-presets` resolver fixtures.
+- Manual parity checks on example scenes with overlapping rule specificity.
+
+## Phase 4: Migration Pipeline and Rollout Safety
+- Goal: Ship safely without breaking existing scenes.
+- Scope: One-time and lazy migration behavior, recovery, and observability.
+- UX decisions:
+- Silent lazy migration on first open for safe cases.
+- Explicit confirmation for destructive operations (deleting criteria used by rules).
+- Technical tasks:
+- Implement migration markers and idempotent migrations.
+- Store source snapshot backup flags during first migration pass.
+- Add compatibility warnings when unsupported legacy v1 map-ui scene data is detected.
+- Risks:
+- Partial migrations if users interrupt session.
+- Mismatch between migrated criteria keys and existing placeable criteria references.
+- Validation/test strategy:
+- Migration replay tests (run migration twice; no further changes second time).
+- Rollback simulation by restoring backup snapshot flags.
+- Mixed-data scene tests (both old and new flags present).
+
+## Acceptance Criteria (Definition of Done)
+- Scene Config tab supports full criteria authoring in one compact tab with no required modal flow for common actions.
+- Criteria schema is canonical in `eidolon-utilities`, with deterministic sanitization and state repair.
+- Resolver behavior matches `map-ui-presets` rule semantics for specificity and index-order layering.
+- Placeable preset model is `base + rules` and works with migrated data.
+- Existing scenes using `objectVariants` and `map-ui-presets` criteria/state can be opened and used without manual JSON edits.
+- Migration is idempotent, non-destructive, and records a recoverable backup snapshot.
+- Tests cover sanitization, migration, and resolver parity, plus manual UX validation checklist.
+
+## Rollout Strategy
+- Stage 1: Ship read adapters + canonical writer behind internal migration detection (no UI change yet).
+- Stage 2: Ship redesigned tab UI using canonical schema, with legacy import banner.
+- Stage 3: Ship resolver/preset parity integration and migration for placeable presets.
+- Stage 4: After one stable cycle, deprecate direct writes to legacy `objectVariants` while keeping read fallback.
+- Safety controls:
+- Keep legacy source flags untouched for at least one release.
+- Log migration summaries to console with scene id and migration source.
+- Provide a one-click “Re-run Migration Repair” action in the Scene tab.
+
+## Files and Entry Points
+- `scripts/object-variants/ui/SceneConfigTab.js`
+- `templates/object-variants-scene-tab.html`
+- `scripts/object-variants/core/storage.js`
+- `scripts/common/ui/scene-config-tab-factory.js`
+- `scripts/light-presets/ui/AmbientLightConfigControls.js`
+- `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js`
+- `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js`
+- `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/placeables.js`
+- `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js`
+
+## Open Questions
+- Should key renaming ever be allowed after creation, or only label renaming?
+- Do you want legacy `map-ui-presets` version-1 scenes auto-indexed if that module is active, or only criteria-version scenes imported automatically?
+- Should Scene Config expose a minimal read-only “Current State Preview” line, or keep state entirely out of this tab?
+[2026-02-19T00:56:37] tokens used: 135,186

@@ -1,0 +1,347 @@
+[2026-02-19T00:22:56] OpenAI Codex v0.0.0 (research preview)
+[2026-02-19T00:22:56] binary: /home/talanor/.cache/just-every/code/0.6.70/code-x86_64-unknown-linux-musl
+--------
+workdir: /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+model: gpt-5.1-codex-mini
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: auto
+--------
+[2026-02-19T00:22:56] User instructions:
+Create a comprehensive implementation plan (no code changes) to improve the timeline / sequencer / executor architecture in this Foundry module. Focus on production-ready behavior and maintainability.
+
+Context:
+- Repo: eidolon-utilities
+- Current relevant system includes:
+  - scripts/tween/core/timeline/TweenTimeline.js
+  - scripts/tween/core/timeline/TimelineHandle.js
+  - scripts/tween/core/timeline/schema.js
+  - scripts/tween/core/executors/sequence.js
+  - scripts/tween/core/registry.js
+  - scripts/tween/hooks.js
+- The timeline is a step/delay executor with named timeline registry, socket broadcast for sequence sync, and error policies (abort/continue).
+- Known concerns from prior review to account for:
+  1) Cancellation is not immediate for in-flight step entries because step execution awaits Promise.all(stepPromises) and executors do not receive abort signals.
+  2) Error outcomes collapse to boolean false, making cancellation vs runtime-failure indistinguishable.
+  3) errorPolicy='continue' appears to apply to entry execution, but hook callbacks (beforeAll/before/after) can still abort timeline if they throw.
+  4) Sequence JSON validates structure but not semantic params per registered tween validator before run.
+
+What to produce:
+- A concrete implementation plan (not code) with ordered phases and rationale.
+- API contract recommendations for cancellation/error semantics and backward compatibility strategy.
+- File-level change map (which files should change and why).
+- Test strategy (unit/integration/manual in Foundry context) with specific scenarios.
+- Risk assessment + migration/rollout approach.
+- Keep the plan practical and concise, but comprehensive enough for direct implementation.
+
+Constraints:
+- Do not overengineer.
+- Prefer simple, direct design with obvious edge cases covered.
+- Assume we will implement next after choosing a plan.
+
+[Running in read-only mode - no modifications allowed]
+
+[2026-02-19T00:22:58] thinking
+
+**Considering planning approach**
+[2026-02-19T00:22:58] exec cat /home/talanor/.code/skills/.system/plan/SKILL.md in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:22:58] cat /home/talanor/.code/skills/.system/plan/SKILL.md succeeded in 1ms:
+---
+name: plan
+description: Generate a plan for how an agent should accomplish a complex coding task. Use when a user asks for a plan, and optionally when they want to save, find, read, update, or delete plan files in $CODEX_HOME/plans (default ~/.codex/plans).
+metadata:
+  short-description: Generate a plan for a complex task
+---
+
+# Plan
+
+## Overview
+
+Draft structured plans that clarify intent, scope, requirements, action items, testing/validation, and risks.
+
+Optionally, save plans to disk as markdown files with YAML frontmatter and free-form content. When drafting in chat, output only the plan body without frontmatter; add frontmatter only when saving to disk. Only write to the plans folder; do not modify the repository codebase.
+
+This skill can also be used to draft codebase or system overviews.
+
+## Core rules
+
+- Resolve the plans directory as `$CODEX_HOME/plans` or `~/.codex/plans` when `CODEX_HOME` is not set.
+[2026-02-19T00:22:58] tokens used: 6,802
+
+[2026-02-19T00:23:02] thinking
+
+**Planning next steps**
+[2026-02-19T00:23:02] exec pwd in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:02] pwd succeeded in 3ms:
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:02] tokens used: 15,311
+
+[2026-02-19T00:23:03] thinking
+
+**Listing files in directory**
+[2026-02-19T00:23:03] exec ls in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:03] ls succeeded in 7ms:
+dist
+eidolon-utilities.css
+eidolon-utilities.js
+eidolon-utilities.zip
+module.json
+node_modules
+package-lock.json
+package.json
+release
+scripts
+src
+styles
+templates
+vite.config.js
+[2026-02-19T00:23:03] tokens used: 17,244
+
+[2026-02-19T00:23:04] thinking
+
+**Viewing specific script files**
+[2026-02-19T00:23:04] exec ls scripts/tween/core in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:04] ls scripts/tween/core succeeded in 7ms:
+color-interpolation.js
+constants.js
+dispatcher.js
+easing.js
+executors
+registry.js
+timeline
+[2026-02-19T00:23:04] tokens used: 17,505
+
+[2026-02-19T00:23:06] thinking
+
+**Checking timeline files**
+[2026-02-19T00:23:06] exec cat scripts/tween/core/timeline/TweenTimeline.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:06] cat scripts/tween/core/timeline/TweenTimeline.js succeeded in 8ms:
+import { getTweenType } from "../registry.js";
+import { emitSocket } from "../../../common/socket.js";
+import { ErrorPolicy, SOCKET_TYPE_SEQUENCE, SOCKET_TYPE_SEQUENCE_CANCEL } from "./constants.js";
+import { TimelineHandle } from "./TimelineHandle.js";
+
+// ── Named timeline registry ────────────────────────────────────────────
+
+/** @type {Map<string, TimelineHandle>} */
+const namedTimelines = new Map();
+
+/**
+ * Register a named timeline handle. If one already exists with the same
+ * name, it is cancelled first (matches CanvasAnimation.terminateAnimation pattern).
+ * Auto-cleans on finish.
+ * @param {string} name
+ * @param {TimelineHandle} handle
+ */
+export function registerTimeline(name, handle) {
+	const existing = namedTimelines.get(name);
+	if (existing && !existing.cancelled) {
+[2026-02-19T00:23:06] tokens used: 17,731
+
+[2026-02-19T00:23:07] thinking
+
+**Seeking TimelineHandle files**
+[2026-02-19T00:23:07] exec cat scripts/tween/core/timeline/TimelineHandle.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:07] cat scripts/tween/core/timeline/TimelineHandle.js succeeded in 11ms:
+/**
+ * Handle returned by TweenTimeline.run(). Wraps an AbortController
+ * and a completion promise for external cancellation and await.
+ */
+export class TimelineHandle {
+	#controller;
+	#resolve;
+	#finished;
+
+	/**
+	 * @param {AbortController} controller
+	 */
+	constructor(controller) {
+		this.#controller = controller;
+		this.#finished = new Promise((resolve) => {
+			this.#resolve = resolve;
+		});
+	}
+
+	/** @returns {Promise<boolean>} Resolves true (completed) or false (cancelled). */
+[2026-02-19T00:23:07] tokens used: 21,832
+
+[2026-02-19T00:23:09] thinking
+
+**Noting need for schema**
+[2026-02-19T00:23:09] exec cat scripts/tween/core/timeline/schema.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:09] cat scripts/tween/core/timeline/schema.js succeeded in 10ms:
+import { ErrorPolicy } from "./constants.js";
+import { TweenTimeline } from "./TweenTimeline.js";
+
+/**
+ * Validate a sequence JSON structure. Throws on structural errors.
+ * Does NOT validate individual tween type existence (types may register late).
+ *
+ * @param {object} data
+ * @param {string} [data.name]
+ * @param {"abort"|"continue"} [data.errorPolicy]
+ * @param {Array<Array|{ delay: number }>} data.timeline
+ */
+export function validateSequenceJSON(data) {
+	if (!data || typeof data !== "object") {
+		throw new Error("Sequence JSON: data must be an object.");
+	}
+	if (!Array.isArray(data.timeline)) {
+		throw new Error("Sequence JSON: 'timeline' must be an array.");
+	}
+	if (data.name != null && typeof data.name !== "string") {
+[2026-02-19T00:23:09] tokens used: 22,363
+[2026-02-19T00:23:11] exec cat scripts/tween/core/executors/sequence.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:11] cat scripts/tween/core/executors/sequence.js succeeded in 9ms:
+import { registerTweenType } from "../registry.js";
+import { validateSequenceJSON, compileSequence } from "../timeline/schema.js";
+
+/**
+ * Validate sequence tween parameters (JSON structure check only).
+ * @param {object} params  Sequence JSON data
+ */
+function validate(params) {
+	validateSequenceJSON(params);
+}
+
+/**
+ * Execute a sequence tween by compiling JSON into a TweenTimeline and running it.
+ * Broadcast is disabled since the dispatcher already broadcast the message.
+ *
+ * @param {object} params  Sequence JSON data
+ * @param {object} opts
+ * @param {boolean} [opts.commit]
+ * @param {number}  [opts.startEpochMS]
+ * @returns {Promise<boolean>}
+[2026-02-19T00:23:11] tokens used: 23,576
+
+[2026-02-19T00:23:12] thinking
+
+**Checking for registry presence**
+[2026-02-19T00:23:12] exec cat scripts/tween/core/registry.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:12] cat scripts/tween/core/registry.js succeeded in 5ms:
+const tweenTypes = new Map();
+
+/**
+ * Register a tween type with its executor and optional validator.
+ * @param {object} def
+ * @param {string} def.type       Unique tween type name (e.g. "light-color")
+ * @param {(params: object, opts: object) => Promise<boolean>} def.execute
+ * @param {(params: object) => void} [def.validate]  Throws on invalid params
+ */
+export function registerTweenType({ type, execute, validate }) {
+	if (tweenTypes.has(type)) {
+		console.warn(`[tween-registry] Type "${type}" already registered, overwriting.`);
+	}
+	tweenTypes.set(type, { type, execute, validate: validate ?? (() => {}) });
+}
+
+/**
+ * Lookup a registered tween type.
+ * @param {string} type
+ * @returns {{ type: string, execute: Function, validate: Function } | undefined}
+[2026-02-19T00:23:12] tokens used: 23,966
+
+[2026-02-19T00:23:14] thinking
+
+**Considering scripts and hooks**
+[2026-02-19T00:23:14] exec cat scripts/tween/hooks.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:14] cat scripts/tween/hooks.js succeeded in 2ms:
+import { MODULE_ID } from "../time-triggers/core/constants.js";
+import { registerSocketHandler, initializeSocket } from "../common/socket.js";
+import { SOCKET_TYPE_TWEEN } from "./core/constants.js";
+import { SOCKET_TYPE_SEQUENCE, SOCKET_TYPE_SEQUENCE_CANCEL, ErrorPolicy } from "./core/timeline/constants.js";
+import { registerLightColorTween } from "./core/executors/light-color.js";
+import { registerLightStateTween } from "./core/executors/light-state.js";
+import { registerSequenceTween } from "./core/executors/sequence.js";
+import { dispatchTween, handleTweenSocketMessage } from "./core/dispatcher.js";
+import { listTweenTypes } from "./core/registry.js";
+import { TweenTimeline, cancelTimeline, getTimeline } from "./core/timeline/TweenTimeline.js";
+import { compileSequence } from "./core/timeline/schema.js";
+
+// Register tween types synchronously at module load time
+registerLightColorTween();
+registerLightStateTween();
+registerSequenceTween();
+
+// Register socket handlers
+registerSocketHandler(SOCKET_TYPE_TWEEN, handleTweenSocketMessage);
+registerSocketHandler(SOCKET_TYPE_SEQUENCE, handleSequenceSocketMessage);
+[2026-02-19T00:23:14] tokens used: 24,443
+[2026-02-19T00:23:15] exec cat scripts/tween/core/timeline/constants.js in /mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+[2026-02-19T00:23:15] cat scripts/tween/core/timeline/constants.js succeeded in 9ms:
+export const SOCKET_TYPE_SEQUENCE = "tween-sequence";
+export const SOCKET_TYPE_SEQUENCE_CANCEL = "tween-sequence-cancel";
+
+export const ErrorPolicy = Object.freeze({
+	ABORT: "abort",
+	CONTINUE: "continue",
+});
+[2026-02-19T00:23:15] tokens used: 25,320
+
+[2026-02-19T00:23:25] thinking
+
+**Drafting architecture improvement plan**
+
+I'll create a detailed plan addressing cancellation and error semantics improvements, including phases with rationales, API contract updates, file-level changes, testing strategies, risks, open questions, and migration approach—all formatted per the specified template to clearly guide the work.
+[2026-02-19T00:23:25] codex
+
+**Plan**
+
+Provide a prioritized, phased implementation plan that tightens cancellation/error handling, clarifies hook policy, and validates tween semantics before running timelines so the executor becomes production-ready and maintainable.
+
+## Requirements
+- Immediate cancellation of in-flight steps via abort-aware executors and handles.
+- Distinct outcomes for success, cancellation, and runtime failures.
+- Hooks honor the configured `errorPolicy`; only synchronous errors should stop or continue timelines per policy.
+- Sequence JSON validation must cover registered tween validators before execution.
+- Backward-compatible API that still supports named timelines, socket sync, and existing consumers.
+- Maintainable structure with clear file ownership.
+
+## Scope
+- In: `scripts/tween/core/timeline/` (execution engine, handle, schema), executor setup, registry, and hooks that orchestrate sockets and public API.
+- Out: unrelated modules/repacks, non-tween features.
+
+## Files and entry points
+- `scripts/tween/core/timeline/TweenTimeline.js` – execution flow, hooks, error/cancel semantics.
+- `scripts/tween/core/timeline/TimelineHandle.js` – handle contract, statuses, abort signal handling.
+- `scripts/tween/core/timeline/schema.js` – JSON validation, compile logic, tune for validator enforcement.
+- `scripts/tween/core/executors/sequence.js` – validation/execution bridge, ensures behavior matches updated schema.
+- `scripts/tween/core/registry.js` – provide validator metadata for semantic checks.
+- `scripts/tween/hooks.js` – socket behavior, API exposure, ensures broadcast/cancel messaging align with new contract.
+
+## Data model / API changes
+- **TimelineHandle.finished** resolves with a richer result (e.g., `{ status: "completed"|"cancelled"|"failed", reason?: Error }`) instead of boolean.
+- **TweenTimeline.run** returns handle whose cancel and hooks (beforeAll/before/after) are wrapped by errorPolicy-aware guards.
+- **Sequence JSON** carries optional metadata (e.g., `validationVersion` or `requires`) enabling registry validators to run before compile.
+- Backward compatibility: default `finished` behavior stays boolean for existing call sites that don’t inspect (maybe via helper getter or metadata) and `errorPolicy` default remains `abort`.
+
+## Action items
+[ ] Phase 1 – **Instrumentation & cancellation contract**: define richer handle result, propagate abort signal to each tween execute call (via wrapper or controller) so entry executors can cancel mid-flight and `cancel()` resolves immediately without waiting for Promise.all.
+[ ] Phase 2 – **Error semantics separation**: differentiate cancellation vs execution failure in the handle result and errorPolicy logic; make step hooks respect policy (wrap hook invocations, swallow vs throw errors based on policy) and ensure `errorPolicy` continues only affects entries/hook-level errors as documented.
+[ ] Phase 3 – **Semantic validation layer**: extend registry to expose `validate` per tween, invoke before timeline execution (both direct and socket-compiled flows) and fail fast with descriptive errors without running mutated timeline.
+[ ] Phase 4 – **Socket/registry alignment**: ensure socket broadcast/cancel respects new handle statuses, timeline registry cancels previous runs cleanly, and the public API documents new handle result semantics for consumers.
+[ ] Phase 5 – **Documentation/tests/manual**: update inline docs, add unit/integration tests for cancellation/error outcomes, and manual Foundry checks for named timelines via UI sockets.
+
+## Testing and validation
+- **Unit**: mock tweens with abort-responsive promises to verify immediate cancel, verify `finished` result statuses, and ensure hooks behave per `errorPolicy`.
+- **Integration**: run timeline sequences through `sequence` executor and socket handler, mocking registry validation failure to confirm early rejection.
+- **Manual Foundry**: trigger named timeline from UI, cancel via API call and via socket cancellation, and observe broadcast behavior/logging; test failure path (invalid tween params) to ensure error remains localized and timeline cancels without hanging.
+- **Regression**: ensure default sequence JSON still accepted, timeline serialization unchanged, and existing `onComplete/onCancel` flows run.
+
+## Risks and edge cases
+- Race between cancellation and step completion might still leave detached tweens running; ensure cleanup logic waits/surfaces warnings without blocking.
+- Registry validation introduced at runtime must not break lazy-registered tweens; handle missing validator by deferring to existing behavior.
+- Changing `finished` return structure requires backward-compatible accessor; avoid breaking third-party code.
+
+## Migration & rollout
+- Ship handle result upgrade behind a non-breaking helper (e.g., `handle.isCompleted`) and document new `status` object; once downstream updates, remove legacy accessor if desired.
+- Roll out validation in a feature flag or opt-in first by introducing `validateSequenceJSON({})` hook before enforce; log warnings before switching to hard errors.
+- After implementation, release as patch after automated tests and manual sockets confirmed.
+
+## Open questions
+- Should registry validation run on both executed and broadcasted timelines to keep clients consistent, or only on authoritative GM runs?
+- Is there a need for a global error hook (e.g., timeline-level `onError`) beyond the existing `errorPolicy` semantics for reporting failures?
+[2026-02-19T00:23:25] tokens used: 27,008

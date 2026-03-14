@@ -1,0 +1,780 @@
+/mnt/talanor.home/Foundry/pprod/Data/modules/eidolon-utilities
+total 432
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:33 .
+drwxr-xr-x 2 talanor talanor      0 Feb 18 18:36 ..
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:23 .code
+-rwxr-xr-x 1 talanor talanor     41 Feb 18 15:11 .env
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:39 .git
+-rwxr-xr-x 1 talanor talanor     47 Feb 18 15:11 .gitignore
+drwxr-xr-x 2 talanor talanor      0 Feb 19 01:33 dist
+-rwxr-xr-x 1 talanor talanor   6680 Feb 19 01:15 eidolon-utilities.css
+-rwxr-xr-x 1 talanor talanor 178493 Feb 19 01:15 eidolon-utilities.js
+-rwxr-xr-x 1 talanor talanor 144237 Feb 19 00:12 eidolon-utilities.zip
+-rwxr-xr-x 1 talanor talanor    860 Feb 19 00:12 module.json
+drwxr-xr-x 2 talanor talanor      0 Feb 18 15:00 node_modules
+-rwxr-xr-x 1 talanor talanor  78503 Feb 18 14:48 package-lock.json
+-rwxr-xr-x 1 talanor talanor    569 Feb 19 00:12 package.json
+drwxr-xr-x 2 talanor talanor      0 Feb 19 00:12 release
+drwxr-xr-x 2 talanor talanor      0 Feb 18 14:49 scripts
+drwxr-xr-x 2 talanor talanor      0 Feb 18 14:47 src
+drwxr-xr-x 2 talanor talanor      0 Feb 17 12:51 styles
+drwxr-xr-x 2 talanor talanor      0 Feb 18 17:31 templates
+-rwxr-xr-x 1 talanor talanor   5521 Feb 18 15:11 vite.config.js
+eidolon-utilities.js:45:  return ((e = game.scenes) == null ? void 0 : e.current) ?? ((t = game.scenes) == null ? void 0 : t.active) ?? null;
+eidolon-utilities.js:47:s(Mt, "getActiveScene");
+eidolon-utilities.js:51:s(Le, "getSceneFromApplication");
+eidolon-utilities.js:55:s(ae, "hasSceneDocument");
+eidolon-utilities.js:342:    sceneId: (e == null ? void 0 : e.id) ?? null,
+eidolon-utilities.js:349:    sceneId: e.id,
+eidolon-utilities.js:364:    sceneId: (e == null ? void 0 : e.id) ?? null,
+eidolon-utilities.js:383:      sceneId: (e == null ? void 0 : e.id) ?? null
+eidolon-utilities.js:388:    sceneId: (e == null ? void 0 : e.id) ?? null,
+eidolon-utilities.js:399:        "Failed to persist the scene's time trigger history."
+eidolon-utilities.js:446:    sceneId: (e == null ? void 0 : e.id) ?? null
+eidolon-utilities.js:447:  }), await n.execute({ scene: e, trigger: t });
+eidolon-utilities.js:472:    "A scene time trigger is missing required data and was skipped."
+eidolon-utilities.js:474:  (a = (o = ui.notifications) == null ? void 0 : o.warn) == null || a.call(o, r), console.warn(`${E} | Missing trigger data (${n})`, { scene: e == null ? void 0 : e.id, trigger: t });
+eidolon-utilities.js:477:async function Ko({ scene: e, trigger: t }) {
+eidolon-utilities.js:728:    const { scene: i, showControls: r, ...o } = n ?? {};
+eidolon-utilities.js:741:      n.preventDefault(), !(!this.showControls || !((i = game.user) != null && i.isGM)) && (b("Time value double clicked", { sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null }), S(this, U, kr).call(this));
+eidolon-utilities.js:768:            "EIDOLON.TimeTrigger.SceneRealTimeManageDisabled",
+eidolon-utilities.js:774:      const i = this.scene;
+eidolon-utilities.js:779:            "EIDOLON.TimeTrigger.SceneUnavailable",
+eidolon-utilities.js:780:            "The active scene is unavailable. Try again after reloading the world."
+eidolon-utilities.js:785:      const r = !this.sceneAllowsRealTime;
+eidolon-utilities.js:787:        await i.setFlag(E, ii, r), this.sceneAllowsRealTime = r;
+eidolon-utilities.js:789:          "EIDOLON.TimeTrigger.SceneRealTimeEnabled",
+eidolon-utilities.js:790:          "Automatic real-time flow enabled for this scene."
+eidolon-utilities.js:792:          "EIDOLON.TimeTrigger.SceneRealTimeDisabled",
+eidolon-utilities.js:793:          "Automatic real-time flow disabled for this scene."
+eidolon-utilities.js:797:        console.error(`${E} | Failed to toggle scene real-time flow`, m), (T = (h = ui.notifications) == null ? void 0 : h.error) == null || T.call(
+eidolon-utilities.js:800:            "EIDOLON.TimeTrigger.SceneRealTimeToggleError",
+eidolon-utilities.js:801:            "Failed to update the scene's real-time flow setting."
+eidolon-utilities.js:811:    this.scene = i ?? null, this.showControls = typeof r == "boolean" ? r : !!((a = game.user) != null && a.isGM), this.isEditingTime = !1, this.editValue = "", this._commitTimeInProgress = !1, this._suppressBlurCommit = !1, this.manageTimeEnabled = !1, this.sceneAllowsRealTime = S(this, U, vi).call(this), N(this, Ze, Bi(g(this, In))), N(this, et, Fr(g(this, wn)));
+eidolon-utilities.js:825:    this.sceneAllowsRealTime = h;
+eidolon-utilities.js:827:      "EIDOLON.TimeTrigger.SceneRealTimeEnable",
+eidolon-utilities.js:828:      "Enable automatic real-time flow for this scene."
+eidolon-utilities.js:830:      "EIDOLON.TimeTrigger.SceneRealTimeDisable",
+eidolon-utilities.js:831:      "Disable automatic real-time flow for this scene."
+eidolon-utilities.js:833:      "EIDOLON.TimeTrigger.SceneRealTimeManageDisabled",
+eidolon-utilities.js:840:      sceneAllowsRealTime: h,
+eidolon-utilities.js:857:        sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null
+eidolon-utilities.js:859:    b("Closing time trigger window", { sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null, force: !0 });
+eidolon-utilities.js:866:    if (b("Advancing world time", { sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null, minutes: n, seconds: i }), !((o = game.user) != null && o.isGM)) {
+eidolon-utilities.js:877:        sceneId: ((d = this.scene) == null ? void 0 : d.id) ?? null,
+eidolon-utilities.js:890:          sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null,
+eidolon-utilities.js:976:      sceneId: ((O = this.scene) == null ? void 0 : O.id) ?? null,
+eidolon-utilities.js:1090:  const n = this.scene;
+eidolon-utilities.js:1095:    b("TimeTriggerWindow | Failed to read scene real-time flag", {
+eidolon-utilities.js:1096:      sceneId: (n == null ? void 0 : n.id) ?? null,
+eidolon-utilities.js:1101:}, "#readSceneRealTimeFlag"), In = new WeakMap(), qr = /* @__PURE__ */ s(function() {
+eidolon-utilities.js:1160:    typeof t == "function" ? t.__eidolonFactorySignature === "options" ? N(this, tt, (r, o = {}) => t({ scene: r, ...o ?? {} })) : N(this, tt, t) : N(this, tt, /* @__PURE__ */ s((r, o = {}) => n({ scene: r, ...o ?? {} }), "fallbackFactory"));
+eidolon-utilities.js:1168:    const n = (t == null ? void 0 : t.scene) ?? Mt();
+eidolon-utilities.js:1169:    b("TimeTriggerManager#onCanvasReady", { sceneId: (n == null ? void 0 : n.id) ?? null }), this.refreshTimeTriggerWindow(n), this.handleTimeTriggerEvaluation(n);
+eidolon-utilities.js:1171:  onUpdateScene(t) {
+eidolon-utilities.js:1173:    b("TimeTriggerManager#onUpdateScene", {
+eidolon-utilities.js:1174:      sceneId: (t == null ? void 0 : t.id) ?? null,
+eidolon-utilities.js:1175:      activeSceneId: (n == null ? void 0 : n.id) ?? null
+eidolon-utilities.js:1192:      sceneId: t.id,
+eidolon-utilities.js:1202:    if (g(this, ee) && ((u = g(this, ee).scene) == null ? void 0 : u.id) === t.id) {
+eidolon-utilities.js:1203:      b("Refreshing existing time trigger window", { sceneId: t.id }), g(this, ee).showControls = l, g(this, ee).render();
+eidolon-utilities.js:1207:      previousSceneId: ((d = g(this, ee).scene) == null ? void 0 : d.id) ?? null
+eidolon-utilities.js:1208:    }), g(this, ee).close({ force: !0 })), N(this, ee, g(this, tt).call(this, t, { showControls: l })), b("Rendering new time trigger window", { sceneId: t.id }), g(this, ee).render({ force: !0 });
+eidolon-utilities.js:1215:        reason: "no-active-scene",
+eidolon-utilities.js:1216:        providedSceneId: (t == null ? void 0 : t.id) ?? null,
+eidolon-utilities.js:1225:      sceneId: r.id,
+eidolon-utilities.js:1254:    b("Skipping trigger evaluation because the scene is missing an id");
+eidolon-utilities.js:1258:    b("Skipping trigger evaluation because scene is inactive", { sceneId: t.id });
+eidolon-utilities.js:1265:    b("No time triggers configured for scene", { sceneId: t.id });
+eidolon-utilities.js:1274:  if (Et("Evaluating scene time triggers", {
+eidolon-utilities.js:1275:    sceneId: t.id,
+eidolon-utilities.js:1300:      sceneId: t.id
+eidolon-utilities.js:1332:      sceneId: t.id
+eidolon-utilities.js:1353:          "Failed to execute a scene time trigger action. Check the console for details."
+eidolon-utilities.js:1365:  c && (b("Persisting trigger history updates", { sceneId: t.id }), await Zn(t, a)), We();
+eidolon-utilities.js:1366:}, "#evaluateSceneTimeTriggers"), s(er, "TimeTriggerManager");
+eidolon-utilities.js:1375:    "A scene time trigger has an invalid time value and was skipped."
+eidolon-utilities.js:1377:  (o = (r = ui.notifications) == null ? void 0 : r.warn) == null || o.call(r, i), console.warn(`${E} | Invalid time for trigger`, { scene: e == null ? void 0 : e.id, trigger: t });
+eidolon-utilities.js:1445:      S(this, D, nn).call(this, t == null ? void 0 : t.scene), S(this, D, Oe).call(this);
+eidolon-utilities.js:1452:    }, "#handleSceneUpdate"));
+eidolon-utilities.js:1455:    g(this, Rt) || (N(this, Rt, !0), Hooks.on("pauseGame", g(this, Nn)), Hooks.on("combatStart", g(this, An)), Hooks.on("combatRound", g(this, Mn)), Hooks.on("combatEnd", g(this, Dn)), Hooks.on("deleteCombat", g(this, Pn)), Hooks.on("updateCombat", g(this, Fn)), Hooks.on("canvasReady", g(this, _n)), Hooks.on("updateScene", g(this, Rn)));
+eidolon-utilities.js:1506:    sceneAllowsRealTime: r,
+eidolon-utilities.js:1568:}, "#getActiveSceneDocument"), Yr = /* @__PURE__ */ s(function(t) {
+eidolon-utilities.js:1573:    return b("GameTimeAutomation | Failed to read scene real-time flag", {
+eidolon-utilities.js:1574:      sceneId: (t == null ? void 0 : t.id) ?? null,
+eidolon-utilities.js:1578:}, "#isSceneRealTimeAllowed"), nn = /* @__PURE__ */ s(function(t) {
+eidolon-utilities.js:1580:  return N(this, we, i), r !== i ? (b("GameTimeAutomation | Scene real-time allowance changed", {
+eidolon-utilities.js:1581:    sceneId: (n == null ? void 0 : n.id) ?? null,
+eidolon-utilities.js:1584:}, "#refreshSceneAutomationState"), _n = new WeakMap(), Rn = new WeakMap(), s(tr, "GameTimeAutomation");
+eidolon-utilities.js:1589:    const { scene: i, trigger: r, triggerIndex: o, onSave: a, ...l } = n ?? {};
+eidolon-utilities.js:1603:        sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null,
+eidolon-utilities.js:1618:        sceneId: ((d = this.scene) == null ? void 0 : d.id) ?? null,
+eidolon-utilities.js:1627:            sceneId: ((m = this.scene) == null ? void 0 : m.id) ?? null,
+eidolon-utilities.js:1640:        sceneId: ((r = this.scene) == null ? void 0 : r.id) ?? null,
+eidolon-utilities.js:1644:    this.scene = i ?? null, this.trigger = r ?? null, this.triggerIndex = Number.isInteger(o) ? Number(o) : null, this.onSave = typeof a == "function" ? a : null, N(this, rt, Bi(g(this, Hn)));
+eidolon-utilities.js:1649:      sceneId: ((n = this.scene) == null ? void 0 : n.id) ?? null,
+eidolon-utilities.js:1708:      sceneId: ((c = this.scene) == null ? void 0 : c.id) ?? null,
+eidolon-utilities.js:1901:    sceneId: ((T = this.scene) == null ? void 0 : T.id) ?? null,
+eidolon-utilities.js:1908:      sceneId: ((o = this.scene) == null ? void 0 : o.id) ?? null,
+eidolon-utilities.js:1915:    sceneId: ((c = this.scene) == null ? void 0 : c.id) ?? null,
+eidolon-utilities.js:1929:    sceneId: ((a = this.scene) == null ? void 0 : a.id) ?? null,
+eidolon-utilities.js:1933:  const r = pt(this.scene);
+eidolon-utilities.js:1936:    await Hr(this.scene, r), b("Trigger list saved", {
+eidolon-utilities.js:1937:      sceneId: ((l = this.scene) == null ? void 0 : l.id) ?? null,
+eidolon-utilities.js:1945:        "Failed to save the scene's time triggers."
+eidolon-utilities.js:1954:        sceneId: ((d = this.scene) == null ? void 0 : d.id) ?? null,
+eidolon-utilities.js:2013:const gr = Symbol.for("eidolon.sceneConfig.v13PatchedTabs");
+eidolon-utilities.js:2018:    getScene: i,
+eidolon-utilities.js:2021:    debugNamespace: a = "SceneConfigTab",
+eidolon-utilities.js:2030:    throw new Error("createSceneConfigTabFactory requires a tabId.");
+eidolon-utilities.js:2032:    throw new TypeError("createSceneConfigTabFactory requires a renderContent callback.");
+eidolon-utilities.js:2042:  }, w = Symbol(`EIDOLON_SCENE_CONFIG_TAB_CLEANUP_${t}`), O = typeof i == "function" ? i : () => null, L = typeof r == "function" ? r : () => !0, A = typeof n == "function" ? n : () => typeof n == "string" ? n : t;
+eidolon-utilities.js:2045:    const I = ((p = (V = foundry == null ? void 0 : foundry.applications) == null ? void 0 : V.sheets) == null ? void 0 : p.SceneConfig) ?? ((W = CONFIG == null ? void 0 : CONFIG.Scene) == null ? void 0 : W.sheetClass);
+eidolon-utilities.js:2055:      template: `modules/${y}/templates/scene-config-tab-mount.hbs`,
+eidolon-utilities.js:2057:    }), T("Patched v13 SceneConfig TABS/PARTS", { tabId: t });
+eidolon-utilities.js:2059:  s(P, "patchV13SceneConfig");
+eidolon-utilities.js:2073:      sceneId: ($ == null ? void 0 : $.id) ?? null,
+eidolon-utilities.js:2129:      (be = te == null ? void 0 : te.classList) != null && be.contains("item") && z.classList.add("item"), p.appendChild(z), typeof l == "function" && l({ app: I, button: z, nav: p, scene: $ }), T("Created tab button", { tabId: t, group: ne });
+eidolon-utilities.js:2131:    x(z, A({ app: I, scene: $ }) ?? t, rn(I));
+eidolon-utilities.js:2136:      _.insertBefore(J, te ?? null), typeof c == "function" && c({ app: I, tab: J, body: _, scene: $ }), T("Created tab container", { tabId: t, group: ne });
+eidolon-utilities.js:2145:    z.dataset.eidolonEnsureSceneTabVisibility || (z.addEventListener("click", () => {
+eidolon-utilities.js:2147:    }), z.dataset.eidolonEnsureSceneTabVisibility = "true"), ei(I, w, T);
+eidolon-utilities.js:2150:      scene: $,
+eidolon-utilities.js:2158:      scene: $,
+eidolon-utilities.js:2172:    x(p, A({ app: I, scene: $ }) ?? t, !0);
+eidolon-utilities.js:2182:      scene: $,
+eidolon-utilities.js:2190:      scene: $,
+eidolon-utilities.js:2205:    }), Hooks.on("renderSceneConfig", R), Hooks.on("closeSceneConfig", H), () => ie();
+eidolon-utilities.js:2209:    Hooks.off("renderSceneConfig", R), Hooks.off("closeSceneConfig", H);
+eidolon-utilities.js:2213:s(ro, "createSceneConfigTabFactory");
+eidolon-utilities.js:2251:const rs = zi(Mi), os = `modules/${E}/templates/time-trigger-scene-tab.html`, ss = ro({
+eidolon-utilities.js:2254:  getScene: Le,
+eidolon-utilities.js:2256:  renderContent: /* @__PURE__ */ s(({ app: e, scene: t, tab: n }) => ls(e, n, t), "renderContent"),
+eidolon-utilities.js:2264:  return b("Registering SceneConfig render hook"), ss.register();
+eidolon-utilities.js:2266:s(as, "registerSceneConfigHook");
+eidolon-utilities.js:2280:          `${E} | Failed to dispose scene config time format subscription`,
+eidolon-utilities.js:2290:  Et("renderTimeTriggersTabContent", { sceneId: (i == null ? void 0 : i.id) ?? null });
+eidolon-utilities.js:2297:      t.innerHTML = `<p class="notes">${V}</p>`, b("Scene lacks document for time triggers", { sceneId: (i == null ? void 0 : i.id) ?? null });
+eidolon-utilities.js:2302:      sceneId: i.id,
+eidolon-utilities.js:2310:      "Enable scene time triggers so scheduled actions can run automatically."
+eidolon-utilities.js:2325:      "Scene Time Triggers"
+eidolon-utilities.js:2328:      "No time triggers configured for this scene."
+eidolon-utilities.js:2346:      console.error(`${E} | renderTemplate is unavailable; cannot render scene tab.`), t.innerHTML = `<p class="notes">${P}</p>`;
+eidolon-utilities.js:2379:      console.error(`${E} | Failed to render time trigger scene tab template`, V), t.innerHTML = `<p class="notes">${P}</p>`;
+eidolon-utilities.js:2393:    b("Add trigger button clicked", { sceneId: i.id }), hr(e, { scene: i });
+eidolon-utilities.js:2399:      c && (b("Edit trigger button clicked", { sceneId: i.id, triggerId: c.id, index: a }), hr(e, { trigger: c, triggerIndex: a, scene: i }));
+eidolon-utilities.js:2411:            sceneId: i.id,
+eidolon-utilities.js:2441:          b("Manually firing trigger", { sceneId: i.id, triggerId: c.id, index: a }), await $r(i, c), (T = (h = ui.notifications) == null ? void 0 : h.info) == null || T.call(
+eidolon-utilities.js:2456:            sceneId: i.id,
+eidolon-utilities.js:2469:  const n = t.scene ?? null, i = n && ae(n) ? n : Le(e);
+eidolon-utilities.js:2471:    console.warn(`${E} | Unable to open trigger form because no scene document is available.`);
+eidolon-utilities.js:2475:    sceneId: i.id,
+eidolon-utilities.js:2479:    scene: i,
+eidolon-utilities.js:2493:  const n = ((a = (o = foundry == null ? void 0 : foundry.applications) == null ? void 0 : o.sheets) == null ? void 0 : a.SceneConfig) ?? (globalThis == null ? void 0 : globalThis.SceneConfig);
+eidolon-utilities.js:2496:  if (typeof i == "string" && i.includes("SceneConfig")) return !0;
+eidolon-utilities.js:2498:    const d = globalThis == null ? void 0 : globalThis.Scene;
+eidolon-utilities.js:2499:    if (d && t instanceof d || (t == null ? void 0 : t.documentName) === "Scene" || (t == null ? void 0 : t.documentName) === "scenes" || (t == null ? void 0 : t.collection) === "scenes") return !0;
+eidolon-utilities.js:2502:  return !!(typeof r == "string" && r.includes("SceneConfig"));
+eidolon-utilities.js:2504:s(us, "isRecognizedSceneConfig");
+eidolon-utilities.js:2509:  }), as(), b("Scene config hook registered"), yr.registerHooks(), b("Time automation hooks registered"), Hooks.once("ready", () => {
+eidolon-utilities.js:2513:    b("canvasReady hook received", { scene: ((t = e == null ? void 0 : e.scene) == null ? void 0 : t.id) ?? null }), Jt.onCanvasReady(e);
+eidolon-utilities.js:2514:  }), Hooks.on("updateScene", (e) => {
+eidolon-utilities.js:2515:    b("updateScene hook received", { scene: (e == null ? void 0 : e.id) ?? null }), Jt.onUpdateScene(e);
+eidolon-utilities.js:2522:const ge = E, oo = "objectVariants";
+eidolon-utilities.js:2530:s(Wt, "getObjectVariantCategories");
+eidolon-utilities.js:2536:s(so, "setObjectVariantCategories");
+eidolon-utilities.js:2544:s(ao, "createObjectVariantCategory");
+eidolon-utilities.js:2560:s(lo, "generateVariantId");
+eidolon-utilities.js:2563:  console.error(`${ge} | Failed to persist object variants`, e), (n = (t = ui.notifications) == null ? void 0 : t.error) == null || n.call(
+eidolon-utilities.js:2566:      "EIDOLON.ObjectVariants.PersistError",
+eidolon-utilities.js:2567:      "Failed to persist the scene's object variants."
+eidolon-utilities.js:2575:    const { scene: i, category: r, isNew: o, onSave: a, ...l } = n ?? {};
+eidolon-utilities.js:2601:      const o = r.querySelector(".object-variant-editor__values");
+eidolon-utilities.js:2603:      const a = o.querySelector(".object-variant-editor__empty");
+eidolon-utilities.js:2606:      l.classList.add("object-variant-editor__value");
+eidolon-utilities.js:2608:        f("EIDOLON.ObjectVariants.ValuePlaceholder", "Variant label")
+eidolon-utilities.js:2610:        f("EIDOLON.ObjectVariants.RemoveValue", "Remove Value")
+eidolon-utilities.js:2626:      const i = n.currentTarget, r = i == null ? void 0 : i.closest(".object-variant-editor__value");
+eidolon-utilities.js:2630:      const a = o.querySelector(".object-variant-editor__values");
+eidolon-utilities.js:2632:      if (!a.querySelector(".object-variant-editor__value")) {
+eidolon-utilities.js:2634:        d.classList.add("notes", "object-variant-editor__empty"), d.textContent = f(
+eidolon-utilities.js:2635:          "EIDOLON.ObjectVariants.ValueListEmpty",
+eidolon-utilities.js:2640:    this.scene = i ?? null, this.category = r ?? null, this.onSave = typeof a == "function" ? a : null, N(this, ot, !!o), N(this, fe, S(this, It, uo).call(this));
+eidolon-utilities.js:2654:        name: f("EIDOLON.ObjectVariants.CategoryNameLabel", "Category Name"),
+eidolon-utilities.js:2655:        values: f("EIDOLON.ObjectVariants.ValuesLabel", "Values"),
+eidolon-utilities.js:2657:          "EIDOLON.ObjectVariants.ValueListEmpty",
+eidolon-utilities.js:2660:        addValue: f("EIDOLON.ObjectVariants.AddValue", "Add Value"),
+eidolon-utilities.js:2661:        removeValue: f("EIDOLON.ObjectVariants.RemoveValue", "Remove Value"),
+eidolon-utilities.js:2663:          "EIDOLON.ObjectVariants.ValuePlaceholder",
+eidolon-utilities.js:2664:          "Variant label"
+eidolon-utilities.js:2666:        save: g(this, ot) ? f("EIDOLON.ObjectVariants.CreateCategory", "Add Category") : f("EIDOLON.ObjectVariants.SaveCategory", "Save Category"),
+eidolon-utilities.js:2667:        cancel: f("EIDOLON.ObjectVariants.CancelEdit", "Cancel"),
+eidolon-utilities.js:2668:        title: g(this, ot) ? f("EIDOLON.ObjectVariants.CreateCategory", "Add Category") : f("EIDOLON.ObjectVariants.EditCategory", "Edit Category")
+eidolon-utilities.js:2696:    f("EIDOLON.ObjectVariants.DefaultCategoryName", "New Category")
+eidolon-utilities.js:2704:  if (!this.scene) return;
+eidolon-utilities.js:2705:  const n = Wt(this.scene), i = n.findIndex((o) => o.id === g(this, fe).id), r = mn({
+eidolon-utilities.js:2712:    if (await so(this.scene, n), this.onSave)
+eidolon-utilities.js:2716:        console.error(`${ge} | Object variant editor onSave handler failed`, o);
+eidolon-utilities.js:2724:    id: `${ge}-variant-category-editor`,
+eidolon-utilities.js:2729:      title: f("EIDOLON.ObjectVariants.EditCategory", "Edit Category"),
+eidolon-utilities.js:2740:    template: `modules/${ge}/templates/object-variants-category-editor.html`
+eidolon-utilities.js:2744:const fs = `modules/${ge}/templates/object-variants-scene-tab.html`, Dt = {
+eidolon-utilities.js:2747:    return (t = console.debug) == null ? void 0 : t.call(console, `${ge} | ObjectVariants`, ...e);
+eidolon-utilities.js:2751:    return (t = console.groupCollapsed) == null ? void 0 : t.call(console, `${ge} | ObjectVariants`, ...e);
+eidolon-utilities.js:2758:  tabId: "variants",
+eidolon-utilities.js:2759:  tabLabel: /* @__PURE__ */ s(() => f("EIDOLON.ObjectVariants.TabLabel", "Variants"), "tabLabel"),
+eidolon-utilities.js:2760:  getScene: Le,
+eidolon-utilities.js:2761:  renderContent: /* @__PURE__ */ s(({ app: e, tab: t, scene: n }) => ys(e, t, n), "renderContent"),
+eidolon-utilities.js:2767:s(hs, "registerObjectVariantSceneConfigHook");
+eidolon-utilities.js:2773:s(ys, "renderObjectVariantsTab");
+eidolon-utilities.js:2777:  Dt.group("renderObjectVariantsTabContent", { sceneId: (i == null ? void 0 : i.id) ?? null });
+eidolon-utilities.js:2781:        "EIDOLON.ObjectVariants.Unavailable",
+eidolon-utilities.js:2782:        "Object variants are unavailable for this configuration sheet."
+eidolon-utilities.js:2784:      t.innerHTML = `<p class="notes">${A}</p>`, Dt.log("Scene lacks document for object variants", { sceneId: (i == null ? void 0 : i.id) ?? null });
+eidolon-utilities.js:2788:    Dt.log("Rendering object variant list", {
+eidolon-utilities.js:2789:      sceneId: i.id,
+eidolon-utilities.js:2793:      "EIDOLON.ObjectVariants.Description",
+eidolon-utilities.js:2794:      "Group scene assets into reusable variant categories and assign label values for quick reference."
+eidolon-utilities.js:2796:      "EIDOLON.ObjectVariants.CategoryListLabel",
+eidolon-utilities.js:2797:      "Scene Variant Categories"
+eidolon-utilities.js:2799:      "EIDOLON.ObjectVariants.CategoryListEmpty",
+eidolon-utilities.js:2800:      "No variant categories configured for this scene."
+eidolon-utilities.js:2801:    ), d = f("EIDOLON.ObjectVariants.AddCategory", "Add Category"), y = f(
+eidolon-utilities.js:2802:      "EIDOLON.ObjectVariants.RemoveCategory",
+eidolon-utilities.js:2804:    ), h = f("EIDOLON.ObjectVariants.EditCategory", "Edit Category"), T = f("EIDOLON.ObjectVariants.ValuesLabel", "Values"), m = f(
+eidolon-utilities.js:2805:      "EIDOLON.ObjectVariants.ValueListEmpty",
+eidolon-utilities.js:2808:      "EIDOLON.ObjectVariants.UnnamedCategory",
+eidolon-utilities.js:2812:      console.error(`${ge} | renderTemplate is unavailable; cannot render object variants tab.`), t.innerHTML = `<p class="notes">${u}</p>`;
+eidolon-utilities.js:2848:      console.error(`${ge} | Failed to render object variants scene tab template`, A), t.innerHTML = `<p class="notes">${u}</p>`;
+eidolon-utilities.js:2856:s(on, "renderObjectVariantsTabContent");
+eidolon-utilities.js:2861:    "EIDOLON.ObjectVariants.DefaultCategoryName",
+eidolon-utilities.js:2863:  ), o = t.querySelector('[data-variant-action="add-category"]');
+eidolon-utilities.js:2866:      scene: i,
+eidolon-utilities.js:2871:  }), t.querySelectorAll('[data-variant-action="remove-category"]').forEach((a) => {
+eidolon-utilities.js:2879:  }), t.querySelectorAll('[data-variant-action="edit-category"]').forEach((a) => {
+eidolon-utilities.js:2884:        scene: i,
+eidolon-utilities.js:2891:s(ps, "bindObjectVariantTabEvents");
+eidolon-utilities.js:2901:s(Ts, "mutateVariantCategories");
+eidolon-utilities.js:2903:  const n = t.scene ?? null, i = n && ae(n) ? n : Le(e);
+eidolon-utilities.js:2906:      `${ge} | Unable to open object variant editor because no scene document is available.`
+eidolon-utilities.js:2911:    scene: i,
+eidolon-utilities.js:2930:  if ((n = (t = game.i18n) == null ? void 0 : t.has) != null && n.call(t, "EIDOLON.ObjectVariants.ValueCountLabel"))
+eidolon-utilities.js:2932:      return game.i18n.format("EIDOLON.ObjectVariants.ValueCountLabel", { count: e });
+eidolon-utilities.js:2942:s(Es, "registerObjectVariantHooks");
+eidolon-utilities.js:3182:    "Capture default lighting and register presets tied to scene variant values."
+eidolon-utilities.js:3218:      "This scene has no variant categories. Add categories under Scene → Variants to enable lighting presets."
+eidolon-utilities.js:3224:      "Variant categories exist, but none define selectable values. Add values in Scene → Variants."
+eidolon-utilities.js:3232:    "Assign scene variant values to map the current configuration to a preset."
+eidolon-utilities.js:3274:    sceneId: (a == null ? void 0 : a.id) ?? null,
+eidolon-utilities.js:3525:          "Create a default preset before adding additional variants."
+eidolon-utilities.js:3535:          "Add variant categories with values in the Scene configuration before creating presets."
+eidolon-utilities.js:3573:          "Updated lighting preset for the selected scene variants."
+eidolon-utilities.js:3632:    "Add scene variant categories with values before creating presets."
+eidolon-utilities.css:1:.time-trigger-controls{display:flex;gap:.5rem;align-items:center;justify-content:center}#eidolon-utilities-time-trigger:not(.minimized){height:auto!important}.time-trigger-controls .icon{display:inline-flex;align-items:center;justify-content:center}.time-trigger-window{display:flex;flex-direction:column;gap:.5rem;align-items:center;text-align:center;padding:.75rem}.time-trigger-window__time{display:flex;align-items:center;gap:.5rem}.time-trigger-window__time-display{display:flex;align-items:center}.time-trigger-window__time-value{font-size:1.5rem;font-weight:600;margin:0;font-variant-numeric:tabular-nums}.time-trigger-window__realtime-toggle{display:inline-flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border:1px solid #888;border-radius:.25rem;background:#0000001a;color:inherit;cursor:pointer;transition:background-color .2s ease,color .2s ease,border-color .2s ease}.time-trigger-window__realtime-toggle:hover{background:#0003}.time-trigger-window__realtime-toggle.is-active{color:#2ecc71;border-color:currentColor;background:#2ecc7126}.time-trigger-window__buttons{display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;gap:.25rem}.time-trigger-window__buttons .time-button{display:inline-flex;width:auto;flex:0 0 auto;white-space:nowrap;padding:.25rem .5rem;font-size:.875rem;line-height:1.2}.time-trigger-time-input__fields{display:flex;align-items:center;gap:.5rem}.time-trigger-time-input__separator{font-weight:600}.time-trigger-time-input__fields input[type=number]{width:3.5rem}.time-trigger-time-input__fields select{width:auto}.time-trigger-form .form-body{display:flex;flex-direction:column;gap:.75rem}.time-trigger-form .form-group{gap:.5rem}.time-trigger-form .form-group>label{flex:0 0 7.5rem}.time-trigger-form .form-group>label+*{flex:1 1 auto}.time-trigger-form .form-group .form-fields{align-items:center;gap:.5rem}.time-trigger-form .form-group select,.time-trigger-form .form-group input[type=text]{width:100%}.time-trigger-form .form-group.stacked{align-items:flex-start;gap:.25rem}.time-trigger-form .form-group.stacked>label{flex:1 1 auto}.time-trigger-form .file-picker.icon-only{display:inline-flex;align-items:center;justify-content:center;width:2.25rem;aspect-ratio:1;padding:.25rem;font-size:1rem}.time-trigger-form .file-picker.icon-only i{margin:0}.object-variants-container{display:flex;flex-direction:column;gap:.75rem}.object-variants-management{gap:.5rem}.object-variants-list{display:flex;flex-direction:column;gap:.75rem}.object-variants-add-category{align-self:flex-start}.object-variants-category-list{display:flex;flex-direction:column;gap:.5rem;margin:0;padding:0;list-style:none}.object-variant{border:1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, .15));border-radius:.35rem;background:var(--color-bg-overlay, rgba(0, 0, 0, .15));padding:.5rem .75rem}.object-variant__row{display:flex;align-items:center;justify-content:space-between;gap:.75rem}.object-variant__details{display:flex;flex-direction:column;gap:.25rem;flex:1 1 auto;min-width:0}.object-variant__name{font-weight:600;color:var(--color-text-primary, inherit);word-break:break-word}.object-variant__name[data-unnamed=true]{font-style:italic;font-weight:500}.object-variant__values-preview{display:flex;flex-direction:column;gap:.35rem}.object-variant__value-list{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}.object-variant__value-chip{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:999px;background:var(--color-chip-bg, var(--color-bg-alt, rgba(255, 255, 255, .12)));border:1px solid var(--color-chip-border, var(--color-border-light-primary, rgba(255, 255, 255, .25)));color:var(--color-chip-text, var(--color-text-primary, inherit));font-size:.75rem;line-height:1.2;max-width:12rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.object-variant__value-empty{font-style:italic;color:var(--color-text-light-secondary, rgba(0, 0, 0, .5))}.object-variant__controls{display:flex;align-items:center;gap:.35rem}.object-variant__controls .icon{display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;border:1px solid transparent;border-radius:.25rem;background:#0000001a;color:var(--color-text-light-primary, inherit);transition:background-color .2s ease,border-color .2s ease}.object-variant__controls .icon:hover{background:#0000002e;border-color:var(--color-border-light-primary, rgba(255, 255, 255, .25))}.object-variant-editor{display:flex;flex-direction:column;gap:.75rem}.object-variant-editor__values-group{gap:.5rem}.object-variant-editor__values{display:flex;flex-direction:column;gap:.5rem}.object-variant-editor__value{display:flex;align-items:center;gap:.5rem}.object-variant-editor__value .icon{width:2rem;height:2rem;display:inline-flex;align-items:center;justify-content:center}.object-variant-editor__add{display:inline-flex;align-items:center;gap:.5rem;width:auto}.object-variant-editor__footer{display:flex;justify-content:flex-end;gap:.5rem}.object-variant-editor__cancel,.object-variant-editor__save{min-width:6rem}.object-variant-editor__empty{margin:0}.eidolon-light-presets{display:flex;flex-direction:column;gap:.75rem;margin-top:1rem;padding:.75rem 1rem 1rem;border:1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, .15));border-radius:.5rem;background:var(--color-bg-overlay, rgba(0, 0, 0, .12))}.eidolon-light-presets legend{font-weight:600;padding:0 .25rem}.eidolon-light-presets__controls{display:flex;flex-wrap:wrap;gap:.5rem}.eidolon-light-presets__button{width:auto;display:inline-flex;align-items:center;gap:.5rem;padding-inline:.85rem}.eidolon-light-presets__button.secondary{background:var(--color-bg-alt, rgba(255, 255, 255, .12))}.eidolon-light-presets__status{margin-bottom:0}.eidolon-light-presets__warning{margin:0}.eidolon-light-presets__switcher{display:flex;flex-direction:column;gap:.35rem}.eidolon-light-presets__switcher-label{font-weight:500}.eidolon-light-presets__switcher-controls{display:flex;align-items:center;gap:.5rem}.eidolon-light-presets__select{flex:1 1 auto;min-width:0}.eidolon-light-presets__creation{display:flex;flex-direction:column;gap:.75rem;padding:.75rem;border-radius:.5rem;border:1px dashed var(--color-border-light-tertiary, rgba(255, 255, 255, .2));background:#0000001a}.eidolon-light-presets__category-list{display:flex;flex-direction:column;gap:.5rem}.eidolon-light-presets__category{display:flex;flex-direction:column;gap:.35rem;font-weight:500}.eidolon-light-presets__category-name{font-weight:500}.eidolon-light-presets__category-select{width:100%}.eidolon-light-presets__creation-actions{display:flex;align-items:center;gap:.5rem}
+src/eidolon-utilities.entry.js:3:import "../styles/object-variants.css";
+src/eidolon-utilities.entry.js:8:import "../scripts/object-variants/index.js";
+styles/object-variants.css:1:.object-variants-container {
+styles/object-variants.css:7:.object-variants-management {
+styles/object-variants.css:11:.object-variants-list {
+styles/object-variants.css:17:.object-variants-add-category {
+styles/object-variants.css:21:.object-variants-category-list {
+styles/object-variants.css:30:.object-variant {
+styles/object-variants.css:37:.object-variant__row {
+styles/object-variants.css:44:.object-variant__details {
+styles/object-variants.css:52:.object-variant__name {
+styles/object-variants.css:58:.object-variant__name[data-unnamed="true"] {
+styles/object-variants.css:63:.object-variant__values-preview {
+styles/object-variants.css:69:.object-variant__value-list {
+styles/object-variants.css:76:.object-variant__value-chip {
+styles/object-variants.css:92:.object-variant__value-empty {
+styles/object-variants.css:97:.object-variant__controls {
+styles/object-variants.css:103:.object-variant__controls .icon {
+styles/object-variants.css:116:.object-variant__controls .icon:hover {
+styles/object-variants.css:121:.object-variant-editor {
+styles/object-variants.css:127:.object-variant-editor__values-group {
+styles/object-variants.css:131:.object-variant-editor__values {
+styles/object-variants.css:137:.object-variant-editor__value {
+styles/object-variants.css:143:.object-variant-editor__value .icon {
+styles/object-variants.css:151:.object-variant-editor__add {
+styles/object-variants.css:158:.object-variant-editor__footer {
+styles/object-variants.css:164:.object-variant-editor__cancel,
+styles/object-variants.css:165:.object-variant-editor__save {
+styles/object-variants.css:169:.object-variant-editor__empty {
+styles/time-triggers.css:42:  font-variant-numeric: tabular-nums;
+templates/object-variants-category-editor.html:1:<form class="object-variant-editor">
+templates/object-variants-category-editor.html:3:    <label for="object-variant-editor-name">{{labels.name}}</label>
+templates/object-variants-category-editor.html:5:      id="object-variant-editor-name"
+templates/object-variants-category-editor.html:15:  <div class="form-group stacked object-variant-editor__values-group">
+templates/object-variants-category-editor.html:17:    <div class="object-variant-editor__values">
+templates/object-variants-category-editor.html:20:          <div class="object-variant-editor__value">
+templates/object-variants-category-editor.html:40:        <p class="notes object-variant-editor__empty">{{labels.empty}}</p>
+templates/object-variants-category-editor.html:43:    <button type="button" class="object-variant-editor__add" data-action="add-value">
+templates/object-variants-category-editor.html:49:  <footer class="sheet-footer object-variant-editor__footer">
+templates/object-variants-category-editor.html:50:    <button type="button" class="object-variant-editor__cancel" data-action="cancel">
+templates/object-variants-category-editor.html:53:    <button type="submit" class="object-variant-editor__save">
+templates/object-variants-scene-tab.html:1:<div class="object-variants-container">
+templates/object-variants-scene-tab.html:2:  <p class="notes object-variants-description">{{description}}</p>
+templates/object-variants-scene-tab.html:4:  <div class="form-group stacked object-variants-management">
+templates/object-variants-scene-tab.html:6:    <div class="object-variants-list">
+templates/object-variants-scene-tab.html:8:        <ul class="object-variants-category-list">
+templates/object-variants-scene-tab.html:10:            <li class="object-variant" data-category-id="{{id}}">
+templates/object-variants-scene-tab.html:11:              <div class="object-variant__row">
+templates/object-variants-scene-tab.html:12:                <div class="object-variant__details">
+templates/object-variants-scene-tab.html:13:                  <div class="object-variant__name" data-unnamed="{{#if isUnnamed}}true{{else}}false{{/if}}">
+templates/object-variants-scene-tab.html:16:                  <div class="object-variant__values-preview">
+templates/object-variants-scene-tab.html:18:                      <div class="object-variant__value-list" role="list">
+templates/object-variants-scene-tab.html:20:                          <span class="object-variant__value-chip" role="listitem">{{this}}</span>
+templates/object-variants-scene-tab.html:24:                      <span class="object-variant__value-empty">{{../labels.emptyValue}}</span>
+templates/object-variants-scene-tab.html:28:                <div class="object-variant__controls">
+templates/object-variants-scene-tab.html:31:                    class="icon object-variant__edit"
+templates/object-variants-scene-tab.html:32:                    data-variant-action="edit-category"
+templates/object-variants-scene-tab.html:42:                    class="icon object-variant__remove"
+templates/object-variants-scene-tab.html:43:                    data-variant-action="remove-category"
+templates/object-variants-scene-tab.html:59:      <button type="button" class="object-variants-add-category" data-variant-action="add-category">
+templates/time-trigger.html:24:        class="time-trigger-window__realtime-toggle{{#if sceneAllowsRealTime}} is-active{{/if}}"
+templates/time-trigger.html:26:        aria-pressed="{{#if sceneAllowsRealTime}}true{{else}}false{{/if}}"
+scripts/object-variants/hooks.js:1:import { registerObjectVariantSceneConfigHook } from "./ui/SceneConfigTab.js";
+scripts/object-variants/hooks.js:3:export function registerObjectVariantHooks() {
+scripts/object-variants/hooks.js:4:  registerObjectVariantSceneConfigHook();
+scripts/object-variants/index.js:1:import { registerObjectVariantHooks } from "./hooks.js";
+scripts/object-variants/index.js:3:registerObjectVariantHooks();
+scripts/time-triggers/hooks.js:5:import { registerSceneConfigHook } from "./ui/SceneConfigTab.js";
+scripts/time-triggers/hooks.js:19:  registerSceneConfigHook();
+scripts/time-triggers/hooks.js:20:  debugLog("Scene config hook registered");
+scripts/time-triggers/hooks.js:31:    debugLog("canvasReady hook received", { scene: canvas?.scene?.id ?? null });
+scripts/time-triggers/hooks.js:34:  Hooks.on("updateScene", (scene) => {
+scripts/time-triggers/hooks.js:35:    debugLog("updateScene hook received", { scene: scene?.id ?? null });
+scripts/time-triggers/hooks.js:36:    manager.onUpdateScene(scene);
+scripts/common/ui/scene-config-tab-factory.js:3:const V13_PATCHED_SYMBOL = Symbol.for("eidolon.sceneConfig.v13PatchedTabs");
+scripts/common/ui/scene-config-tab-factory.js:6: * Create a SceneConfig tab factory that manages DOM injection and visibility hooks.
+scripts/common/ui/scene-config-tab-factory.js:10: * @param {(app: Application) => Scene|null} options.getScene Resolves the scene for the config.
+scripts/common/ui/scene-config-tab-factory.js:11: * @param {(app: Application, scene: Scene|null) => boolean} [options.isApplicable] Optional guard.
+scripts/common/ui/scene-config-tab-factory.js:17: * @param {string} [options.debugNamespace="SceneConfigTab"] Label used in log output.
+scripts/common/ui/scene-config-tab-factory.js:20:export function createSceneConfigTabFactory(options = {}) {
+scripts/common/ui/scene-config-tab-factory.js:24:    getScene,
+scripts/common/ui/scene-config-tab-factory.js:27:    debugNamespace = "SceneConfigTab",
+scripts/common/ui/scene-config-tab-factory.js:37:    throw new Error("createSceneConfigTabFactory requires a tabId.");
+scripts/common/ui/scene-config-tab-factory.js:40:    throw new TypeError("createSceneConfigTabFactory requires a renderContent callback.");
+scripts/common/ui/scene-config-tab-factory.js:56:  const cleanupSymbol = Symbol(`EIDOLON_SCENE_CONFIG_TAB_CLEANUP_${tabId}`);
+scripts/common/ui/scene-config-tab-factory.js:58:  const resolveScene = typeof getScene === "function" ? getScene : () => null;
+scripts/common/ui/scene-config-tab-factory.js:68:  function patchV13SceneConfig() {
+scripts/common/ui/scene-config-tab-factory.js:69:    const SceneConfigClass =
+scripts/common/ui/scene-config-tab-factory.js:70:      foundry?.applications?.sheets?.SceneConfig ?? CONFIG?.Scene?.sheetClass;
+scripts/common/ui/scene-config-tab-factory.js:71:    if (!SceneConfigClass) return;
+scripts/common/ui/scene-config-tab-factory.js:72:    if (!isAppV2({ changeTab: SceneConfigClass.prototype?.changeTab })) return;
+scripts/common/ui/scene-config-tab-factory.js:74:    const patchedSet = SceneConfigClass[V13_PATCHED_SYMBOL] ?? new Set();
+scripts/common/ui/scene-config-tab-factory.js:77:    SceneConfigClass[V13_PATCHED_SYMBOL] = patchedSet;
+scripts/common/ui/scene-config-tab-factory.js:80:    const sheetGroup = SceneConfigClass.TABS?.sheet;
+scripts/common/ui/scene-config-tab-factory.js:91:    if (SceneConfigClass.PARTS && !SceneConfigClass.PARTS[tabId]) {
+scripts/common/ui/scene-config-tab-factory.js:92:      SceneConfigClass.PARTS[tabId] = {
+scripts/common/ui/scene-config-tab-factory.js:93:        template: `modules/${moduleId}/templates/scene-config-tab-mount.hbs`,
+scripts/common/ui/scene-config-tab-factory.js:98:    log("Patched v13 SceneConfig TABS/PARTS", { tabId });
+scripts/common/ui/scene-config-tab-factory.js:104:    const scene = resolveScene(app);
+scripts/common/ui/scene-config-tab-factory.js:105:    if (!canApply(app, scene)) {
+scripts/common/ui/scene-config-tab-factory.js:116:      sceneId: scene?.id ?? null,
+scripts/common/ui/scene-config-tab-factory.js:128:        handleRenderV2(app, root, scene);
+scripts/common/ui/scene-config-tab-factory.js:130:        handleRenderV1(app, root, scene);
+scripts/common/ui/scene-config-tab-factory.js:164:  function handleRenderV1(app, root, scene) {
+scripts/common/ui/scene-config-tab-factory.js:212:        onButtonCreate({ app, button: tabButton, nav, scene });
+scripts/common/ui/scene-config-tab-factory.js:217:    setButtonContent(tabButton, renderLabel({ app, scene }) ?? tabId, isAppV2(app));
+scripts/common/ui/scene-config-tab-factory.js:229:        onTabCreate({ app, tab, body, scene });
+scripts/common/ui/scene-config-tab-factory.js:269:    if (!tabButton.dataset.eidolonEnsureSceneTabVisibility) {
+scripts/common/ui/scene-config-tab-factory.js:274:      tabButton.dataset.eidolonEnsureSceneTabVisibility = "true";
+scripts/common/ui/scene-config-tab-factory.js:282:      scene,
+scripts/common/ui/scene-config-tab-factory.js:296:        scene,
+scripts/common/ui/scene-config-tab-factory.js:309:  function handleRenderV2(app, root, scene) {
+scripts/common/ui/scene-config-tab-factory.js:315:      handleRenderV1(app, root, scene);
+scripts/common/ui/scene-config-tab-factory.js:319:    setButtonContent(tabButton, renderLabel({ app, scene }) ?? tabId, true);
+scripts/common/ui/scene-config-tab-factory.js:343:      scene,
+scripts/common/ui/scene-config-tab-factory.js:357:        scene,
+scripts/common/ui/scene-config-tab-factory.js:374:      patchV13SceneConfig();
+scripts/common/ui/scene-config-tab-factory.js:376:    Hooks.on("renderSceneConfig", handleRender);
+scripts/common/ui/scene-config-tab-factory.js:377:    Hooks.on("closeSceneConfig", handleClose);
+scripts/common/ui/scene-config-tab-factory.js:382:    Hooks.off("renderSceneConfig", handleRender);
+scripts/common/ui/scene-config-tab-factory.js:383:    Hooks.off("closeSceneConfig", handleClose);
+scripts/light-presets/ui/AmbientLightConfigControls.js:1:import { getObjectVariantCategories } from "../../object-variants/core/storage.js";
+scripts/light-presets/ui/AmbientLightConfigControls.js:62:  const scene = persistedLight?.parent ?? ambientLight.parent ?? null;
+scripts/light-presets/ui/AmbientLightConfigControls.js:63:  const categoriesRaw = scene ? getObjectVariantCategories(scene) : [];
+scripts/light-presets/ui/AmbientLightConfigControls.js:98:    "Capture default lighting and register presets tied to scene variant values."
+scripts/light-presets/ui/AmbientLightConfigControls.js:176:      "This scene has no variant categories. Add categories under Scene → Variants to enable lighting presets."
+scripts/light-presets/ui/AmbientLightConfigControls.js:184:      "Variant categories exist, but none define selectable values. Add values in Scene → Variants."
+scripts/light-presets/ui/AmbientLightConfigControls.js:198:    "Assign scene variant values to map the current configuration to a preset."
+scripts/light-presets/ui/AmbientLightConfigControls.js:278:    sceneId: scene?.id ?? null,
+scripts/light-presets/ui/AmbientLightConfigControls.js:593:          "Create a default preset before adding additional variants."
+scripts/light-presets/ui/AmbientLightConfigControls.js:602:          "Add variant categories with values in the Scene configuration before creating presets."
+scripts/light-presets/ui/AmbientLightConfigControls.js:650:          "Updated lighting preset for the selected scene variants."
+scripts/light-presets/ui/AmbientLightConfigControls.js:742:        "Add scene variant categories with values before creating presets."
+scripts/object-variants/core/storage.js:1:import { FLAG_OBJECT_VARIANTS, MODULE_ID } from "./constants.js";
+scripts/object-variants/core/storage.js:4:export function getObjectVariantCategories(scene) {
+scripts/object-variants/core/storage.js:5:  const stored = scene?.getFlag?.(MODULE_ID, FLAG_OBJECT_VARIANTS);
+scripts/object-variants/core/storage.js:16:export async function setObjectVariantCategories(scene, categories) {
+scripts/object-variants/core/storage.js:17:  if (!scene?.setFlag) return;
+scripts/object-variants/core/storage.js:22:  await scene.setFlag(MODULE_ID, FLAG_OBJECT_VARIANTS, sanitized);
+scripts/object-variants/core/storage.js:25:export function createObjectVariantCategory(name = "") {
+scripts/object-variants/core/storage.js:27:    id: generateVariantId(),
+scripts/object-variants/core/storage.js:39:      : generateVariantId();
+scripts/object-variants/core/storage.js:56:export function generateVariantId() {
+scripts/object-variants/core/storage.js:67:  console.error(`${MODULE_ID} | Failed to persist object variants`, error);
+scripts/object-variants/core/storage.js:70:      "EIDOLON.ObjectVariants.PersistError",
+scripts/object-variants/core/storage.js:71:      "Failed to persist the scene's object variants."
+scripts/object-variants/core/constants.js:4:export const FLAG_OBJECT_VARIANTS = "objectVariants";
+scripts/light-presets/core/storage.js:321: * @returns {string} e.g. `"mood:Night|variant:No Fog Wall"`
+scripts/time-triggers/core/evaluator.js:10:  getActiveScene,
+scripts/time-triggers/core/evaluator.js:32:    const fallbackFactory = (scene, options = {}) =>
+scripts/time-triggers/core/evaluator.js:33:      baseFactory({ scene, ...(options ?? {}) });
+scripts/time-triggers/core/evaluator.js:37:        this.#windowFactory = (scene, options = {}) =>
+scripts/time-triggers/core/evaluator.js:38:          windowFactory({ scene, ...(options ?? {}) });
+scripts/time-triggers/core/evaluator.js:59:    const scene = canvas?.scene ?? getActiveScene();
+scripts/time-triggers/core/evaluator.js:60:    debugLog("TimeTriggerManager#onCanvasReady", { sceneId: scene?.id ?? null });
+scripts/time-triggers/core/evaluator.js:61:    this.refreshTimeTriggerWindow(scene);
+scripts/time-triggers/core/evaluator.js:62:    void this.handleTimeTriggerEvaluation(scene);
+scripts/time-triggers/core/evaluator.js:65:  onUpdateScene(scene) {
+scripts/time-triggers/core/evaluator.js:66:    const activeScene = getActiveScene();
+scripts/time-triggers/core/evaluator.js:67:    debugLog("TimeTriggerManager#onUpdateScene", {
+scripts/time-triggers/core/evaluator.js:68:      sceneId: scene?.id ?? null,
+scripts/time-triggers/core/evaluator.js:69:      activeSceneId: activeScene?.id ?? null
+scripts/time-triggers/core/evaluator.js:71:    if (!activeScene || scene.id !== activeScene.id) return;
+scripts/time-triggers/core/evaluator.js:72:    this.refreshTimeTriggerWindow(scene);
+scripts/time-triggers/core/evaluator.js:73:    void this.handleTimeTriggerEvaluation(scene);
+scripts/time-triggers/core/evaluator.js:86:    const activeScene = getActiveScene();
+scripts/time-triggers/core/evaluator.js:88:    void this.handleTimeTriggerEvaluation(activeScene, worldTime, previous);
+scripts/time-triggers/core/evaluator.js:91:  refreshTimeTriggerWindow(scene) {
+scripts/time-triggers/core/evaluator.js:92:    if (!scene) return;
+scripts/time-triggers/core/evaluator.js:94:    const isActive = Boolean(scene.getFlag(MODULE_ID, FLAG_TIME_TRIGGER_ACTIVE));
+scripts/time-triggers/core/evaluator.js:95:    const hideWindow = Boolean(scene.getFlag(MODULE_ID, FLAG_TIME_TRIGGER_HIDE_WINDOW));
+scripts/time-triggers/core/evaluator.js:97:      scene.getFlag(MODULE_ID, FLAG_TIME_TRIGGER_SHOW_PLAYER_WINDOW)
+scripts/time-triggers/core/evaluator.js:100:      sceneId: scene.id,
+scripts/time-triggers/core/evaluator.js:120:    if (this.#timeTriggerWindow && this.#timeTriggerWindow.scene?.id === scene.id) {
+scripts/time-triggers/core/evaluator.js:121:      debugLog("Refreshing existing time trigger window", { sceneId: scene.id });
+scripts/time-triggers/core/evaluator.js:129:        previousSceneId: this.#timeTriggerWindow.scene?.id ?? null
+scripts/time-triggers/core/evaluator.js:134:    this.#timeTriggerWindow = this.#windowFactory(scene, { showControls });
+scripts/time-triggers/core/evaluator.js:135:    debugLog("Rendering new time trigger window", { sceneId: scene.id });
+scripts/time-triggers/core/evaluator.js:139:  async handleTimeTriggerEvaluation(scene, currentWorldTime, previousWorldTimeOverride) {
+scripts/time-triggers/core/evaluator.js:140:    const activeScene = scene ?? getActiveScene();
+scripts/time-triggers/core/evaluator.js:141:    if (!activeScene) {
+scripts/time-triggers/core/evaluator.js:143:        reason: "no-active-scene",
+scripts/time-triggers/core/evaluator.js:144:        providedSceneId: scene?.id ?? null,
+scripts/time-triggers/core/evaluator.js:175:      sceneId: activeScene.id,
+scripts/time-triggers/core/evaluator.js:181:      await this.#evaluateSceneTimeTriggers(activeScene, previous, current);
+scripts/time-triggers/core/evaluator.js:216:  async #evaluateSceneTimeTriggers(scene, previousWorldTime, currentWorldTime) {
+scripts/time-triggers/core/evaluator.js:221:    if (!scene?.id) {
+scripts/time-triggers/core/evaluator.js:222:      debugLog("Skipping trigger evaluation because the scene is missing an id");
+scripts/time-triggers/core/evaluator.js:226:    const isActive = Boolean(scene.getFlag(MODULE_ID, FLAG_TIME_TRIGGER_ACTIVE));
+scripts/time-triggers/core/evaluator.js:228:      debugLog("Skipping trigger evaluation because scene is inactive", { sceneId: scene.id });
+scripts/time-triggers/core/evaluator.js:237:    const triggers = getTimeTriggers(scene);
+scripts/time-triggers/core/evaluator.js:239:      debugLog("No time triggers configured for scene", { sceneId: scene.id });
+scripts/time-triggers/core/evaluator.js:243:    const history = getTimeTriggerHistory(scene);
+scripts/time-triggers/core/evaluator.js:259:    debugGroup("Evaluating scene time triggers", {
+scripts/time-triggers/core/evaluator.js:260:      sceneId: scene.id,
+scripts/time-triggers/core/evaluator.js:301:          sceneId: scene.id
+scripts/time-triggers/core/evaluator.js:303:        await updateTimeTriggerHistory(scene, history);
+scripts/time-triggers/core/evaluator.js:320:        warnInvalidTriggerTime(scene, trigger);
+scripts/time-triggers/core/evaluator.js:349:        await updateTimeTriggerHistory(scene, history);
+scripts/time-triggers/core/evaluator.js:352:        sceneId: scene.id
+scripts/time-triggers/core/evaluator.js:372:        await executeTriggerAction(scene, entry.trigger);
+scripts/time-triggers/core/evaluator.js:378:            "Failed to execute a scene time trigger action. Check the console for details."
+scripts/time-triggers/core/evaluator.js:396:      debugLog("Persisting trigger history updates", { sceneId: scene.id });
+scripts/time-triggers/core/evaluator.js:397:      await updateTimeTriggerHistory(scene, history);
+scripts/time-triggers/core/evaluator.js:403:function warnInvalidTriggerTime(scene, trigger) {
+scripts/time-triggers/core/evaluator.js:404:  const key = `${scene?.id ?? "unknown"}:${trigger?.id ?? trigger?.time ?? "unknown"}`;
+scripts/time-triggers/core/evaluator.js:410:    "A scene time trigger has an invalid time value and was skipped."
+scripts/time-triggers/core/evaluator.js:413:  console.warn(`${MODULE_ID} | Invalid time for trigger`, { scene: scene?.id, trigger });
+scripts/object-variants/ui/SceneConfigTab.js:1:import { createSceneConfigTabFactory } from "../../common/ui/scene-config-tab-factory.js";
+scripts/object-variants/ui/SceneConfigTab.js:4:  getSceneFromApplication,
+scripts/object-variants/ui/SceneConfigTab.js:5:  hasSceneDocument,
+scripts/object-variants/ui/SceneConfigTab.js:9:  createObjectVariantCategory,
+scripts/object-variants/ui/SceneConfigTab.js:10:  getObjectVariantCategories,
+scripts/object-variants/ui/SceneConfigTab.js:12:  setObjectVariantCategories
+scripts/object-variants/ui/SceneConfigTab.js:17:const OBJECT_VARIANTS_SCENE_TEMPLATE = `modules/${MODULE_ID}/templates/object-variants-scene-tab.html`;
+scripts/object-variants/ui/SceneConfigTab.js:20:  log: (...args) => console.debug?.(`${MODULE_ID} | ObjectVariants`, ...args),
+scripts/object-variants/ui/SceneConfigTab.js:21:  group: (...args) => console.groupCollapsed?.(`${MODULE_ID} | ObjectVariants`, ...args),
+scripts/object-variants/ui/SceneConfigTab.js:27:const objectVariantSceneConfigFactory = createSceneConfigTabFactory({
+scripts/object-variants/ui/SceneConfigTab.js:28:  tabId: "variants",
+scripts/object-variants/ui/SceneConfigTab.js:29:  tabLabel: () => localize("EIDOLON.ObjectVariants.TabLabel", "Variants"),
+scripts/object-variants/ui/SceneConfigTab.js:30:  getScene: getSceneFromApplication,
+scripts/object-variants/ui/SceneConfigTab.js:31:  renderContent: ({ app, tab, scene }) => renderObjectVariantsTab(app, tab, scene),
+scripts/object-variants/ui/SceneConfigTab.js:35:export function registerObjectVariantSceneConfigHook() {
+scripts/object-variants/ui/SceneConfigTab.js:36:  return objectVariantSceneConfigFactory.register();
+scripts/object-variants/ui/SceneConfigTab.js:39:function renderObjectVariantsTab(app, tabElement, scene) {
+scripts/object-variants/ui/SceneConfigTab.js:41:  const activeScene = hasSceneDocument(scene) ? scene : getSceneFromApplication(app);
+scripts/object-variants/ui/SceneConfigTab.js:43:  void renderObjectVariantsTabContent(app, tabElement, activeScene);
+scripts/object-variants/ui/SceneConfigTab.js:46:async function renderObjectVariantsTabContent(app, tabElement, sceneOverride) {
+scripts/object-variants/ui/SceneConfigTab.js:47:  const scene = sceneOverride ?? getSceneFromApplication(app);
+scripts/object-variants/ui/SceneConfigTab.js:48:  logger.group("renderObjectVariantsTabContent", { sceneId: scene?.id ?? null });
+scripts/object-variants/ui/SceneConfigTab.js:50:    if (!hasSceneDocument(scene)) {
+scripts/object-variants/ui/SceneConfigTab.js:52:        "EIDOLON.ObjectVariants.Unavailable",
+scripts/object-variants/ui/SceneConfigTab.js:53:        "Object variants are unavailable for this configuration sheet."
+scripts/object-variants/ui/SceneConfigTab.js:56:      logger.log("Scene lacks document for object variants", { sceneId: scene?.id ?? null });
+scripts/object-variants/ui/SceneConfigTab.js:60:    const categories = getObjectVariantCategories(scene);
+scripts/object-variants/ui/SceneConfigTab.js:61:    logger.log("Rendering object variant list", {
+scripts/object-variants/ui/SceneConfigTab.js:62:      sceneId: scene.id,
+scripts/object-variants/ui/SceneConfigTab.js:67:      "EIDOLON.ObjectVariants.Description",
+scripts/object-variants/ui/SceneConfigTab.js:68:      "Group scene assets into reusable variant categories and assign label values for quick reference."
+scripts/object-variants/ui/SceneConfigTab.js:71:      "EIDOLON.ObjectVariants.CategoryListLabel",
+scripts/object-variants/ui/SceneConfigTab.js:72:      "Scene Variant Categories"
+scripts/object-variants/ui/SceneConfigTab.js:75:      "EIDOLON.ObjectVariants.CategoryListEmpty",
+scripts/object-variants/ui/SceneConfigTab.js:76:      "No variant categories configured for this scene."
+scripts/object-variants/ui/SceneConfigTab.js:78:    const addCategoryLabel = localize("EIDOLON.ObjectVariants.AddCategory", "Add Category");
+scripts/object-variants/ui/SceneConfigTab.js:80:      "EIDOLON.ObjectVariants.RemoveCategory",
+scripts/object-variants/ui/SceneConfigTab.js:83:    const editCategoryLabel = localize("EIDOLON.ObjectVariants.EditCategory", "Edit Category");
+scripts/object-variants/ui/SceneConfigTab.js:84:    const valuesLabel = localize("EIDOLON.ObjectVariants.ValuesLabel", "Values");
+scripts/object-variants/ui/SceneConfigTab.js:86:      "EIDOLON.ObjectVariants.ValueListEmpty",
+scripts/object-variants/ui/SceneConfigTab.js:90:      "EIDOLON.ObjectVariants.UnnamedCategory",
+scripts/object-variants/ui/SceneConfigTab.js:99:      console.error(`${MODULE_ID} | renderTemplate is unavailable; cannot render object variants tab.`);
+scripts/object-variants/ui/SceneConfigTab.js:106:      renderedTemplate = await templateRenderer(OBJECT_VARIANTS_SCENE_TEMPLATE, {
+scripts/object-variants/ui/SceneConfigTab.js:136:      console.error(`${MODULE_ID} | Failed to render object variants scene tab template`, error);
+scripts/object-variants/ui/SceneConfigTab.js:142:    bindObjectVariantTabEvents(app, tabElement, scene);
+scripts/object-variants/ui/SceneConfigTab.js:148:function bindObjectVariantTabEvents(app, tabElement, sceneOverride) {
+scripts/object-variants/ui/SceneConfigTab.js:149:  const scene = sceneOverride ?? getSceneFromApplication(app);
+scripts/object-variants/ui/SceneConfigTab.js:150:  if (!hasSceneDocument(scene)) return;
+scripts/object-variants/ui/SceneConfigTab.js:153:    "EIDOLON.ObjectVariants.DefaultCategoryName",
+scripts/object-variants/ui/SceneConfigTab.js:157:  const addCategoryButton = tabElement.querySelector('[data-variant-action="add-category"]');
+scripts/object-variants/ui/SceneConfigTab.js:161:        scene,
+scripts/object-variants/ui/SceneConfigTab.js:162:        category: createObjectVariantCategory(defaultCategoryName),
+scripts/object-variants/ui/SceneConfigTab.js:164:        onSave: () => renderObjectVariantsTabContent(app, tabElement, scene)
+scripts/object-variants/ui/SceneConfigTab.js:169:  tabElement.querySelectorAll('[data-variant-action="remove-category"]').forEach((button) => {
+scripts/object-variants/ui/SceneConfigTab.js:173:      const didUpdate = await mutateVariantCategories(scene, (categories) => {
+scripts/object-variants/ui/SceneConfigTab.js:180:        await renderObjectVariantsTabContent(app, tabElement, scene);
+scripts/object-variants/ui/SceneConfigTab.js:185:  tabElement.querySelectorAll('[data-variant-action="edit-category"]').forEach((button) => {
+scripts/object-variants/ui/SceneConfigTab.js:189:      const categories = getObjectVariantCategories(scene);
+scripts/object-variants/ui/SceneConfigTab.js:193:        scene,
+scripts/object-variants/ui/SceneConfigTab.js:195:        onSave: () => renderObjectVariantsTabContent(app, tabElement, scene)
+scripts/object-variants/ui/SceneConfigTab.js:201:async function mutateVariantCategories(scene, mutator) {
+scripts/object-variants/ui/SceneConfigTab.js:202:  const categories = getObjectVariantCategories(scene);
+scripts/object-variants/ui/SceneConfigTab.js:207:    await setObjectVariantCategories(scene, categories);
+scripts/object-variants/ui/SceneConfigTab.js:216:  const providedScene = options.scene ?? null;
+scripts/object-variants/ui/SceneConfigTab.js:217:  const scene =
+scripts/object-variants/ui/SceneConfigTab.js:218:    providedScene && hasSceneDocument(providedScene)
+scripts/object-variants/ui/SceneConfigTab.js:219:      ? providedScene
+scripts/object-variants/ui/SceneConfigTab.js:220:      : getSceneFromApplication(app);
+scripts/object-variants/ui/SceneConfigTab.js:221:  if (!hasSceneDocument(scene)) {
+scripts/object-variants/ui/SceneConfigTab.js:223:      `${MODULE_ID} | Unable to open object variant editor because no scene document is available.`
+scripts/object-variants/ui/SceneConfigTab.js:229:    scene,
+scripts/object-variants/ui/SceneConfigTab.js:253:  if (game.i18n?.has?.("EIDOLON.ObjectVariants.ValueCountLabel")) {
+scripts/object-variants/ui/SceneConfigTab.js:255:      return game.i18n.format("EIDOLON.ObjectVariants.ValueCountLabel", { count });
+scripts/object-variants/ui/CategoryEditorApplication.js:3:  createObjectVariantCategory,
+scripts/object-variants/ui/CategoryEditorApplication.js:4:  getObjectVariantCategories,
+scripts/object-variants/ui/CategoryEditorApplication.js:7:  setObjectVariantCategories
+scripts/object-variants/ui/CategoryEditorApplication.js:17:    const { scene, category, isNew, onSave, ...rest } = options ?? {};
+scripts/object-variants/ui/CategoryEditorApplication.js:19:    this.scene = scene ?? null;
+scripts/object-variants/ui/CategoryEditorApplication.js:29:      id: `${MODULE_ID}-variant-category-editor`,
+scripts/object-variants/ui/CategoryEditorApplication.js:34:        title: localize("EIDOLON.ObjectVariants.EditCategory", "Edit Category"),
+scripts/object-variants/ui/CategoryEditorApplication.js:47:      template: `modules/${MODULE_ID}/templates/object-variants-category-editor.html`
+scripts/object-variants/ui/CategoryEditorApplication.js:54:      createObjectVariantCategory(
+scripts/object-variants/ui/CategoryEditorApplication.js:55:        localize("EIDOLON.ObjectVariants.DefaultCategoryName", "New Category")
+scripts/object-variants/ui/CategoryEditorApplication.js:76:        name: localize("EIDOLON.ObjectVariants.CategoryNameLabel", "Category Name"),
+scripts/object-variants/ui/CategoryEditorApplication.js:77:        values: localize("EIDOLON.ObjectVariants.ValuesLabel", "Values"),
+scripts/object-variants/ui/CategoryEditorApplication.js:79:          "EIDOLON.ObjectVariants.ValueListEmpty",
+scripts/object-variants/ui/CategoryEditorApplication.js:82:        addValue: localize("EIDOLON.ObjectVariants.AddValue", "Add Value"),
+scripts/object-variants/ui/CategoryEditorApplication.js:83:        removeValue: localize("EIDOLON.ObjectVariants.RemoveValue", "Remove Value"),
+scripts/object-variants/ui/CategoryEditorApplication.js:85:          "EIDOLON.ObjectVariants.ValuePlaceholder",
+scripts/object-variants/ui/CategoryEditorApplication.js:86:          "Variant label"
+scripts/object-variants/ui/CategoryEditorApplication.js:89:          ? localize("EIDOLON.ObjectVariants.CreateCategory", "Add Category")
+scripts/object-variants/ui/CategoryEditorApplication.js:90:          : localize("EIDOLON.ObjectVariants.SaveCategory", "Save Category"),
+scripts/object-variants/ui/CategoryEditorApplication.js:91:        cancel: localize("EIDOLON.ObjectVariants.CancelEdit", "Cancel"),
+scripts/object-variants/ui/CategoryEditorApplication.js:93:          ? localize("EIDOLON.ObjectVariants.CreateCategory", "Add Category")
+scripts/object-variants/ui/CategoryEditorApplication.js:94:          : localize("EIDOLON.ObjectVariants.EditCategory", "Edit Category")
+scripts/object-variants/ui/CategoryEditorApplication.js:167:    const list = form.querySelector(".object-variant-editor__values");
+scripts/object-variants/ui/CategoryEditorApplication.js:170:    const emptyState = list.querySelector(".object-variant-editor__empty");
+scripts/object-variants/ui/CategoryEditorApplication.js:176:    template.classList.add("object-variant-editor__value");
+scripts/object-variants/ui/CategoryEditorApplication.js:178:      localize("EIDOLON.ObjectVariants.ValuePlaceholder", "Variant label")
+scripts/object-variants/ui/CategoryEditorApplication.js:181:      localize("EIDOLON.ObjectVariants.RemoveValue", "Remove Value")
+scripts/object-variants/ui/CategoryEditorApplication.js:203:    const valueRow = button?.closest(".object-variant-editor__value");
+scripts/object-variants/ui/CategoryEditorApplication.js:210:    const list = form.querySelector(".object-variant-editor__values");
+scripts/object-variants/ui/CategoryEditorApplication.js:212:    const hasValues = list.querySelector(".object-variant-editor__value");
+scripts/object-variants/ui/CategoryEditorApplication.js:215:      message.classList.add("notes", "object-variant-editor__empty");
+scripts/object-variants/ui/CategoryEditorApplication.js:217:        "EIDOLON.ObjectVariants.ValueListEmpty",
+scripts/object-variants/ui/CategoryEditorApplication.js:225:    if (!this.scene) return;
+scripts/object-variants/ui/CategoryEditorApplication.js:227:    const categories = getObjectVariantCategories(this.scene);
+scripts/object-variants/ui/CategoryEditorApplication.js:243:      await setObjectVariantCategories(this.scene, categories);
+scripts/object-variants/ui/CategoryEditorApplication.js:248:          console.error(`${MODULE_ID} | Object variant editor onSave handler failed`, error);
+scripts/time-triggers/core/actions.js:37:export async function executeTriggerAction(scene, trigger) {
+scripts/time-triggers/core/actions.js:56:    sceneId: scene?.id ?? null
+scripts/time-triggers/core/actions.js:58:  await action.execute({ scene, trigger });
+scripts/time-triggers/core/actions.js:79:function warnMissingTriggerData(scene, trigger, reason) {
+scripts/time-triggers/core/actions.js:80:  const key = `${scene?.id ?? "unknown"}:${trigger?.id ?? trigger?.action ?? "unknown"}:${reason}`;
+scripts/time-triggers/core/actions.js:86:    "A scene time trigger is missing required data and was skipped."
+scripts/time-triggers/core/actions.js:89:  console.warn(`${MODULE_ID} | Missing trigger data (${reason})`, { scene: scene?.id, trigger });
+scripts/time-triggers/core/actions.js:92:async function executePlaySoundAction({ scene, trigger }) {
+scripts/time-triggers/core/actions.js:95:    warnMissingTriggerData(scene, trigger, "missing-audio-path");
+scripts/time-triggers/core/storage.js:9:export function getTimeTriggers(scene) {
+scripts/time-triggers/core/storage.js:10:  const stored = scene?.getFlag?.(MODULE_ID, FLAG_TIME_TRIGGERS);
+scripts/time-triggers/core/storage.js:15:    sceneId: scene?.id ?? null,
+scripts/time-triggers/core/storage.js:21:export async function setTimeTriggers(scene, triggers) {
+scripts/time-triggers/core/storage.js:22:  if (!scene?.setFlag) return;
+scripts/time-triggers/core/storage.js:24:    sceneId: scene.id,
+scripts/time-triggers/core/storage.js:27:  await scene.setFlag(MODULE_ID, FLAG_TIME_TRIGGERS, triggers);
+scripts/time-triggers/core/storage.js:30:export function getTimeTriggerHistory(scene) {
+scripts/time-triggers/core/storage.js:31:  const stored = scene?.getFlag?.(MODULE_ID, FLAG_TIME_TRIGGER_HISTORY);
+scripts/time-triggers/core/storage.js:43:    sceneId: scene?.id ?? null,
+scripts/time-triggers/core/storage.js:49:export async function updateTimeTriggerHistory(scene, history) {
+scripts/time-triggers/core/storage.js:50:  if (!scene) return;
+scripts/time-triggers/core/storage.js:61:  const existingRaw = scene.getFlag?.(MODULE_ID, FLAG_TIME_TRIGGER_HISTORY) ?? {};
+scripts/time-triggers/core/storage.js:80:      sceneId: scene?.id ?? null
+scripts/time-triggers/core/storage.js:86:    sceneId: scene?.id ?? null,
+scripts/time-triggers/core/storage.js:92:    if (existingKeys.length && typeof scene.unsetFlag === "function") {
+scripts/time-triggers/core/storage.js:93:      await scene.unsetFlag(MODULE_ID, FLAG_TIME_TRIGGER_HISTORY);
+scripts/time-triggers/core/storage.js:96:      await scene.setFlag(MODULE_ID, FLAG_TIME_TRIGGER_HISTORY, sanitized);
+scripts/time-triggers/core/storage.js:103:        "Failed to persist the scene's time trigger history."
+scripts/time-triggers/ui/TimeTriggerWindow.js:25:    const { scene, showControls, ...appOptions } = options ?? {};
+scripts/time-triggers/ui/TimeTriggerWindow.js:27:    this.scene = scene ?? null;
+scripts/time-triggers/ui/TimeTriggerWindow.js:35:    this.sceneAllowsRealTime = this.#readSceneRealTimeFlag();
+scripts/time-triggers/ui/TimeTriggerWindow.js:94:    const sceneAllowsRealTime = this.#readSceneRealTimeFlag();
+scripts/time-triggers/ui/TimeTriggerWindow.js:95:    this.sceneAllowsRealTime = sceneAllowsRealTime;
+scripts/time-triggers/ui/TimeTriggerWindow.js:97:      "EIDOLON.TimeTrigger.SceneRealTimeEnable",
+scripts/time-triggers/ui/TimeTriggerWindow.js:98:      "Enable automatic real-time flow for this scene."
+scripts/time-triggers/ui/TimeTriggerWindow.js:101:      "EIDOLON.TimeTrigger.SceneRealTimeDisable",
+scripts/time-triggers/ui/TimeTriggerWindow.js:102:      "Disable automatic real-time flow for this scene."
+scripts/time-triggers/ui/TimeTriggerWindow.js:105:      "EIDOLON.TimeTrigger.SceneRealTimeManageDisabled",
+scripts/time-triggers/ui/TimeTriggerWindow.js:109:      ? sceneAllowsRealTime
+scripts/time-triggers/ui/TimeTriggerWindow.js:118:      sceneAllowsRealTime,
+scripts/time-triggers/ui/TimeTriggerWindow.js:137:          sceneId: this.scene?.id ?? null
+scripts/time-triggers/ui/TimeTriggerWindow.js:144:    debugLog("Closing time trigger window", { sceneId: this.scene?.id ?? null, force: true });
+scripts/time-triggers/ui/TimeTriggerWindow.js:153:    debugLog("Advancing world time", { sceneId: this.scene?.id ?? null, minutes, seconds });
+scripts/time-triggers/ui/TimeTriggerWindow.js:167:        sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TimeTriggerWindow.js:194:        sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TimeTriggerWindow.js:237:    debugLog("Time value double clicked", { sceneId: this.scene?.id ?? null });
+scripts/time-triggers/ui/TimeTriggerWindow.js:384:        sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TimeTriggerWindow.js:585:          "EIDOLON.TimeTrigger.SceneRealTimeManageDisabled",
+scripts/time-triggers/ui/TimeTriggerWindow.js:592:    const scene = this.scene;
+scripts/time-triggers/ui/TimeTriggerWindow.js:593:    if (!scene || typeof scene.setFlag !== "function") {
+scripts/time-triggers/ui/TimeTriggerWindow.js:596:          "EIDOLON.TimeTrigger.SceneUnavailable",
+scripts/time-triggers/ui/TimeTriggerWindow.js:597:          "The active scene is unavailable. Try again after reloading the world."
+scripts/time-triggers/ui/TimeTriggerWindow.js:603:    const target = !this.sceneAllowsRealTime;
+scripts/time-triggers/ui/TimeTriggerWindow.js:605:      await scene.setFlag(MODULE_ID, FLAG_TIME_TRIGGER_ALLOW_REAL_TIME, target);
+scripts/time-triggers/ui/TimeTriggerWindow.js:606:      this.sceneAllowsRealTime = target;
+scripts/time-triggers/ui/TimeTriggerWindow.js:609:            "EIDOLON.TimeTrigger.SceneRealTimeEnabled",
+scripts/time-triggers/ui/TimeTriggerWindow.js:610:            "Automatic real-time flow enabled for this scene."
+scripts/time-triggers/ui/TimeTriggerWindow.js:613:            "EIDOLON.TimeTrigger.SceneRealTimeDisabled",
+scripts/time-triggers/ui/TimeTriggerWindow.js:614:            "Automatic real-time flow disabled for this scene."
+scripts/time-triggers/ui/TimeTriggerWindow.js:618:      console.error(`${MODULE_ID} | Failed to toggle scene real-time flow`, error);
+scripts/time-triggers/ui/TimeTriggerWindow.js:621:          "EIDOLON.TimeTrigger.SceneRealTimeToggleError",
+scripts/time-triggers/ui/TimeTriggerWindow.js:622:          "Failed to update the scene's real-time flow setting."
+scripts/time-triggers/ui/TimeTriggerWindow.js:630:  #readSceneRealTimeFlag() {
+scripts/time-triggers/ui/TimeTriggerWindow.js:631:    const scene = this.scene;
+scripts/time-triggers/ui/TimeTriggerWindow.js:632:    if (!scene || typeof scene.getFlag !== "function") return false;
+scripts/time-triggers/ui/TimeTriggerWindow.js:634:      return Boolean(scene.getFlag(MODULE_ID, FLAG_TIME_TRIGGER_ALLOW_REAL_TIME));
+scripts/time-triggers/ui/TimeTriggerWindow.js:636:      debugLog("TimeTriggerWindow | Failed to read scene real-time flag", {
+scripts/time-triggers/ui/TimeTriggerWindow.js:637:        sceneId: scene?.id ?? null,
+scripts/time-triggers/core/utils.js:77:export function getActiveScene() {
+scripts/time-triggers/core/utils.js:78:  return game.scenes?.current ?? game.scenes?.active ?? null;
+scripts/time-triggers/core/utils.js:81:export function getSceneFromApplication(app) {
+scripts/time-triggers/core/utils.js:85:export function hasSceneDocument(scene) {
+scripts/time-triggers/core/utils.js:86:  return scene && typeof scene.getFlag === "function" && typeof scene.setFlag === "function";
+scripts/time-triggers/ui/SceneConfigTab.js:11:import { getSceneFromApplication, hasSceneDocument, localize } from "../core/utils.js";
+scripts/time-triggers/ui/SceneConfigTab.js:14:import { createSceneConfigTabFactory } from "../../common/ui/scene-config-tab-factory.js";
+scripts/time-triggers/ui/SceneConfigTab.js:18:const TIME_TRIGGER_SCENE_TEMPLATE = `modules/${MODULE_ID}/templates/time-trigger-scene-tab.html`;
+scripts/time-triggers/ui/SceneConfigTab.js:20:const timeTriggerSceneConfigFactory = createSceneConfigTabFactory({
+scripts/time-triggers/ui/SceneConfigTab.js:23:  getScene: getSceneFromApplication,
+scripts/time-triggers/ui/SceneConfigTab.js:24:  isApplicable: isRecognizedSceneConfig,
+scripts/time-triggers/ui/SceneConfigTab.js:25:  renderContent: ({ app, scene, tab }) => renderTimeTriggerTab(app, tab, scene),
+scripts/time-triggers/ui/SceneConfigTab.js:33:export function registerSceneConfigHook() {
+scripts/time-triggers/ui/SceneConfigTab.js:34:  debugLog("Registering SceneConfig render hook");
+scripts/time-triggers/ui/SceneConfigTab.js:35:  return timeTriggerSceneConfigFactory.register();
+scripts/time-triggers/ui/SceneConfigTab.js:38:function renderTimeTriggerTab(app, tabElement, scene) {
+scripts/time-triggers/ui/SceneConfigTab.js:40:  const activeScene = hasSceneDocument(scene) ? scene : getSceneFromApplication(app);
+scripts/time-triggers/ui/SceneConfigTab.js:42:  void renderTimeTriggersTabContent(app, tabElement, activeScene);
+scripts/time-triggers/ui/SceneConfigTab.js:45:    void renderTimeTriggersTabContent(app, tabElement, activeScene);
+scripts/time-triggers/ui/SceneConfigTab.js:54:          `${MODULE_ID} | Failed to dispose scene config time format subscription`,
+scripts/time-triggers/ui/SceneConfigTab.js:62:async function renderTimeTriggersTabContent(app, tabElement, sceneOverride) {
+scripts/time-triggers/ui/SceneConfigTab.js:63:  const scene = sceneOverride ?? getSceneFromApplication(app);
+scripts/time-triggers/ui/SceneConfigTab.js:64:  debugGroup("renderTimeTriggersTabContent", { sceneId: scene?.id ?? null });
+scripts/time-triggers/ui/SceneConfigTab.js:66:    if (!hasSceneDocument(scene)) {
+scripts/time-triggers/ui/SceneConfigTab.js:72:      debugLog("Scene lacks document for time triggers", { sceneId: scene?.id ?? null });
+scripts/time-triggers/ui/SceneConfigTab.js:79:    const isActive = Boolean(scene.getFlag(MODULE_ID, FLAG_TIME_TRIGGER_ACTIVE));
+scripts/time-triggers/ui/SceneConfigTab.js:80:    const shouldHideWindow = Boolean(scene.getFlag(MODULE_ID, FLAG_TIME_TRIGGER_HIDE_WINDOW));
+scripts/time-triggers/ui/SceneConfigTab.js:82:      scene.getFlag(MODULE_ID, FLAG_TIME_TRIGGER_SHOW_PLAYER_WINDOW)
+scripts/time-triggers/ui/SceneConfigTab.js:84:    const triggers = getTimeTriggers(scene);
+scripts/time-triggers/ui/SceneConfigTab.js:86:      sceneId: scene.id,
+scripts/time-triggers/ui/SceneConfigTab.js:96:      "Enable scene time triggers so scheduled actions can run automatically."
+scripts/time-triggers/ui/SceneConfigTab.js:116:      "Scene Time Triggers"
+scripts/time-triggers/ui/SceneConfigTab.js:120:      "No time triggers configured for this scene."
+scripts/time-triggers/ui/SceneConfigTab.js:157:      console.error(`${MODULE_ID} | renderTemplate is unavailable; cannot render scene tab.`);
+scripts/time-triggers/ui/SceneConfigTab.js:164:      renderedTemplate = await templateRenderer(TIME_TRIGGER_SCENE_TEMPLATE, {
+scripts/time-triggers/ui/SceneConfigTab.js:192:      console.error(`${MODULE_ID} | Failed to render time trigger scene tab template`, error);
+scripts/time-triggers/ui/SceneConfigTab.js:199:    bindTimeTriggerTabEvents(app, tabElement, scene);
+scripts/time-triggers/ui/SceneConfigTab.js:205:function bindTimeTriggerTabEvents(app, tabElement, sceneOverride) {
+scripts/time-triggers/ui/SceneConfigTab.js:206:  const scene = sceneOverride ?? getSceneFromApplication(app);
+scripts/time-triggers/ui/SceneConfigTab.js:207:  if (!hasSceneDocument(scene)) return;
+scripts/time-triggers/ui/SceneConfigTab.js:212:      debugLog("Add trigger button clicked", { sceneId: scene.id });
+scripts/time-triggers/ui/SceneConfigTab.js:213:      openTriggerForm(app, { scene });
+scripts/time-triggers/ui/SceneConfigTab.js:221:      const triggers = getTimeTriggers(scene);
+scripts/time-triggers/ui/SceneConfigTab.js:224:      debugLog("Edit trigger button clicked", { sceneId: scene.id, triggerId: trigger.id, index });
+scripts/time-triggers/ui/SceneConfigTab.js:225:      openTriggerForm(app, { trigger, triggerIndex: index, scene });
+scripts/time-triggers/ui/SceneConfigTab.js:233:      const triggers = getTimeTriggers(scene);
+scripts/time-triggers/ui/SceneConfigTab.js:239:          sceneId: scene.id,
+scripts/time-triggers/ui/SceneConfigTab.js:243:        await setTimeTriggers(scene, triggers);
+scripts/time-triggers/ui/SceneConfigTab.js:244:        await renderTimeTriggersTabContent(app, tabElement, scene);
+scripts/time-triggers/ui/SceneConfigTab.js:261:      const triggers = getTimeTriggers(scene);
+scripts/time-triggers/ui/SceneConfigTab.js:273:        debugLog("Manually firing trigger", { sceneId: scene.id, triggerId: trigger.id, index });
+scripts/time-triggers/ui/SceneConfigTab.js:274:        await executeTriggerAction(scene, trigger);
+scripts/time-triggers/ui/SceneConfigTab.js:290:          sceneId: scene.id,
+scripts/time-triggers/ui/SceneConfigTab.js:301:  const providedScene = options.scene ?? null;
+scripts/time-triggers/ui/SceneConfigTab.js:302:  const scene =
+scripts/time-triggers/ui/SceneConfigTab.js:303:    providedScene && hasSceneDocument(providedScene)
+scripts/time-triggers/ui/SceneConfigTab.js:304:      ? providedScene
+scripts/time-triggers/ui/SceneConfigTab.js:305:      : getSceneFromApplication(app);
+scripts/time-triggers/ui/SceneConfigTab.js:306:  if (!hasSceneDocument(scene)) {
+scripts/time-triggers/ui/SceneConfigTab.js:307:    console.warn(`${MODULE_ID} | Unable to open trigger form because no scene document is available.`);
+scripts/time-triggers/ui/SceneConfigTab.js:311:    sceneId: scene.id,
+scripts/time-triggers/ui/SceneConfigTab.js:317:    scene,
+scripts/time-triggers/ui/SceneConfigTab.js:323:        void renderTimeTriggersTabContent(app, tab, scene);
+scripts/time-triggers/ui/SceneConfigTab.js:330:function isRecognizedSceneConfig(app, scene) {
+scripts/time-triggers/ui/SceneConfigTab.js:333:  const SceneConfigClass = foundry?.applications?.sheets?.SceneConfig ?? globalThis?.SceneConfig;
+scripts/time-triggers/ui/SceneConfigTab.js:334:  if (SceneConfigClass && app instanceof SceneConfigClass) return true;
+scripts/time-triggers/ui/SceneConfigTab.js:337:  if (typeof constructorName === "string" && constructorName.includes("SceneConfig")) return true;
+scripts/time-triggers/ui/SceneConfigTab.js:339:  if (scene) {
+scripts/time-triggers/ui/SceneConfigTab.js:340:    const SceneClass = globalThis?.Scene;
+scripts/time-triggers/ui/SceneConfigTab.js:341:    if (SceneClass && scene instanceof SceneClass) return true;
+scripts/time-triggers/ui/SceneConfigTab.js:342:    if (scene?.documentName === "Scene" || scene?.documentName === "scenes") return true;
+scripts/time-triggers/ui/SceneConfigTab.js:343:    if (scene?.collection === "scenes") return true;
+scripts/time-triggers/ui/SceneConfigTab.js:347:  if (typeof baseApplication === "string" && baseApplication.includes("SceneConfig")) return true;
+scripts/time-triggers/core/time-automation.js:11:import { getActiveScene, hasSceneDocument } from "./utils.js";
+scripts/time-triggers/core/time-automation.js:26:  #sceneAllowsRealTime = false;
+scripts/time-triggers/core/time-automation.js:41:    Hooks.on("updateScene", this.#handleSceneUpdate);
+scripts/time-triggers/core/time-automation.js:65:    this.#refreshSceneAutomationState();
+scripts/time-triggers/core/time-automation.js:136:    const sceneAllows = this.#sceneAllowsRealTime;
+scripts/time-triggers/core/time-automation.js:137:    const effectiveEnabled = manageTimeEnabled && sceneAllows;
+scripts/time-triggers/core/time-automation.js:140:      sceneAllowsRealTime: sceneAllows,
+scripts/time-triggers/core/time-automation.js:174:    if (!this.#enabled || !this.#sceneAllowsRealTime || !this.#canControlTime()) {
+scripts/time-triggers/core/time-automation.js:205:    if (!this.#enabled || !this.#sceneAllowsRealTime) return;
+scripts/time-triggers/core/time-automation.js:219:        !this.#sceneAllowsRealTime ||
+scripts/time-triggers/core/time-automation.js:293:      this.#sceneAllowsRealTime &&
+scripts/time-triggers/core/time-automation.js:343:  #getActiveSceneDocument() {
+scripts/time-triggers/core/time-automation.js:344:    const scene = getActiveScene();
+scripts/time-triggers/core/time-automation.js:345:    return hasSceneDocument(scene) ? scene : null;
+scripts/time-triggers/core/time-automation.js:348:  #isSceneRealTimeAllowed(scene) {
+scripts/time-triggers/core/time-automation.js:349:    if (!hasSceneDocument(scene)) return false;
+scripts/time-triggers/core/time-automation.js:351:      return Boolean(scene.getFlag(MODULE_ID, FLAG_TIME_TRIGGER_ALLOW_REAL_TIME));
+scripts/time-triggers/core/time-automation.js:353:      debugLog("GameTimeAutomation | Failed to read scene real-time flag", {
+scripts/time-triggers/core/time-automation.js:354:        sceneId: scene?.id ?? null,
+scripts/time-triggers/core/time-automation.js:361:  #refreshSceneAutomationState(scene) {
+scripts/time-triggers/core/time-automation.js:362:    const targetScene = hasSceneDocument(scene) ? scene : this.#getActiveSceneDocument();
+scripts/time-triggers/core/time-automation.js:363:    const allows = this.#isSceneRealTimeAllowed(targetScene);
+scripts/time-triggers/core/time-automation.js:364:    const previous = this.#sceneAllowsRealTime;
+scripts/time-triggers/core/time-automation.js:365:    this.#sceneAllowsRealTime = allows;
+scripts/time-triggers/core/time-automation.js:367:      debugLog("GameTimeAutomation | Scene real-time allowance changed", {
+scripts/time-triggers/core/time-automation.js:368:        sceneId: targetScene?.id ?? null,
+scripts/time-triggers/core/time-automation.js:377:    this.#refreshSceneAutomationState(canvas?.scene);
+scripts/time-triggers/core/time-automation.js:381:  #handleSceneUpdate = (scene) => {
+scripts/time-triggers/core/time-automation.js:382:    if (!hasSceneDocument(scene)) return;
+scripts/time-triggers/core/time-automation.js:383:    const activeScene = this.#getActiveSceneDocument();
+scripts/time-triggers/core/time-automation.js:384:    if (!activeScene || activeScene.id !== scene.id) return;
+scripts/time-triggers/core/time-automation.js:385:    const changed = this.#refreshSceneAutomationState(scene);
+scripts/time-triggers/ui/TriggerFormApplication.js:26:    const { scene, trigger, triggerIndex, onSave, ...appOptions } = options ?? {};
+scripts/time-triggers/ui/TriggerFormApplication.js:28:    this.scene = scene ?? null;
+scripts/time-triggers/ui/TriggerFormApplication.js:62:      sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:141:      sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:418:      sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:447:      sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:458:          sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:535:      sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:546:      sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:562:        sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:577:      sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:595:      sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:601:    const triggers = getTimeTriggers(this.scene);
+scripts/time-triggers/ui/TriggerFormApplication.js:610:      await setTimeTriggers(this.scene, triggers);
+scripts/time-triggers/ui/TriggerFormApplication.js:612:        sceneId: this.scene?.id ?? null,
+scripts/time-triggers/ui/TriggerFormApplication.js:620:          "Failed to save the scene's time triggers."
+scripts/time-triggers/ui/TriggerFormApplication.js:632:          sceneId: this.scene?.id ?? null,

@@ -1,0 +1,875 @@
+---30eb
+
+Redesign the Scene Config Criteria tab as a compact authoring surface, while preserving `map-ui-presets` semantics and ensuring safe migration from both `eidolon-utilities` legacy `objectVariants` data and `map-ui-presets` criteria scenes. Keep day-to-day state manipulation in the floating window; this tab should be optimized for defining dimensions, values, defaults, and migration status.
+
+## Requirements
+- Preserve exact criteria/state behavior parity with `map-ui-presets` matching semantics from `src/resolver.js` and related state handling.
+- Preserve placeable preset model parity: `base` + ordered `rules`.
+- Keep Scene Config tab compact and authoring-focused.
+- Preserve compatibility with existing `map-ui-presets` scenes and provide a safe migration path.
+- Avoid overengineering and keep architecture maintainable.
+
+## Grounded Baseline
+- Current Scene tab is category-list CRUD only in `scripts/object-variants/ui/SceneConfigTab.js` and `templates/object-variants-scene-tab.html`.
+- Current object variant storage is array-based in `scripts/object-variants/core/storage.js` (`flags.eidolon-utilities.objectVariants`).
+- Current light preset authoring depends on those categories in `scripts/light-presets/ui/AmbientLightConfigControls.js`.
+- `map-ui-presets` canonical criteria/state model is in `src/state.js`.
+- `map-ui-presets` rule layering semantics are in `src/resolver.js`.
+- `map-ui-presets` placeable update model (`base` + `rules`) is in `src/placeables.js`.
+
+## Data Model Recommendation (Concrete)
+- Canonical scene flags in `eidolon-utilities`:
+- `flags.eidolon-utilities.sceneCriteriaVersion`: number, start at `1`.
+- `flags.eidolon-utilities.sceneCriteria`: ordered array of `{ key, label, values, default }`.
+- `flags.eidolon-utilities.sceneCriteriaState`: object map `{ [key]: value }`.
+- Canonical placeable flags in `eidolon-utilities`:
+- `flags.eidolon-utilities.presets`: `{ base: object, rules: [{ criteria: object, delta: object }] }`.
+- Compatibility read order for scene criteria:
+- Read `sceneCriteria` first.
+- If missing, adapt `flags.eidolon-utilities.objectVariants` to criteria.
+- If still missing, adapt `flags.map-ui-presets.criteria` and `flags.map-ui-presets.state`.
+- Key policy:
+- `key` is machine-stable and unique; editable only at creation (or explicit migration flow), not casual inline rename.
+- `label` is user-facing and freely editable.
+- Value policy:
+- Trimmed, deduped, non-empty strings.
+- `default` must always be in `values`.
+- State policy:
+- Ensure every criterion has a state value; repair missing values to criterion `default`.
+
+## UI Interaction Model (Single Compact Tab)
+- Top summary row:
+- `Criteria: N`, `Values: M`, `Incomplete: K`, plus actions `Add Criterion`, `Import`, `Repair`.
+- Criteria list:
+- Dense row per criterion with `label`, `key badge`, `default chip`, `value count`, `actions`.
+- Row expansion:
+- Inline editor with `Label`, `Key` (readonly after create), tokenized `Values`, `Default` dropdown.
+- Quick actions:
+- `Duplicate`, `Delete`, `Move Up`, `Move Down`.
+- Compact behavior:
+- Rows collapsed by default.
+- Auto-save on explicit row save action, not per keystroke.
+- Validation shown inline in-row, no global blocking modal unless destructive.
+- Migration affordance:
+- If data is coming from legacy source, show a non-intrusive banner: `Imported from legacy format; review keys/defaults`.
+- Scope boundary:
+- No embedded runtime state switcher controls here; keep that in floating window.
+
+## Phased Implementation
+
+## Phase 1: Domain Contract and Compatibility Adapters
+- Goal: Define and enforce one canonical criteria/state contract while reading legacy shapes.
+- Scope: Storage/read/write/sanitize utilities only; no UI redesign yet.
+- UX decisions: No visual change except optional tiny status note indicating source format.
+- Technical tasks:
+- Add new criteria storage module and sanitizer near `scripts/object-variants/core/storage.js`.
+- Implement adapter from `objectVariants` array to canonical criteria.
+- Implement adapter from `map-ui-presets` `criteria/state` flags to canonical criteria.
+- Add normalization rules for key uniqueness, value cleanup, and default repair.
+- Risks:
+- Key collisions during migration from category names.
+- Ambiguous defaults for categories with empty values.
+- Validation/test strategy:
+- Unit tests for adapters and sanitization, including malformed legacy data.
+- Fixture tests with representative `map-ui-presets` scene flags.
+
+## Phase 2: Scene Config Tab UX Redesign (Criteria Authoring)
+- Goal: Replace “variant categories list” with compact criterion authoring UI.
+- Scope: `scripts/object-variants/ui/SceneConfigTab.js`, `templates/object-variants-scene-tab.html`, and related styles.
+- UX decisions:
+- Dense single-list architecture with expand/collapse, no modal-heavy workflow for simple edits.
+- Keep interactions keyboard-friendly (`Enter` add value, `Backspace` remove empty token, tab order predictable).
+- Technical tasks:
+- Rework tab render context around canonical criteria objects.
+- Introduce row-level edit state and inline validation messages.
+- Add import/repair actions surfaced in top toolbar.
+- Keep AppV1/AppV2 compatibility via existing `scene-config-tab-factory.js`.
+- Risks:
+- Overcrowding on small windows.
+- Event listener leaks from repeated re-renders.
+- Validation/test strategy:
+- Manual UX pass in Foundry on small and standard window sizes.
+- Interaction smoke tests for add/edit/delete/reorder/default-change flows.
+
+## Phase 3: Behavioral Parity for Rule Semantics and Preset Model
+- Goal: Ensure downstream systems behave like `map-ui-presets` resolver semantics.
+- Scope: Criteria contract integration with preset-consuming codepaths, especially light presets.
+- UX decisions:
+- Scene tab displays compatibility status but does not become a rule editor.
+- Technical tasks:
+- Adopt/align rule resolver behavior to `resolveRules` semantics (exact match, specificity ascending, index tiebreak).
+- Ensure placeable preset structure uses `base + rules`.
+- Add compatibility adapter for existing eidolon light preset data to canonical rules model.
+- Risks:
+- Existing light presets currently snapshot full configs; delta conversion may produce subtle diffs.
+- Cross-module expectations if both modules are active.
+- Validation/test strategy:
+- Golden tests comparing resolved output against `map-ui-presets` resolver fixtures.
+- Manual parity checks on example scenes with overlapping rule specificity.
+
+## Phase 4: Migration Pipeline and Rollout Safety
+- Goal: Ship safely without breaking existing scenes.
+- Scope: One-time and lazy migration behavior, recovery, and observability.
+- UX decisions:
+- Silent lazy migration on first open for safe cases.
+- Explicit confirmation for destructive operations (deleting criteria used by rules).
+- Technical tasks:
+- Implement migration markers and idempotent migrations.
+- Store source snapshot backup flags during first migration pass.
+- Add compatibility warnings when unsupported legacy v1 map-ui scene data is detected.
+- Risks:
+- Partial migrations if users interrupt session.
+- Mismatch between migrated criteria keys and existing placeable criteria references.
+- Validation/test strategy:
+- Migration replay tests (run migration twice; no further changes second time).
+- Rollback simulation by restoring backup snapshot flags.
+- Mixed-data scene tests (both old and new flags present).
+
+## Acceptance Criteria (Definition of Done)
+- Scene Config tab supports full criteria authoring in one compact tab with no required modal flow for common actions.
+- Criteria schema is canonical in `eidolon-utilities`, with deterministic sanitization and state repair.
+- Resolver behavior matches `map-ui-presets` rule semantics for specificity and index-order layering.
+- Placeable preset model is `base + rules` and works with migrated data.
+- Existing scenes using `objectVariants` and `map-ui-presets` criteria/state can be opened and used without manual JSON edits.
+- Migration is idempotent, non-destructive, and records a recoverable backup snapshot.
+- Tests cover sanitization, migration, and resolver parity, plus manual UX validation checklist.
+
+## Rollout Strategy
+- Stage 1: Ship read adapters + canonical writer behind internal migration detection (no UI change yet).
+- Stage 2: Ship redesigned tab UI using canonical schema, with legacy import banner.
+- Stage 3: Ship resolver/preset parity integration and migration for placeable presets.
+- Stage 4: After one stable cycle, deprecate direct writes to legacy `objectVariants` while keeping read fallback.
+- Safety controls:
+- Keep legacy source flags untouched for at least one release.
+- Log migration summaries to console with scene id and migration source.
+- Provide a one-click “Re-run Migration Repair” action in the Scene tab.
+
+## Files and Entry Points
+- `scripts/object-variants/ui/SceneConfigTab.js`
+- `templates/object-variants-scene-tab.html`
+- `scripts/object-variants/core/storage.js`
+- `scripts/common/ui/scene-config-tab-factory.js`
+- `scripts/light-presets/ui/AmbientLightConfigControls.js`
+- `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js`
+- `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js`
+- `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/placeables.js`
+- `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js`
+
+## Open Questions
+- Should key renaming ever be allowed after creation, or only label renaming?
+- Do you want legacy `map-ui-presets` version-1 scenes auto-indexed if that module is active, or only criteria-version scenes imported automatically?
+- Should Scene Config expose a minimal read-only “Current State Preview” line, or keep state entirely out of this tab?
+[2026-02-19T00:56:37] tokens used: 135,186
+---491c
+# Plan
+
+Redesign the Scene Config “Criteria” tab in `eidolon-utilities` into a compact, professional authoring surface for **scene criteria dimensions + migration/compatibility**, while keeping day-to-day **state control** in a floating window. The redesign must preserve `map-ui-presets` semantics for matching + layering, and provide a safe migration path from legacy “variants” naming/content.
+
+## Requirements
+- Preserve `map-ui-presets` matcher semantics: exact match; all matching rules contribute; sort by specificity then index; merge layered deltas (`/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js:19`).
+- Preserve `map-ui-presets` model split: **scene criteria definitions + current state** (scene-level) and **placeable presets** (base + rules) (`/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js:12`).
+- Maintain compatibility + migration path for existing `map-ui-presets` scenes/data.
+- Keep Scene Config tab compact; focus on criteria authoring; no “enterprise control center”.
+- Floating window remains preferred for state control; Scene Config should link to it, not replace it.
+
+## Scope
+- In:
+  - New Scene Config tab UX and architecture (single tab) for criteria definitions + migration/diagnostics.
+  - New/updated data model for criteria/state (scene-level) that can ingest legacy “variants” and `map-ui-presets` v1/v2 data safely.
+  - Validation, acceptance criteria, and rollout/migration safety strategy.
+- Out:
+  - Replacing the floating state controller UX (only integrate/link).
+  - Rebuilding all placeable preset editors inside Scene Config (keep authoring where it already lives; Scene Config focuses on criteria, plus diagnostics/tools).
+  - A multi-tab “scene operations suite”.
+
+## Current Code Touchpoints (grounding)
+- Existing Scene Config tab injection pattern: `scripts/common/ui/scene-config-tab-factory.js:20` (supports v12/v13 tab mounting).
+- Current “Variants” Scene Config tab (category list + editor): `scripts/object-variants/ui/SceneConfigTab.js:27`, template `templates/object-variants-scene-tab.html:1`, storage `scripts/object-variants/core/storage.js:4`.
+- Existing “variants” coupling in light presets UI: `scripts/light-presets/ui/AmbientLightConfigControls.js:171` (warnings explicitly point to “Scene → Variants”).
+- `map-ui-presets` resolver semantics to preserve: `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js:19`.
+- `map-ui-presets` scene criteria/state flags behavior: `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/state.js:12`.
+
+## Target Architecture (practical + maintainable)
+
+### 1) Canonical scene-level model (eidolon-owned)
+Introduce an eidolon-owned “Scene Criteria” model that mirrors the conceptual model of `map-ui-presets` but is namespaced under `eidolon-utilities` flags.
+
+Recommended scene flags (minimal + explicit):
+- `flags.eidolon-utilities.criteria` → `CriterionDefinition[]`
+- `flags.eidolon-utilities.state` → `Record<string, string>` (current criteria selections)
+- `flags.eidolon-utilities.criteriaVersion` → integer schema version for this subsystem (do **not** reuse a module-wide version since other features already write root-level flags)
+
+Recommended `CriterionDefinition` (keep close to `map-ui-presets` v2, but add stable internal id for migration safety):
+```js
+{
+  id: string,        // stable internal id (UUID/randomID)
+  key: string,       // stable matching key used in rules/state (slug)
+  label: string,     // display label
+  values: string[],  // allowed values (unique, trimmed)
+  default: string,   // must be in values
+  order: number      // for UI ordering (optional but useful)
+}
+```
+
+Why both `id` and `key`?
+- `map-ui-presets` rules/state match on `key` strings; those must be stable and human-meaningful.
+- Existing `eidolon` “variants” + light presets currently use **category IDs** as keys in stored selections (`computePresetKey` expects `{ categoryId: value }` in `scripts/light-presets/core/storage.js:297`). An `id` field lets you bridge old content without forcing immediate rewrites.
+
+### 2) Compatibility read layer (map-ui-presets + legacy variants)
+Add a small “source-of-truth resolver” layer (conceptual, no code here) used by both UI and runtime:
+- `getEffectiveCriteria(scene)`:
+  1) if `flags.eidolon-utilities.criteria` exists → use it
+  2) else if `flags.map-ui-presets.criteria` exists → use it (read-only import mode)
+  3) else if `flags.eidolon-utilities.objectVariants` exists → treat as legacy variants categories and offer migration
+- `getEffectiveState(scene)`:
+  1) prefer `flags.eidolon-utilities.state`
+  2) else fallback to `flags.map-ui-presets.state` (read-only import mode)
+  3) else default state derived from criteria defaults (do not guess values beyond defaults)
+
+This provides “works immediately” compatibility even before running migrations, and keeps migrations user-controlled.
+
+### 3) Placeable preset parity strategy (behavioral parity, not immediate editor parity)
+Even if eidolon keeps its current light preset storage for a while, enforce parity at the *resolution* layer:
+- Runtime resolution should accept “base + rules” with `criteria` objects and apply `map-ui-presets` merge ordering semantics.
+- For eidolon light presets (currently “default + presets keyed by category selections”), plan a staged conversion to “base + rules”:
+  - `default` → `base`
+  - each stored preset entry `{categories, config}` → rule `{criteria, delta}` where `criteria` is translated into `{ criterionKey: value }` and `delta` is config diff vs base (similar to `convertLegacyPresets` approach in `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/indexer.js:33`).
+
+## UX Interaction Model (single compact Scene Config tab)
+
+### Primary UX goals
+- **Fast scanning**: see all dimensions at once (label/key/default/values count).
+- **Low friction editing**: edit a dimension inline (accordion row), minimal modals.
+- **Safe renames**: key renames require explicit confirmation + show impact.
+- **Authoring-first**: no daily state toggling here; show current state and link to floating controller.
+
+### Layout (compact, no wasted vertical space)
+1) **Header strip**
+   - Title: “Criteria”
+   - Micro-status chips: “X dimensions”, “State set”, “Legacy variants detected” / “map-ui-presets data detected”
+   - Actions (right-aligned icon buttons):
+     - “Open Floating State Control” (primary day-to-day workflow)
+     - “Import / Migrate” (only shows if something is detected)
+
+2) **Dimensions list (default open)**
+   - Rows are dense and consistent, like a mini table:
+     - Drag handle (optional later), Label, Key (monospace), Default (dropdown), Values preview (chips or “N values”), Actions (edit/duplicate/delete)
+   - Clicking a row expands an **inline editor**:
+     - Label input
+     - Key input (with validation + rename warnings)
+     - Default dropdown
+     - Values chip editor:
+       - “Add value” input (Enter to add)
+       - chips removable with x
+       - “Add Standard” quick action if missing
+     - Footer: “Save” (if you choose buffered editing) or “Done” (if auto-persist on each change)
+
+3) **Diagnostics (collapsed by default)**
+   - “Current state (read-only)” showing resolved values for each key
+   - Warnings:
+     - state contains unknown keys
+     - state uses values not in allowed list
+     - duplicate keys / empty keys / empty values
+   - Optional advanced: “Simulate match” mini-tool (pick a placeable type + see how many rules would match) — keep behind a disclosure triangle to preserve compactness.
+
+4) **Compatibility & Migration (collapsed by default; only shown when relevant)**
+   - If `objectVariants` exists: show “Legacy Variants Categories found”
+     - “Migrate to Criteria” button
+     - “Preview changes” toggle: shows mapping (category → criterion)
+   - If `map-ui-presets` v2 criteria exists: show “map-ui-presets Criteria found”
+     - “Import into Eidolon” button (copies criteria/state into eidolon namespace)
+   - If `map-ui-presets` legacy/v1 only: show guidance (“No criteria definitions found; import requires indexing or manual authoring”)
+
+## Concrete Migration / Renaming Strategy (“variants” → “criteria”)
+
+### A) Legacy eidolon `objectVariants` → eidolon `criteria`
+Source: `flags.eidolon-utilities.objectVariants` list (`scripts/object-variants/core/storage.js:4`).
+
+Proposed mapping:
+- For each legacy category `{id, name, values[]}`:
+  - `criterion.id = category.id` (preserves linkability to existing light presets keyed by categoryId)
+  - `criterion.label = category.name` (fallback “Unnamed”)
+  - `criterion.key = slugify(category.name)` **if unique**, else `criterion-${index}`; store the legacy id permanently in `id`
+  - `criterion.values = uniqueTrim(values)`; if empty, seed with `["Standard"]` to avoid unusable criteria
+  - `criterion.default = "Standard"` if present else first value
+- Store a one-time migration marker:
+  - `flags.eidolon-utilities.criteriaVersion = 1`
+  - `flags.eidolon-utilities.migrations.objectVariantsToCriteria = { at: timestamp, fromCount, toCount }` (optional audit trail)
+
+Critical compatibility bridge (for existing light presets):
+- Continue accepting categoryId-keyed selections, but translate them through:
+  - if selection key matches a criterion `id`, treat it as that criterion
+  - else if selection key matches criterion `key`, treat it as that criterion
+This avoids breaking existing `computePresetKey` behavior and enables a gradual shift toward `key`.
+
+### B) map-ui-presets → eidolon
+If a scene has:
+- `flags.map-ui-presets.criteria`: import 1:1 into `flags.eidolon-utilities.criteria`, adding `id` fields.
+- `flags.map-ui-presets.state`: import into `flags.eidolon-utilities.state`, but validate values against imported criteria; if invalid, clamp to default and report in migration summary.
+
+No destructive writes to `map-ui-presets` flags during import (migration safety).
+
+### C) Renaming “variants” naming in UI/strings
+- Replace visible labels “Variants” with “Criteria” in Scene Config and any callouts (e.g., update light preset warnings that point to “Scene → Variants” in `scripts/light-presets/ui/AmbientLightConfigControls.js:171`).
+- Keep internal backward-compat readers for a full release cycle after migration ships.
+
+## Staged Implementation Plan (phases)
+
+### Phase 1 — Behavioral spec + parity tests (foundation)
+**Goal:** Lock semantics and migration guarantees before touching UX.
+
+- Scope
+  - Define canonical semantics (match, merge order, specificity).
+  - Define schema for eidolon criteria/state and migration mapping rules.
+- UX decisions
+  - None yet; only define what UI must be capable of editing safely.
+- Technical tasks
+  - Document resolver semantics to match `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js:19`.
+  - Write a short “data contract” doc (internal) describing scene flags, criterion definition shape, and migration rules.
+- Risks
+  - Drifting from `map-ui-presets` merge ordering in edge cases (null criteria, empty rule arrays).
+- Validation / test strategy
+  - Create pure-function test vectors mirroring `resolveRules` behavior (empty criteria matches all; specificity sort; stable index ordering).
+
+### Phase 2 — Data model + compatibility read layer
+**Goal:** Introduce eidolon-owned canonical data access with safe fallbacks.
+
+- Scope
+  - Implement scene-level get/set helpers (conceptually) for criteria/state/version.
+  - Add compatibility readers for `map-ui-presets` and legacy `objectVariants`.
+- UX decisions
+  - Scene Config tab should show “detected sources” (eidolon vs map-ui-presets vs legacy variants).
+- Technical tasks
+  - Add “effective criteria/state” resolution order (prefer eidolon; fallback read-only).
+  - Add validation/sanitization rules:
+    - keys unique + slug-safe
+    - defaults always in values
+    - state clamped to defaults when invalid
+- Risks
+  - Ambiguity when both eidolon and map-ui-presets flags exist but disagree; must pick deterministic precedence (recommend: eidolon wins, but UI shows a warning).
+- Validation / test strategy
+  - Test reading scenes with each combination:
+    - eidolon only
+    - map-ui-presets only
+    - legacy variants only
+    - both eidolon + map-ui-presets
+
+### Phase 3 — Migration tools (safe, previewable, non-destructive)
+**Goal:** Provide explicit, user-controlled migrations with preview + rollback story.
+
+- Scope
+  - Add migration actions:
+    - legacy variants → criteria
+    - map-ui-presets import → criteria/state
+  - Add key rename migration within eidolon criteria (updates state + dependent rules/presets where possible).
+- UX decisions
+  - Migrations always start with a “Preview” summary:
+    - number of dimensions created
+    - keys generated
+    - values seeded
+    - any conflicts/resolutions (duplicate keys, empty values)
+  - Provide “Export JSON” (optional) for safety in community workflows (compact copy/paste into notes).
+- Technical tasks
+  - Implement `slugify` + collision resolution rules (stable and predictable).
+  - Record migration marker to avoid repeating prompts.
+- Risks
+  - Key renames are the biggest footgun: they can orphan rule criteria. Must require confirmation + show what will update automatically.
+- Validation / test strategy
+  - Migration dry-run unit tests that compare expected output objects.
+  - Manual Foundry validation: run migration on a scene with existing `objectVariants` and confirm light preset UI still finds categories (via id-bridge).
+
+### Phase 4 — Scene Config Criteria tab UX build (compact authoring)
+**Goal:** Replace the current “Variants” mental model with a next-gen, low-friction “Criteria” authoring tab.
+
+- Scope
+  - New tab (or rename existing) using the existing injection framework (`scripts/common/ui/scene-config-tab-factory.js:20`).
+  - Inline dimension list + editor, diagnostics, and compatibility/migration sections.
+- UX decisions
+  - Default view is the dimension list; everything else collapsed.
+  - Inline editing prioritized over modal editors; modals only for destructive/complex operations (delete dimension, rename key with cascading changes).
+  - Clear separation:
+    - “Author criteria here”
+    - “Control state in floating window” (link/button)
+- Technical tasks
+  - Template + render/bind pattern modeled after existing tabs (e.g. `scripts/object-variants/ui/SceneConfigTab.js:39`).
+  - Add localized strings for all labels/tooltips/help text.
+  - Add client-side validation with immediate feedback (inline error text, not notifications spam).
+- Risks
+  - UI bloat: easy to overgrow the tab. Keep diagnostics and migration behind collapses.
+  - Persistence behavior: decide between “auto-save per change” vs “Save/Cancel”. Recommendation: auto-save for small edits (add/remove value), but buffer for key renames and deletes.
+- Validation / test strategy
+  - Manual UX pass in Foundry v12 + v13:
+    - tab renders
+    - add/edit/delete dimension
+    - values chip editing
+    - diagnostics show expected warnings
+  - Accessibility check: tab order, labels, aria attributes on icon buttons.
+
+### Phase 5 — Rollout hardening + documentation + deprecation path
+**Goal:** Ship safely to community workflows with minimal breakage.
+
+- Scope
+  - Ensure old content continues functioning; deprecate legacy paths gradually.
+  - Add concise docs: “What are criteria?”, “How to migrate from variants/map-ui-presets”.
+- UX decisions
+  - First-run migration banner only when legacy data is detected; otherwise silent.
+- Technical tasks
+  - Deprecation timeline:
+    - Release N: introduce criteria tab + migration, keep legacy readers
+    - Release N+1: warn when editing legacy variants (read-only view)
+    - Release N+2: optionally stop writing legacy variants, still read them
+  - Update references like light preset warnings to “Scene → Criteria” (`scripts/light-presets/ui/AmbientLightConfigControls.js:171`).
+- Risks
+  - Users with mixed-module installs (both modules writing state) get confused; mitigate with precedence + clear UI status chips.
+- Validation / test strategy
+  - Migration safety checklist:
+    - existing scenes load without errors
+    - importing does not delete map-ui-presets flags
+    - criteria edits do not corrupt unrelated eidolon flags (time triggers, etc.)
+
+## Acceptance Criteria (Definition of Done)
+- Scene Config has a single compact “Criteria” tab that:
+  - Can create/edit/reorder/delete criteria dimensions.
+  - Provides a fast value editing experience (chips + Enter-to-add).
+  - Shows current effective state read-only and links to floating controller.
+  - Detects legacy `objectVariants` and offers a previewable migration.
+  - Detects `map-ui-presets` criteria/state and offers import.
+- Data semantics match `map-ui-presets`:
+  - Rule matching is exact on provided keys; empty criteria matches all.
+  - Layering order is specificity ascending then index order (as implemented in `/mnt/talanor.home/Foundry/prod/Data/modules/map-ui-presets/src/resolver.js:61`).
+- Migration safety:
+  - Running migration does not break existing light presets that reference legacy category IDs (bridge works).
+  - Import from `map-ui-presets` is non-destructive to `map-ui-presets` flags.
+  - Clear user feedback on any conflicts (duplicate keys, invalid defaults/state).
+
+## Rollout Strategy (community-safe)
+- Ship in two steps for minimal risk:
+  1) **Add Criteria tab + import/migrate tools**, keep legacy Variants tab available but labeled “Legacy (read-only)” *after migration is run*.
+  2) After one release cycle, rename/remove the Variants tab entry point, but keep legacy readers indefinitely (or for a published deprecation window).
+- Migration trigger policy:
+  - Never auto-migrate silently.
+  - Offer “Migrate now” only when legacy data is detected; otherwise no prompts.
+
+## Open Questions (only if you want to refine)
+- Should criteria `key` be GM-editable at all, or should it be “advanced” (hidden behind an “Advanced” toggle) to reduce footguns?
+- Do you want eidolon to **store** placeable presets in a `map-ui-presets`-compatible shape long-term, or only maintain behavioral parity via adapters?
+
+If you want, I can also save this plan to `~/.codex/plans/` (as a reusable implementation checklist) or tailor the UX mock to your preferred Foundry aesthetic (v12/v13 sheet styles).
+[2026-02-19T00:58:00] tokens used: 58,001
+---c7b
+# Plan
+
+## Intent
+Deliver a compact, single-tab Scene Config experience for criteria definition/authoring that preserves pattern-matching behavior and migration compatibility from current `variants` data and map-ui-presets scenes, while keeping runtime day-to-day control in the floating window workflow.
+
+## Requirements
+- Preserve behavior parity from map-ui criteria model:
+  - scene-level criteria definitions + current state
+  - exact matching + specificity/index-order rule merge
+  - placeable presets expressed as `base + rules`
+- Rename user-facing/semantic model from “variants” to generic “criteria”
+- Keep scene config focused (authoring only), minimal real estate
+- Keep floating control as primary state switcher
+- Ensure compatibility path with existing map-ui-presets data
+
+## Context from current code
+- Current Scene config tab registration and rendering flow is in `scripts/object-variants/ui/SceneConfigTab.js:27-33`, `46-63`, `148-198`, with a single-purpose template at `templates/object-variants-scene-tab.html:1-64`.
+- Legacy storage is an array in `flags.eidolon-utilities.objectVariants` via `scripts/object-variants/core/storage.js:4-23` (`getObjectVariantCategories` / `setObjectVariantCategories`).
+- Matching semantics to preserve are in map-ui-presets `src/resolver.js:61-90` (specificity-first, then original index tie-break).
+- map-ui migration-style conversion patterns for legacy legacy->`base+rules` are in `map-ui-presets/src/indexer.js:63-143`.
+- Scene-level criteria/state pattern is `map-ui-presets/src/state.js:25-53` + version flags in `map-ui-presets/src/constants.js:3-29`.
+
+---
+
+## Phase 1 — Define canonical criteria contract (no data writes yet)
+### Scope
+Set the target architecture so every feature in this workstream uses one shared canonical in-memory shape, while keeping legacy readers.
+
+### UX decisions
+- Keep the tab label as a user-facing rename from “Variants” to “Criteria.”
+- Keep `SceneConfig` as the authoring surface only.
+- Keep state control buttons out of heavy tab UI; show state summary + quick link to floating control.
+
+### Technical tasks
+1. Define canonical scene model (read/write format) for `scene` flags:
+   - `version` (schema marker)
+   - `criteria[]` with stable IDs, labels, values, defaults
+   - `state` object keyed by criterion key
+2. Define canonical placeable rule model expectation (for parity):
+   - `presets = { base, rules }` where each rule has `{ criteria, delta }`
+3. Add normalization/sanitization policies:
+   - trim/sanitize strings
+   - dedupe values
+   - deterministic ordering for values and criterion IDs
+4. Map canonical keys to current references:
+   - Existing IDs become persistence keys for compatibility with current `object-variants` consumers.
+   - Label/UI key can diverge from internal key.
+5. Create a one-page parity matrix mapping:
+   - current `objectVariants[]` -> canonical `criteria[]`
+   - map-ui-presets `criteria/state` -> canonical `criteria/state`
+   - map-ui-presets `presets.base/rules` -> canonical placeable preset model
+
+### Risks
+- Ambiguous key naming if IDs are preserved vs semantic names.
+- Non-unique/empty labels from legacy scenes.
+
+### Validation/test strategy
+1. Produce and review model examples in markdown:
+   - old scene (array of categories) -> new schema
+   - map-ui scene (`flags.map-ui-presets.criteria/state`) -> new schema
+2. Manual checklist:
+   - criterion key collisions are rejected or auto-resolved
+   - defaults preserved or derived deterministically
+
+---
+
+## Phase 2 — Add migration and backward-compatible storage API
+### Scope
+Build a compatibility-first data layer that can read legacy and migrated formats and write canonical + legacy mirror data safely.
+
+### UX decisions
+- “Compatibility first”: keep existing behavior unchanged until migration succeeds.
+- Show migration status in tab only when conversion was performed and requires user awareness.
+
+### Technical tasks
+1. Extend `scripts/object-variants/core/storage.js` with canonical accessors:
+   - `getSceneCriteriaConfig(scene)`
+   - `setSceneCriteriaConfig(scene, payload)`
+   - `getSceneCriteriaState(scene)` / `setSceneCriteriaState(scene, state)`
+2. Keep legacy API compatibility:
+   - retain `getObjectVariantCategories` and `setObjectVariantCategories` as compatibility wrappers.
+3. Implement canonical migration functions:
+   - `hydrateFromLegacyCategories()` for `FLAG_OBJECT_VARIANTS` format
+   - `hydrateFromMapUiPresetState()` for `flags['map-ui-presets'].criteria/state` when present
+   - conversion from map-ui `base+rules` preset shape if needed.
+4. Dual-write strategy:
+   - write canonical criteria under a new dedicated flag
+   - also update/maintain legacy `FLAG_OBJECT_VARIANTS` array for downstream modules during transition.
+5. Add migration metadata/flags:
+   - `migratedFrom` and `migratedAt` fields for traceability
+   - avoid repeated rewrites where data is already canonical
+6. Add non-breaking fallbacks to keep existing light control flow working while it still reads categories by ID.
+
+### Risks
+- Silent divergence between canonical and legacy copies if writes fail partially.
+- Users with partially-filled legacy scenes (missing values/defaults).
+
+### Validation/test strategy
+1. Add unit tests for storage migration in new test file under `scripts/object-variants/__tests__/storage-migration.test.js` (or existing test directory convention if preferred):
+   - legacy array -> canonical
+   - canonical -> canonical rehydrate idempotency
+   - legacy + map-ui mix -> precedence policy correctness
+2. Add guard checks:
+   - no migration if read-only scene/permission-limited
+   - malformed legacy data does not break scene config render
+
+---
+
+## Phase 3 — Redesign scene tab UI for compact, low-friction criteria authoring
+### Scope
+Refactor only Scene Config presentation in a single tab to support full criterion setup without becoming a large control surface.
+
+### UX decisions
+- Compact card-based list:
+  - row title, default preview, value chips, quick actions (`Edit`, `Delete`, `Reorder?`)
+- Progressive disclosure:
+  - list only summary by default
+  - expand/edit via existing editor dialog for full edits
+- Keep state changes out of the tab:
+  - show **Current State Snapshot** only
+  - optional button to launch preferred floating control if available
+
+### Technical tasks
+1. Replace/add template data shape in `templates/object-variants-scene-tab.html`:
+   - new section labels (`Criteria`, `Current State`, `Default Value`, etc.)
+   - migration status badge / notice area
+2. Update `scripts/object-variants/ui/SceneConfigTab.js`:
+   - change tab id/label strategy (`tabId` remains stable for compatibility or renamed with migration alias)
+   - render from canonical shape
+   - add state summary rendering (`state` map)
+   - add migration notice actions (e.g., “Repair criteria metadata”, “Retry migrate”)
+3. Keep event delegation pattern but namespace it for new interactions:
+   - existing category action attributes in `SceneConfigTab.js:157-198` remain conceptually stable
+   - add state panel button(s) only if needed (e.g., open floating control)
+4. Ensure clean mount/unmount behavior via tab factory cleanup (`scripts/common/ui/scene-config-tab-factory.js:148-176`, `196-205`, cleanup symbol handling).
+
+### Risks
+- Too dense rendering if many criteria/values in one scene.
+- Existing users depend on old row labels and may find behavior changed unexpectedly.
+
+### Validation/test strategy
+1. Manual UX checks in V12 and V13 scene config shell:
+   - list rendering, add/edit/delete flow
+   - modal closes and panel rerenders correctly
+   - no duplicate event handlers after repeated opens (cleanup path)
+2. Compactness checks:
+   - at least 5 criteria and 30+ values remain navigable in one viewport without major scroll churn.
+
+---
+
+## Phase 4 — Update criterion editor for renamed model and robust defaulting
+### Scope
+Make the edit experience explicitly “criterion” oriented and add default value control.
+
+### UX decisions
+- Reuse existing editor modal (`CategoryEditorApplication`) for low risk.
+- Add one required/optional field for criterion default:
+  - default defaults to first available value if present
+  - explicit “No default” for open sets where applicable
+
+### Technical tasks
+1. Update `scripts/object-variants/ui/CategoryEditorApplication.js`:
+   - label copy from “Category/Value” to “Criterion/Allowed Value” etc.
+   - ensure IDs/keys are preserved and never regenerated accidentally during edit
+2. Update `templates/object-variants-category-editor.html`:
+   - add optional default control
+   - keep add/remove row UX predictable
+3. Validation rules:
+   - empty criterion name/value handling
+   - unique criteria values
+   - stable ID preservation on edit
+4. Ensure persistence path writes canonical model through updated storage API and syncs legacy mirror.
+
+### Risks
+- Changing editor schema breaks older user expectations if defaulting is automatic without warning.
+- Additional required fields increase friction unless communicated inline.
+
+### Validation/test strategy
+1. Add unit tests for editor-level sanitization functions (or extraction into pure helpers for testability).
+2. Manual:
+   - edit existing criterion
+   - add/remove values
+   - save and reopen to ensure persistence.
+
+---
+
+## Phase 5 — Enforce matcher parity and placeable rule model compatibility
+### Scope
+Introduce resolver/placer compatibility so the new criteria layer behaves exactly like map-ui-presets rule evaluation.
+
+### UX decisions
+- No UI changes required in this phase beyond what Phase 3 delivers.
+- Add internal API only for future/other modules to evaluate criteria consistently.
+
+### Technical tasks
+1. Add shared resolver utility in this module (or bridge layer) using map-ui logic equivalent to:
+   - exact criteria match
+   - result ordering: specificity ascending then original index ascending
+   - no partial wildcard matching
+   - base clone + merge layers (`scripts` in map-ui style).
+2. Add adapter for placeable presets:
+   - read current map-ui style `{ base, rules }` from placeables
+   - accept both legacy and new internal flag locations
+   - preserve behavior for `resolveRules` when `rules` empty and when `base` null.
+3. Define migration shim:
+   - if legacy map-ui `presets` shape is detected and local model exists, normalize in-memory for evaluation without destructive conversion unless explicitly migrated.
+4. Keep matcher behavior pure and deterministic for test replay.
+
+### Risks
+- Merge semantics drift if merge function changes behavior (especially nested deletions in delta payloads).
+- Confusion if two resolver implementations diverge between modules.
+
+### Validation/test strategy
+1. Add test file mirroring `map-ui-presets/src/resolver.test.js` cases in this repo to prove parity:
+   - empty criteria, exact matches, specificity precedence, tie-breaking by index
+2. Add at least one integration test that evaluates canonical scene state against placeable rule set and confirms merged output.
+
+---
+
+## Phase 6 — Rollout and migration safety rollout
+### Scope
+Introduce the change safely in production with verification loops and reversible path.
+
+### UX decisions
+- Keep users informed without blocking workflows:
+  - non-intrusive migration notice
+  - optional manual retry if automatic migration fails
+- Defer hard enforcement of canonical structure for one release after release notes.
+
+### Technical tasks
+1. Add feature flag / setting:
+   - `criteriaMigrationMode`: `off | report | dual-write | enforce`.
+2. Release plan:
+   - `report`: read legacy only, log migration opportunities
+   - `dual-write`: read legacy + canonical, write both
+   - `enforce`: write canonical only after migration completed
+3. Add migration command via module API for admin use:
+   - dry-run report
+   - scene-scoped and global-scoped migration invocation
+4. Preserve rollback path:
+   - maintain legacy flag copy until explicit “migration complete” phase.
+5. Update docs:
+   - terminology update
+   - what changed (variants -> criteria), migration behavior, fallback path.
+
+### Risks
+- Partial migration across multi-user setups could produce inconsistent scene docs under concurrent edits.
+- Users relying on automation that reads legacy flag shape directly may be affected if legacy mirror removed too early.
+
+### Validation/test strategy
+1. Controlled upgrade script:
+   - clone scene test fixture with old `objectVariants`
+   - run dry-run and enforce modes
+   - verify canonical + legacy data consistency after conversion
+2. Nightly check:
+   - no regressions in existing light preset UI that reads categories by ID (`scripts/light-presets/ui/AmbientLightConfigControls.js:63-67`, `171-185`).
+3. End-to-end acceptance smoke in Foundry:
+   - load scene pre-upgrade, open Scene Config Criteria tab, migrate, save, reopen, verify values unchanged in ambient controls.
+
+---
+
+## Data model recommendations (concrete)
+
+Use canonical scene flags under module namespace:
+
+- `flags.eidolon-utilities.criteriaConfig`
+```json
+{
+  "version": 2,
+  "migration": {
+    "from": "objectVariants|mapUiPresets",
+    "at": "2026-..."
+  },
+  "criteria": [
+    {
+      "id": "c_u9k3...",
+      "key": "mood",
+      "label": "Mood",
+      "values": ["Standard", "Night", "Dawn"],
+      "default": "Standard",
+      "order": 0
+    }
+  ],
+  "state": {
+    "mood": "Night",
+    "weather": "Fog"
+  }
+}
+```
+
+Keep compatibility:
+- old `flags.eidolon-utilities.objectVariants` remains present as mirror during transition.
+- map-ui-presets compatibility:
+  - read `flags["map-ui-presets"].criteria`, `flags["map-ui-presets"].state`, `flags["map-ui-presets"].version`
+  - normalize into canonical view and only write back to legacy map-ui namespaces when migration mode explicitly allows.
+
+Placeable parity model:
+- canonical internal expectation remains `presets: { base, rules }` at document flag for any placeable type used by rule matching.
+- on import/evaluation, accept `flags.map-ui-presets.presets` if present and convert in-memory first.
+
+---
+
+## Acceptance criteria (Definition of Done)
+- `Scene Config` shows a **single compact criteria tab** with add/edit/remove for criteria and value sets.
+- Old scenes using `objectVariants` display correctly without manual intervention.
+- Criterion state persists and can be read back for runtime state application.
+- Rule matching behavior in eidolon-side resolver matches map-ui precedence:
+  - exact criteria matching
+  - specificity-first, stable index tie-break (lower index/earlier in original -> earlier application; later wins conflicts at same specificity)
+- Old map-ui-presets scene metadata can be read with migration reporting and optional conversion.
+- Existing ambient preset category usage remains functional during transition.
+- Migration path is reversible for at least one release cycle via dual-write or backup-based fallback.
+
+## Rollout strategy (migration safety)
+1. **Beta/Report mode**
+   - collect migration report only, no writes.
+2. **Dual-write mode**
+   - canonical reads/writes plus legacy compatibility writes.
+3. **Enforce mode**
+   - canonical default, optional legacy mirror cleanup once adoption validated.
+4. **Post-launch**
+   - remove legacy shim only after telemetry/feedback confirms no read-back dependencies.
+
+If you want, I can next break this into a **file-by-file implementation task list** with exact function names/signatures and a suggested patch order.
+[2026-02-19T00:56:05] tokens used: 150,558
+---b13
+
+Using the `plan` skill to structure a phased Scene Config Criteria redesign that preserves the existing rule semantics and data paths.
+
+**Scene Config Criteria Plan**
+
+This plan lays out a practical, single-tab redesign for the Scene Config Criteria experience to replace the legacy “variants” tab while keeping the floating window workflow, compact layout, and rule model (base + ordered rules) from `map-ui-presets`.
+
+## Phase 1: Requirements & Reference Alignment
+- **Goal:** Document the current “variants” tab behavior/data and map-UI rule semantics as the foundation for the redesign.
+- **Scope:** Review `scripts/object-variants/ui/SceneConfigTab.js:27-235` plus `scripts/object-variants/core/storage.js:1-41` to catalog how the current tab renders category/value lists, launches the CategoryEditor, and persists scene flags, then compare with `map-ui-presets/src/resolver.js:11-90` and `src/state.js:6-107` for required matcher semantics.
+- **UX decisions:** Keep the idea of a compact, floating Scene Config tab; limit the scope to defining criteria dimensions and values, not a multi-tab “control center.”
+- **Technical tasks:** Capture data flow diagrams (SceneConfig tab → storage → scene flags), list the behavioral guarantees from `resolveRules` (specificity+index ordering), and note how `applyState`/`updatePlaceables` currently expect `{ base, rules }`.
+- **Risks:** Missing a subtle requirement from `map-ui-presets` (e.g., empty criteria universally matching) could break compatibility; ensure documentation explicitly calls out these semantics.
+- **Validation/test:** Peer review the documented behavior against the source files noted above; optionally include a table mapping existing flags to new terminology.
+
+## Phase 2: Criteria Data Model & Storage Migration
+- **Goal:** Define how scene criteria (the renamed “variants”) will be stored, validated, and migrated without breaking existing modules/scenes.
+- **Scope:** Design a new schema stored under `scene.flags.eidolon-utilities.criteria` (or similar) that mirrors the map module’s `{ base, rules }` expectations while also retaining the existing `objectVariants` array during a transitional period.
+- **UX decisions:** Present new terminology (e.g., “Scene Criteria Dimensions”) in the tab and keep any naming visible to users consistent with the new schema.
+- **Technical tasks:** 
+  - Propose a migration script to translate `scene.flags.eidolon-utilities.objectVariants` → `{ criteria: [...], rules: ... }`, ensuring each category becomes a dimension with values.
+  - Define flag versioning so `state.js` helpers (e.g., `setCriteria`, `getCriteria`) continue to work.
+  - Add graceful fallbacks that read legacy flags for scenes imported from `map-ui-presets` and merge them into the new criteria structure.
+- **Risks:** A migration that overwrites existing presets or loses ordering would break scenes; plan for a reversible migration stub and avoid auto-deletion until multiple validation runs pass.
+- **Validation/test:** Run the migration manually on sample scenes (legacy “variants” + criteria scenes) to confirm flags are preserved and `applyState` still resolves correctly to `resolveRules`.
+
+## Phase 3: Scene Config Tab Architecture & UX
+- **Goal:** Replace the current tab (`SceneConfigTab.js:27-235`) with a single, criteria-focused interface that balances compactness with the necessary controls to author dimensions and their values.
+- **Scope:** Build a new tab that still registers via `createSceneConfigTabFactory`, but now renders a compact criteria dashboard (summary + editable list) and surfaces the CategoryEditor-equivalent controls in-context.
+- **UX decisions:** 
+  - Use a vertical layout: top summary of “Active Criteria Dimensions,” middle grid/table listing each dimension with value chips, and bottom contextual actions (add dimension, reorder, preview).
+  - Keep controls minimal (inline edit, quick add value, toggles for “optional” vs “required”) so that the floating window stays lightweight.
+  - Avoid a full “control center”; defer to the existing floating Scene Config window for state application (the tab should author definitions, not manage live state toggles).
+- **Technical tasks:** 
+  - Draft new Handlebars template(s) that include dimension metadata (name, description, value count) and hooks for inline editing, value chips, and reorder/drop spaces.
+  - Reuse and extend `CategoryEditorApplication` logic or replace it with inline editors so editing/drilling into criteria does not require a second modal unless needed.
+  - Implement event bindings in the new tab to add/delete dimensions/values, keep `setCriteria` in sync, and show immediate feedback.
+- **Risks:** Packing too many controls may hurt compactness; ensure design prioritizes lightweight interactions (e.g., inline chips vs. a full table).
+- **Validation/test:** Prototype the tab in a development Foundry scene, confirm it renders correctly inside the floating Scene Config window (via `createSceneConfigTabFactory`), and verify event handlers persist data.
+
+## Phase 4: Integration with Rule Resolution & State Application
+- **Goal:** Connect the redesigned tab and data model to the map rule resolver so that authored criteria drive the `base + rules` matcher layer per `map-ui-presets/src/resolver.js:43-90`.
+- **Scope:** Ensure criteria definitions flow into live scene updates by leveraging the same helpers used in `map-ui-presets` (`state.js`, `placeables.js`, etc.).
+- **UX decisions:** Provide visual cues in the tab showing that every dimension contributes to the rule set applied by the resolver (e.g., annotate each rule with its specificity/ordering).
+- **Technical tasks:** 
+  - Emit structured `{ criteria, delta }` rules when persisting dimensions so downstream resolution functions can layer them.
+  - Hook the tab to `map-ui-presets` state management (e.g., use `applyState` for live updates or expose events similar to `stateApplied`).
+  - Maintain compatibility with placeable flag structure (`presets.base`, `presets.rules` from `src/placeables.js:1-40`) so modules like `eidolon-utilities` can still consume them or publish them.
+- **Risks:** Misaligned ordering (specificity vs. index) when building rule list will break the resolver’s guarantees; include sanity checks in the plan.
+- **Validation/test:** Use canned criteria definitions and verify that `resolveRules` outputs match expectations (e.g., by replaying match logic from `map-ui-presets/src/indexer.js`); assert that live updates refresh placeables.
+
+## Phase 5: Acceptance & Rollout
+- **Goal:** Define the “done” bar and rollout/migration strategy to deploy the redesign safely.
+- **Scope:** Specify acceptance criteria and rollout/migration steps so the new tab replaces the old “variants” experience without disrupting existing scenes.
+- **UX decisions:** The rollout should show the new tab to all users once migrations/settings are in place; do not hide functionality behind flags.
+- **Technical tasks:** 
+  - Prepare documentation describing the new tab, migration path, and how the criteria feed into the resolver.
+  - Add automated validation (unit tests or manual checks) for new helpers (if any) and update translation/localization strings as needed.
+- **Risks:** Surface regressions if the migration runs on already-working scenes; plan to ship with a fallback that keeps the old data intact until validation passes.
+- **Validation/test:** Final regression pass includes manually editing criteria in the Scene Config tab and confirming the new rule set drives lights/walls/sounds just like before; confirm legacy scenes still load their “variants” data via the migration layer.
+
+## Data Model & Migration Recommendations
+- Store criteria definitions under a dedicated flag (e.g., `scene.flags.eidolon-utilities.criteria`) that mirrors `map-ui-presets` (`setCriteria/getCriteria` in `src/state.js:82-107`) so downstream helpers can treat eidolon scenes as `map-ui-presets` scenes.
+- Maintain the existing `objectVariants` array (`scripts/object-variants/core/storage.js:1-41`) during migration by writing a translator that:
+  1. Converts each category → criterion with `id`, `name`, and `values`.
+  2. Derives `rules` entries (criteria + delta) to feed the resolver’s expected format (`{ base, rules }` per `src/resolver.js:43-90`).
+  3. Keeps `scene.flags.map-ui-presets` entries untouched so `map-ui-presets` consumers find their data.
+- Track schema version in scene flags (similar to `state.js:6-107`), and only mark a scene as “criteria” once migration succeeds—keep a “legacy flag read-only” path for fallback.
+
+## Scene Config UI Interaction Model
+- **Single tab layout:** top section is a scene summary (“3 dimensions defined, last updated…”), middle is a scrollable list/grid of dimensions with value chips/badges (each row shows name, optional description, actions), bottom has compact actions (Add Dimension, Bulk Import, Reset).
+- **Interaction flow:** 
+  1. Clicking “Add Dimension” inserts an inline form (name + description + value entry).
+  2. Each value chip supports inline editing/removal; empty inputs trigger contextual validation (you can’t save a dimension with zero values unless marked optional).
+  3. Drag handles or up/down buttons reorder dimensions to document intention (since rule order matters when specificity is equal).
+  4. Inline “Preview State” badge lets authors see which criteria rules are currently active (mirroring the `resolveRules` semantics from `resolver.js`).
+- **Compactness:** Keep controls to a single column; avoid modal popups unless editing a large dataset; present tooltips or microcopy that emphasize the tab’s role (criteria authoring, not runtime switching).
+- **Floating window fit:** ensure all interactions work inside Foundry’s floating Scene Config window (reuse `createSceneConfigTabFactory`), so users can leave the tab visible while working on other tabs or the map.
+
+## Acceptance Criteria
+- Scene Config tab renders a single “Criteria” tab (via `scripts/object-variants/ui/SceneConfigTab.js` equivalent) that authoritatively creates/updates criteria definitions without reverting to the old “variants” list.
+- Rule ordering, specificity, and merging behavior align with `map-ui-presets/src/resolver.js:43-90`; there is no regression in placeable updates that rely on `placeables.js:1-40`.
+- The data migration path moves existing “variant” categories (`scripts/object-variants/core/storage.js:1-41`) into the new criteria schema while keeping legacy flags readable until validation is complete.
+- UI stays compact and focused; all actions occur within the floating Scene Config tab (no extra modal unless justified), fulfilling the “low-friction criteria authoring” requirement.
+
+## Rollout Strategy
+1. Ship the new tab behind a feature flag for internal testing (optional), ensuring the old tab remains untouched until the new UX is validated.
+2. Run the migration/translator on a staging set of scenes (legacy “variant” + current criteria) and confirm they still resolve to `map-ui-presets` outputs.
+3. Once verified, flip the default to the new tab, document the migration path, and monitor for issues via QA or community beta testers (no code changes requested; just planning).
+[2026-02-19T00:55:10] tokens used: 98,006
