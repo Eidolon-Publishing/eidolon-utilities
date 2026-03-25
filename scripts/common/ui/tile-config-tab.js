@@ -1,12 +1,52 @@
 import { setActiveTab } from "./foundry-compat.js";
 import { findFooterElement } from "./scene-config-tab-factory.js";
 
+function elementDepth(element, stopAt = null) {
+	let depth = 0;
+	let current = element;
+	while (current instanceof HTMLElement && current !== stopAt) {
+		depth += 1;
+		current = current.parentElement;
+	}
+	return depth;
+}
+
+function getAppTabGroups(app) {
+	if (!Array.isArray(app?._tabs)) return new Set();
+	return new Set(app._tabs.map((tab) => tab?._group).filter((group) => typeof group === "string" && group));
+}
+
+function getElementTabGroup(element) {
+	if (!(element instanceof HTMLElement)) return null;
+	return element.dataset.group ?? element.querySelector("[data-group]")?.dataset?.group ?? null;
+}
+
+function countPanelsForGroup(root, group) {
+	if (!(root instanceof HTMLElement)) return 0;
+	const tabs = Array.from(root.querySelectorAll(".tab[data-tab]"));
+	if (!group) return tabs.length;
+	return tabs.filter((tab) => tab instanceof HTMLElement && tab.dataset.group === group).length;
+}
+
+function collectParentTabContainers(root, group = null) {
+	if (!(root instanceof HTMLElement)) return [];
+	const containers = new Map();
+	for (const tab of root.querySelectorAll(".tab[data-tab]")) {
+		if (!(tab instanceof HTMLElement)) continue;
+		if (group && tab.dataset.group !== group) continue;
+		const parent = tab.parentElement;
+		if (!(parent instanceof HTMLElement)) continue;
+		containers.set(parent, (containers.get(parent) ?? 0) + 1);
+	}
+	return Array.from(containers.entries()).map(([element, tabCount]) => ({ element, tabCount }));
+}
+
 /**
  * Find the tab navigation bar inside a TileConfig root element.
  * @param {HTMLElement} root
  * @returns {HTMLElement|null}
  */
-export function findTabNav(root) {
+export function findTabNav(root, app = null) {
 	if (!(root instanceof HTMLElement)) return null;
 
 	const selectors = [
@@ -16,12 +56,33 @@ export function findTabNav(root) {
 		"nav.tabs"
 	];
 
+	const candidates = [];
 	for (const selector of selectors) {
-		const nav = root.querySelector(selector);
-		if (nav instanceof HTMLElement) return nav;
+		for (const nav of root.querySelectorAll(selector)) {
+			if (!(nav instanceof HTMLElement) || candidates.includes(nav)) continue;
+			candidates.push(nav);
+		}
 	}
 
-	return null;
+	if (!candidates.length) return null;
+
+	const appGroups = getAppTabGroups(app);
+	const ranked = candidates.map((nav) => {
+		const group = getElementTabGroup(nav);
+		const panelCount = countPanelsForGroup(root, group);
+		const depth = elementDepth(nav, root);
+		const groupBonus = group && appGroups.has(group) ? 100 : 0;
+		return {
+			nav,
+			group,
+			panelCount,
+			depth,
+			score: groupBonus + panelCount * 10 - depth
+		};
+	});
+
+	ranked.sort((left, right) => right.score - left.score || left.depth - right.depth);
+	return ranked[0]?.nav ?? null;
 }
 
 /**
@@ -32,11 +93,25 @@ export function findTabNav(root) {
  */
 export function findTabBody(root, nav) {
 	if (!(root instanceof HTMLElement)) return null;
+	const group = getElementTabGroup(nav);
+
+	const scopedCandidates = [];
+	if (nav?.parentElement instanceof HTMLElement) {
+		const parent = nav.parentElement;
+		scopedCandidates.push(parent.querySelector(":scope > .sheet-body"));
+		scopedCandidates.push(parent.querySelector(":scope > .window-content"));
+	}
+
+	const groupedContainers = collectParentTabContainers(root, group)
+		.sort((left, right) => right.tabCount - left.tabCount || elementDepth(left.element, root) - elementDepth(right.element, root))
+		.map((entry) => entry.element);
 
 	const candidates = [
-		root.querySelector(".tab[data-tab]")?.parentElement,
-		root.querySelector(".sheet-body"),
 		nav?.parentElement?.querySelector?.(":scope > .sheet-body"),
+		...scopedCandidates,
+		...groupedContainers,
+		root.querySelector(".sheet-body"),
+		root.querySelector(".tab[data-tab]")?.parentElement,
 		nav?.parentElement
 	];
 
@@ -176,7 +251,7 @@ export function syncTabVisibility(app, group, tabId, button, panel) {
  * @returns {HTMLElement|null}  The tab panel element, or null if injection failed
  */
 export function ensureTileConfigTab(app, root, tabId, label, iconClass) {
-	const nav = findTabNav(root);
+	const nav = findTabNav(root, app);
 	const body = findTabBody(root, nav);
 	if (!(nav instanceof HTMLElement) || !(body instanceof HTMLElement)) return null;
 
@@ -239,4 +314,3 @@ function fitNavWidth(app, nav) {
 		app.setPosition({ width: currentWidth + overflow + 16 });
 	});
 }
-

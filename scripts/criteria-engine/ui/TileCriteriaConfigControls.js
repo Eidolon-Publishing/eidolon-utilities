@@ -20,6 +20,7 @@ import {
 const WILDCARD_VALUE = "__eidolon_any__";
 const TILE_TAB_ID = "eidolon-tile-criteria";
 const TILE_TAB_ICON = "fa-solid fa-sliders";
+const MATT_MODULE_ID = "monks-active-tiles";
 const UI_STATE_KEY = Symbol.for("eidolon.tileCriteriaUiState");
 const ENTRY_FILTER_MODES = ["all", "unmapped", "mapped", "conflicts"];
 
@@ -1222,6 +1223,15 @@ function resolveTileConfigRoot(app, html) {
   return candidates.find((candidate) => candidate instanceof HTMLElement) ?? null;
 }
 
+function isMattActive() {
+  return game.modules.get(MATT_MODULE_ID)?.active === true;
+}
+
+function removeInjectedTileCriteria(root) {
+  root.querySelectorAll(".eidolon-tile-criteria").forEach((node) => node.remove());
+  root.querySelectorAll(`[data-tab='${TILE_TAB_ID}']`).forEach((node) => node.remove());
+}
+
 export function registerTileCriteriaConfigControls() {
   Hooks.on("renderTileConfig", (app, html) => {
     const root = resolveTileConfigRoot(app, html);
@@ -1230,7 +1240,11 @@ export function registerTileCriteriaConfigControls() {
     const tile = getTileDocument(app);
     if (!tile) return;
 
-    root.querySelectorAll(".eidolon-tile-criteria").forEach((node) => node.remove());
+    removeInjectedTileCriteria(root);
+
+    if (!isMattActive()) {
+      return;
+    }
 
     if (!getCriteriaSurfacesEnabled()) {
       root.querySelector(`.item[data-tab='${TILE_TAB_ID}']`)?.remove();
@@ -1247,18 +1261,8 @@ export function registerTileCriteriaConfigControls() {
       return;
     }
 
-    const form = app?.form instanceof HTMLFormElement
-      ? app.form
-      : root instanceof HTMLFormElement
-        ? root
-        : root.querySelector("form");
-    if (!(form instanceof HTMLFormElement)) return;
-
-    const submitButton = form.querySelector("button[type='submit']");
-    if (submitButton?.parentElement) {
-      submitButton.parentElement.insertAdjacentElement("beforebegin", controller.section);
-    } else {
-      form.appendChild(controller.section);
-    }
+    console.warn("eidolon-utilities | TileCriteria skipped unsafe fallback mount", {
+      tileId: tile.id ?? null
+    });
   });
 }
