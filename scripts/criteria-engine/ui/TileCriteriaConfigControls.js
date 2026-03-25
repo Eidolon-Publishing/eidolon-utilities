@@ -1211,15 +1211,26 @@ function ensureTileCriteriaTab(app, root) {
   );
 }
 
+function resolveTileConfigRoot(app, html) {
+  const candidates = [
+    asHTMLElement(app?.element),
+    app?.element?.[0] instanceof HTMLElement ? app.element[0] : null,
+    app?.form instanceof HTMLFormElement ? app.form : null,
+    asHTMLElement(html)
+  ];
+
+  return candidates.find((candidate) => candidate instanceof HTMLElement) ?? null;
+}
+
 export function registerTileCriteriaConfigControls() {
   Hooks.on("renderTileConfig", (app, html) => {
-    const root = asHTMLElement(html);
+    const root = resolveTileConfigRoot(app, html);
     if (!root) return;
 
     const tile = getTileDocument(app);
     if (!tile) return;
 
-    root.querySelector(".eidolon-tile-criteria")?.remove();
+    root.querySelectorAll(".eidolon-tile-criteria").forEach((node) => node.remove());
 
     if (!getCriteriaSurfacesEnabled()) {
       root.querySelector(`.item[data-tab='${TILE_TAB_ID}']`)?.remove();
