@@ -467,7 +467,7 @@ function enhanceAmbientLightConfig(app, root) {
   const refreshMappingSelector = (preferredSelection = stateEntry.selectedMapping) => {
     const filters = readMappingFilterSelections(filterGrid);
     const allMappings = Array.isArray(currentState?.mappings) ? currentState.mappings : [];
-    const filteredMappings = filterMappingsByCriteria(allMappings, filters);
+    const filteredMappings = filterMappingsByCriteria(allMappings, filters, categoryNameLookup);
     const activeFilterCount = Object.keys(filters).length;
 
     stateEntry.mappingFilters = filters;
@@ -582,6 +582,7 @@ function enhanceAmbientLightConfig(app, root) {
       }
       hideCreationSection(fieldset, creationSection, createButton);
       applyConfigToForm(app, form, currentState.base);
+      await applyFormlessProperties(persistedLight ?? ambientLight, currentState.base);
       currentState = await storeCurrentCriteriaSelection(persistedLight ?? ambientLight, {
         mappingId: BASE_SELECT_VALUE,
         categories: null,
@@ -627,6 +628,7 @@ function enhanceAmbientLightConfig(app, root) {
 
     hideCreationSection(fieldset, creationSection, createButton);
     applyConfigToForm(app, form, mapping.config);
+    await applyFormlessProperties(persistedLight ?? ambientLight, mapping.config);
     currentState = await storeCurrentCriteriaSelection(persistedLight ?? ambientLight, {
       mappingId: mapping.id,
       categories: mapping.categories,
@@ -1392,7 +1394,9 @@ function captureAmbientLightFormConfig(app, persistedDocument) {
     throw new Error("Unable to duplicate ambient light data.");
   }
 
-  const form = app?.form instanceof HTMLFormElement ? app.form : null;
+  const form = app?.form instanceof HTMLFormElement ? app.form
+    : app?.element instanceof HTMLFormElement ? app.element
+    : null;
   const expanded = form ? readFormData(form) : {};
 
   const merged = foundry.utils.mergeObject(base, expanded, {
@@ -1440,6 +1444,31 @@ function captureAmbientLightFormConfig(app, persistedDocument) {
         chosenValue
       });
     });
+
+    // Capture plain input/select/textarea values directly from the DOM,
+    // since FormDataExtended in V12 may return persisted document values
+    // rather than the current DOM state for unsaved form fields.
+    form.querySelectorAll("input[name], select[name], textarea[name]").forEach((el) => {
+      // Skip inputs already handled by custom element loops above
+      const parent = el.parentElement;
+      if (parent?.tagName === "COLOR-PICKER" || parent?.tagName === "RANGE-PICKER") return;
+      const path = el.getAttribute("name");
+      if (!path) return;
+      if (el instanceof HTMLInputElement) {
+        if (el.type === "checkbox") {
+          foundry.utils.setProperty(merged, path, el.checked);
+        } else if (el.type === "number" || el.type === "range") {
+          const numeric = Number(el.value);
+          if (Number.isFinite(numeric)) {
+            foundry.utils.setProperty(merged, path, numeric);
+          }
+        } else {
+          foundry.utils.setProperty(merged, path, el.value);
+        }
+      } else if (el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) {
+        foundry.utils.setProperty(merged, path, el.value);
+      }
+    });
   }
 
   const sanitized = sanitizeLightConfigPayload(merged);
@@ -1449,6 +1478,22 @@ function captureAmbientLightFormConfig(app, persistedDocument) {
     color: sanitized?.config?.color ?? null
   });
   return sanitized;
+}
+
+/**
+ * Directly update document properties that have no corresponding form element
+ * (e.g. `hidden` in Foundry V12 light sheets).
+ */
+async function applyFormlessProperties(light, config) {
+  if (!light?.update || !config || typeof config !== "object") return;
+  const updates = {};
+  if ("hidden" in config && light.hidden !== config.hidden) {
+    updates.hidden = config.hidden;
+  }
+  if (Object.keys(updates).length > 0) {
+    debugLog("LightCriteria | Applying formless properties directly", updates);
+    await light.update(updates);
+  }
 }
 
 function applyConfigToForm(app, form, config) {
@@ -1727,19 +1772,30 @@ function resetMappingFilterSelections(container) {
   });
 }
 
-function filterMappingsByCriteria(mappings, filters) {
+function filterMappingsByCriteria(mappings, filters, knownCategoryKeys) {
   const source = Array.isArray(mappings) ? mappings : [];
   const entries = Object.entries(filters ?? {}).filter(([, value]) => Boolean(value));
   if (!entries.length) return source.slice();
 
   return source.filter((mapping) => {
     if (!mapping || typeof mapping !== "object") return false;
+    // Stale mappings always pass — they reference criteria the filter UI can't cover
+    if (knownCategoryKeys && isStaleMappingForScene(mapping, knownCategoryKeys)) return true;
     const categories = mapping.categories ?? {};
     for (const [categoryId, expected] of entries) {
       if (categories?.[categoryId] !== expected) return false;
     }
     return true;
   });
+}
+
+function isStaleMappingForScene(mapping, knownCategoryKeys) {
+  const categories = mapping?.categories;
+  if (!categories || typeof categories !== "object") return false;
+  for (const key of Object.keys(categories)) {
+    if (!knownCategoryKeys.has(key)) return true;
+  }
+  return false;
 }
 
 function updateMappingFilterMeta(
@@ -1812,7 +1868,14 @@ function populateMappingSelector(select, state, categoryNameLookup, selectedValu
       if (!mapping?.id) return;
       const option = document.createElement("option");
       option.value = mapping.id;
-      option.textContent = formatMappingOptionLabel(mapping, categoryNameLookup, categoryOrder);
+      const label = formatMappingOptionLabel(mapping, categoryNameLookup, categoryOrder);
+      if (isStaleMappingForScene(mapping, categoryNameLookup)) {
+        option.textContent = `\u26A0 ${label}`;
+        option.style.fontStyle = "italic";
+        option.dataset.stale = "true";
+      } else {
+        option.textContent = label;
+      }
       select.appendChild(option);
     });
 

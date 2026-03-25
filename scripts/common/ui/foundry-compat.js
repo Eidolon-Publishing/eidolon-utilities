@@ -124,7 +124,7 @@ export function readFormData(form) {
   const FormDataExtendedClass =
     foundry?.applications?.ux?.FormDataExtended ??
     globalThis.FormDataExtended ??
-    null;
+    (typeof FormDataExtended !== "undefined" ? FormDataExtended : null);
 
   if (!FormDataExtendedClass) return {};
 
