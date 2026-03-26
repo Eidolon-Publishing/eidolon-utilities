@@ -497,6 +497,14 @@ export function rebuild() {
 }
 
 /**
+ * Public alias for rebuilding tile/drawing interactions after macros or tools
+ * create, delete, or substantially retag placeables on the current canvas.
+ */
+export function refreshInteractions() {
+	rebuild();
+}
+
+/**
  * Re-read a tile's flag and update/remove from watched set.
  * Called on updateTile.
  */

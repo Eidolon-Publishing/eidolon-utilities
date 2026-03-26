@@ -31,6 +31,8 @@ import "../scripts/idle-animations/index.js";
 import "../scripts/tile-interactions/index.js";
 // Door links - standalone, hooks into wall config and door state changes
 import "../scripts/door-links/index.js";
+// Token occluders - wall-authored token-only visibility blockers
+import "../scripts/token-occluders/index.js";
 // Scene links - standalone, hooks into scene config for cross-scene navigation
 import "../scripts/scene-links/index.js";
 // Region shapes - standalone, drag & drop shapes between RegionConfig windows

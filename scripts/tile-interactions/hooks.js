@@ -1,4 +1,11 @@
-import { rebuild, updateTile, removeTile, updateDrawing, removeDrawing } from "./interaction-manager.js";
+import {
+	rebuild,
+	refreshInteractions,
+	updateTile,
+	removeTile,
+	updateDrawing,
+	removeDrawing,
+} from "./interaction-manager.js";
 import { renderAnimationSection } from "./ui/tile-interaction-section.js";
 import { stopAllLoops, stopLoopsForTile } from "../idle-animations/loop-runner.js";
 
@@ -36,6 +43,10 @@ function onUpdateTile(doc, changes) {
 	updateTile(doc);
 }
 
+function onCreateTile(doc) {
+	updateTile(doc);
+}
+
 function onDeleteTile(doc) {
 	stopLoopsForTile(doc.id);
 	removeTile(doc);
@@ -57,6 +68,10 @@ function onUpdateDrawing(doc, changes) {
 	updateDrawing(doc);
 }
 
+function onCreateDrawing(doc) {
+	updateDrawing(doc);
+}
+
 function onDeleteDrawing(doc) {
 	removeDrawing(doc);
 }
@@ -70,10 +85,25 @@ function onRenderDrawingConfig(app, html) {
 export function registerTileInteractionHooks() {
 	Hooks.on("canvasTearDown", onCanvasTearDown);
 	Hooks.on("canvasReady", onCanvasReady);
+	Hooks.on("createTile", onCreateTile);
 	Hooks.on("updateTile", onUpdateTile);
 	Hooks.on("deleteTile", onDeleteTile);
 	Hooks.on("renderTileConfig", onRenderTileConfig);
+	Hooks.on("createDrawing", onCreateDrawing);
 	Hooks.on("updateDrawing", onUpdateDrawing);
 	Hooks.on("deleteDrawing", onDeleteDrawing);
 	Hooks.on("renderDrawingConfig", onRenderDrawingConfig);
+
+	Hooks.once("ready", () => {
+		const mod = game.modules.get(MODULE_ID);
+		if (!mod) return;
+		if (!mod.api) mod.api = {};
+
+		mod.api.tileInteractions = {
+			rebuild,
+			refresh: refreshInteractions,
+		};
+
+		console.log(`[${MODULE_ID}] Tile Interactions API registered.`);
+	});
 }
